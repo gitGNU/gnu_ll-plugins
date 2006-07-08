@@ -13,6 +13,11 @@ namespace PAQ {
   }
 
 
+  std::string rdfs(const std::string& str) {
+    return std::string("<http://www.w3.org/2000/01/rdf-schema#") + 
+      str + '>';
+  }
+
   std::string doap(const std::string& str) {
     return std::string("<http://usefulinc.com/ns/doap#") + str + '>';
   }

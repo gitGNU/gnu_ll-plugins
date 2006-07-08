@@ -1,5 +1,6 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.4
+PACKAGE_VERSION = 0.1.5
+PKG_DEPS = jack>=0.102.6 liblo>=0.22
 
 
 ARCHIVES = liblv2_plugin.a libpaq.a
@@ -19,13 +20,17 @@ libpaq_a_SOURCES = \
 libpaq_a_SOURCEDIR = libraries/paq
 
 
-PROGRAMS = lv2peg
+PROGRAMS = lv2peg lv2host
 
 lv2peg_SOURCES = lv2peg.cpp
 lv2peg_CFLAGS = -Ilibraries/paq
 lv2peg_LDFLAGS = libpaq.a
 lv2peg_SOURCEDIR = programs/lv2peg
 
+lv2host_SOURCES = lv2host.hpp lv2host.cpp main.cpp
+lv2host_CFLAGS = `pkg-config --cflags jack liblo` -Iextensions/miditype -Iextensions/instrument -Ilibraries/paq
+lv2host_LDFLAGS = `pkg-config --libs jack liblo` libpaq.a
+lv2host_SOURCEDIR = programs/lv2host
 
 LV2_PLUGINS = sineshaper.lv2 control2midi.lv2 midi_identity.lv2 arpeggiator.lv2
 
