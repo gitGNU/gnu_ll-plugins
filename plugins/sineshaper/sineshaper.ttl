@@ -1,0 +1,391 @@
+@prefix lv2:  <http://lv2plug.in/ontology#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix doap: <http://usefulinc.com/ns/doap#>.
+@prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
+
+<http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0>
+  a lv2:Plugin;
+  doap:name "Sineshaper";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+
+  lv2:port [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 0;
+    lv2:symbol "tun";
+    lv2:name "Tune";
+    lv2:default 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 16;
+    ];
+  ],
+  
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 1;
+    lv2:symbol "oct";
+    lv2:name "Octave";
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 17;
+    ];
+  ],
+  
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 2;
+    lv2:symbol "sub_tun";
+    lv2:name "Sub oscillator tune";
+    lv2:default 0.94;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 18;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 3;
+    lv2:symbol "sub_oct";
+    lv2:name "Sub oscillator octave";
+    lv2:default -5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 19;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 4;
+    lv2:symbol "osc_mix";
+    lv2:name "Oscillator mix";
+    lv2:default 0.13;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 95;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 5;
+    lv2:symbol "prt_on";
+    lv2:name "Portamento on";
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 65;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 6;
+    lv2:symbol "prt_tim";
+    lv2:name "Portamento time";
+    lv2:default 0.06;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 5;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 7;
+    lv2:symbol "prt_tie";
+    lv2:name "Tie overlapping notes";
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 68;
+    ];
+  ],
+  
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 8;
+    lv2:symbol "vib_frq";
+    lv2:name "Vibrato frequency";
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 2;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 9;
+    lv2:symbol "vib_dpt";
+    lv2:name "Vibrato depth";
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 10;
+    lv2:symbol "trm_frq";
+    lv2:name "Tremolo frequency";
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 75;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 11;
+    lv2:symbol "trm_dpt";
+    lv2:name "Tremolo depth";
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 92;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 12;
+    lv2:symbol "shp_env";
+    lv2:name "Shaper envelope sensitivity";
+    lv2:default 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 71;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 13;
+    lv2:symbol "shp_tot";
+    lv2:name "Shape amount";
+    lv2:default 3.54331;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 74;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 14;
+    lv2:symbol "shp_spl";
+    lv2:name "Shape split";
+    lv2:default 0.305;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 70;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 15;
+    lv2:symbol "shp_shf";
+    lv2:name "Shape shift";
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 76;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 16;
+    lv2:symbol "lfo_frq";
+    lv2:name "Shaper LFO frequency";
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 77;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 17;
+    lv2:symbol "lfo_dpt";
+    lv2:name "Shaper LFO depth";
+    lv2:default 0.005;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 78;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 18;
+    lv2:symbol "att";
+    lv2:name "Attack";
+    lv2:default 0.0005;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 73;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 19;
+    lv2:symbol "dec";
+    lv2:name "Decay";
+    lv2:default 0.40035;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 4;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 20;
+    lv2:symbol "sus";
+    lv2:name "Sustain";
+    lv2:default 0.0;
+    lv2:default 0.125;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 79;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 21;
+    lv2:symbol "rel";
+    lv2:name "Release";
+    lv2:default 0.84036;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 72;
+    ];
+  ],
+  
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 22;
+    lv2:symbol "amp_env";
+    lv2:name "Amp envelope sensitivity";
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 93;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 23;
+    lv2:symbol "drive";
+    lv2:name "Drive";
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 94;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 24;
+    lv2:symbol "gain";
+    lv2:name "Gain";
+    lv2:default 0.74;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 7;
+    ];
+  ],
+  
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 25;
+    lv2:symbol "del_tim";
+    lv2:name "Delay time";
+    lv2:default 0.3;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 12;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 26;
+    lv2:symbol "del_fb";
+    lv2:name "Delay feedback";
+    lv2:default 0.185;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 13;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 27;
+    lv2:symbol "del_mix";
+    lv2:name "Delay mix";
+    lv2:default 0.345;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 91;
+    ];
+  ],
+  
+  [
+    a lv2:AudioRateOutputPort;
+    lv2:datatype lv2:float;
+    lv2:index 28;
+    lv2:symbol "out";
+    lv2:name "Output";
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype <http://ll-plugins.nongnu.org/lv2/namespace#miditype>;
+    lv2:index 29;
+    lv2:symbol "midi";
+    lv2:name "MIDI input";
+  ].
+

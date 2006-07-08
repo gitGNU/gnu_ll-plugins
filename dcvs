@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+
+$is_commit = 0;
+foreach (@ARGV) {
+  if ($_ eq 'ci' || $_ eq 'commit') {
+    $is_commit = 1;
+    last;
+  }
+}
+if ($is_commit == 0) {
+  print "This is not a CVS commit!\n";
+  exit;
+}
+
+system 'cp Makefile Makefile.bak';
+open MAKEFILE_BAK, "<Makefile.bak";
+open MAKEFILE, ">Makefile";
+while (<MAKEFILE_BAK>) {
+  if (/PACKAGE_VERSION\ =\ ([0-9]+)\.([0-9]+)\.(-?[0-9]+)/) {
+    $old_version = "$1.$2.$3";
+    $new_version = "$1.$2." . ($3 + 1);
+    print MAKEFILE "PACKAGE_VERSION = $new_version\n";
+    print "Updating version to $new_version\n";
+  }
+  else {
+    print MAKEFILE $_;
+  }
+}
+close MAKEFILE_BAK;
+close MAKEFILE;
+
+
+if (system('cvs', @ARGV) != 0) {
+  system 'cp Makefile.bak Makefile';
+}
+
+

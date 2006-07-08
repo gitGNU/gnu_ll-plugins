@@ -1,0 +1,52 @@
+@prefix lv2:  <http://lv2plug.in/ontology#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix doap: <http://usefulinc.com/ns/doap#>.
+
+<http://ll-plugins.nongnu.org/lv2/dev/arpeggiator/0.0.0>
+  a lv2:Plugin;
+  doap:name "Arpeggiator";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+
+  lv2:port [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 0;
+    lv2:symbol "notes_per_beat";
+    lv2:name "Notes per beat";
+    lv2:default 4;
+  ],
+  
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 1;
+    lv2:symbol "pattern_length";
+    lv2:name "Pattern length";
+    lv2:default 4;
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 2;
+    lv2:symbol "direction";
+    lv2:name "Direction";
+    lv2:default 1;
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype <http://ll-plugins.nongnu.org/lv2/namespace#miditype>;
+    lv2:index 3;
+    lv2:symbol "input";
+    lv2:name "MIDI input";
+  ],
+
+  [
+    a lv2:ControlRateOutputPort;
+    lv2:datatype <http://ll-plugins.nongnu.org/lv2/namespace#miditype>;
+    lv2:index 4;
+    lv2:symbol "output";
+    lv2:name "MIDI output";
+  ].
+
