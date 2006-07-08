@@ -1,5 +1,5 @@
-PACKAGE_NAME = ll-lv2
-PACKAGE_VERSION = 0.1.3
+PACKAGE_NAME = ll-plugins
+PACKAGE_VERSION = 0.1.4
 
 
 ARCHIVES = liblv2_plugin.a libpaq.a
