@@ -62,11 +62,8 @@ namespace LV2SupportFunctions {
 extern "C" {
   const LV2_Descriptor* lv2_descriptor(unsigned long index) {
     using namespace LV2SupportFunctions;
-    if (index < get_lv2_descriptors().size()) {
-      cerr<<"returning descriptor for "
-          <<get_lv2_descriptors()[index].first.URI<<endl;
+    if (index < get_lv2_descriptors().size())
       return &get_lv2_descriptors()[index].first;
-    }
     return NULL;
   }
 }
