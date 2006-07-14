@@ -56,6 +56,7 @@ public:
   const std::vector<int>& get_midi_map() const;
   
   const std::string& get_gui_path() const;
+  const std::string& get_bundle_dir() const;
   
 protected:
   
@@ -72,6 +73,7 @@ protected:
   std::vector<int> m_midimap;
   long m_default_midi_port;
   std::string m_standalonegui;
+  std::string m_bundledir;
 };
 
 

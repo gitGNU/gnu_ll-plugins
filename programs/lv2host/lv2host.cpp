@@ -278,6 +278,8 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     qr = q0.run(data);
     if (qr.size() > 0)
       m_standalonegui = absolutise(qr[0][gui_path]->name, plugindir);
+    
+    m_bundledir = plugindir;
   }
   
   // if we got this far the data is OK. time to get the descriptor
@@ -429,6 +431,11 @@ const std::vector<int>& LV2Host::get_midi_map() const {
 
 const std::string& LV2Host::get_gui_path() const {
   return m_standalonegui;
+}
+
+
+const std::string& LV2Host::get_bundle_dir() const {
+  return m_bundledir;
 }
 
 

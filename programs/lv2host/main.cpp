@@ -242,7 +242,8 @@ int main(int argc, char** argv) {
     if (gui.size()) {
       if (!(gui_pid = fork())) {
         execl(gui.c_str(), gui.c_str(), lo_server_thread_get_url(osc_server),
-              "foo.so", "Foo plugin", "User friendly identifier!", 0);
+              lv2h.get_bundle_dir().c_str(), argv[1], 
+              "User friendly identifier!", 0);
         cerr<<"Could not execute "<<gui<<endl;
         exit(-1);
       }
