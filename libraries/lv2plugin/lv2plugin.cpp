@@ -19,7 +19,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 01222-1307  USA
 
 ****************************************************************************/
-
+#include <iostream>
 #include "lv2plugin.hpp"
 
 
@@ -62,8 +62,11 @@ namespace LV2SupportFunctions {
 extern "C" {
   const LV2_Descriptor* lv2_descriptor(unsigned long index) {
     using namespace LV2SupportFunctions;
-    if (index < get_lv2_descriptors().size())
+    if (index < get_lv2_descriptors().size()) {
+      cerr<<"returning descriptor for "
+          <<get_lv2_descriptors()[index].first.URI<<endl;
       return &get_lv2_descriptors()[index].first;
+    }
     return NULL;
   }
 }

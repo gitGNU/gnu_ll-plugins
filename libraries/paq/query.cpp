@@ -471,7 +471,7 @@ namespace PAQ {
       
       if (b1 != NULL_NODE)
         mapping[b1] = NULL_NODE;
-      if (b1 != NULL_NODE)
+      if (b2 != NULL_NODE)
         mapping[b2] = NULL_NODE;
       if (b3 != NULL_NODE)
         mapping[b3] = NULL_NODE;

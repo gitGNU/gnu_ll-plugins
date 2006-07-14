@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.7
+PACKAGE_VERSION = 0.1.8
 PKG_DEPS = jack>=0.102.6 liblo>=0.22
 
 
@@ -32,7 +32,7 @@ lv2host_CFLAGS = `pkg-config --cflags jack liblo` -Iextensions/miditype -Iextens
 lv2host_LDFLAGS = `pkg-config --libs jack liblo` libpaq.a
 lv2host_SOURCEDIR = programs/lv2host
 
-LV2_PLUGINS = sineshaper.lv2 control2midi.lv2 midi_identity.lv2 arpeggiator.lv2
+LV2_PLUGINS = sineshaper.lv2 control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2
 
 # Control2MIDI
 control2midi_lv2_SOURCES = control2midi.cpp
@@ -64,6 +64,21 @@ arpeggiator_lv2_TURTLE = manifest.ttl arpeggiator.ttl
 arpeggiator_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype
 arpeggiator_lv2_LDFLAGS = liblv2_plugin.a
 arpeggiator_lv2_SOURCEDIR = plugins/arpeggiator
+
+# Math constants
+math-constants_lv2_SOURCES = math-constants.cpp
+math-constants_lv2_TURTLE = manifest.ttl math-constants.ttl
+math-constants_lv2_CFLAGS = -Ilibraries/lv2plugin
+math-constants_lv2_LDFLAGS = liblv2_plugin.a
+math-constants_lv2_SOURCEDIR = plugins/math-constants
+
+# Math functions
+math-functions_lv2_SOURCES = math-functions.cpp
+math-functions_lv2_TURTLE = manifest.ttl math-functions.ttl
+math-functions_lv2_CFLAGS = -Ilibraries/lv2plugin
+math-functions_lv2_LDFLAGS = liblv2_plugin.a
+math-functions_lv2_SOURCEDIR = plugins/math-functions
+
 
 
 # The shared headers need to go in the distribution too

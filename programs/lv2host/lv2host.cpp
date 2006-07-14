@@ -226,6 +226,8 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     
     // check range sanity
     for (unsigned long i = 0; i < m_ports.size(); ++i) {
+      if (m_ports[i].direction == OutputPort)
+        continue;
       if (m_ports[i].min_value > m_ports[i].default_value)
         m_ports[i].min_value = m_ports[i].default_value;
       if (m_ports[i].max_value < m_ports[i].default_value)
@@ -235,7 +237,6 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
       cerr<<"range for port "<<i<<": "
           <<m_ports[i].min_value<<" - "<<m_ports[i].max_value<<endl;
     }
-      
     
     // MIDI controller bindings
     Variable controller, cc_number;

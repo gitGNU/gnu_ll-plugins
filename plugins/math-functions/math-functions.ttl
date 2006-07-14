@@ -1,0 +1,205 @@
+@prefix lv2:  <http://lv2plug.in/ontology#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix doap: <http://usefulinc.com/ns/doap#>.
+
+
+
+_:audioInputPort0
+    a lv2:AudioRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 0;
+    lv2:symbol "input";
+    lv2:name "Input".
+
+_:audioInputPortX
+    a lv2:AudioRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 0;
+    lv2:symbol "x";
+    lv2:name "x".
+
+_:audioInputPortY
+    a lv2:AudioRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 1;
+    lv2:symbol "y";
+    lv2:name "y".
+
+_:audioOutputPort1
+    a lv2:AudioRateOutputPort;
+    lv2:datatype lv2:float;
+    lv2:index 1;
+    lv2:symbol "output";
+    lv2:name "Output".
+
+_:audioOutputPort2
+    a lv2:AudioRateOutputPort;
+    lv2:datatype lv2:float;
+    lv2:index 2;
+    lv2:symbol "output";
+    lv2:name "Output".
+  
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-acos/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function acos";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPort0;
+  lv2:port _:audioOutputPort1.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-asin/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function asin";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPort0;
+  lv2:port _:audioOutputPort1.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-atan/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function atan";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPortX;
+  lv2:port _:audioInputPortY;
+  lv2:port _:audioOutputPort2.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-atan2/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function atan2(x,y)";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPortX;
+  lv2:port _:audioInputPortY;
+  lv2:port _:audioOutputPort2.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-ceil/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function ceil";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPort0;
+  lv2:port _:audioOutputPort1.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-cos/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function cos";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPort0;
+  lv2:port _:audioOutputPort1.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-cosh/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function cosh";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPort0;
+  lv2:port _:audioOutputPort1.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-exp/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function exp";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPort0;
+  lv2:port _:audioOutputPort1.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-abs/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function abs";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPort0;
+  lv2:port _:audioOutputPort1.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-floor/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function floor";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPort0;
+  lv2:port _:audioOutputPort1.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-fmod/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function fmod(x,y)";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPortX;
+  lv2:port _:audioInputPortY;
+  lv2:port _:audioOutputPort2.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-log/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function log";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPort0;
+  lv2:port _:audioOutputPort1.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-log10/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function log10";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPort0;
+  lv2:port _:audioOutputPort1.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-modf/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function modf";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port [
+    a lv2:AudioRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 0;
+    lv2:symbol "input";
+    lv2:name "Input";
+  ],
+  [
+    a lv2:AudioRateOutputPort;
+    lv2:datatype lv2:float;
+    lv2:index 1;
+    lv2:symbol "integer";
+    lv2:name "Integer";
+  ],
+  [
+    a lv2:AudioRateOutputPort;
+    lv2:datatype lv2:float;
+    lv2:index 2;
+    lv2:symbol "fraction";
+    lv2:name "Fraction";
+  ].
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-pow/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function pow(x,y)";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPortX;
+  lv2:port _:audioInputPortY;
+  lv2:port _:audioOutputPort2.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-sin/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function sin";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPort0;
+  lv2:port _:audioOutputPort1.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-sinh/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function sinh";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPort0;
+  lv2:port _:audioOutputPort1.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-sqrt/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function sqrt";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPort0;
+  lv2:port _:audioOutputPort1.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-tan/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function tan";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPort0;
+  lv2:port _:audioOutputPort1.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-tanh/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function tanh";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:audioInputPort0;
+  lv2:port _:audioOutputPort1.
+

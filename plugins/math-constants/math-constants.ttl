@@ -1,0 +1,91 @@
+@prefix lv2:  <http://lv2plug.in/ontology#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix doap: <http://usefulinc.com/ns/doap#>.
+
+# This is used for all plugins
+_:controlOutputPort
+    a lv2:ControlRateOutputPort;
+    lv2:datatype lv2:float;
+    lv2:index 0;
+    lv2:symbol "output";
+    lv2:name "Output".
+  
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-constant-e/0.0.0>
+  a lv2:Plugin;
+  doap:name "Constant e";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:controlOutputPort.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-constant-log2e/0.0.0>
+  a lv2:Plugin;
+  doap:name "Constant log2(e)";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:controlOutputPort.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-constant-log10e/0.0.0>
+  a lv2:Plugin;
+  doap:name "Constant log10(e)";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:controlOutputPort.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-constant-ln2/0.0.0>
+  a lv2:Plugin;
+  doap:name "Constant ln(2)";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:controlOutputPort.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-constant-ln10/0.0.0>
+  a lv2:Plugin;
+  doap:name "Constant ln(10)";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:controlOutputPort.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-constant-pi/0.0.0>
+  a lv2:Plugin;
+  doap:name "Constant pi";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:controlOutputPort.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-constant-pi_2/0.0.0>
+  a lv2:Plugin;
+  doap:name "Constant pi/2";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:controlOutputPort.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-constant-pi_4/0.0.0>
+  a lv2:Plugin;
+  doap:name "Constant pi/4";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:controlOutputPort.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-constant-1_pi/0.0.0>
+  a lv2:Plugin;
+  doap:name "Constant 1/pi";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:controlOutputPort.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-constant-2_pi/0.0.0>
+  a lv2:Plugin;
+  doap:name "Constant 2/pi";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:controlOutputPort.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-constant-2_sqrtpi/0.0.0>
+  a lv2:Plugin;
+  doap:name "Constant 2/sqrt(pi)";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:controlOutputPort.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-constant-sqrt2/0.0.0>
+  a lv2:Plugin;
+  doap:name "Constant sqrt(2)";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:controlOutputPort.
+
+<http://ll-plugins.nongnu.org/lv2/dev/math-constant-sqrt1_2/0.0.0>
+  a lv2:Plugin;
+  doap:name "Constant sqrt(1/2)";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:controlOutputPort.
+
