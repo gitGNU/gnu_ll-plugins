@@ -270,8 +270,15 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
         }
       }
     }
+    
+    // standalone GUI path
+    Variable gui_path;
+    Query q0 = select(gui_path)
+      .where(uriref, ll("standaloneGui"), gui_path);
+    qr = q0.run(data);
+    if (qr.size() > 0)
+      m_standalonegui = absolutise(qr[0][gui_path]->name, plugindir);
   }
-
   
   // if we got this far the data is OK. time to get the descriptor
   m_libhandle = dlopen(library.c_str(), RTLD_NOW);
@@ -417,6 +424,11 @@ void LV2Host::instrument_descriptor_callback(LV2_InstrumentFunction func){
 
 const std::vector<int>& LV2Host::get_midi_map() const {
   return m_midimap;
+}
+
+
+const std::string& LV2Host::get_gui_path() const {
+  return m_standalonegui;
 }
 
 

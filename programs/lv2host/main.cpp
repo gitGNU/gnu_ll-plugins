@@ -1,3 +1,4 @@
+#include <csignal>
 #include <iostream>
 #include <vector>
 #include <unistd.h>
@@ -170,7 +171,7 @@ int main(int argc, char** argv) {
   
   // load plugin
   LV2Host lv2h(argv[1], 48000);
-
+  
   if (lv2h.is_valid()) {
     
     
@@ -186,6 +187,10 @@ int main(int argc, char** argv) {
     
     cerr<<"Default MIDI port: "<<lv2h.get_default_midi_port()<<endl;
     
+    if (lv2h.get_gui_path().size())
+      cerr<<"Standalone GUI: "<<lv2h.get_gui_path()<<endl;
+    else
+      cerr<<"No standalone GUI"<<endl;
     
     // initialise JACK client and plugin port buffers
     jack_client = jack_client_new("LV2Host");
@@ -232,14 +237,25 @@ int main(int argc, char** argv) {
     cerr<<"Listening on URL <"<<lo_server_thread_get_url(osc_server)<<">"<<endl;
     
     // start the GUI
-    // XXX
+    string gui = lv2h.get_gui_path();
+    pid_t gui_pid = 0;
+    if (gui.size()) {
+      if (!(gui_pid = fork())) {
+        execl(gui.c_str(), gui.c_str(), lo_server_thread_get_url(osc_server),
+              "foo.so", "Foo plugin", "User friendly identifier!", 0);
+        cerr<<"Could not execute "<<gui<<endl;
+        exit(-1);
+      }
+    }
     
     // wait until we are killed
-    while (true) {
-      usleep(500000);
-      
-      lv2h.configure("hello", "world");
-      
+    while (true)
+      usleep(5000000);
+    
+    // kill the GUI
+    if (gui_pid) {
+      kill(gui_pid, SIGQUIT);
+      wait(gui_pid);
     }
     
     lo_server_thread_stop(osc_server);

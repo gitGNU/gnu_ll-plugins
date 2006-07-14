@@ -55,6 +55,8 @@ public:
   
   const std::vector<int>& get_midi_map() const;
   
+  const std::string& get_gui_path() const;
+  
 protected:
   
   static void instrument_descriptor_callback(LV2_InstrumentFunction func);
@@ -69,6 +71,7 @@ protected:
   std::vector<LV2Port> m_ports;
   std::vector<int> m_midimap;
   long m_default_midi_port;
+  std::string m_standalonegui;
 };
 
 
