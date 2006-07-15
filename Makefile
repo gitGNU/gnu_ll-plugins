@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.13
+PACKAGE_VERSION = 0.1.14
 PKG_DEPS = jack>=0.102.6 liblo>=0.22
 
 

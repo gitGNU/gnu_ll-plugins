@@ -16,8 +16,7 @@ lv2plugindir = $(libdir)/lv2
 # Don't modify any variables below this line
 
 
-# START HERE
-all: $(if $(PKG_DEPS),check-pkg-deps) $(ARCHIVES) $(LIBRARIES) $(PROGRAMS) $(MODULES) $(LV2_PLUGINS)
+all: really-all
 
 
 include Makefile.config
@@ -114,6 +113,7 @@ define PROGRAM_template
 
 # variables
 $(1)_SRCPRF = $$(if $$($(1)_SOURCEDIR),$$($(1)_SOURCEDIR),.)
+$(1)_BLDPRF = $$(if $$($(1)_BUILDDIR),$$($(1)_BUILDDIR),$$($(1)_SOURCEDIR))
 $(1)_FULLSOURCES = $$(patsubst %,$$($(1)_SRCPRF)/%,$$($(1)_SOURCES))
 $(1)_CSOURCES = $$(filter %.c,$$($(1)_FULLSOURCES))
 $(1)_CXXSOURCES = $$(filter %.cpp,$$($(1)_FULLSOURCES))
@@ -122,6 +122,7 @@ $(1)_CXXOBJECTS = $$(subst .cpp,.o,$$($(1)_CXXSOURCES))
 $(1)_OBJECTS = $$($(1)_COBJECTS) $$($(1)_CXXOBJECTS)
 ALL_OBJECTS += $$($(1)_OBJECTS)
 ALL_SOURCES += $$($(1)_FULLSOURCES)
+PROGRAMS_REAL += $$($(1)_BLDPRF)/$(1)
 
 # targets
 $$($(1)_COBJECTS): Makefile.config
@@ -130,15 +131,15 @@ $$($(1)_COBJECTS): Makefile.config
 $$($(1)_CXXOBJECTS): Makefile.config
 	$(CXX) -c -o $$@ $(CFLAGS) $(CXXFLAGS) $$($(1)_CFLAGS) $$($$(patsubst %.o,%_cpp_CFLAGS,$$(notdir $$@))) $$(subst .o,.cpp,$$@)
 
-$(1): $$($(1)_OBJECTS) $(LIBRARIES) $(ARCHIVES)
+$$($(1)_BLDPRF)/$(1): $$($(1)_OBJECTS) $(LIBRARIES) $(ARCHIVES)
 	$(CXX) $$($(1)_OBJECTS) $(LDFLAGS) $$($(1)_LDFLAGS) -o $$@
 
 install-$(1)-headers: $$(patsubst %,$$($(1)_SRCPRF)/%,$$($(1)_HEADERS))
 	mkdir -p $(pkgincludedir)
 	cp $$(patsubst %,$$($(1)_SRCPRF)/%,$$($(1)_HEADERS)) $(pkgincludedir)
 
-install-$(1): $(1) $$(if $$($(1)_HEADERS),install-$(1)-headers)
-	mkdir -p $(bindir) && cp $(1) $(bindir)
+install-$(1): $$($(1)_BLDPRF)/$(1) $$(if $$($(1)_HEADERS),install-$(1)-headers)
+	mkdir -p $(bindir) && cp $$($(1)_BLDPRF)/$(1) $(bindir)
 endef
 $(foreach prog,$(PROGRAMS),$(eval $(call PROGRAM_template,$(prog))))
 # END OF PROGRAMS
@@ -209,7 +210,7 @@ $$($(2)_CXXOBJECTS): Makefile.config
 $$($(2)_LIBNAME): $$($(2)_OBJECTS) $(LIBRARIES) $(ARCHIVES)
 	$(CXX) -shared -fPIC $$($(2)_OBJECTS)  $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
 
-$(1): $$($(2)_LIBNAME) $$($(2)_FULLTURTLE)
+$(1): $$($(2)_LIBNAME) $$($(2)_FULLTURTLE) $$($(2)_PROGRAMS)
 	rm -rf $(1)
 	mkdir $(1)
 	cp $$($(2)_LIBNAME) $(1)
@@ -224,6 +225,10 @@ $(foreach lv2,$(LV2_PLUGINS),$(eval $(call LV2_PLUGIN_template,$(lv2),$(subst .,
 # END OF LV2 PLUGINS
 
 
+# START HERE
+really-all: $(if $(PKG_DEPS),check-pkg-deps) $(ARCHIVES) $(LIBRARIES) $(PROGRAMS_REAL) $(MODULES) $(LV2_PLUGINS)
+
+
 
 # DEPENDENCY COMPUTATION
 DEP_SOURCES = $(filter %.c,$(ALL_SOURCES)) $(filter %.cpp,$(ALL_SOURCES))
@@ -234,7 +239,7 @@ Makefile.deps: $(ALL_SOURCES)
 
 # GLOBAL CLEAN
 clean:
-	rm -rf $(ALL_OBJECTS) $(PROGRAMS) $(MODULES) $(LIBRARIES) $(ARCHIVES) $(LV2_PLUGINS)
+	rm -rf $(ALL_OBJECTS) $(PROGRAMS_REAL) $(MODULES) $(LIBRARIES) $(ARCHIVES) $(LV2_PLUGINS)
 
 
 # GLOBAL INSTALL
