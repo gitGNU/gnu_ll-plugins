@@ -38,6 +38,7 @@ void initialise() __attribute__((constructor));
 SineShaper::SineShaper(unsigned long frame_rate, const char* bundle_path,
                        const LV2_Host_Feature** host_features) 
   : LV2Instrument(SINESHAPER_PORT_COUNT),
+    m_pm(string(bundle_path) + "/programs"),
     m_vibrato_lfo(frame_rate),
     m_tremolo_lfo(frame_rate),
     m_shaper_lfo(frame_rate),
@@ -310,6 +311,19 @@ void SineShaper::run(unsigned long sample_count) {
   }
   
 }
+
+
+const LV2_ProgramDescriptor* SineShaper::get_program(unsigned long index) {
+  if (m_pm.get_program_at_index(index, &m_pdesc))
+    return &m_pdesc;
+  return 0;
+}
+
+
+void SineShaper::select_program(unsigned long program) {
+  m_pm.apply_program(m_ports, program);
+}
+
 
 
 void initialise() {

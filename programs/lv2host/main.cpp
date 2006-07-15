@@ -5,11 +5,11 @@
 
 #include <jack/jack.h>
 #include <jack/midiport.h>
-#include <lo/lo.h>
-#include <lo/lo_lowlevel.h>
 
 #include "lv2host.hpp"
 #include "lv2-miditype.h"
+
+#include "osccontroller.hpp"
 
 
 using namespace std;
@@ -145,21 +145,6 @@ int process(jack_nframes_t nframes, void* arg) {
 }
 
 
-/** DSSI-style OSC method handler for /control <int> <float> */
-int control_callback(const char* path, const char* types, 
-                     lo_arg** argv, int argc, lo_message msg, void* user_data) {
-  LV2Host* host = static_cast<LV2Host*>(user_data);
-  int port = argv[0]->i;
-  float value = argv[1]->f;
-  cerr<<"in dino-lv2host: "<<port<<" "<<value<<endl;
-  if (port < host->get_ports().size())
-    // XXX not threadsafe! but this is not a serious host anyway.
-    *static_cast<float*>(host->get_ports()[port].buffer) = value;
-  
-  return 0;
-}
-
-
 int main(int argc, char** argv) {
   
   if (argc < 2) {
@@ -220,7 +205,7 @@ int main(int argc, char** argv) {
       
       // for control ports, just create buffers consisting of a single float
       else if (lv2port.rate == ControlRate)
-        lv2port.buffer = new float(lv2port.default_value);
+        lv2port.buffer = new float;
       
       jack_ports.push_back(port);
     }
@@ -228,20 +213,16 @@ int main(int argc, char** argv) {
     lv2h.activate();
     jack_activate(jack_client);
     
-    // initialise OSC server
-    lo_server_thread osc_server = lo_server_thread_new("23483", 0);
-    lo_server_thread_add_method(osc_server, "/control", "if", 
-                                &control_callback, &lv2h);
-    lo_server_thread_start(osc_server);
-    
-    cerr<<"Listening on URL <"<<lo_server_thread_get_url(osc_server)<<">"<<endl;
+    OSCController osc(lv2h);
+    osc.start();
+    cerr<<"Listening on URL "<<osc.get_url()<<endl;
     
     // start the GUI
     string gui = lv2h.get_gui_path();
     pid_t gui_pid = 0;
     if (gui.size()) {
       if (!(gui_pid = fork())) {
-        execl(gui.c_str(), gui.c_str(), lo_server_thread_get_url(osc_server),
+        execl(gui.c_str(), gui.c_str(), osc.get_url().c_str(),
               lv2h.get_bundle_dir().c_str(), argv[1], 
               "User friendly identifier!", 0);
         cerr<<"Could not execute "<<gui<<endl;
@@ -259,7 +240,7 @@ int main(int argc, char** argv) {
       wait(gui_pid);
     }
     
-    lo_server_thread_stop(osc_server);
+    osc.stop();
     jack_client_close(jack_client);
     lv2h.deactivate();
   }

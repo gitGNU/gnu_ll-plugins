@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.12
+PACKAGE_VERSION = 0.1.13
 PKG_DEPS = jack>=0.102.6 liblo>=0.22
 
 
@@ -27,9 +27,12 @@ lv2peg_CFLAGS = -Ilibraries/paq
 lv2peg_LDFLAGS = libpaq.a
 lv2peg_SOURCEDIR = programs/lv2peg
 
-lv2host_SOURCES = lv2host.hpp lv2host.cpp main.cpp
+lv2host_SOURCES = \
+	lv2host.hpp lv2host.cpp \
+	osccontroller.hpp osccontroller.cpp \
+	main.cpp
 lv2host_CFLAGS = `pkg-config --cflags jack liblo` -Iextensions/miditype -Iextensions/instrument -Ilibraries/paq
-lv2host_LDFLAGS = `pkg-config --libs jack liblo` libpaq.a
+lv2host_LDFLAGS = `pkg-config --libs jack liblo` libpaq.a -lpthread
 lv2host_SOURCEDIR = programs/lv2host
 
 LV2_PLUGINS = sineshaper.lv2 control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2
@@ -93,6 +96,7 @@ EXTRA_DIST = \
 	libraries/components/monophonicmidinote.hpp \
 	libraries/components/mooglpf.hpp \
 	libraries/components/polyphonicmidinote.hpp \
+	libraries/components/programmanager.hpp \
 	libraries/components/randomsineoscillator.hpp \
 	libraries/components/ringbuffer.hpp \
 	libraries/components/sineoscillator.hpp \

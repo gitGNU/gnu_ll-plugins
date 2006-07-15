@@ -35,7 +35,11 @@ namespace {
 LV2Host::LV2Host(const string& uri, unsigned long frame_rate) 
   : m_handle(0),
     m_inst_desc(0),
-    m_midimap(128, -1) {
+    m_midimap(128, -1),
+    m_program_is_valid(false),
+    m_new_program(false) {
+  
+  pthread_mutex_init(&m_mutex, 0);
   
   vector<string> search_dirs;
   search_dirs.push_back(string(getenv("HOME")) + "/.lv2");
@@ -192,6 +196,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
         return;
       m_ports[p].default_value = 
         atof(qr[j][default_value]->name.c_str());
+      m_ports[p].locked_value = m_ports[p].default_value;
     }
     
     // minimum values
@@ -376,6 +381,32 @@ void LV2Host::run(unsigned long nframes) {
   assert(m_handle);
   for (size_t i = 0; i < m_ports.size(); ++i)
     m_desc->connect_port(m_handle, i, m_ports[i].buffer);
+  
+  // try to execute queued commands
+  if (!pthread_mutex_trylock(&m_mutex)) {
+    
+    // copy new control values to the real port buffers
+    for (size_t i = 0; i < m_ports.size(); ++i) {
+      if (m_ports[i].rate == ControlRate && !m_ports[i].midi && 
+          m_ports[i].direction == InputPort)
+        *static_cast<float*>(m_ports[i].buffer) = m_ports[i].locked_value;
+    }
+    
+    // if there is a new program queued, switch to it
+    if (m_new_program) {
+      select_program(m_program);
+      for (size_t i = 0; i < m_ports.size(); ++i) {
+        if (m_ports[i].rate == ControlRate && !m_ports[i].midi && 
+            m_ports[i].direction == InputPort)
+          m_ports[i].locked_value = *static_cast<float*>(m_ports[i].buffer);
+      }
+      m_program_is_valid = true;
+      m_new_program = false;
+    }
+    
+    pthread_mutex_unlock(&m_mutex);
+  }
+  
   m_desc->run(m_handle, nframes);
 }
 
@@ -387,8 +418,14 @@ void LV2Host::deactivate() {
 
 
 char* LV2Host::configure(const char* key, const char* value) {
-  if (m_inst_desc && m_inst_desc->configure)
-    return m_inst_desc->configure(m_handle, key, value);
+  if (m_inst_desc && m_inst_desc->configure) {
+    char* result = m_inst_desc->configure(m_handle, key, value);
+    if (!result) {
+      m_configuration[key] = value;
+      m_program_is_valid;
+    }
+    return result;
+  }
   else
     cerr<<"This plugin has no configure() callback"<<endl;
   return 0;
@@ -436,6 +473,47 @@ const std::string& LV2Host::get_gui_path() const {
 
 const std::string& LV2Host::get_bundle_dir() const {
   return m_bundledir;
+}
+
+
+void LV2Host::queue_program(unsigned long program) {
+  pthread_mutex_lock(&m_mutex);
+  m_program = program;
+  m_program_is_valid = true;
+  m_new_program = true;
+  pthread_mutex_unlock(&m_mutex);
+}
+
+
+void LV2Host::queue_control(unsigned long port, float value) {
+  if (port < m_ports.size() && m_ports[port].direction == InputPort &&
+      m_ports[port].rate == ControlRate && !m_ports[port].midi) {
+    pthread_mutex_lock(&m_mutex);
+    m_ports[port].locked_value = value;
+    pthread_mutex_unlock(&m_mutex);
+  }
+}
+
+
+void LV2Host::queue_midi(unsigned long port, const unsigned char* midi) {
+  cerr<<__PRETTY_FUNCTION__<<" is not implemented yet!"<<endl;
+}
+
+
+const std::map<std::string, std::string>& LV2Host::get_configuration() const {
+  return m_configuration;
+}
+
+
+bool LV2Host::program_is_valid() const {
+  // XXX not threadsafe
+  return m_program_is_valid;
+}
+
+
+unsigned long LV2Host::get_program() const {
+  // XXX not threadsafe
+  return m_program;
 }
 
 
