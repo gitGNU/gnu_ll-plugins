@@ -30,6 +30,7 @@ define ARCHIVE_template
 
 # variables
 $(2)_SRCPRF = $$(if $$($(2)_SOURCEDIR),$$($(2)_SOURCEDIR),.)
+$(2)_BLDPRF = $$(if $$($(2)_BUILDDIR),$$($(2)_BUILDDIR),$$($(2)_SRCPRF))
 $(2)_FULLSOURCES = $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_SOURCES))
 $(2)_CSOURCES = $$(filter %.c,$$($(2)_FULLSOURCES))
 $(2)_CXXSOURCES = $$(filter %.cpp,$$($(2)_FULLSOURCES))
@@ -38,6 +39,7 @@ $(2)_CXXOBJECTS = $$(subst .cpp,.o,$$($(2)_CXXSOURCES))
 $(2)_OBJECTS = $$($(2)_COBJECTS) $$($(2)_CXXOBJECTS)
 ALL_OBJECTS += $$($(2)_OBJECTS)
 ALL_SOURCES += $$($(2)_FULLSOURCES)
+ARCHIVES_REAL += $$($(2)_BLDPRF)/$(1)
 ALL_LIBHEADER_INSTALLS += $$(if $$($(2)_HEADERS),install-$(2)-headers)
 $(2)_INSTDIR = $$(if $$($(2)_INSTALLDIR),$$($(2)_INSTALLDIR),$(libdir))
 
@@ -48,15 +50,15 @@ $$($(2)_COBJECTS): Makefile.config
 $$($(2)_CXXOBJECTS): Makefile.config
 	$(CXX) -c -o $$@ -fPIC -DPIC $(CFLAGS) $(CXXFLAGS) $$($(2)_CFLAGS) $$(subst .o,.cpp,$$@)
 
-$(1): $$($(2)_OBJECTS)
+$$($(2)_BLDPRF)/$(1): $$($(2)_OBJECTS)
 	ar rcs $$@ $$^ $(LDFLAGS) $$($(2)_LDFLAGS)
 
 install-$(2)-headers: $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS))
 	mkdir -p $(pkgincludedir)
 	cp $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS)) $(pkgincludedir)
 
-install-$(2): $(1) $$(if $$($(2)_HEADERS),install-$(2)-headers)
-	mkdir -p $$($(2)_INSTDIR) && cp $(1) $$($(2)_INSTDIR)
+install-$(2): $$($(2)_BLDPRF)/$(1) $$(if $$($(2)_HEADERS),install-$(2)-headers)
+	mkdir -p $$($(2)_INSTDIR) && cp $$($(2)_BLDPRF)/$(1) $$($(2)_INSTDIR)
 
 endef
 bad_archives = $(filter-out lib%.a,$(ARCHIVES))
@@ -90,7 +92,7 @@ $$($(2)_COBJECTS): Makefile.config
 $$($(2)_CXXOBJECTS): Makefile.config
 	$(CXX) -c -o $$@ -fPIC -DPIC $(CFLAGS) $(CXXFLAGS) $$($(2)_CFLAGS) $$(subst .o,.cpp,$$@)
 
-$(1): $$($(2)_OBJECTS) $(ARCHIVES)
+$(1): $$($(2)_OBJECTS) $(ARCHIVES_REAL)
 	$(CXX) -shared -fPIC $$^ $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
 
 install-$(2)-headers: $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS))
@@ -113,7 +115,7 @@ define PROGRAM_template
 
 # variables
 $(1)_SRCPRF = $$(if $$($(1)_SOURCEDIR),$$($(1)_SOURCEDIR),.)
-$(1)_BLDPRF = $$(if $$($(1)_BUILDDIR),$$($(1)_BUILDDIR),$$($(1)_SOURCEDIR))
+$(1)_BLDPRF = $$(if $$($(1)_BUILDDIR),$$($(1)_BUILDDIR),$$($(1)_SRCPRF))
 $(1)_FULLSOURCES = $$(patsubst %,$$($(1)_SRCPRF)/%,$$($(1)_SOURCES))
 $(1)_CSOURCES = $$(filter %.c,$$($(1)_FULLSOURCES))
 $(1)_CXXSOURCES = $$(filter %.cpp,$$($(1)_FULLSOURCES))
@@ -131,7 +133,7 @@ $$($(1)_COBJECTS): Makefile.config
 $$($(1)_CXXOBJECTS): Makefile.config
 	$(CXX) -c -o $$@ $(CFLAGS) $(CXXFLAGS) $$($(1)_CFLAGS) $$($$(patsubst %.o,%_cpp_CFLAGS,$$(notdir $$@))) $$(subst .o,.cpp,$$@)
 
-$$($(1)_BLDPRF)/$(1): $$($(1)_OBJECTS) $(LIBRARIES) $(ARCHIVES)
+$$($(1)_BLDPRF)/$(1): $$($(1)_OBJECTS) $(LIBRARIES) $(ARCHIVES_REAL)
 	$(CXX) $$($(1)_OBJECTS) $(LDFLAGS) $$($(1)_LDFLAGS) -o $$@
 
 install-$(1)-headers: $$(patsubst %,$$($(1)_SRCPRF)/%,$$($(1)_HEADERS))
@@ -167,7 +169,7 @@ $$($(2)_COBJECTS): Makefile.config
 $$($(2)_CXXOBJECTS): Makefile.config
 	$(CXX) -c -o $$@ -fPIC -DPIC $(CFLAGS) $(CXXFLAGS) $$($(2)_CFLAGS) $$($$(patsubst %.o,%_cpp_CFLAGS,$$(notdir $$@))) $$(subst .o,.cpp,$$@)
 
-$(1): $$($(2)_OBJECTS) $(LIBRARIES) $(ARCHIVES)
+$(1): $$($(2)_OBJECTS) $(LIBRARIES) $(ARCHIVES_REAL)
 	$(CXX) -shared -fPIC $$($(2)_OBJECTS)  $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
 
 install-$(2)-headers: $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS))
@@ -187,6 +189,7 @@ define LV2_PLUGIN_template
 
 # variables
 $(2)_SRCPRF = $$(if $$($(2)_SOURCEDIR),$$($(2)_SOURCEDIR),.)
+$(2)_BLDPRF = $$(if $$($(2)_BUILDDIR),$$($(2)_BUILDDIR),$$($(2)_SRCPRF))
 $(2)_FULLSOURCES = $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_SOURCES))
 $(2)_FULLTURTLE = $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_TURTLE))
 $(2)_CSOURCES = $$(filter %.c,$$($(2)_FULLSOURCES))
@@ -198,6 +201,7 @@ $(2)_LIBNAME = $$($(2)_SRCPRF)/$$(patsubst %.lv2,%.so,$(1))
 ALL_OBJECTS += $$($(2)_OBJECTS) $$($(2)_LIBNAME)
 ALL_SOURCES += $$($(2)_FULLSOURCES)
 ALL_TURTLE += $$($(2)_FULLTURTLE)
+LV2_PLUGINS_REAL += $$($(2)_BLDPRF)/$(1)
 $(2)_INSTDIR = $$(if $$($(2)_INSTALLDIR),$$($(2)_INSTALLDIR),$(lv2plugindir))
 
 # targets
@@ -207,18 +211,18 @@ $$($(2)_COBJECTS): Makefile.config
 $$($(2)_CXXOBJECTS): Makefile.config
 	$(CXX) -c -o $$@ -fPIC -DPIC $(CFLAGS) $(CXXFLAGS) $$($(2)_CFLAGS) $$($$(patsubst %.o,%_cpp_CFLAGS,$$(notdir $$@))) $$(subst .o,.cpp,$$@)
 
-$$($(2)_LIBNAME): $$($(2)_OBJECTS) $(LIBRARIES) $(ARCHIVES)
+$$($(2)_LIBNAME): $$($(2)_OBJECTS) $(LIBRARIES) $(ARCHIVES_REAL)
 	$(CXX) -shared -fPIC $$($(2)_OBJECTS)  $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
 
-$(1): $$($(2)_LIBNAME) $$($(2)_FULLTURTLE) $$($(2)_PROGRAMS)
-	rm -rf $(1)
-	mkdir $(1)
-	cp $$($(2)_LIBNAME) $(1)
-	cp $$($(2)_FULLTURTLE) $(1)
+$$($(2)_BLDPRF)/$(1): $$($(2)_LIBNAME) $$($(2)_FULLTURTLE) $$($(2)_PROGRAMS)
+	rm -rf $$($(2)_BLDPRF)/$(1)
+	mkdir $$($(2)_BLDPRF)/$(1)
+	cp $$($(2)_LIBNAME) $$($(2)_BLDPRF)/$(1)
+	cp $$($(2)_FULLTURTLE) $$($(2)_BLDPRF)/$(1)
 
-install-$(2): $(1) $$(if $$($(2)_HEADERS),install-$(2)-headers)
+install-$(2): $$($(2)_BLDPRF)/$(1) $$(if $$($(2)_HEADERS),install-$(2)-headers)
 	rm -rf $$($(2)_INSTDIR)/$(1)
-	mkdir -p $$($(2)_INSTDIR) && cp -R $(1) $$($(2)_INSTDIR)
+	mkdir -p $$($(2)_INSTDIR) && cp -R $$($(2)_BLDPRF)/$(1) $$($(2)_INSTDIR)
 
 endef
 $(foreach lv2,$(LV2_PLUGINS),$(eval $(call LV2_PLUGIN_template,$(lv2),$(subst .,_,$(lv2)))))
@@ -226,7 +230,7 @@ $(foreach lv2,$(LV2_PLUGINS),$(eval $(call LV2_PLUGIN_template,$(lv2),$(subst .,
 
 
 # START HERE
-really-all: $(if $(PKG_DEPS),check-pkg-deps) $(ARCHIVES) $(LIBRARIES) $(PROGRAMS_REAL) $(MODULES) $(LV2_PLUGINS)
+really-all: $(if $(PKG_DEPS),check-pkg-deps) $(ARCHIVES_REAL) $(LIBRARIES) $(PROGRAMS_REAL) $(MODULES) $(LV2_PLUGINS_REAL)
 
 
 
@@ -239,7 +243,7 @@ Makefile.deps: $(ALL_SOURCES)
 
 # GLOBAL CLEAN
 clean:
-	rm -rf $(ALL_OBJECTS) $(PROGRAMS_REAL) $(MODULES) $(LIBRARIES) $(ARCHIVES) $(LV2_PLUGINS)
+	rm -rf $(ALL_OBJECTS) $(PROGRAMS_REAL) $(MODULES) $(LIBRARIES) $(ARCHIVES_REAL) $(LV2_PLUGINS_REAL)
 
 
 # GLOBAL INSTALL

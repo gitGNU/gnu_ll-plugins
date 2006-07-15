@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.14
+PACKAGE_VERSION = 0.1.15
 PKG_DEPS = jack>=0.102.6 liblo>=0.22
 
 
@@ -24,7 +24,7 @@ PROGRAMS = lv2peg lv2host
 
 lv2peg_SOURCES = lv2peg.cpp
 lv2peg_CFLAGS = -Ilibraries/paq
-lv2peg_LDFLAGS = libpaq.a
+lv2peg_LDFLAGS = libraries/paq/libpaq.a
 lv2peg_SOURCEDIR = programs/lv2peg
 
 lv2host_SOURCES = \
@@ -32,7 +32,7 @@ lv2host_SOURCES = \
 	osccontroller.hpp osccontroller.cpp \
 	main.cpp
 lv2host_CFLAGS = `pkg-config --cflags jack liblo` -Iextensions/miditype -Iextensions/instrument -Ilibraries/paq
-lv2host_LDFLAGS = `pkg-config --libs jack liblo` libpaq.a -lpthread
+lv2host_LDFLAGS = `pkg-config --libs jack liblo` libraries/paq/libpaq.a -lpthread
 lv2host_SOURCEDIR = programs/lv2host
 
 LV2_PLUGINS = sineshaper.lv2 control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2
@@ -41,7 +41,7 @@ LV2_PLUGINS = sineshaper.lv2 control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 
 control2midi_lv2_SOURCES = control2midi.cpp
 control2midi_lv2_TURTLE = manifest.ttl control2midi.ttl
 control2midi_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype
-control2midi_lv2_LDFLAGS = liblv2_plugin.a
+control2midi_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 control2midi_lv2_SOURCEDIR = plugins/control2midi
 
 # Sineshaper
@@ -51,35 +51,35 @@ sineshaper_lv2_SOURCES = \
 	midiiterator.hpp
 sineshaper_lv2_TURTLE = manifest.ttl sineshaper.ttl
 sineshaper_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/miditype -Iextensions/instrument
-sineshaper_lv2_LDFLAGS = liblv2_plugin.a
+sineshaper_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 sineshaper_lv2_SOURCEDIR = plugins/sineshaper
 
 # MIDIIdentity
 midi_identity_lv2_SOURCES = midi_identity.cpp
 midi_identity_lv2_TURTLE = manifest.ttl midi_identity.ttl
 midi_identity_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype
-midi_identity_lv2_LDFLAGS = liblv2_plugin.a
+midi_identity_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 midi_identity_lv2_SOURCEDIR = plugins/midi_identity
 
 # Arpeggiator
 arpeggiator_lv2_SOURCES = arpeggiator.cpp
 arpeggiator_lv2_TURTLE = manifest.ttl arpeggiator.ttl
 arpeggiator_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype
-arpeggiator_lv2_LDFLAGS = liblv2_plugin.a
+arpeggiator_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 arpeggiator_lv2_SOURCEDIR = plugins/arpeggiator
 
 # Math constants
 math-constants_lv2_SOURCES = math-constants.cpp
 math-constants_lv2_TURTLE = manifest.ttl math-constants.ttl
 math-constants_lv2_CFLAGS = -Ilibraries/lv2plugin
-math-constants_lv2_LDFLAGS = liblv2_plugin.a
+math-constants_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 math-constants_lv2_SOURCEDIR = plugins/math-constants
 
 # Math functions
 math-functions_lv2_SOURCES = math-functions.cpp
 math-functions_lv2_TURTLE = manifest.ttl math-functions.ttl
 math-functions_lv2_CFLAGS = -Ilibraries/lv2plugin
-math-functions_lv2_LDFLAGS = liblv2_plugin.a
+math-functions_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 math-functions_lv2_SOURCEDIR = plugins/math-functions
 
 
