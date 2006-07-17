@@ -332,6 +332,18 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
                                  plugindir.c_str(), features);
   m_current_object = 0;
   
+  // list available programs
+  bool default_program_set = false;
+  unsigned long default_program;
+  const LV2_ProgramDescriptor* pdesc;
+  for (unsigned long index = 0; (pdesc = get_program(index)); ++index) {
+    cerr<<"Program "<<pdesc->number<<": "<<pdesc->name<<endl;
+    if (!default_program_set) {
+      queue_program(pdesc->number);
+      default_program_set = true;
+    }
+  }
+  
   
   if (!m_handle) {
     cerr<<"Could not instantiate plugin "<<uri<<endl;

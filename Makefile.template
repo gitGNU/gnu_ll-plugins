@@ -218,7 +218,7 @@ $$($(2)_BLDPRF)/$(1): $$($(2)_LIBNAME) $$($(2)_FULLTURTLE) $$($(2)_PROGRAMS)
 	rm -rf $$($(2)_BLDPRF)/$(1)
 	mkdir $$($(2)_BLDPRF)/$(1)
 	cp $$($(2)_LIBNAME) $$($(2)_BLDPRF)/$(1)
-	cp $$($(2)_FULLTURTLE) $$($(2)_BLDPRF)/$(1)
+	$$(if $$($(2)_FULLTURTLE),cp $$($(2)_FULLTURTLE) $$($(2)_BLDPRF)/$(1), )
 
 install-$(2): $$($(2)_BLDPRF)/$(1) $$(if $$($(2)_HEADERS),install-$(2)-headers)
 	rm -rf $$($(2)_INSTDIR)/$(1)

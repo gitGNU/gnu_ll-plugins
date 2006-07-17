@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.15
+PACKAGE_VERSION = 0.1.16
 PKG_DEPS = jack>=0.102.6 liblo>=0.22
 
 
@@ -35,7 +35,7 @@ lv2host_CFLAGS = `pkg-config --cflags jack liblo` -Iextensions/miditype -Iextens
 lv2host_LDFLAGS = `pkg-config --libs jack liblo` libraries/paq/libpaq.a -lpthread
 lv2host_SOURCEDIR = programs/lv2host
 
-LV2_PLUGINS = sineshaper.lv2 control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2
+LV2_PLUGINS = sineshaper.lv2 control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 azr3.lv2
 
 # Control2MIDI
 control2midi_lv2_SOURCES = control2midi.cpp
@@ -81,6 +81,18 @@ math-functions_lv2_TURTLE = manifest.ttl math-functions.ttl
 math-functions_lv2_CFLAGS = -Ilibraries/lv2plugin
 math-functions_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 math-functions_lv2_SOURCEDIR = plugins/math-functions
+
+azr3_lv2_SOURCES = \
+	azr3.cpp azr3.hpp \
+	Globals.h \
+	fx.h fx.cpp \
+	voice_classes.h voice_classes.cpp
+azr3_lv2_TURTLE = manifest.ttl azr3.ttl
+azr3_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype -Iextensions/instrument
+azr3_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
+azr3_lv2_SOURCEDIR = plugins/azr3
+
+
 
 
 
