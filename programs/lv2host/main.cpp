@@ -257,11 +257,19 @@ int main(int argc, char** argv) {
     while (true) {
       string word;
       cin>>word;
+
       if (word == "configure") {
         string key, value;
         cin>>key>>value;
         lv2h.configure(key.c_str(), value.c_str());
       }
+      
+      if (word == "program") {
+        unsigned long program;
+        cin>>program;
+        lv2h.queue_program(program);
+      }
+      
       else {
         cout<<"Unknown command \""<<word<<"\""<<endl;
       }
