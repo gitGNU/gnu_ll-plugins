@@ -74,6 +74,11 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
         sizeof(size_t) + input_event.size >= output_buf->capacity)
       break;
     
+    cerr<<"Incoming event with size "<<input_event.size<<": ";
+    for (int b = 0; b < input_event.size; ++b)
+      cerr<<hex<<int(((unsigned char*)input_event.buffer)[b])<<' ';
+    cerr<<endl;
+    
     // check if it's a bank select MSB
     if ((input_event.size == 3) && ((input_event.buffer[0] & 0xF0) == 0xB0) &&
         (input_event.buffer[1] == 0)) {
