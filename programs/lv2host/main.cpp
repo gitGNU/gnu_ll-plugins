@@ -52,6 +52,9 @@ void lv2midi2jackmidi(LV2Port& port, jack_port_t* jack_port,
 /** Translate from a JACK MIDI buffer to an LV2 MIDI buffer. */
 void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
                       LV2Host& host, jack_nframes_t nframes) {
+  
+  static unsigned bank = 0;
+  
   void* input_buf = jack_port_get_buffer(jack_port, nframes);
   jack_midi_event_t input_event;
   jack_nframes_t input_event_index = 0;
@@ -71,14 +74,34 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
         sizeof(size_t) + input_event.size >= output_buf->capacity)
       break;
     
-    // check if it's a mapped CC
+    // check if it's a bank select MSB
     if ((input_event.size == 3) && ((input_event.buffer[0] & 0xF0) == 0xB0) &&
-        (host.get_midi_map()[input_event.buffer[1]] != -1)) {
+        (input_event.buffer[1] == 0)) {
+      bank = (bank & 0x7F) + (input_event.buffer[2] & 0x7F) << 7;
+    }
+    
+    // LSB
+    else if ((input_event.size == 3) && 
+             ((input_event.buffer[0] & 0xF0) == 0xB0) &&
+             (input_event.buffer[1] == 32)) {
+      bank = (bank & (0x7F << 7)) + (input_event.buffer[2] & 0x7F);
+    }
+    
+    // or a mapped CC
+    else if ((input_event.size == 3) && 
+             ((input_event.buffer[0] & 0xF0) == 0xB0) &&
+             (host.get_midi_map()[input_event.buffer[1]] != -1)) {
       int port = host.get_midi_map()[input_event.buffer[1]];
       float* pbuf = static_cast<float*>(host.get_ports()[port].buffer);
       float& min = host.get_ports()[port].min_value;
       float& max = host.get_ports()[port].max_value;
       *pbuf = min + (max - min) * input_event.buffer[2] / 127.0;
+    }
+    
+    // or a program change
+    else if ((input_event.size == 2) && 
+             ((input_event.buffer[0] & 0xF0) == 0xC0)) {
+      host.select_program(128 * bank + input_event.buffer[1]);
     }
     
     else {

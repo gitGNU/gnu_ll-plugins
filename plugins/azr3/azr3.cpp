@@ -136,7 +136,7 @@ void AZR3::select_program(unsigned long program) {
   
   pthread_mutex_lock(&m_lock);
   
-	flpProgram& ap = programs[0];
+	flpProgram& ap = programs[program];
 
   for(unsigned long x = 0; x < kNumParams; x++)
     setParameter(x, ap.p[x]);
