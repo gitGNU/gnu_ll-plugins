@@ -231,8 +231,18 @@ int main(int argc, char** argv) {
     }
     
     // wait until we are killed
-    while (true)
-      usleep(5000000);
+    while (true) {
+      string word;
+      cin>>word;
+      if (word == "configure") {
+        string key, value;
+        cin>>key>>value;
+        lv2h.configure(key.c_str(), value.c_str());
+      }
+      else {
+        cout<<"Unknown command \""<<word<<"\""<<endl;
+      }
+    }
     
     // kill the GUI
     if (gui_pid) {

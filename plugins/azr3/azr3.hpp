@@ -1,6 +1,8 @@
 #ifndef AZR3_HPP
 #define AZR3_HPP
 
+#include <pthread.h>
+
 #include "lv2instrument.hpp"
 #include "voice_classes.h"
 #include "Globals.h"
@@ -39,6 +41,8 @@ public:
   
   AZR3(unsigned long rate, const char* bundle_path, const LV2_Host_Feature**);
   
+  ~AZR3();
+  
   void activate();
   
   const LV2_ProgramDescriptor* get_program(unsigned long index);
@@ -46,6 +50,8 @@ public:
   void select_program(unsigned long number);
   
   void run(unsigned long nframes);
+  
+  char* configure(const char* key, const char* value);
   
 protected:  
   
@@ -146,6 +152,8 @@ protected:
 #endif
   
   LV2_ProgramDescriptor pdesc;
+  
+  pthread_mutex_t m_lock;
   
 };
 

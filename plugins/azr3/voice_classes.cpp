@@ -382,8 +382,6 @@ bool voice::get_active()
 void voice::note_on(long note, long velocity, float *table, int size, float pitch, bool percenable, float sclick, float sust)
 {
   
-  cerr<<__PRETTY_FUNCTION__<<" with note "<<note<<", velocity "<<velocity<<endl;
-  
 	my_table=table;
 	my_size=size;
 	click=sclick;

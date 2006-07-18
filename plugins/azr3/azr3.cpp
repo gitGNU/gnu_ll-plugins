@@ -76,7 +76,9 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
     last_shape(-1),
     fullyloaded(false),
     mute(true) {
-
+  
+  pthread_mutex_init(&m_lock, 0);
+  
 	for(int x=0;x<WAVETABLESIZE*12+1;x++)
 		wavetable[x]=0;
 
@@ -92,6 +94,11 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
 	my_p=virtual_my_p=programs[0].p;
 
 	make_waveforms(W_SINE);
+}
+
+
+AZR3::~AZR3() {
+  pthread_mutex_destroy(&m_lock);
 }
 
 
@@ -127,11 +134,14 @@ const LV2_ProgramDescriptor* AZR3::get_program(unsigned long index) {
 
 void AZR3::select_program(unsigned long program) {
   
-	flpProgram& ap = programs[13];
+  pthread_mutex_lock(&m_lock);
+  
+	flpProgram& ap = programs[0];
 
   for(unsigned long x = 0; x < kNumParams; x++)
     setParameter(x, ap.p[x]);
-  setParameter(n_click, 10);
+  
+  pthread_mutex_unlock(&m_lock);
 }
 
 
@@ -153,11 +163,17 @@ void AZR3::run(unsigned long sampleFrames) {
     - speakers
 	*/
   
-	out1 = static_cast<float*>(m_ports[kNumParams + 1]);
-	out2 = static_cast<float*>(m_ports[kNumParams + 2]);
+  midi_ptr = static_cast<LV2_MIDI*>(m_ports[0])->data;
+	out1 = static_cast<float*>(m_ports[1]);
+	out2 = static_cast<float*>(m_ports[2]);
+
 	int	x;
+
+  if (pthread_mutex_trylock(&m_lock)) {
+    memset(out1, 0, sizeof(float) * sampleFrames);
+    memset(out2, 0, sizeof(float) * sampleFrames);
+  }
 	
-  midi_ptr = static_cast<LV2_MIDI*>(m_ports[kNumParams])->data;
   
   for (unsigned long pframe = 0; pframe < sampleFrames; ++pframe) {
     
@@ -563,7 +579,22 @@ void AZR3::run(unsigned long sampleFrames) {
 		(*out1++) = last_out1;
 		(*out2++) = last_out2;
 	}
-	
+  
+  pthread_mutex_unlock(&m_lock);
+  
+}
+
+
+char* AZR3::configure(const char* key, const char* value) {
+  
+  string param = "param";
+  if (!strncmp(key, param.c_str(), param.size())) {
+    long port = atol(key + param.size());
+    float fvalue = atof(value);
+    pthread_mutex_lock(&m_lock);
+    setParameter(port, fvalue);
+    pthread_mutex_unlock(&m_lock);
+  }
 }
 
 
@@ -3003,8 +3034,10 @@ void AZR3::setParameter (long index, float value) {
 	if (index < 0 || index > kNumParams)
 		return;
   
-  *static_cast<float*>(m_ports[index]) = value;
-  
+  //*static_cast<float*>(m_ports[index]) = value;
+  p[index]=value;				// put value into edit buffer
+  my_p=p;						// let machine use edit buffer
+
 
 	{
 		last_value[index]=value;
@@ -3387,7 +3420,7 @@ unsigned char* AZR3::event_clock(unsigned long offset) {
   }
   */
   
-  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[kNumParams]);
+  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[0]);
   
   // Are there any events left in the buffer?
   if (midi_ptr - midi->data >= midi->used_capacity)
