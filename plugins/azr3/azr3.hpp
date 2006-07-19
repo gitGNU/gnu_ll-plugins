@@ -66,20 +66,19 @@ protected:
 protected:
   
 	notemaster	n1;
-	bool	mute,fullyloaded;
+	bool	mute;
 	float	click[16];
 	float	volume[16];
 	float	mono_before;
 	float	*out1,*out2;
-	bool	compare,comparebuffer;
 	float	samplerate;
 	long	samplecount;
 	bool	waitforsplit;
 	long	splitpoint;
 
-	float	p[kNumParams],*my_p,*virtual_my_p,actual_p[kNumParams],i_p[kNumParams];
+	float	p[kNumParams],*my_p;
 	float	last_value[kNumParams];
-	float	*p_mono,mono,mono1,mono2,VCA,l_before,r_before;
+	float	*p_mono,mono,mono1,mono2;
   
 	flpProgram	programs[kNumPrograms];
 
@@ -133,15 +132,7 @@ protected:
 	int			last_shape;
 	float		last_r,last_l;
 	unsigned char* evt;
-// stuff for event handling
-	float		values[4],*ret;
-	bool		has_events;
-	int			event_pos,event_last_pos,event_next_pos,event_read_pos;
-	//long		delta[EVTBUFSIZE]; ?XXX
-	//unsigned char	events[EVTBUFSIZE]; ?XXX
-	//float		evalue1[EVTBUFSIZE]; ?XXX
-	//float		evalue2[EVTBUFSIZE]; ?XXX
-	//float		evalue3[EVTBUFSIZE]; ?XXX
+
 	filt_allpass	allpass_l[4],allpass_r[4];
 	float		lfo_phaser1,lfo_phaser2;
   
@@ -155,6 +146,8 @@ protected:
   
   pthread_mutex_t m_lock;
   
+  std::vector<bool> is_real_param;
+  std::vector<unsigned long> real_param;
 };
 
 

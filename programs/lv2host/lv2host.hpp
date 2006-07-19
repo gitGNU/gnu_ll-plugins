@@ -32,7 +32,6 @@ struct LV2Port {
   float min_value;
   float max_value;
   bool midi;
-  
   float locked_value;
 };
 

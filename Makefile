@@ -1,9 +1,8 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.20
-PKG_DEPS = jack>=0.102.6 liblo>=0.22
+PACKAGE_VERSION = 0.1.21
+PKG_DEPS = jack>=0.102.6 liblo>=0.22 gtkmm-2.4>=2.9.7
 
-
-ARCHIVES = liblv2_plugin.a libpaq.a
+ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
 
 liblv2_plugin_a_SOURCES = \
 	lv2plugin.hpp lv2plugin.cpp \
@@ -18,6 +17,10 @@ libpaq_a_SOURCES = \
 	rdf.hpp rdf.cpp \
 	query.hpp query.cpp
 libpaq_a_SOURCEDIR = libraries/paq
+
+liblv2_oscui_a_SOURCES = lv2uiclient.hpp lv2uiclient.cpp lv2_shm.h lv2_shm.c
+liblv2_oscui_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo`
+liblv2_oscui_a_SOURCEDIR = libraries/lv2oscui
 
 
 PROGRAMS = lv2peg lv2host
@@ -91,9 +94,11 @@ azr3_lv2_TURTLE = manifest.ttl azr3.ttl
 azr3_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype -Iextensions/instrument
 azr3_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 azr3_lv2_SOURCEDIR = plugins/azr3
-
-
-
+azr3_lv2_PROGRAMS = azr3_gtk
+azr3_gtk_SOURCES = azr3_gtk.cpp knob.hpp knob.cpp switch.hpp switch.cpp
+azr3_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Ilibraries/lv2oscui
+azr3_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo` libraries/lv2oscui/liblv2_oscui.a
+azr3_gtk_SOURCEDIR = plugins/azr3
 
 
 # The shared headers need to go in the distribution too

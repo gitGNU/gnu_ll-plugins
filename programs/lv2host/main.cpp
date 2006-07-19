@@ -74,10 +74,12 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
         sizeof(size_t) + input_event.size >= output_buf->capacity)
       break;
     
+    /*
     cerr<<"Incoming event with size "<<input_event.size<<": ";
     for (int b = 0; b < input_event.size; ++b)
       cerr<<hex<<int(((unsigned char*)input_event.buffer)[b])<<' ';
     cerr<<endl;
+    */
     
     // check if it's a bank select MSB
     if ((input_event.size == 3) && ((input_event.buffer[0] & 0xF0) == 0xB0) &&
@@ -101,6 +103,7 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
       float& min = host.get_ports()[port].min_value;
       float& max = host.get_ports()[port].max_value;
       *pbuf = min + (max - min) * input_event.buffer[2] / 127.0;
+      host.get_ports()[port].locked_value = *pbuf;
     }
     
     // or a program change
@@ -187,7 +190,6 @@ int main(int argc, char** argv) {
   
   if (lv2h.is_valid()) {
     
-    
     cerr<<"MIDI map:"<<endl;
     for (unsigned i = 0; i < 127; ++i) {
       long port = lv2h.get_midi_map()[i];
@@ -241,7 +243,8 @@ int main(int argc, char** argv) {
     lv2h.activate();
     jack_activate(jack_client);
     
-    OSCController osc(lv2h);
+    bool still_running = true;
+    OSCController osc(lv2h, still_running);
     osc.start();
     cerr<<"Listening on URL "<<osc.get_url()<<endl;
     
@@ -259,10 +262,12 @@ int main(int argc, char** argv) {
     }
     
     // wait until we are killed
-    while (true) {
+    while (still_running) {
+      
+      /*
       string word;
       cin>>word;
-
+      
       if (word == "configure") {
         string key, value;
         cin>>key>>value;
@@ -278,6 +283,8 @@ int main(int argc, char** argv) {
       else {
         cout<<"Unknown command \""<<word<<"\""<<endl;
       }
+      */
+      usleep(500000);
     }
     
     // kill the GUI

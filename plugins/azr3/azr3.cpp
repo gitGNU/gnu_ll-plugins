@@ -28,8 +28,6 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
     mono(0),
     mono1(0),
     mono2(0),
-    l_before(0),
-    r_before(0),
     viblfo(0),
     vmix1(0),
     vmix2(0),
@@ -68,15 +66,32 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
     lfo_d_nout(0),
     last_out1(0),
     last_out2(0),
-    VCA(1),
-    compare(false),
-    waitforsplit(false),
     splitpoint(0),
     gp_value(0),
     last_shape(-1),
-    fullyloaded(false),
-    mute(true) {
+    mute(true),
+    is_real_param(kNumParams, false),
+    real_param(kNumParams, -1) {
   
+  is_real_param[n_speakers] = true;
+  real_param[n_speakers] = 0;
+  is_real_param[n_speed] = true;
+  real_param[n_speed] = 1;
+  is_real_param[n_l_slow] = true;
+  real_param[n_l_slow] = 2;
+  is_real_param[n_l_fast] = true;
+  real_param[n_l_fast] = 3;
+  is_real_param[n_u_slow] = true;
+  real_param[n_u_slow] = 4;
+  is_real_param[n_u_fast] = true;
+  real_param[n_u_fast] = 5;
+  is_real_param[n_belt] = true;
+  real_param[n_belt] = 6;
+  is_real_param[n_splitpoint] = true;
+  real_param[n_splitpoint] = 7;
+  is_real_param[n_complex] = true;
+  real_param[n_complex] = 8;
+
   pthread_mutex_init(&m_lock, 0);
   
 	for(int x=0;x<WAVETABLESIZE*12+1;x++)
@@ -91,7 +106,7 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
 	setSampleRate(rate);
 
 	setFactorySounds();
-	my_p=virtual_my_p=programs[0].p;
+	my_p=programs[0].p;
 
 	make_waveforms(W_SINE);
 }
@@ -138,8 +153,12 @@ void AZR3::select_program(unsigned long program) {
   
 	flpProgram& ap = programs[program];
 
-  for(unsigned long x = 0; x < kNumParams; x++)
-    setParameter(x, ap.p[x]);
+  for(unsigned long x = 0; x < kNumParams; x++) {
+    if (is_real_param[x])
+      *static_cast<float*>(m_ports[real_param[x]]) = ap.p[x];
+    else
+      setParameter(x, ap.p[x]);
+  }
   
   pthread_mutex_unlock(&m_lock);
 }
@@ -163,10 +182,32 @@ void AZR3::run(unsigned long sampleFrames) {
     - speakers
 	*/
   
-  midi_ptr = static_cast<LV2_MIDI*>(m_ports[0])->data;
-	out1 = static_cast<float*>(m_ports[1]);
-	out2 = static_cast<float*>(m_ports[2]);
-
+  midi_ptr = static_cast<LV2_MIDI*>(m_ports[9])->data;
+	out1 = static_cast<float*>(m_ports[10]);
+	out2 = static_cast<float*>(m_ports[11]);
+  
+  // speed control port
+  if (*static_cast<float*>(m_ports[1]) > 0.5f)
+    fastmode = true;
+  else
+    fastmode = false;
+  
+  // different rotation speeds
+  lslow = 10 * *static_cast<float*>(m_ports[2]);
+  lfast = 10 * *static_cast<float*>(m_ports[3]);
+  uslow = 10 * *static_cast<float*>(m_ports[4]);
+  ufast = 10 * *static_cast<float*>(m_ports[5]);
+  
+  // belt (?)
+  float value = *static_cast<float*>(m_ports[6]);
+  ubelt_up = (value * 3 + 1) * 0.012f;
+  ubelt_down = (value * 3 + 1) * 0.008f;
+  lbelt_up = (value * 3 + 1) * 0.0045f;
+  lbelt_down = (value * 3 + 1) * 0.0035f;
+  
+  // keyboard split
+  splitpoint = (long)(*static_cast<float*>(m_ports[7]) * 128);
+  
 	int	x;
 
   if (pthread_mutex_trylock(&m_lock)) {
@@ -179,10 +220,8 @@ void AZR3::run(unsigned long sampleFrames) {
     
 		// we need this variable further down
 		samplecount++;
-		if(samplecount > 10000) {
+		if(samplecount > 10000)
 			samplecount = 0;
-			fullyloaded = true;
-		}
 		
 		// read events from our own event queue
 		while((evt = this->event_clock(pframe)) != NULL) {
@@ -248,9 +287,14 @@ void AZR3::run(unsigned long sampleFrames) {
 				
         break;
       }
+        
 			case evt_noteoff:
 				n1.note_off(evt[1], channel);
 				break;
+        
+      case 0xB0:
+        break;
+        
 			case evt_alloff:
 				n1.all_notes_off();
 				break;
@@ -399,10 +443,9 @@ void AZR3::run(unsigned long sampleFrames) {
       This should make it sound more realistic.
 		*/
 		
-		if (my_p[n_speakers] == 1) {
+		if (*static_cast<float*>(m_ports[real_param[n_speakers]]) > 0.5) {
 			if (samplecount % 100 == 0) {
-				//!if (fastmode) {
-        if (true) {
+        if (fastmode) {
 					if (lspeed < lfast)
 						lspeed += lbelt_up;
 					if (lspeed > lfast)
@@ -503,7 +546,7 @@ void AZR3::run(unsigned long sampleFrames) {
 				}
 				
 				// additional delay lines in complex mode
-				if(my_p[n_complex] > 0.5f) {
+				if(*static_cast<float*>(m_ports[real_param[n_complex]]) > 0.5f) {
 					delay4.set_delay(llfo_d_out + 15);
 					delay3.set_delay(llfo_d_nout + 25);
 				}
@@ -550,7 +593,7 @@ void AZR3::run(unsigned long sampleFrames) {
 			
 
 			// We use two additional delay lines in "complex" mode
-			if(my_p[n_complex] > 0.5f) {
+			if(*static_cast<float*>(m_ports[real_param[n_complex]]) > 0.5f) {
 				right = right * 0.3f + 1.5f * er_r + 
           delay1.clock(right) + delay3.clock(er_r);
 				left = left * 0.3f + 1.5f * er_l + 
@@ -602,7 +645,6 @@ void AZR3::setSampleRate(float sampleRate) {
 
 	samplerate = sampleRate;
 	
-//	warmth.setparam(4500, 1.0f, sampleRate);
 	warmth.setparam(2700, 1.2f, sampleRate);
 
   n1.set_samplerate(samplerate);
@@ -628,7 +670,6 @@ void AZR3::setSampleRate(float sampleRate) {
 	lfo4.set_samplerate(samplerate);
 
 	body_filt.setparam(190, 1.5f, samplerate);
-//	postbody_filt.setparam(950, 1.5f, samplerate);
 	postbody_filt.setparam(1100, 1.5f, samplerate);
 }
 
@@ -3034,7 +3075,6 @@ void AZR3::setParameter (long index, float value) {
 	if (index < 0 || index > kNumParams)
 		return;
   
-  //*static_cast<float*>(m_ports[index]) = value;
   p[index]=value;				// put value into edit buffer
   my_p=p;						// let machine use edit buffer
 
@@ -3179,12 +3219,17 @@ void AZR3::setParameter (long index, float value) {
 			case n_tone:
 				fuzz_filt.setparam(800 + value * 3000, 0.7f, samplerate);
 				break;
+        
+        /* done as control rate port 1 mapped to modwheel
 			case n_speed:
 				if (value > 0.5f)
 					fastmode = true;
 				else
 					fastmode = false;
 				break;
+        */
+        
+        /* These are all done as control rate ports  2 - 6 
 			case n_l_slow:
 				lslow = value * 10;
 				break;
@@ -3203,6 +3248,9 @@ void AZR3::setParameter (long index, float value) {
 				lbelt_up = (value * 3 + 1) * 0.0045f;
 				lbelt_down = (value * 3 + 1) * 0.0035f;
 				break;
+        */
+        
+        
 			case n_spread:
 				lfos_ok = false;
 				break;
@@ -3420,7 +3468,7 @@ unsigned char* AZR3::event_clock(unsigned long offset) {
   }
   */
   
-  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[0]);
+  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[9]);
   
   // Are there any events left in the buffer?
   if (midi_ptr - midi->data >= midi->used_capacity)

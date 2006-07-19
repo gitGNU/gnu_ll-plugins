@@ -367,7 +367,7 @@ bool LV2Host::is_valid() const {
 
 
 const vector<LV2Port>& LV2Host::get_ports() const {
-  assert(m_handle);
+  assert(m_handle != 0);
   return m_ports;
 }
 
