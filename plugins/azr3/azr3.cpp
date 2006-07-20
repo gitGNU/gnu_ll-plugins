@@ -34,6 +34,7 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
     dist(0),
     fuzz(0),
     odmix(0),
+    oldspread(0),
     spread(0),
     spread2(0),
     cross1(0),
@@ -87,10 +88,14 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
   real_param[n_u_fast] = 5;
   is_real_param[n_belt] = true;
   real_param[n_belt] = 6;
+  is_real_param[n_spread] = true;
+  real_param[n_spread] = 7;
   is_real_param[n_splitpoint] = true;
-  real_param[n_splitpoint] = 7;
+  real_param[n_splitpoint] = 8;
   is_real_param[n_complex] = true;
-  real_param[n_complex] = 8;
+  real_param[n_complex] = 9;
+  is_real_param[n_pedalspeed] = true;
+  real_param[n_pedalspeed] = 10;
 
   pthread_mutex_init(&m_lock, 0);
   
@@ -182,31 +187,37 @@ void AZR3::run(unsigned long sampleFrames) {
     - speakers
 	*/
   
-  midi_ptr = static_cast<LV2_MIDI*>(m_ports[9])->data;
-	out1 = static_cast<float*>(m_ports[10]);
-	out2 = static_cast<float*>(m_ports[11]);
+  midi_ptr = static_cast<LV2_MIDI*>(m_ports[11])->data;
+	out1 = static_cast<float*>(m_ports[12]);
+	out2 = static_cast<float*>(m_ports[13]);
   
   // speed control port
-  if (*static_cast<float*>(m_ports[1]) > 0.5f)
+  if (*static_cast<float*>(m_ports[real_param[n_speed]]) > 0.5f)
     fastmode = true;
   else
     fastmode = false;
   
   // different rotation speeds
-  lslow = 10 * *static_cast<float*>(m_ports[2]);
-  lfast = 10 * *static_cast<float*>(m_ports[3]);
-  uslow = 10 * *static_cast<float*>(m_ports[4]);
-  ufast = 10 * *static_cast<float*>(m_ports[5]);
+  lslow = 10 * *static_cast<float*>(m_ports[real_param[n_l_slow]]);
+  lfast = 10 * *static_cast<float*>(m_ports[real_param[n_l_fast]]);
+  uslow = 10 * *static_cast<float*>(m_ports[real_param[n_u_slow]]);
+  ufast = 10 * *static_cast<float*>(m_ports[real_param[n_u_fast]]);
   
   // belt (?)
-  float value = *static_cast<float*>(m_ports[6]);
+  float value = *static_cast<float*>(m_ports[real_param[n_belt]]);
   ubelt_up = (value * 3 + 1) * 0.012f;
   ubelt_down = (value * 3 + 1) * 0.008f;
   lbelt_up = (value * 3 + 1) * 0.0045f;
   lbelt_down = (value * 3 + 1) * 0.0035f;
   
+  if (oldspread != *static_cast<float*>(m_ports[real_param[n_spread]])) {
+    lfos_ok = false;
+    oldspread = *static_cast<float*>(m_ports[real_param[n_spread]]);
+  }
+  
   // keyboard split
-  splitpoint = (long)(*static_cast<float*>(m_ports[7]) * 128);
+  splitpoint = (long)(*static_cast<float*>(m_ports[real_param[n_splitpoint]])
+                      * 128);
   
 	int	x;
 
@@ -469,7 +480,8 @@ void AZR3::run(unsigned long sampleFrames) {
 
 				//recalculate mic positions when "spread" has changed
 				if(!lfos_ok) {
-					float s = (my_p[n_spread] + 0.5f) * 0.8f;
+					float s = (*static_cast<float*>(m_ports[real_param[n_spread]])
+                     + 0.5f) * 0.8f;
 					spread = (s) * 2 + 1;
 					spread2 = (1 - spread) / 2;
 					lfo1.set_phase(0);
@@ -3468,7 +3480,7 @@ unsigned char* AZR3::event_clock(unsigned long offset) {
   }
   */
   
-  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[9]);
+  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[11]);
   
   // Are there any events left in the buffer?
   if (midi_ptr - midi->data >= midi->used_capacity)

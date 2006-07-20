@@ -94,6 +94,17 @@
     a lv2:ControlRateInputPort;
     lv2:datatype lv2:float;
     lv2:index 7;
+    lv2:symbol "spread";
+    lv2:name "Spread";
+    lv2:minimum 0;
+    lv2:default 0.5;
+    lv2:maximum 1;
+  ],
+  
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 8;
     lv2:symbol "splitpoint";
     lv2:name "Splitpoint";
     lv2:minimum 0;
@@ -104,7 +115,7 @@
   [
     a lv2:ControlRateInputPort;
     lv2:datatype lv2:float;
-    lv2:index 8;
+    lv2:index 9;
     lv2:symbol "complex";
     lv2:name "Complex";
     lv2:minimum 0;
@@ -114,8 +125,19 @@
   
   [
     a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 10;
+    lv2:symbol "pedalspeed";
+    lv2:name "Pedal speed";
+    lv2:minimum 0;
+    lv2:default 0.5;
+    lv2:maximum 1;
+  ],
+  
+  [
+    a lv2:ControlRateInputPort;
     lv2:datatype ll:miditype;
-    lv2:index 9;
+    lv2:index 11;
     lv2:symbol "midi";
     lv2:name "MIDI input";
   ],
@@ -123,7 +145,7 @@
   [
     a lv2:AudioRateOutputPort;
     lv2:datatype lv2:float;
-    lv2:index 10;
+    lv2:index 12;
     lv2:symbol "left";
     lv2:name "Left output";
   ],
@@ -131,7 +153,7 @@
   [
     a lv2:AudioRateOutputPort;
     lv2:datatype lv2:float;
-    lv2:index 11;
+    lv2:index 13;
     lv2:symbol "right";
     lv2:name "Right output";
   ].

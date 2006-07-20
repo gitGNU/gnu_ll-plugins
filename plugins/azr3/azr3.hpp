@@ -112,7 +112,7 @@ protected:
 	bool	odchanged;
 	float	odmix,n_odmix,n2_odmix,n25_odmix,odmix75;
 
-	float	spread,spread2;
+	float	oldspread,spread,spread2;
 	float	cross1;
 	bool	fastmode;
 	float	lslow,lfast,uslow,ufast,lspeed,uspeed;
