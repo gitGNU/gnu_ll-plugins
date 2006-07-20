@@ -130,7 +130,7 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
     }
   }
 
-  output_buf->used_capacity = data - output_buf->data;
+  output_buf->size = data - output_buf->data;
   
 }
 

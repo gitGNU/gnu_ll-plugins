@@ -31,7 +31,7 @@
       midi_data->data[buffer_offset++] = 0x64;
       ++midi_data->event_count;
       
-      midi_data->used_capacity = buffer_offset;
+      midi_data->size = buffer_offset;
       
     @endcode
     
@@ -85,7 +85,7 @@ typedef struct {
       buffer (including timestamps and size fields) before returning from
       the run() function. Any initial value should be ignored by the plugin.
   */
-  unsigned long  used_capacity;
+  unsigned long  size;
   
   /** The data buffer that is used to store MIDI events. The events are packed
       after each other, and the format of each event is as follows:

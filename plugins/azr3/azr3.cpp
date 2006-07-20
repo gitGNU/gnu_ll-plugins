@@ -3487,7 +3487,7 @@ unsigned char* AZR3::event_clock(unsigned long offset) {
   LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[11]);
   
   // Are there any events left in the buffer?
-  if (midi_ptr - midi->data >= midi->used_capacity)
+  if (midi_ptr - midi->data >= midi->size)
     return 0;
   
   // Is next event occuring on this frame?

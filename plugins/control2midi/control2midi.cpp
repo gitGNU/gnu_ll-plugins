@@ -49,7 +49,7 @@ public:
       m_last_value = cvalue;
     }
     
-    midi->used_capacity = sizeof(double) + sizeof(size_t) + 3;
+    midi->size = sizeof(double) + sizeof(size_t) + 3;
     
   }
   

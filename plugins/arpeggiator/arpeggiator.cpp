@@ -44,7 +44,7 @@ public:
     unsigned char* out_data = midi_out->data;
     
     midi_out->event_count = 0;
-    midi_out->used_capacity = 0;
+    midi_out->size = 0;
     
     // iterate over incoming MIDI events
     for (size_t in_event = 0; in_event < midi_in->event_count; ++in_event) {
@@ -109,7 +109,7 @@ public:
     
     m_frame_counter += nframes;
     
-    midi_out->used_capacity = out_data - midi_out->data;
+    midi_out->size = out_data - midi_out->data;
   }
   
   

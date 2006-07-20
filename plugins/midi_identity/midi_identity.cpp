@@ -20,14 +20,14 @@ public:
     LV2_MIDI* input = static_cast<LV2_MIDI*>(m_ports[0]);
     LV2_MIDI* output = static_cast<LV2_MIDI*>(m_ports[1]);
     
-    if (input->used_capacity <= output->capacity) {
+    if (input->size <= output->capacity) {
       output->event_count = input->event_count;
-      output->used_capacity = input->used_capacity;
-      std::memcpy(output->data, input->data, input->used_capacity);
+      output->size = input->size;
+      std::memcpy(output->data, input->data, input->size);
     }
     else {
       output->event_count = 0;
-      output->used_capacity = 0;
+      output->size = 0;
     }
     
   }
