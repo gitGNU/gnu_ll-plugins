@@ -1,6 +1,6 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.27
-PKG_DEPS = jack>=0.102.6 liblo>=0.22 gtkmm-2.4>=2.8.8
+PACKAGE_VERSION = 0.1.28
+PKG_DEPS = jack>=0.102.6 liblo>=0.22 gtkmm-2.4>=2.8.8 libglademm-2.4>=2.6.2
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
 
@@ -42,7 +42,7 @@ LV2_PLUGINS = sineshaper.lv2 control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 
 
 # Control2MIDI
 control2midi_lv2_SOURCES = control2midi.cpp
-control2midi_lv2_TURTLE = manifest.ttl control2midi.ttl
+control2midi_lv2_DATA = manifest.ttl control2midi.ttl
 control2midi_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype
 control2midi_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 control2midi_lv2_SOURCEDIR = plugins/control2midi
@@ -52,35 +52,40 @@ sineshaper_lv2_SOURCES = \
 	sineshaper.hpp sineshaper.cpp \
 	sineshaperports.hpp \
 	midiiterator.hpp
-sineshaper_lv2_TURTLE = manifest.ttl sineshaper.ttl
+sineshaper_lv2_DATA = manifest.ttl sineshaper.ttl sineshaper.glade dial.png sineshaper.png presets
 sineshaper_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/miditype -Iextensions/instrument
 sineshaper_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 sineshaper_lv2_SOURCEDIR = plugins/sineshaper
+sineshaper_lv2_PROGRAMS = sineshaper_gtk
+sineshaper_gtk_SOURCES = sineshapergui.cpp sineshapergui.hpp main.cpp skindial_gtkmm.hpp skindial_gtkmm.cpp
+sineshaper_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 libglademm-2.4` -Ilibraries/lv2oscui -Ilibraries/components -Iextensions/instrument
+sineshaper_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo libglademm-2.4` libraries/lv2oscui/liblv2_oscui.a
+sineshaper_gtk_SOURCEDIR = plugins/sineshaper
 
 # MIDIIdentity
 midi_identity_lv2_SOURCES = midi_identity.cpp
-midi_identity_lv2_TURTLE = manifest.ttl midi_identity.ttl
+midi_identity_lv2_DATA = manifest.ttl midi_identity.ttl
 midi_identity_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype
 midi_identity_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 midi_identity_lv2_SOURCEDIR = plugins/midi_identity
 
 # Arpeggiator
 arpeggiator_lv2_SOURCES = arpeggiator.cpp
-arpeggiator_lv2_TURTLE = manifest.ttl arpeggiator.ttl
+arpeggiator_lv2_DATA = manifest.ttl arpeggiator.ttl
 arpeggiator_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype
 arpeggiator_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 arpeggiator_lv2_SOURCEDIR = plugins/arpeggiator
 
 # Math constants
 math-constants_lv2_SOURCES = math-constants.cpp
-math-constants_lv2_TURTLE = manifest.ttl math-constants.ttl
+math-constants_lv2_DATA = manifest.ttl math-constants.ttl
 math-constants_lv2_CFLAGS = -Ilibraries/lv2plugin
 math-constants_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 math-constants_lv2_SOURCEDIR = plugins/math-constants
 
 # Math functions
 math-functions_lv2_SOURCES = math-functions.cpp
-math-functions_lv2_TURTLE = manifest.ttl math-functions.ttl
+math-functions_lv2_DATA = manifest.ttl math-functions.ttl
 math-functions_lv2_CFLAGS = -Ilibraries/lv2plugin
 math-functions_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 math-functions_lv2_SOURCEDIR = plugins/math-functions
@@ -91,7 +96,7 @@ azr3_lv2_SOURCES = \
 	fx.h fx.cpp \
 	voice_classes.h voice_classes.cpp \
 	cknob.xpm minioffon.xpm onoffgreen.xpm panelfx.xpm vonoff.xpm
-azr3_lv2_TURTLE = manifest.ttl azr3.ttl
+azr3_lv2_DATA = manifest.ttl azr3.ttl
 azr3_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype -Iextensions/instrument
 azr3_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 azr3_lv2_SOURCEDIR = plugins/azr3

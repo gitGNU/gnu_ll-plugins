@@ -16,7 +16,13 @@ public:
   
   /** Create a program manager that reads the programs from the given
       filename. */
-  inline ProgramManager(const std::string& filename) {
+  inline ProgramManager(const std::string& filename = "") {
+    load_programs(filename);
+  }
+  
+  
+  /** Load programs from a file. */
+  void load_programs(const std::string& filename) {
     std::ifstream ifs(filename.c_str());
     while (ifs.good()) {
 
@@ -53,7 +59,7 @@ public:
       std::cerr<<"Loaded program "<<p.number<<", \""<<p.name<<"\""<<std::endl;
     }
   }
-
+  
   
   /** Apply a program to the given port buffer vector. */
   inline void apply_program(std::vector<void*>& ports, unsigned long program) {
@@ -104,6 +110,16 @@ public:
       return true;
     }
     return false;
+  }
+  
+  
+  /** Get the port values for a program. */
+  const std::map<unsigned long, float>* get_values(unsigned long program) {
+    size_t index = find_program(program);
+    if (index < m_programs.size()) {
+      return &m_programs[index].values;
+    }
+    return 0;
   }
   
   

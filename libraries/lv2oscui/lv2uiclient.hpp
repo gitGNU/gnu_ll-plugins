@@ -70,6 +70,8 @@ public:
   bool is_valid() const;
   /** Returns the identifier string given by the plugin host. */
   const string& get_identifier() const;
+  /** Returns the bundle path. */
+  const string& get_bundle_path() const;
   /** Searches the given Glade XML tree for LV2 control widgets and 
       connects those widgets to the corresponding LV2 controls. */
   //void connect_gui(RefPtr<Xml> xml);
@@ -82,7 +84,7 @@ public:
       plugin. */
   void send_control(int port, float value);
   /** Change the plugin's program. */
-  void send_program(int bank, int program);
+  void send_program(int program);
   /** Tell the host that we want an update of all the controls, program and
       configuration values for the plugin. This is called automatically
       when this LV2UIClient object is created. */
@@ -103,7 +105,7 @@ public:
   signal<void, int, float> control_received;
   /** Emitted when the host sends a program change. The parameters are the 
       bank and program numbers. */
-  signal<void, int, int> program_received;
+  signal<void, int> program_received;
   /** Emitted when the host sends a configuration value. The parameters are
       the configuration key and the configuration value. */
   signal<void, const string, const string> configure_received;
@@ -179,17 +181,16 @@ private:
     control_received(port, value);
   }
   Dispatcher m_program_dispatcher;
-  queue<pair<int, int> > m_program_queue;
+  queue<int> m_program_queue;
   void program_receiver() {
     /* The plugin should update all it's control widgets when it receives
        a program change, but it should NOT send all those control changes
        back to the host. We block all /control and /program messages
        while the UI is handling the program change. */
     m_blocking = true;
-    int bank = m_program_queue.front().first;
-    int program = m_program_queue.front().second;
+    int program = m_program_queue.front();
     m_program_queue.pop();
-    program_received(bank, program);
+    program_received(program);
     m_blocking = false;
   }
   Dispatcher m_configure_dispatcher;
@@ -211,6 +212,7 @@ private:
   
   bool m_valid;
   string m_identifier;
+  string m_bundle;
   
   vector<Adjustment*> m_adjustments;
   bool m_blocking;

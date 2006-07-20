@@ -53,6 +53,7 @@ LV2UIClient::LV2UIClient(int argc, char** argv, bool wait)
       <<"Plugin identifier: "<<argv[4]<<endl;
   
   m_identifier = argv[4];
+  m_bundle = argv[2];
   
   if(!thread_supported())
     thread_init();
@@ -115,6 +116,11 @@ const string& LV2UIClient::get_identifier() const {
 }
 
 
+const string& LV2UIClient::get_bundle_path() const {
+  return m_bundle;
+}
+
+
 /*
 void LV2UIClient::connect_gui(RefPtr<Xml> xml) {
   // XXX Find a smarter way to do this!
@@ -157,13 +163,13 @@ void LV2UIClient::send_control(int port, float value) {
 }
 
 
-void LV2UIClient::send_program(int bank, int program) {
+void LV2UIClient::send_program(int program) {
   if (m_valid && !m_blocking) {
     lo_send(m_plugin_address, string(m_plugin_path + "/program").c_str(),
-	    "ii", bank, program);
+	    "i", program);
     /* The host does not send a /program back when we told it to change
        program, so we fire off the signal directly instead */
-    program_received(bank, program);
+    program_received(program);
   }
 }
 
@@ -242,7 +248,7 @@ int LV2UIClient::program_handler(const char *path, const char *types,
 				  lo_arg **argv, int argc, 
 				  void *data, void *user_data) {
   LV2UIClient* me = static_cast<LV2UIClient*>(user_data);
-  me->m_program_queue.push(make_pair(argv[0]->i, argv[1]->i));
+  me->m_program_queue.push(argv[0]->i);
   me->m_program_dispatcher();
   return 0;
 }

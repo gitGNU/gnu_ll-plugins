@@ -117,7 +117,7 @@ define LV2_PLUGIN_template
 $(2)_SRCPRF = $$(if $$($(2)_SOURCEDIR),$$($(2)_SOURCEDIR),.)
 $(2)_BLDPRF = $$(if $$($(2)_BUILDDIR),$$($(2)_BUILDDIR),$$($(2)_SRCPRF))
 $(2)_FULLSOURCES = $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_SOURCES))
-$(2)_FULLTURTLE = $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_TURTLE))
+$(2)_FULLDATA = $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_DATA))
 $(2)_CSOURCES = $$(filter %.c,$$($(2)_FULLSOURCES))
 $(2)_CXXSOURCES = $$(filter %.cpp,$$($(2)_FULLSOURCES))
 $(2)_COBJECTS = $$(subst .c,.o,$$($(2)_CSOURCES))
@@ -127,7 +127,7 @@ $(2)_LIBNAME = $$($(2)_SRCPRF)/$$(patsubst %.lv2,%.so,$(1))
 PROGRAMS += $$($(2)_PROGRAMS)
 ALL_OBJECTS += $$($(2)_OBJECTS) $$($(2)_LIBNAME)
 ALL_SOURCES += $$($(2)_FULLSOURCES)
-ALL_TURTLE += $$($(2)_FULLTURTLE)
+ALL_DATA += $$($(2)_FULLDATA)
 LV2_PLUGINS_REAL += $$($(2)_BLDPRF)/$(1)
 $(2)_INSTDIR = $$(if $$($(2)_INSTALLDIR),$$($(2)_INSTALLDIR),$(lv2plugindir))
 
@@ -141,12 +141,12 @@ $$($(2)_CXXOBJECTS): Makefile.config
 $$($(2)_LIBNAME): $$($(2)_OBJECTS) $(LIBRARIES) $(ARCHIVES_REAL)
 	$(CXX) -shared -fPIC $$($(2)_OBJECTS)  $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
 
-$$($(2)_BLDPRF)/$(1): $$($(2)_LIBNAME) $$($(2)_FULLTURTLE) $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_PROGRAMS))
+$$($(2)_BLDPRF)/$(1): $$($(2)_LIBNAME) $$($(2)_FULLDATA) $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_PROGRAMS))
 	rm -rf $$($(2)_BLDPRF)/$(1)
 	mkdir $$($(2)_BLDPRF)/$(1)
 	cp $$($(2)_LIBNAME) $$($(2)_BLDPRF)/$(1)
 	$$(if $$($(2)_PROGRAMS),cp $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_PROGRAMS)) $$($(2)_BLDPRF)/$(1),)
-	$$(if $$($(2)_FULLTURTLE),cp $$($(2)_FULLTURTLE) $$($(2)_BLDPRF)/$(1), )
+	$$(if $$($(2)_FULLDATA),cp $$($(2)_FULLDATA) $$($(2)_BLDPRF)/$(1), )
 
 install-$(2): $$($(2)_BLDPRF)/$(1) $$(if $$($(2)_HEADERS),install-$(2)-headers)
 	rm -rf $$($(2)_INSTDIR)/$(1)
@@ -282,7 +282,7 @@ install: install-libraries install-modules install-programs install-lv2-plugins 
 # DISTRIBUTION
 THIS_FILE = $(patsubst ./%,%,$(firstword $(filter %/Makefile.template,$(patsubst %,./%,$(MAKEFILE_LIST)))))
 CONFIGURE_SCRIPT = $(if $(__path_to_configure),$(__path_to_configure),configure)
-ALL_DIST_FILES = $(ALL_SOURCES) $(DATA) $(DOCS) $(EXTRA_DIST) $(ALL_TURTLE)
+ALL_DIST_FILES = $(ALL_SOURCES) $(DATA) $(DOCS) $(EXTRA_DIST) $(ALL_DATA)
 dist: 
 	rm -rf $(PACKAGE_NAME)-$(PACKAGE_VERSION)
 	rm -rf $(PACKAGE_NAME)-$(PACKAGE_VERSION).tar.bz2
