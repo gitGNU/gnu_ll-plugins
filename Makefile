@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.24
+PACKAGE_VERSION = 0.1.25
 PKG_DEPS = jack>=0.102.6 liblo>=0.22 gtkmm-2.4>=2.8.8
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
@@ -89,7 +89,8 @@ azr3_lv2_SOURCES = \
 	azr3.cpp azr3.hpp \
 	Globals.h \
 	fx.h fx.cpp \
-	voice_classes.h voice_classes.cpp
+	voice_classes.h voice_classes.cpp \
+	cknob.xpm minioffon.xpm onoffgreen.xpm panelfx.xpm vonoff.xpm
 azr3_lv2_TURTLE = manifest.ttl azr3.ttl
 azr3_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype -Iextensions/instrument
 azr3_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a

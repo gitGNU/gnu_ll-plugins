@@ -484,10 +484,14 @@ void AZR3::run(unsigned long sampleFrames) {
                      + 0.5f) * 0.8f;
 					spread = (s) * 2 + 1;
 					spread2 = (1 - spread) / 2;
-					lfo1.set_phase(0);
-					lfo2.set_phase(s / 2);
-					lfo3.set_phase(0);
-					lfo4.set_phase(s / 2);
+          // this crackles - use offset_phase instead
+					//lfo1.set_phase(0);
+					//lfo2.set_phase(s / 2);
+					//lfo3.set_phase(0);
+					//lfo4.set_phase(s / 2);
+          lfo2.offset_phase(lfo1, s / 2);
+          lfo4.offset_phase(lfo3, s / 2);
+          
 					cross1 = 1.5f - 1.2f * s;
 					// early reflections depend upon mic position.
 					// we want less e/r if mics are positioned on

@@ -183,6 +183,18 @@ float lfo::clock()
 	return(output);
 }
 
+void lfo::offset_phase(lfo& l, float phase_offset) {
+  c = l.c;
+  s = l.s;
+  float tci = cosf(phase_offset);
+  float tsi = sinf(phase_offset);
+  nc = DENORMALIZE(c * tci - s * tsi);
+  ns = DENORMALIZE(c * tsi + s * tci);
+  c = nc;
+  s = ns;
+}
+
+
 filt1::filt1()
 {
 	m_l=m_h=m_b=m_f=q=0;

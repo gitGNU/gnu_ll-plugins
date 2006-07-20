@@ -39,6 +39,7 @@ public:
 	void	set_samplerate(float samplerate);
 	void	set_rate(float srate,int type);	// Hz; type: 0=sin, 1=tri
 	void	set_phase(float phase);
+  void  offset_phase(lfo& l, float phase_offset);
 	float	get_rate();
 private:
 	int		my_type;
