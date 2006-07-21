@@ -59,7 +59,7 @@ protected:
   EventQueue m_queue;
   pthread_t m_sender;
 
-  std::vector<ClientInfo> m_clients;
+  std::vector<ClientInfo*> m_clients;
   pthread_mutex_t m_clients_mutex;
 };
 

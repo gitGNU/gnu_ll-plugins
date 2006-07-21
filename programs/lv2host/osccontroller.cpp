@@ -45,8 +45,10 @@ OSCController::~OSCController() {
   stop();
   lo_server_thread_free(m_server);
   pthread_join(m_sender, 0);
-  for (unsigned i = 0; i < m_clients.size(); ++i)
-    lo_address_free(m_clients[i].address);
+  for (unsigned i = 0; i < m_clients.size(); ++i) {
+    lo_address_free(m_clients[i]->address);
+    delete m_clients[i];
+  }
 }
 
 
@@ -78,10 +80,12 @@ int OSCController::update_handler(const char*, const char*, lo_arg** argv,
     path += '/';
   
   pthread_mutex_lock(&data->me.m_clients_mutex);
-  data->me.m_clients.push_back(ClientInfo(client, path));
+  ClientInfo* ci = new ClientInfo(client, path);
+  data->me.m_clients.push_back(ci);
   pthread_mutex_unlock(&data->me.m_clients_mutex);
 
   data->host.queue_config_request();
+  data->host.queue_passthrough("show", ci);
   
 }
 
@@ -121,8 +125,8 @@ void* OSCController::sender_thread(void* arg) {
       case EventQueue::Control:
         pthread_mutex_lock(&me->m_clients_mutex);
         for (size_t i = 0; i < me->m_clients.size(); ++i) {
-          lo_send(me->m_clients[i].address, 
-                  (me->m_clients[i].path + "control").c_str(), "if",
+          lo_send(me->m_clients[i]->address, 
+                  (me->m_clients[i]->path + "control").c_str(), "if",
                   event.control.port, event.control.value);
         }
         pthread_mutex_unlock(&me->m_clients_mutex);
@@ -131,14 +135,21 @@ void* OSCController::sender_thread(void* arg) {
       case EventQueue::Program:
         pthread_mutex_lock(&me->m_clients_mutex);
         for (size_t i = 0; i < me->m_clients.size(); ++i) {
-          lo_send(me->m_clients[i].address, 
-                  (me->m_clients[i].path + "program").c_str(), "i",
+          lo_send(me->m_clients[i]->address, 
+                  (me->m_clients[i]->path + "program").c_str(), "i",
                   event.program.program);
         }
         pthread_mutex_unlock(&me->m_clients_mutex);
         break;
-      }
       
+      case EventQueue::Passthrough:
+        if (!std::strcmp(event.passthrough.msg, "show")) {
+          ClientInfo* ci = static_cast<ClientInfo*>(event.passthrough.ptr);
+          lo_send(ci->address, (ci->path + "show").c_str(), "");
+        }
+        break;
+      
+      }
     }
   
     usleep(10000);

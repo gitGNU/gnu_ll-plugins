@@ -35,7 +35,8 @@ namespace {
 LV2Host::LV2Host(const string& uri, unsigned long frame_rate) 
   : m_handle(0),
     m_inst_desc(0),
-    m_midimap(128, -1) {
+    m_midimap(128, -1),
+    m_from_jack(0) {
   
   pthread_mutex_init(&m_mutex, 0);
   
@@ -403,8 +404,8 @@ void LV2Host::run(unsigned long nframes) {
       break;
       
     case EventQueue::Control: {
-      const unsigned long& port = m_to_jack.get_event().control.port;
-      const float& value = m_to_jack.get_event().control.value;
+      const unsigned long& port = e.control.port;
+      const float& value = e.control.value;
       *static_cast<float*>(m_ports[port].buffer) = value;
       break;
     }
@@ -421,6 +422,11 @@ void LV2Host::run(unsigned long nframes) {
           }
         }
       }
+      break;
+      
+    case EventQueue::Passthrough:
+      if (m_from_jack)
+        m_from_jack->write_passthrough(e.passthrough.msg, e.passthrough.ptr);
       break;
       
     default:
@@ -539,6 +545,11 @@ void LV2Host::queue_midi(unsigned long port, const unsigned char* midi) {
 
 void LV2Host::queue_config_request() {
   m_to_jack.write_config_request();
+}
+
+
+void LV2Host::queue_passthrough(const char* msg, void* ptr) {
+  m_to_jack.write_passthrough(msg, ptr);
 }
 
 

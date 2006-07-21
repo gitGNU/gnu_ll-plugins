@@ -68,6 +68,7 @@ public:
   void queue_control(unsigned long port, float value, bool to_jack = true);
   void queue_midi(unsigned long port, const unsigned char* midi);
   void queue_config_request();
+  void queue_passthrough(const char* msg, void* ptr);
   
   const std::map<std::string, std::string>& get_configuration() const;
   bool program_is_valid() const;
