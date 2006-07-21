@@ -70,6 +70,8 @@ int main(int argc, char** argv) {
   add_knob(fbox, lv2, 7, 0, 1, 0.5, pixmap, 572, 352);
   add_switch(fbox, lv2, 9, 443, 331, Switch::Mini);
   
+  window.hide();
+  
   lv2.show_received.connect(mem_fun(window, &Gtk::Window::show_all));
   lv2.hide_received.connect(mem_fun(window, &Gtk::Window::hide));
   lv2.quit_received.connect(&Main::quit);

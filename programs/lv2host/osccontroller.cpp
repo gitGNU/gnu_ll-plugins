@@ -82,7 +82,7 @@ int OSCController::update_handler(const char*, const char*, lo_arg** argv,
   pthread_mutex_unlock(&data->me.m_clients_mutex);
 
   data->host.queue_config_request();
-  lo_send(client, (path + "show").c_str(), "");
+  
 }
 
 
