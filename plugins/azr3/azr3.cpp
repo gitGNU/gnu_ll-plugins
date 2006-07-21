@@ -76,64 +76,68 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
     is_real_param(kNumParams, false),
     real_param(kNumParams, -1) {
   
+  is_real_param[n_click] = true;
+  real_param[n_click] = 0;
   is_real_param[n_perc] = true;
-  real_param[n_perc] = 0;
+  real_param[n_perc] = 1;
   is_real_param[n_percvol] = true;
-  real_param[n_percvol] = 1;
+  real_param[n_percvol] = 2;
   is_real_param[n_percfade] = true;
-  real_param[n_percfade] = 2;
+  real_param[n_percfade] = 3;
   is_real_param[n_vol1] = true;
-  real_param[n_vol1] = 3;
+  real_param[n_vol1] = 4;
   is_real_param[n_vol2] = true;
-  real_param[n_vol2] = 4;
+  real_param[n_vol2] = 5;
   is_real_param[n_vol3] = true;
-  real_param[n_vol3] = 5;
+  real_param[n_vol3] = 6;
   is_real_param[n_master] = true;
-  real_param[n_master] = 6;
+  real_param[n_master] = 7;
   is_real_param[n_1_perc] = true;
-  real_param[n_1_perc] = 7;
+  real_param[n_1_perc] = 8;
   is_real_param[n_2_perc] = true;
-  real_param[n_2_perc] = 8;
+  real_param[n_2_perc] = 9;
   is_real_param[n_3_perc] = true;
-  real_param[n_3_perc] = 9;
+  real_param[n_3_perc] = 10;
   is_real_param[n_mrvalve] = true;
-  real_param[n_mrvalve] = 10;
+  real_param[n_mrvalve] = 11;
   is_real_param[n_drive] = true;
-  real_param[n_drive] = 11;
+  real_param[n_drive] = 12;
   is_real_param[n_set] = true;
-  real_param[n_set] = 12;
+  real_param[n_set] = 13;
   is_real_param[n_tone] = true;
-  real_param[n_tone] = 13;
+  real_param[n_tone] = 14;
   is_real_param[n_mix] = true;
-  real_param[n_mix] = 14;
+  real_param[n_mix] = 15;
   is_real_param[n_speakers] = true;
-  real_param[n_speakers] = 15;
+  real_param[n_speakers] = 16;
   is_real_param[n_speed] = true;
-  real_param[n_speed] = 16;
+  real_param[n_speed] = 17;
   is_real_param[n_l_slow] = true;
-  real_param[n_l_slow] = 17;
+  real_param[n_l_slow] = 18;
   is_real_param[n_l_fast] = true;
-  real_param[n_l_fast] = 18;
+  real_param[n_l_fast] = 19;
   is_real_param[n_u_slow] = true;
-  real_param[n_u_slow] = 19;
+  real_param[n_u_slow] = 20;
   is_real_param[n_u_fast] = true;
-  real_param[n_u_fast] = 20;
+  real_param[n_u_fast] = 21;
   is_real_param[n_belt] = true;
-  real_param[n_belt] = 21;
+  real_param[n_belt] = 22;
   is_real_param[n_spread] = true;
-  real_param[n_spread] = 22;
+  real_param[n_spread] = 23;
   is_real_param[n_splitpoint] = true;
-  real_param[n_splitpoint] = 23;
+  real_param[n_splitpoint] = 24;
   is_real_param[n_complex] = true;
-  real_param[n_complex] = 24;
+  real_param[n_complex] = 25;
   is_real_param[n_pedalspeed] = true;
-  real_param[n_pedalspeed] = 25;
+  real_param[n_pedalspeed] = 26;
+  is_real_param[n_sustain] = true;
+  real_param[n_sustain] = 27;
   is_real_param[n_1_sustain] = true;
-  real_param[n_1_sustain] = 26;
+  real_param[n_1_sustain] = 28;
   is_real_param[n_2_sustain] = true;
-  real_param[n_2_sustain] = 27;
+  real_param[n_2_sustain] = 29;
   is_real_param[n_3_sustain] = true;
-  real_param[n_3_sustain] = 28;
+  real_param[n_3_sustain] = 30;
 
   pthread_mutex_init(&m_lock, 0);
   
@@ -228,9 +232,12 @@ void AZR3::run(unsigned long sampleFrames) {
     - speakers
 	*/
   
-  midi_ptr = static_cast<LV2_MIDI*>(m_ports[29])->data;
-	out1 = static_cast<float*>(m_ports[30]);
-	out2 = static_cast<float*>(m_ports[31]);
+  midi_ptr = static_cast<LV2_MIDI*>(m_ports[31])->data;
+	out1 = static_cast<float*>(m_ports[32]);
+	out2 = static_cast<float*>(m_ports[33]);
+  
+  // compute click
+  calc_click();
   
   // set percussion parameters
   {
@@ -346,7 +353,7 @@ void AZR3::run(unsigned long sampleFrames) {
 			case evt_noteon: {
         unsigned char note = evt[1];
         bool percenable = false;
-        float sustain = my_p[n_sustain] + .0001f;
+        float sustain = *(float*)m_ports[real_param[n_sustain]] + .0001f;
 					
         // here we choose the correct wavetable according to the played note
 #define foldstart 80
@@ -3539,17 +3546,17 @@ void AZR3::calc_click() {
     error". Improve it if you can, but PLEAZE tell me how you
     did it...
   */
-	click[0] = my_p[n_click] *
+	click[0] = *(float*)m_ports[real_param[n_click]] *
     (my_p[n_1_db1] + my_p[n_1_db2] + my_p[n_1_db3] + my_p[n_1_db4] +
      my_p[n_1_db5] + my_p[n_1_db6] + my_p[n_1_db7] + my_p[n_1_db8] +
      my_p[n_1_db9]) / 9;
 
-	click[1] = my_p[n_click] *
+	click[1] = *(float*)m_ports[real_param[n_click]] *
 	(my_p[n_2_db1] + my_p[n_2_db2] + my_p[n_2_db3] + my_p[n_2_db4] +
    my_p[n_2_db5] + my_p[n_2_db6] + my_p[n_2_db7]+my_p[n_2_db8] +
    my_p[n_2_db9]) / 9;
 
-	click[2] = my_p[n_click] *
+	click[2] = *(float*)m_ports[real_param[n_click]] *
 	(my_p[n_3_db1] + my_p[n_3_db2] + my_p[n_3_db3] + my_p[n_3_db4] + 
    my_p[n_1_db5]) / 22;
 }
@@ -3585,7 +3592,7 @@ unsigned char* AZR3::event_clock(unsigned long offset) {
   }
   */
   
-  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[29]);
+  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[31]);
   
   // Are there any events left in the buffer?
   if (midi_ptr - midi->data >= midi->size)
