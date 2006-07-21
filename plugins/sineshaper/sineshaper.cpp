@@ -321,7 +321,6 @@ const LV2_ProgramDescriptor* SineShaper::get_program(unsigned long index) {
 
 
 void SineShaper::select_program(unsigned long program) {
-  std::cerr<<"select_program("<<program<<")"<<std::endl;
   m_pm.apply_program(m_ports, program);
 }
 

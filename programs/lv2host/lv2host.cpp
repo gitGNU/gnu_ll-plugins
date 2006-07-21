@@ -31,7 +31,6 @@ namespace {
 }
 
 
-
 LV2Host::LV2Host(const string& uri, unsigned long frame_rate) 
   : m_handle(0),
     m_inst_desc(0),
@@ -49,6 +48,8 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   string library;
   string ttlfile;
   string plugindir;
+
+  vector<QueryResult> qr;
   
   for (unsigned i = 0; i < search_dirs.size(); ++i) {
     DIR* d = opendir(search_dirs[i].c_str());
@@ -60,7 +61,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     while (e = readdir(d)) {
       if (strlen(e->d_name) >= 4) {
         
-        // is it an LV2 bundle?
+        // is named like  an LV2 bundle?
         if (strcmp(e->d_name + (strlen(e->d_name) - 4), ".lv2"))
           continue;
         
@@ -88,16 +89,16 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
           }
           Variable binary, datafile;
           Namespace lv2("<http://lv2plug.in/ontology#>");
-          Query q1 = select(binary)
-            .where(uriref, lv2("binary"), binary);
-          vector<QueryResult> qr = q1.run(data);
+          qr = select(binary)
+            .where(uriref, lv2("binary"), binary)
+            .run(data);
           if (qr.size() == 0)
             continue;
           else
             library = absolutise(qr[0][binary]->name, plugindir);
-          Query q2 = select(datafile)
-            .where(uriref, rdfs("seeAlso"), datafile);
-          qr = q2.run(data);
+          qr = select(datafile)
+            .where(uriref, rdfs("seeAlso"), datafile)
+            .run(data);
           if (qr.size() > 0)
             ttlfile = absolutise(qr[0][datafile]->name, plugindir);
           break;
@@ -131,13 +132,13 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     Namespace lv2("<http://lv2plug.in/ontology#>");
     Namespace ll("<http://ll-plugins.nongnu.org/lv2/namespace#>");
     
-    Query q1 = select(index, symbol, portclass, porttype)
+    qr = select(index, symbol, portclass, porttype)
       .where(uriref, lv2("port"), port)
       .where(port, rdf("type"), portclass)
       .where(port, lv2("index"), index)
       .where(port, lv2("symbol"), symbol)
-      .where(port, lv2("datatype"), porttype);
-    vector<QueryResult> qr = q1.run(data);
+      .where(port, lv2("datatype"), porttype)
+      .run(data);
     m_ports.resize(qr.size());
     for (unsigned j = 0; j < qr.size(); ++j) {
       
@@ -184,11 +185,11 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     
     // default values
     Variable default_value;
-    Query q3 = select(index, default_value)
+    qr = select(index, default_value)
       .where(uriref, lv2("port"), port)
       .where(port, lv2("index"), index)
-      .where(port, lv2("default"), default_value);
-    qr = q3.run(data);
+      .where(port, lv2("default"), default_value)
+      .run(data);
     for (unsigned j = 0; j < qr.size(); ++j) {
       unsigned p = atoi(qr[j][index]->name.c_str());
       if (p >= m_ports.size())
@@ -199,11 +200,11 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     
     // minimum values
     Variable min_value;
-    q3 = select(index, min_value)
+    qr = select(index, min_value)
       .where(uriref, lv2("port"), port)
       .where(port, lv2("index"), index)
-      .where(port, lv2("minimum"), min_value);
-    qr = q3.run(data);
+      .where(port, lv2("minimum"), min_value)
+      .run(data);
     for (unsigned j = 0; j < qr.size(); ++j) {
       unsigned p = atoi(qr[j][index]->name.c_str());
       if (p >= m_ports.size())
@@ -214,11 +215,11 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     
     // maximum values
     Variable max_value;
-    q3 = select(index, max_value)
+    qr = select(index, max_value)
       .where(uriref, lv2("port"), port)
       .where(port, lv2("index"), index)
-      .where(port, lv2("maximum"), max_value);
-    qr = q3.run(data);
+      .where(port, lv2("maximum"), max_value)
+      .run(data);
     for (unsigned j = 0; j < qr.size(); ++j) {
       unsigned p = atoi(qr[j][index]->name.c_str());
       if (p >= m_ports.size())
@@ -237,19 +238,19 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
         m_ports[i].max_value = m_ports[i].default_value;
       if (m_ports[i].max_value - m_ports[i].min_value <= 0)
         m_ports[i].max_value = m_ports[i].min_value + 10;
-      cerr<<"range for port "<<i<<": "
-          <<m_ports[i].min_value<<" - "<<m_ports[i].max_value<<endl;
+      //cerr<<"range for port "<<i<<": "
+      //    <<m_ports[i].min_value<<" - "<<m_ports[i].max_value<<endl;
     }
     
     // MIDI controller bindings
     Variable controller, cc_number;
-    Query q4 = select(index, cc_number)
+    qr = select(index, cc_number)
       .where(uriref, lv2("port"), port)
       .where(port, lv2("index"), index)
       .where(port, ll("defaultMidiController"), controller)
       .where(controller, ll("controllerType"), ll("CC"))
-      .where(controller, ll("controllerNumber"), cc_number);
-    qr = q4.run(data);
+      .where(controller, ll("controllerNumber"), cc_number)
+      .run(data);
     for (unsigned j = 0; j < qr.size(); ++j) {
       unsigned p = atoi(qr[j][index]->name.c_str());
       unsigned cc = atoi(qr[j][cc_number]->name.c_str());
@@ -258,9 +259,9 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     }
     
     // default MIDI port
-    Query q5 = select(index)
-      .where(uriref, ll("defaultMidiPort"), index);
-    qr = q5.run(data);
+    qr = select(index)
+      .where(uriref, ll("defaultMidiPort"), index)
+      .run(data);
     if (qr.size() > 0)
       m_default_midi_port = atoi(qr[0][index]->name.c_str());
     else {
@@ -276,9 +277,9 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     
     // standalone GUI path
     Variable gui_path;
-    Query q0 = select(gui_path)
-      .where(uriref, ll("standaloneGui"), gui_path);
-    qr = q0.run(data);
+    qr = select(gui_path)
+      .where(uriref, ll("standaloneGui"), gui_path)
+      .run(data);
     if (qr.size() > 0)
       m_standalonegui = absolutise(qr[0][gui_path]->name, plugindir);
     

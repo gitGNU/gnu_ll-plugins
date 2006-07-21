@@ -339,7 +339,6 @@ void SineShaperGUI::save_preset() {
 
 
 void SineShaperGUI::factory_preset_selected() {
-  cerr<<__PRETTY_FUNCTION__<<endl;
   ListStore::const_iterator iter = 
     m_factory_preset_list->get_selection()->get_selected();
   if (iter)
