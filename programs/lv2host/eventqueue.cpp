@@ -4,7 +4,7 @@
 
 
 EventQueue::Type EventQueue::read_event() {
-
+  
   if (!m_queue.available())
     return None;
   
@@ -58,6 +58,7 @@ bool EventQueue::write_control(unsigned long port, float value) {
   ce.port = port;
   ce.value = value;
   m_queue.write(reinterpret_cast<unsigned char*>(&ce), sizeof(ControlEvent));
+  sem_post(&m_sem);
   return true;
 }
 
@@ -68,6 +69,7 @@ bool EventQueue::write_program(unsigned long program) {
   ProgramEvent pe;
   pe.program = program;
   m_queue.write(reinterpret_cast<unsigned char*>(&pe), sizeof(ProgramEvent));
+  sem_post(&m_sem);
   return true;
 }
 
@@ -75,6 +77,7 @@ bool EventQueue::write_program(unsigned long program) {
 bool EventQueue::write_config_request() {
   Type t = ConfigRequest;
   m_queue.write(reinterpret_cast<unsigned char*>(&t), sizeof(Type));
+  sem_post(&m_sem);
   return true;
 }
 
@@ -88,5 +91,11 @@ bool EventQueue::write_passthrough(const char* msg, void* ptr) {
   pe.ptr = ptr;
   m_queue.write(reinterpret_cast<unsigned char*>(&pe), 
                 sizeof(PassthroughEvent));
+  sem_post(&m_sem);
   return true;
+}
+
+
+bool EventQueue::wait() {
+  return sem_wait(&m_sem) == 0;
 }

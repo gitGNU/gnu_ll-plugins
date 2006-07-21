@@ -76,38 +76,46 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
     is_real_param(kNumParams, false),
     real_param(kNumParams, -1) {
   
+  is_real_param[n_vol1] = true;
+  real_param[n_vol1] = 0;
+  is_real_param[n_vol2] = true;
+  real_param[n_vol2] = 1;
+  is_real_param[n_vol3] = true;
+  real_param[n_vol3] = 2;
+  is_real_param[n_master] = true;
+  real_param[n_master] = 3;
   is_real_param[n_mrvalve] = true;
-  real_param[n_mrvalve] = 0;
+  real_param[n_mrvalve] = 4;
   is_real_param[n_drive] = true;
-  real_param[n_drive] = 1;
+  real_param[n_drive] = 5;
   is_real_param[n_set] = true;
-  real_param[n_set] = 2;
+  real_param[n_set] = 6;
   is_real_param[n_tone] = true;
-  real_param[n_tone] = 3;
+  real_param[n_tone] = 7;
   is_real_param[n_mix] = true;
-  real_param[n_mix] = 4;
+  real_param[n_mix] = 8;
   is_real_param[n_speakers] = true;
-  real_param[n_speakers] = 5;
+  real_param[n_speakers] = 9;
   is_real_param[n_speed] = true;
-  real_param[n_speed] = 6;
+  real_param[n_speed] = 10;
   is_real_param[n_l_slow] = true;
-  real_param[n_l_slow] = 7;
+  real_param[n_l_slow] = 11;
   is_real_param[n_l_fast] = true;
-  real_param[n_l_fast] = 8;
+  real_param[n_l_fast] = 12;
   is_real_param[n_u_slow] = true;
-  real_param[n_u_slow] = 9;
+  real_param[n_u_slow] = 13;
   is_real_param[n_u_fast] = true;
-  real_param[n_u_fast] = 10;
+  real_param[n_u_fast] = 14;
   is_real_param[n_belt] = true;
-  real_param[n_belt] = 11;
+  real_param[n_belt] = 15;
   is_real_param[n_spread] = true;
-  real_param[n_spread] = 12;
+  real_param[n_spread] = 16;
   is_real_param[n_splitpoint] = true;
-  real_param[n_splitpoint] = 13;
+  real_param[n_splitpoint] = 17;
   is_real_param[n_complex] = true;
-  real_param[n_complex] = 14;
+  real_param[n_complex] = 18;
   is_real_param[n_pedalspeed] = true;
-  real_param[n_pedalspeed] = 15;
+  real_param[n_pedalspeed] = 19;
 
   pthread_mutex_init(&m_lock, 0);
   
@@ -202,9 +210,14 @@ void AZR3::run(unsigned long sampleFrames) {
     - speakers
 	*/
   
-  midi_ptr = static_cast<LV2_MIDI*>(m_ports[16])->data;
-	out1 = static_cast<float*>(m_ports[17]);
-	out2 = static_cast<float*>(m_ports[18]);
+  midi_ptr = static_cast<LV2_MIDI*>(m_ports[20])->data;
+	out1 = static_cast<float*>(m_ports[21]);
+	out2 = static_cast<float*>(m_ports[22]);
+  
+  // set volumes
+  n1.set_volume(*static_cast<float*>(m_ports[real_param[n_vol1]]) * 0.3f, 0);
+  n1.set_volume(*static_cast<float*>(m_ports[real_param[n_vol2]]) * 0.4f, 1);
+  n1.set_volume(*static_cast<float*>(m_ports[real_param[n_vol3]]) * 0.6f, 2);
   
   // has the distortion switch changed?
   if (*static_cast<float*>(m_ports[real_param[n_mrvalve]]) != oldmrvalve) {
@@ -666,11 +679,11 @@ void AZR3::run(unsigned long sampleFrames) {
 			left *= 0.033f;
 			
 			// spread crossover (emulates mic positions)
-			last_out1 = (left + cross1 * right) * my_p[n_master];
-			last_out2 = (right + cross1 * left) * my_p[n_master];
+			last_out1 = (left + cross1 * right) * *(float*)(m_ports[real_param[n_master]]);
+			last_out2 = (right + cross1 * left) * *(float*)(m_ports[real_param[n_master]]);
 		}
 		else {
-			last_out1 = last_out2 = mono * my_p[n_master];
+			last_out1 = last_out2 = mono * *(float*)(m_ports[real_param[n_master]]);
 		}
 		if(mute) {
 			last_out1 = 0;
@@ -3231,9 +3244,9 @@ void AZR3::setParameter (long index, float value) {
 					else
 						n1.set_numofvoices(NUMOFVOICES);
           
-					n1.set_volume(my_p[n_vol1] * 0.3f, 0);
-					n1.set_volume(my_p[n_vol2] * 0.3f, 1);
-					n1.set_volume(my_p[n_vol3] * 0.6f, 2);
+					n1.set_volume(*(float*)(m_ports[real_param[n_vol1]]) * 0.3f, 0);
+					n1.set_volume(*(float*)(m_ports[real_param[n_vol2]]) * 0.3f, 1);
+					n1.set_volume(*(float*)(m_ports[real_param[n_vol3]]) * 0.6f, 2);
 				}
 				mono_before = value;
 				break;
@@ -3526,7 +3539,7 @@ unsigned char* AZR3::event_clock(unsigned long offset) {
   }
   */
   
-  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[16]);
+  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[20]);
   
   // Are there any events left in the buffer?
   if (midi_ptr - midi->data >= midi->size)

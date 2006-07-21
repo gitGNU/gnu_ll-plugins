@@ -64,12 +64,17 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
 
   vector<QueryResult> qr;
   
+  // iterate over all directories
   for (unsigned i = 0; i < search_dirs.size(); ++i) {
+    
+    // open the directory
     DIR* d = opendir(search_dirs[i].c_str());
     if (d == 0) {
       cerr<<"Could not open "<<search_dirs[i]<<": "<<strerror(errno)<<endl;
       continue;
     }
+    
+    // iterate over all directory entries
     dirent* e;
     while (e = readdir(d)) {
       if (strlen(e->d_name) >= 4) {
@@ -118,6 +123,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
         }
       }
     }
+    
     closedir(d);
     if (library != "")
       break;
@@ -251,8 +257,6 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
         m_ports[i].max_value = m_ports[i].default_value;
       if (m_ports[i].max_value - m_ports[i].min_value <= 0)
         m_ports[i].max_value = m_ports[i].min_value + 10;
-      //cerr<<"range for port "<<i<<": "
-      //    <<m_ports[i].min_value<<" - "<<m_ports[i].max_value<<endl;
     }
     
     // MIDI controller bindings

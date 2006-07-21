@@ -44,6 +44,7 @@ OSCController::OSCController(LV2Host& host, bool& still_running)
 OSCController::~OSCController() {
   stop();
   lo_server_thread_free(m_server);
+  pthread_cancel(m_sender);
   pthread_join(m_sender, 0);
   for (unsigned i = 0; i < m_clients.size(); ++i) {
     lo_address_free(m_clients[i]->address);
@@ -152,7 +153,7 @@ void* OSCController::sender_thread(void* arg) {
       }
     }
   
-    usleep(10000);
+    me->m_queue.wait();
   } while (me->m_still_running);
   return 0;
 }
