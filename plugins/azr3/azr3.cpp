@@ -154,6 +154,9 @@ const LV2_ProgramDescriptor* AZR3::get_program(unsigned long index) {
 
 void AZR3::select_program(unsigned long program) {
   
+  if (program >= kNumPrograms)
+    return;
+  
   pthread_mutex_lock(&m_lock);
   
 	flpProgram& ap = programs[program];

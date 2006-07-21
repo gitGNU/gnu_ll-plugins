@@ -8,6 +8,8 @@
 #include <pthread.h>
 
 #include "lv2-instrument.h"
+#include "ringbuffer.hpp"
+#include "eventqueue.hpp"
 
 
 enum PortDirection {
@@ -32,14 +34,13 @@ struct LV2Port {
   float min_value;
   float max_value;
   bool midi;
-  float locked_value;
 };
 
 
 /** A class that loads a single LV2 plugin. */
 class LV2Host {
 public:
-
+  
   LV2Host(const std::string& uri, unsigned long frame_rate);
   ~LV2Host();
   
@@ -63,13 +64,16 @@ public:
   const std::string& get_gui_path() const;
   const std::string& get_bundle_dir() const;
   
-  void queue_program(unsigned long program);
-  void queue_control(unsigned long port, float value);
+  void queue_program(unsigned long program, bool to_jack = true);
+  void queue_control(unsigned long port, float value, bool to_jack = true);
   void queue_midi(unsigned long port, const unsigned char* midi);
+  void queue_config_request();
   
   const std::map<std::string, std::string>& get_configuration() const;
   bool program_is_valid() const;
-  unsigned long get_program() const;
+  unsigned long get_current_program() const;
+  
+  void set_event_queue(EventQueue* q);
   
 protected:
   
@@ -95,6 +99,9 @@ protected:
   
   // big lock
   pthread_mutex_t m_mutex;
+  
+  EventQueue m_to_jack;
+  EventQueue* m_from_jack;
   
 };
 

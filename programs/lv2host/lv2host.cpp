@@ -35,9 +35,7 @@ namespace {
 LV2Host::LV2Host(const string& uri, unsigned long frame_rate) 
   : m_handle(0),
     m_inst_desc(0),
-    m_midimap(128, -1),
-    m_program_is_valid(false),
-    m_new_program(false) {
+    m_midimap(128, -1) {
   
   pthread_mutex_init(&m_mutex, 0);
   
@@ -196,7 +194,6 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
         return;
       m_ports[p].default_value = 
         atof(qr[j][default_value]->name.c_str());
-      m_ports[p].locked_value = m_ports[p].default_value;
     }
     
     // minimum values
@@ -339,6 +336,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   for (unsigned long index = 0; (pdesc = get_program(index)); ++index) {
     cerr<<"Program "<<pdesc->number<<": "<<pdesc->name<<endl;
     if (!default_program_set) {
+      cerr<<"Queuing as default."<<endl;
       queue_program(pdesc->number);
       default_program_set = true;
     }
@@ -394,29 +392,40 @@ void LV2Host::run(unsigned long nframes) {
   for (size_t i = 0; i < m_ports.size(); ++i)
     m_desc->connect_port(m_handle, i, m_ports[i].buffer);
   
-  // try to execute queued commands
-  if (!pthread_mutex_trylock(&m_mutex)) {
-    
-    // copy new control values to the real port buffers
-    for (size_t i = 0; i < m_ports.size(); ++i) {
-      if (m_ports[i].rate == ControlRate && !m_ports[i].midi && 
-          m_ports[i].direction == InputPort)
-        *static_cast<float*>(m_ports[i].buffer) = m_ports[i].locked_value;
+  // read commands from ringbuffer
+  EventQueue::Type t;
+  const EventQueue::Event& e = m_to_jack.get_event();
+  while ((t = m_to_jack.read_event()) != EventQueue::None) {
+    switch (t) {
+      
+    case EventQueue::Program: 
+      select_program(e.program.program);
+      break;
+      
+    case EventQueue::Control: {
+      const unsigned long& port = m_to_jack.get_event().control.port;
+      const float& value = m_to_jack.get_event().control.value;
+      *static_cast<float*>(m_ports[port].buffer) = value;
+      break;
     }
-    
-    // if there is a new program queued, switch to it
-    if (m_new_program) {
-      select_program(m_program);
-      for (size_t i = 0; i < m_ports.size(); ++i) {
-        if (m_ports[i].rate == ControlRate && !m_ports[i].midi && 
-            m_ports[i].direction == InputPort)
-          m_ports[i].locked_value = *static_cast<float*>(m_ports[i].buffer);
+      
+    case EventQueue::ConfigRequest:
+      if (m_from_jack) {
+        if (m_program_is_valid)
+          m_from_jack->write_program(m_program);
+        for (unsigned long p = 0; p < m_ports.size(); ++p) {
+          if (!m_ports[p].midi && m_ports[p].rate == ControlRate &&
+              m_ports[p].direction == InputPort) {
+            m_from_jack->
+              write_control(p, *static_cast<float*>(m_ports[p].buffer));
+          }
+        }
       }
-      m_program_is_valid = true;
-      m_new_program = false;
+      break;
+      
+    default:
+      break;
     }
-    
-    pthread_mutex_unlock(&m_mutex);
   }
   
   m_desc->run(m_handle, nframes);
@@ -463,8 +472,21 @@ const LV2_ProgramDescriptor* LV2Host::get_program(unsigned long index) {
 
 
 void LV2Host::select_program(unsigned long program) {
-  if (m_inst_desc && m_inst_desc->select_program)
+  if (m_inst_desc && m_inst_desc->select_program) {
     m_inst_desc->select_program(m_handle, program);
+    m_program = program;
+    m_program_is_valid = true;
+    if (m_from_jack) {
+      m_from_jack->write_program(program);
+      for (unsigned long p = 0; p < m_ports.size(); ++p) {
+        if (!m_ports[p].midi && m_ports[p].rate == ControlRate &&
+            m_ports[p].direction == InputPort) {
+          m_from_jack->
+            write_control(p, *static_cast<float*>(m_ports[p].buffer));
+        }
+      }
+    }
+  }
 }
 
 
@@ -488,27 +510,35 @@ const std::string& LV2Host::get_bundle_dir() const {
 }
 
 
-void LV2Host::queue_program(unsigned long program) {
-  pthread_mutex_lock(&m_mutex);
-  m_program = program;
-  m_program_is_valid = true;
-  m_new_program = true;
-  pthread_mutex_unlock(&m_mutex);
+void LV2Host::queue_program(unsigned long program, bool to_jack) {
+  if (to_jack) {
+    pthread_mutex_lock(&m_mutex);
+    m_to_jack.write_program(program);
+    pthread_mutex_unlock(&m_mutex);
+  }
+  else if (m_from_jack)
+    m_from_jack->write_program(program);
 }
 
 
-void LV2Host::queue_control(unsigned long port, float value) {
-  if (port < m_ports.size() && m_ports[port].direction == InputPort &&
-      m_ports[port].rate == ControlRate && !m_ports[port].midi) {
+void LV2Host::queue_control(unsigned long port, float value, bool to_jack) {
+  if (to_jack) {
     pthread_mutex_lock(&m_mutex);
-    m_ports[port].locked_value = value;
+    m_to_jack.write_control(port, value);
     pthread_mutex_unlock(&m_mutex);
   }
+  else if (m_from_jack)
+    m_from_jack->write_control(port, value);
 }
 
 
 void LV2Host::queue_midi(unsigned long port, const unsigned char* midi) {
   cerr<<__PRETTY_FUNCTION__<<" is not implemented yet!"<<endl;
+}
+
+
+void LV2Host::queue_config_request() {
+  m_to_jack.write_config_request();
 }
 
 
@@ -523,9 +553,14 @@ bool LV2Host::program_is_valid() const {
 }
 
 
-unsigned long LV2Host::get_program() const {
+unsigned long LV2Host::get_current_program() const {
   // XXX not threadsafe
   return m_program;
+}
+
+
+void LV2Host::set_event_queue(EventQueue* q) {
+  m_from_jack = q;
 }
 
 

@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.28
+PACKAGE_VERSION = 0.1.29
 PKG_DEPS = jack>=0.102.6 liblo>=0.22 gtkmm-2.4>=2.8.8 libglademm-2.4>=2.6.2
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
@@ -33,8 +33,9 @@ lv2peg_SOURCEDIR = programs/lv2peg
 lv2host_SOURCES = \
 	lv2host.hpp lv2host.cpp \
 	osccontroller.hpp osccontroller.cpp \
+	eventqueue.hpp eventqueue.cpp \
 	main.cpp
-lv2host_CFLAGS = `pkg-config --cflags jack liblo` -Iextensions/miditype -Iextensions/instrument -Ilibraries/paq
+lv2host_CFLAGS = `pkg-config --cflags jack liblo` -Iextensions/miditype -Iextensions/instrument -Ilibraries/paq -Ilibraries/components
 lv2host_LDFLAGS = `pkg-config --libs jack liblo` libraries/paq/libpaq.a -lpthread
 lv2host_SOURCEDIR = programs/lv2host
 

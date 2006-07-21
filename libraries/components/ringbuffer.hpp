@@ -23,20 +23,23 @@
 #ifndef RINGBUFFER_HPP
 #define RINGBUFFER_HPP
 
+#include <cstring>
 
-template <class T, size_t S> class Ringbuffer {
+
+template <class T, unsigned S> class Ringbuffer {
 public:
 
   Ringbuffer();
 
-  int read(T* dest, size_t size);
-  int write(T* src, size_t size);
-  int write_zeros(size_t size);
+  int read(T* dest, unsigned size);
+  int write(T* src, unsigned size);
+  int write_zeros(unsigned size);
   int available() const;
   int available_contiguous() const;
   int get_read_pos() const;
   int get_write_pos() const;
   const T* get_read_ptr() const;
+  T* get_write_ptr();
   
 private:
   
@@ -48,7 +51,7 @@ private:
 };
 
 
-template <class T, size_t S> 
+template <class T, unsigned S> 
 Ringbuffer<T, S>::Ringbuffer()
   : m_read_pos(0),
     m_write_pos(0) {
@@ -56,10 +59,10 @@ Ringbuffer<T, S>::Ringbuffer()
 }
 
 
-template <class T, size_t S> 
-int Ringbuffer<T, S>::read(T* dest, size_t size) {
+template <class T, unsigned S> 
+int Ringbuffer<T, S>::read(T* dest, unsigned size) {
   
-  size_t n = 0;
+  unsigned n = 0;
   T* data = (T*)m_data;
   
   if (size == 0)
@@ -69,15 +72,15 @@ int Ringbuffer<T, S>::read(T* dest, size_t size) {
     n = S - m_read_pos;
     n = (n > size ? size : n);
     if (dest)
-      memcpy(dest, data + m_read_pos, n * sizeof(T));
+      std::memcpy(dest, data + m_read_pos, n * sizeof(T));
     m_read_pos = (m_read_pos + n) % S;
   }
   
   if (m_read_pos < m_write_pos && n < size) {
-    size_t m = m_write_pos - m_read_pos;
+    unsigned m = m_write_pos - m_read_pos;
     m = (m > size - n ? size - n : m);
     if (dest)
-      memcpy(dest + n, data + m_read_pos, m * sizeof(T));
+      std::memcpy(dest + n, data + m_read_pos, m * sizeof(T));
     m_read_pos = (m_read_pos + m) % S;
     n += m;
   }
@@ -94,9 +97,9 @@ int Ringbuffer<T, S>::read(T* dest, size_t size) {
 }
 
 
-template <class T, size_t S>
-int Ringbuffer<T, S>::write(T* src, size_t size) {
-  size_t n = 0;
+template <class T, unsigned S>
+int Ringbuffer<T, S>::write(T* src, unsigned size) {
+  unsigned n = 0;
   T* data = (T*)(m_data);
 
   if (size == 0)
@@ -107,14 +110,14 @@ int Ringbuffer<T, S>::write(T* src, size_t size) {
     if (m_read_pos == 0)
       --n;
     n = (n > size ? size : n);
-    memcpy(data + m_write_pos, src, n * sizeof(T));
+    std::memcpy(data + m_write_pos, src, n * sizeof(T));
     m_write_pos = (m_write_pos + n) % S;
   }
   
   if (m_write_pos + 1 < m_read_pos && n < size) {
-    size_t m = m_read_pos - m_write_pos - 1;
+    unsigned m = m_read_pos - m_write_pos - 1;
     m = (m > size - n ? size - n : m);
-    memcpy(data + m_write_pos, src + n, m * sizeof(T));
+    std::memcpy(data + m_write_pos, src + n, m * sizeof(T));
     m_write_pos = (m_write_pos + m) % S;
     n += m;
   }
@@ -131,9 +134,9 @@ int Ringbuffer<T, S>::write(T* src, size_t size) {
 }
 
 
-template <class T, size_t S>
-int Ringbuffer<T, S>::write_zeros(size_t size) {
-  size_t n = 0;
+template <class T, unsigned S>
+int Ringbuffer<T, S>::write_zeros(unsigned size) {
+  unsigned n = 0;
   T* data = (T*)(m_data);
 
   if (size == 0)
@@ -144,14 +147,14 @@ int Ringbuffer<T, S>::write_zeros(size_t size) {
     if (m_read_pos == 0)
       --n;
     n = (n > size ? size : n);
-    memset(data + m_write_pos, 0, n * sizeof(T));
+    std::memset(data + m_write_pos, 0, n * sizeof(T));
     m_write_pos = (m_write_pos + n) % S;
   }
   
   if (m_write_pos + 1 < m_read_pos && n < size) {
-    size_t m = m_read_pos - m_write_pos - 1;
+    unsigned m = m_read_pos - m_write_pos - 1;
     m = (m > size - n ? size - n : m);
-    memset(data + m_write_pos, 0, m * sizeof(T));
+    std::memset(data + m_write_pos, 0, m * sizeof(T));
     m_write_pos = (m_write_pos + m) % S;
     n += m;
   }
@@ -168,7 +171,7 @@ int Ringbuffer<T, S>::write_zeros(size_t size) {
 }
 
 
-template <class T, size_t S>
+template <class T, unsigned S>
 int Ringbuffer<T, S>::available() const {
   if (m_read_pos <= m_write_pos)
     return m_write_pos - m_read_pos;
@@ -177,7 +180,7 @@ int Ringbuffer<T, S>::available() const {
 }
 
 
-template <class T, size_t S>
+template <class T, unsigned S>
 int Ringbuffer<T, S>::available_contiguous() const {
   if (m_read_pos <= m_write_pos)
     return m_write_pos - m_read_pos;
@@ -186,22 +189,29 @@ int Ringbuffer<T, S>::available_contiguous() const {
 }
 
 
-template <class T, size_t S>
+template <class T, unsigned S>
 int Ringbuffer<T, S>::get_read_pos() const {
   return m_read_pos;
 }
   
 
-template <class T, size_t S>
+template <class T, unsigned S>
 int Ringbuffer<T, S>::get_write_pos() const {
   return m_write_pos;
 }
 
 
-template <class T, size_t S>
+template <class T, unsigned S>
 const T* Ringbuffer<T, S>::get_read_ptr() const {
   T* data = (T*)m_data;
   return data + m_read_pos;
+}
+
+
+template <class T, unsigned S>
+T* Ringbuffer<T, S>::get_write_ptr() {
+  T* data = (T*)m_data;
+  return data + m_write_pos;
 }
 
 

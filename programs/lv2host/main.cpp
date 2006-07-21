@@ -103,7 +103,7 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
       float& min = host.get_ports()[port].min_value;
       float& max = host.get_ports()[port].max_value;
       *pbuf = min + (max - min) * input_event.buffer[2] / 127.0;
-      host.get_ports()[port].locked_value = *pbuf;
+      host.queue_control(port, *pbuf, false);
     }
     
     // or a program change
@@ -234,8 +234,10 @@ int main(int argc, char** argv) {
       }
       
       // for control ports, just create buffers consisting of a single float
-      else if (lv2port.rate == ControlRate)
+      else if (lv2port.rate == ControlRate) {
         lv2port.buffer = new float;
+        *static_cast<float*>(lv2port.buffer) = lv2port.default_value;
+      }
       
       jack_ports.push_back(port);
     }
@@ -263,7 +265,6 @@ int main(int argc, char** argv) {
     
     // wait until we are killed
     while (still_running) {
-      
       /*
       string word;
       cin>>word;

@@ -73,19 +73,19 @@ LV2UIClient::LV2UIClient(int argc, char** argv, bool wait)
     m_plugin_path = m_plugin_path.substr(0, m_plugin_path.size() - 1);
   m_server_thread = lo_server_thread_new(NULL, NULL);
 
-  lo_server_thread_add_method(m_server_thread, "/scope/control", "if",
-			      &LV2UIClient::control_handler, this);
-  lo_server_thread_add_method(m_server_thread, "/scope/program", "ii", 
-			      &LV2UIClient::program_handler, this);
-  lo_server_thread_add_method(m_server_thread, "/scope/configure", "ss", 
-			      &LV2UIClient::configure_handler, this);
-  lo_server_thread_add_method(m_server_thread, "/scope/show", "", 
-			      &LV2UIClient::show_handler, this);
-  lo_server_thread_add_method(m_server_thread, "/scope/hide", "", 
-			      &LV2UIClient::hide_handler, this);
-  lo_server_thread_add_method(m_server_thread, "/scope/quit", "", 
-			      &LV2UIClient::quit_handler, this);
-
+  lo_server_thread_add_method(m_server_thread, "/lv2plugin/control", "if",
+                              &LV2UIClient::control_handler, this);
+  lo_server_thread_add_method(m_server_thread, "/lv2plugin/program", "i", 
+                              &LV2UIClient::program_handler, this);
+  lo_server_thread_add_method(m_server_thread, "/lv2plugin/configure", "ss", 
+                              &LV2UIClient::configure_handler, this);
+  lo_server_thread_add_method(m_server_thread, "/lv2plugin/show", "", 
+                              &LV2UIClient::show_handler, this);
+  lo_server_thread_add_method(m_server_thread, "/lv2plugin/hide", "", 
+                              &LV2UIClient::hide_handler, this);
+  lo_server_thread_add_method(m_server_thread, "/lv2plugin/quit", "", 
+                              &LV2UIClient::quit_handler, this);
+  
   lo_server_thread_start(m_server_thread);
   
   m_valid = true;
@@ -125,9 +125,9 @@ const string& LV2UIClient::get_bundle_path() const {
 void LV2UIClient::connect_gui(RefPtr<Xml> xml) {
   // XXX Find a smarter way to do this!
   for (int i = 0; i < 100; ++i) {
-    ostringstream oss;
-    oss<<"lv2_"<<i<<"_linear";
-    Widget* w = xml->get_widget(oss.str());
+  ostringstream oss;
+  oss<<"lv2_"<<i<<"_linear";
+  Widget* w = xml->get_widget(oss.str());
     if (w) {
       cerr<<"Yes, found "<<oss.str()<<endl;
       // check standard gtkmm widgets
@@ -158,7 +158,7 @@ void LV2UIClient::connect_adjustment(Adjustment* adj, int port) {
 void LV2UIClient::send_control(int port, float value) {
   if (m_valid && !m_blocking) {
     lo_send(m_plugin_address, string(m_plugin_path + "/control").c_str(),
-	    "if", port, value);
+            "if", port, value);
   }
 }
 
@@ -166,10 +166,12 @@ void LV2UIClient::send_control(int port, float value) {
 void LV2UIClient::send_program(int program) {
   if (m_valid && !m_blocking) {
     lo_send(m_plugin_address, string(m_plugin_path + "/program").c_str(),
-	    "i", program);
+            "i", program);
     /* The host does not send a /program back when we told it to change
        program, so we fire off the signal directly instead */
+    m_blocking = true;
     program_received(program);
+    m_blocking = false;
   }
 }
 
@@ -180,8 +182,7 @@ void LV2UIClient::send_update_request() {
     string url(my_url);
     free(my_url);
     lo_send(m_plugin_address, (m_plugin_path + "/update").c_str(), 
-	    "s", (url + "scope").c_str());
-    cerr<<"sent "<<m_plugin_path<<"/update"<<endl;
+            "s", (url + "lv2plugin").c_str());
   }
 }
 
@@ -189,7 +190,7 @@ void LV2UIClient::send_update_request() {
 void LV2UIClient::send_configure(const string& key, const string& value) {
   if (m_valid) {
     lo_send(m_plugin_address, (m_plugin_path + "/configure").c_str(),
-	    "ss", key.c_str(), value.c_str());
+            "ss", key.c_str(), value.c_str());
   }
 }
 
@@ -216,7 +217,7 @@ void* LV2UIClient::allocate_shared_memory(int bytes) {
     m_shm_key = key_str;
     free(key_str);
     signal_timeout().connect(mem_fun(*this, &LV2UIClient::check_shared_memory),
-			     10);
+                             10);
     send_configure("shm_attach", m_shm_key);
     return ptr;
   }
@@ -235,8 +236,8 @@ void LV2UIClient::update_adjustments(int port, float value) {
 
 
 int LV2UIClient::control_handler(const char *path, const char *types,
-				  lo_arg **argv, int argc, 
-				  void *data, void *user_data) {
+                                 lo_arg **argv, int argc, 
+                                 void *data, void *user_data) {
   LV2UIClient* me = static_cast<LV2UIClient*>(user_data);
   me->m_control_queue.push(make_pair(argv[0]->i, argv[1]->f));
   me->m_control_dispatcher();
@@ -245,8 +246,8 @@ int LV2UIClient::control_handler(const char *path, const char *types,
 
 
 int LV2UIClient::program_handler(const char *path, const char *types,
-				  lo_arg **argv, int argc, 
-				  void *data, void *user_data) {
+                                 lo_arg **argv, int argc, 
+                                 void *data, void *user_data) {
   LV2UIClient* me = static_cast<LV2UIClient*>(user_data);
   me->m_program_queue.push(argv[0]->i);
   me->m_program_dispatcher();
@@ -255,8 +256,8 @@ int LV2UIClient::program_handler(const char *path, const char *types,
 
 
 int LV2UIClient::configure_handler(const char *path, const char *types,
-				    lo_arg **argv, int argc, 
-				    void *data, void *user_data) {
+                                   lo_arg **argv, int argc, 
+                                   void *data, void *user_data) {
   LV2UIClient* me = static_cast<LV2UIClient*>(user_data);
   string key(&argv[0]->s);
   string value(&argv[1]->s);
@@ -267,8 +268,8 @@ int LV2UIClient::configure_handler(const char *path, const char *types,
 
 
 int LV2UIClient::show_handler(const char *path, const char *types,
-			       lo_arg **argv, int argc, 
-			       void *data, void *user_data) {
+                              lo_arg **argv, int argc, 
+                              void *data, void *user_data) {
   LV2UIClient* me = static_cast<LV2UIClient*>(user_data);
   me->show_received();
   return 0;
@@ -276,8 +277,8 @@ int LV2UIClient::show_handler(const char *path, const char *types,
 
 
 int LV2UIClient::hide_handler(const char *path, const char *types,
-			       lo_arg **argv, int argc, 
-			       void *data, void *user_data) {
+                              lo_arg **argv, int argc, 
+                              void *data, void *user_data) {
   LV2UIClient* me = static_cast<LV2UIClient*>(user_data);
   me->hide_received();
   return 0;
@@ -285,8 +286,8 @@ int LV2UIClient::hide_handler(const char *path, const char *types,
 
 
 int LV2UIClient::quit_handler(const char *path, const char *types,
-			       lo_arg **argv, int argc, 
-			       void *data, void *user_data) {
+                              lo_arg **argv, int argc, 
+                              void *data, void *user_data) {
   LV2UIClient* me = static_cast<LV2UIClient*>(user_data);
   me->m_valid = false;
   me->quit_received();

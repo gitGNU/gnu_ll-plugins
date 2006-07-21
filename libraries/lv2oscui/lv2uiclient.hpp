@@ -31,13 +31,11 @@
 
 #include <glibmm.h>
 #include <gtkmm.h>
-//#include <libglademm.h>
 #include <lo/lo.h>
 #include <sigc++/sigc++.h>
 
 
 using namespace Glib;
-//using namespace Gnome::Glade;
 using namespace Gtk;
 using namespace sigc;
 using namespace std;

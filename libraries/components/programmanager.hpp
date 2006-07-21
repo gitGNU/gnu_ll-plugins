@@ -63,12 +63,16 @@ public:
   
   /** Apply a program to the given port buffer vector. */
   inline void apply_program(std::vector<void*>& ports, unsigned long program) {
+    
+    std::cerr<<__PRETTY_FUNCTION__<<" with program "<<program<<std::endl;
+    
     size_t index = find_program(program);
     if (index >= m_programs.size())
       return;
     std::map<unsigned long, float>::const_iterator iter;
     const std::map<unsigned long, float>& values = m_programs[index].values;
     for (iter = values.begin(); iter != values.end(); ++iter) {
+      std::cerr<<"port "<<iter->first<<" -> value "<<iter->second<<std::endl;
       if (iter->first < ports.size())
         *static_cast<float*>(ports[iter->first]) = iter->second;
     }
@@ -127,10 +131,14 @@ protected:
   
   
   inline size_t find_program(unsigned long number) {
+    if (m_programs.empty())
+      return 0;
     size_t a = 0;
     size_t b = m_programs.size() - 1;
+    std::cerr<<"a = "<<a<<", b = "<<b<<std::endl;
     while (b != a) {
       size_t c = (a + b) / 2;
+      std::cerr<<c<<std::endl;
       if (m_programs[c].number < number)
         a = c + 1;
       else if (m_programs[c].number > number)
