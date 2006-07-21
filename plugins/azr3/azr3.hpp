@@ -10,12 +10,10 @@
 
 enum
 {
-	evt_none=0,
 	evt_noteon = 0x90,
 	evt_noteoff = 0x80,
 	evt_alloff,
 	evt_pedal,
-	evt_progchange,
 	evt_pitch,
 	evt_modulation,
 	evt_volume,
@@ -55,7 +53,6 @@ public:
   
 protected:  
   
-	void setSampleRate(float sampleRate);
 	void setFactorySounds();
 	bool make_waveforms(int shape);
   void setParameter(long index, float value);

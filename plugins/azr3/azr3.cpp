@@ -147,10 +147,32 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
 	for(int x=0;x<kNumParams;x++)
 		last_value[x]=-99;
 
-	if(samplerate<8000)
-		samplerate=44100;
+	warmth.setparam(2700, 1.2f, samplerate);
 
-	setSampleRate(rate);
+  n1.set_samplerate(samplerate);
+  vdelay1.set_samplerate(samplerate);
+  vdelay2.set_samplerate(samplerate);
+	vlfo.set_samplerate(samplerate);
+	vlfo.set_rate(35, 0);
+	split.setparam(400, 1.3f, samplerate);
+	horn_filt.setparam(2500, .5f, samplerate);
+	damp.setparam(200, .9f, samplerate);
+  wand_r.set_samplerate(samplerate);
+  wand_r.set_delay(35);
+  wand_l.set_samplerate(samplerate);
+  wand_l.set_delay(20);
+
+  delay1.set_samplerate(samplerate);
+  delay2.set_samplerate(samplerate);
+  delay3.set_samplerate(samplerate);
+  delay4.set_samplerate(samplerate);
+	lfo1.set_samplerate(samplerate);
+	lfo2.set_samplerate(samplerate);
+	lfo3.set_samplerate(samplerate);
+	lfo4.set_samplerate(samplerate);
+
+	body_filt.setparam(190, 1.5f, samplerate);
+	postbody_filt.setparam(1100, 1.5f, samplerate);
 
 	setFactorySounds();
 	my_p=programs[0].p;
@@ -762,39 +784,6 @@ char* AZR3::configure(const char* key, const char* value) {
     setParameter(port, fvalue);
     pthread_mutex_unlock(&m_lock);
   }
-}
-
-
-void AZR3::setSampleRate(float sampleRate) {
-
-	samplerate = sampleRate;
-	
-	warmth.setparam(2700, 1.2f, sampleRate);
-
-  n1.set_samplerate(samplerate);
-  vdelay1.set_samplerate(samplerate);
-  vdelay2.set_samplerate(samplerate);
-	vlfo.set_samplerate(samplerate);
-	vlfo.set_rate(35, 0);
-	split.setparam(400, 1.3f, samplerate);
-	horn_filt.setparam(2500, .5f, samplerate);
-	damp.setparam(200, .9f, samplerate);
-  wand_r.set_samplerate(samplerate);
-  wand_r.set_delay(35);
-  wand_l.set_samplerate(samplerate);
-  wand_l.set_delay(20);
-
-  delay1.set_samplerate(samplerate);
-  delay2.set_samplerate(samplerate);
-  delay3.set_samplerate(samplerate);
-  delay4.set_samplerate(samplerate);
-	lfo1.set_samplerate(samplerate);
-	lfo2.set_samplerate(samplerate);
-	lfo3.set_samplerate(samplerate);
-	lfo4.set_samplerate(samplerate);
-
-	body_filt.setparam(190, 1.5f, samplerate);
-	postbody_filt.setparam(1100, 1.5f, samplerate);
 }
 
 
