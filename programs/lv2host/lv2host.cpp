@@ -39,10 +39,23 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   
   pthread_mutex_init(&m_mutex, 0);
   
+  // get the directories to look in
   vector<string> search_dirs;
-  search_dirs.push_back(string(getenv("HOME")) + "/.lv2");
-  search_dirs.push_back("/usr/lib/lv2");
-  search_dirs.push_back("/usr/local/lib/lv2");
+  const char* lv2p_c = getenv("LV2_PATH");
+  if (!lv2p_c) {
+    search_dirs.push_back(string(getenv("HOME")) + "/.lv2");
+    search_dirs.push_back("/usr/lib/lv2");
+    search_dirs.push_back("/usr/local/lib/lv2");
+  }
+  else {
+    string lv2_path = lv2p_c;
+    int split;
+    while ((split = lv2_path.find(':')) != string::npos) {
+      search_dirs.push_back(lv2_path.substr(0, split));
+      lv2_path = lv2_path.substr(split + 1);
+    }
+    search_dirs.push_back(lv2_path);
+  }
   
   string uriref = string("<") + uri + ">";
   string library;
@@ -61,7 +74,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     while (e = readdir(d)) {
       if (strlen(e->d_name) >= 4) {
         
-        // is named like  an LV2 bundle?
+        // is it named like an LV2 bundle?
         if (strcmp(e->d_name + (strlen(e->d_name) - 4), ".lv2"))
           continue;
         
