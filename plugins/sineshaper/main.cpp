@@ -40,11 +40,6 @@ using namespace Gnome::Glade;
 using namespace Glib;
 
 
-void habbadabba(int port, float value) {
-  cerr<<"GUI received control change: "<<port<<", "<<value<<endl;
-}
-
-
 int main(int argc, char** argv) {
   
   // create the objects
@@ -56,9 +51,7 @@ int main(int argc, char** argv) {
     return 1;
   }
   Main kit(argc, argv);
-  cerr<<"opening XML file "<<(lv2.get_bundle_path() + "/sineshaper.glade")<<endl;
   RefPtr<Xml> xml = Xml::create(lv2.get_bundle_path() + "/sineshaper.glade");
-  cerr<<"done!"<<endl;
   SineShaperGUI* main_win = xml->get_widget_derived("main_win", main_win);
   main_win->set_title(string("Sineshaper: ") + lv2.get_identifier());
   main_win->set_bundle_path(lv2.get_bundle_path());
@@ -73,7 +66,6 @@ int main(int argc, char** argv) {
                             "reloadprograms"), ""));
   lv2.program_received.
     connect(mem_fun(*main_win, &SineShaperGUI::program_selected));
-  lv2.control_received.connect(&habbadabba);
   lv2.show_received.connect(mem_fun(*main_win, &SineShaperGUI::show_all));
   lv2.hide_received.connect(mem_fun(*main_win, &SineShaperGUI::hide));
   lv2.quit_received.connect(&Main::quit);

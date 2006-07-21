@@ -70,10 +70,6 @@ public:
   void queue_config_request();
   void queue_passthrough(const char* msg, void* ptr);
   
-  const std::map<std::string, std::string>& get_configuration() const;
-  bool program_is_valid() const;
-  unsigned long get_current_program() const;
-  
   void set_event_queue(EventQueue* q);
   
 protected:

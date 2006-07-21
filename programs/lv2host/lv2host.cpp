@@ -553,23 +553,6 @@ void LV2Host::queue_passthrough(const char* msg, void* ptr) {
 }
 
 
-const std::map<std::string, std::string>& LV2Host::get_configuration() const {
-  return m_configuration;
-}
-
-
-bool LV2Host::program_is_valid() const {
-  // XXX not threadsafe
-  return m_program_is_valid;
-}
-
-
-unsigned long LV2Host::get_current_program() const {
-  // XXX not threadsafe
-  return m_program;
-}
-
-
 void LV2Host::set_event_queue(EventQueue* q) {
   m_from_jack = q;
 }
