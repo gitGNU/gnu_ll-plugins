@@ -60,15 +60,20 @@ int main(int argc, char** argv) {
   
   fbox.get_window()->clear();
   
-  add_switch(fbox, lv2, 0, 302, 332, Switch::Green);
-  add_switch(fbox, lv2, 1, 323, 356, Switch::BigRed);
-  add_knob(fbox, lv2, 2, 0, 1, 0.5, pixmap, 352, 352);
-  add_knob(fbox, lv2, 3, 0, 1, 0.5, pixmap, 396, 352);
-  add_knob(fbox, lv2, 4, 0, 1, 0.5, pixmap, 440, 352);
-  add_knob(fbox, lv2, 5, 0, 1, 0.5, pixmap, 484, 352);
-  add_knob(fbox, lv2, 6, 0, 1, 0.5, pixmap, 528, 352);
-  add_knob(fbox, lv2, 7, 0, 1, 0.5, pixmap, 572, 352);
-  add_switch(fbox, lv2, 9, 443, 331, Switch::Mini);
+  add_switch(fbox, lv2, 0, 39, 332, Switch::Green);
+  add_knob(fbox, lv2, 1, 0, 1, 0.5, pixmap, 44, 352);
+  add_knob(fbox, lv2, 2, 0, 1, 0.5, pixmap, 88, 352);
+  add_knob(fbox, lv2, 3, 0, 1, 0.5, pixmap, 132, 352);
+  add_knob(fbox, lv2, 4, 0, 1, 0.5, pixmap, 176, 352);
+  add_switch(fbox, lv2, 5, 302, 332, Switch::Green);
+  add_switch(fbox, lv2, 6, 323, 356, Switch::BigRed);
+  add_knob(fbox, lv2, 7, 0, 1, 0.5, pixmap, 352, 352);
+  add_knob(fbox, lv2, 8, 0, 1, 0.5, pixmap, 396, 352);
+  add_knob(fbox, lv2, 9, 0, 1, 0.5, pixmap, 440, 352);
+  add_knob(fbox, lv2, 10, 0, 1, 0.5, pixmap, 484, 352);
+  add_knob(fbox, lv2, 11, 0, 1, 0.5, pixmap, 528, 352);
+  add_knob(fbox, lv2, 12, 0, 1, 0.5, pixmap, 572, 352);
+  add_switch(fbox, lv2, 14, 443, 331, Switch::Mini);
   
   window.hide();
   

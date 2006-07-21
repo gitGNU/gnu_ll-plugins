@@ -31,6 +31,8 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
     viblfo(0),
     vmix1(0),
     vmix2(0),
+    oldmrvalve(0),
+    oldmix(0),
     dist(0),
     fuzz(0),
     odmix(0),
@@ -74,28 +76,38 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
     is_real_param(kNumParams, false),
     real_param(kNumParams, -1) {
   
+  is_real_param[n_mrvalve] = true;
+  real_param[n_mrvalve] = 0;
+  is_real_param[n_drive] = true;
+  real_param[n_drive] = 1;
+  is_real_param[n_set] = true;
+  real_param[n_set] = 2;
+  is_real_param[n_tone] = true;
+  real_param[n_tone] = 3;
+  is_real_param[n_mix] = true;
+  real_param[n_mix] = 4;
   is_real_param[n_speakers] = true;
-  real_param[n_speakers] = 0;
+  real_param[n_speakers] = 5;
   is_real_param[n_speed] = true;
-  real_param[n_speed] = 1;
+  real_param[n_speed] = 6;
   is_real_param[n_l_slow] = true;
-  real_param[n_l_slow] = 2;
+  real_param[n_l_slow] = 7;
   is_real_param[n_l_fast] = true;
-  real_param[n_l_fast] = 3;
+  real_param[n_l_fast] = 8;
   is_real_param[n_u_slow] = true;
-  real_param[n_u_slow] = 4;
+  real_param[n_u_slow] = 9;
   is_real_param[n_u_fast] = true;
-  real_param[n_u_fast] = 5;
+  real_param[n_u_fast] = 10;
   is_real_param[n_belt] = true;
-  real_param[n_belt] = 6;
+  real_param[n_belt] = 11;
   is_real_param[n_spread] = true;
-  real_param[n_spread] = 7;
+  real_param[n_spread] = 12;
   is_real_param[n_splitpoint] = true;
-  real_param[n_splitpoint] = 8;
+  real_param[n_splitpoint] = 13;
   is_real_param[n_complex] = true;
-  real_param[n_complex] = 9;
+  real_param[n_complex] = 14;
   is_real_param[n_pedalspeed] = true;
-  real_param[n_pedalspeed] = 10;
+  real_param[n_pedalspeed] = 15;
 
   pthread_mutex_init(&m_lock, 0);
   
@@ -190,10 +202,36 @@ void AZR3::run(unsigned long sampleFrames) {
     - speakers
 	*/
   
-  midi_ptr = static_cast<LV2_MIDI*>(m_ports[11])->data;
-	out1 = static_cast<float*>(m_ports[12]);
-	out2 = static_cast<float*>(m_ports[13]);
+  midi_ptr = static_cast<LV2_MIDI*>(m_ports[16])->data;
+	out1 = static_cast<float*>(m_ports[17]);
+	out2 = static_cast<float*>(m_ports[18]);
   
+  // has the distortion switch changed?
+  if (*static_cast<float*>(m_ports[real_param[n_mrvalve]]) != oldmrvalve) {
+    odchanged = true;
+    oldmrvalve = *static_cast<float*>(m_ports[real_param[n_mrvalve]]);
+  }
+  
+  // compute distortion parameters
+  float value = *static_cast<float*>(m_ports[real_param[n_drive]]);
+  if (value > 0)
+    do_dist = true;
+  else
+    do_dist = false;
+  dist = 2 * (0.1f + value);
+  sin_dist = sinf(dist);
+  i_dist = 1 / dist;
+  dist4 = 4 * dist;
+  dist8 = 8 * dist;
+  fuzz_filt.setparam(800 + *static_cast<float*>(m_ports[real_param[n_tone]]) *
+                     3000, 0.7f, samplerate);
+  value = *static_cast<float*>(m_ports[real_param[n_mix]]);
+  if (value != oldmix) {
+    odmix = value;
+    if (*static_cast<float*>(m_ports[real_param[n_mrvalve]]) == 1)
+      odchanged = true;
+  }
+
   // speed control port
   if (*static_cast<float*>(m_ports[real_param[n_speed]]) > 0.5f)
     fastmode = true;
@@ -207,7 +245,7 @@ void AZR3::run(unsigned long sampleFrames) {
   ufast = 10 * *static_cast<float*>(m_ports[real_param[n_u_fast]]);
   
   // belt (?)
-  float value = *static_cast<float*>(m_ports[real_param[n_belt]]);
+  value = *static_cast<float*>(m_ports[real_param[n_belt]]);
   ubelt_up = (value * 3 + 1) * 0.012f;
   ubelt_down = (value * 3 + 1) * 0.008f;
   lbelt_up = (value * 3 + 1) * 0.0045f;
@@ -356,9 +394,9 @@ void AZR3::run(unsigned long sampleFrames) {
 		
 		// smoothing of OD switch
 		if(odchanged && samplecount % 10 == 0) {
-			if(my_p[n_mrvalve] == 1) {
+			if(*static_cast<float*>(m_ports[real_param[n_mrvalve]]) > 0.5) {
 				odmix += 0.05f;
-				if (odmix >= my_p[n_mix])
+				if (odmix >= *static_cast<float*>(m_ports[real_param[n_mix]]))
 					odchanged = false;
 			}
 			else {
@@ -411,14 +449,15 @@ void AZR3::run(unsigned long sampleFrames) {
       effect, so we can switch warmth off and on without adding another 
       parameter.
 		*/
-		if (my_p[n_mrvalve] == 1 || odchanged) {
+		if (*static_cast<float*>(m_ports[real_param[n_mrvalve]]) > 0.5 || 
+                             odchanged) {
 			if (do_dist) {
 				body_filt.clock(mono);
 				postbody_filt.clock(atanf(body_filt.lp() * dist8) * 6);
 				fuzz = atanf(mono * dist4) * 0.25f + 
           postbody_filt.bp() + postbody_filt.hp();
         
-				if (_fabsf(mono) > my_p[n_set])
+				if (_fabsf(mono) > *static_cast<float*>(m_ports[real_param[n_set]]))
 					fuzz = atanf(fuzz * 10);
 				fuzz_filt.clock(fuzz);
 				mono = ((fuzz_filt.lp() * odmix * sin_dist + mono * (n2_odmix)) * 
@@ -3487,7 +3526,7 @@ unsigned char* AZR3::event_clock(unsigned long offset) {
   }
   */
   
-  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[11]);
+  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[16]);
   
   // Are there any events left in the buffer?
   if (midi_ptr - midi->data >= midi->size)

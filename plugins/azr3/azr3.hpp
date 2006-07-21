@@ -109,7 +109,9 @@ protected:
 	float	dist,sin_dist,i_dist,dist4,dist8;
 	float	fuzz;
 	bool	do_dist;
+  float oldmrvalve;
 	bool	odchanged;
+  float oldmix;
 	float	odmix,n_odmix,n2_odmix,n25_odmix,odmix75;
 
 	float	oldspread,spread,spread2;
