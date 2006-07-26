@@ -546,13 +546,15 @@ void LV2Host::queue_program(unsigned long program, bool to_jack) {
 
 
 void LV2Host::queue_control(unsigned long port, float value, bool to_jack) {
-  if (to_jack) {
-    pthread_mutex_lock(&m_mutex);
-    m_to_jack.write_control(port, value);
-    pthread_mutex_unlock(&m_mutex);
+  if (port < m_ports.size()) {
+    if (to_jack) {
+      pthread_mutex_lock(&m_mutex);
+      m_to_jack.write_control(port, value);
+      pthread_mutex_unlock(&m_mutex);
+    }
+    else if (m_from_jack)
+      m_from_jack->write_control(port, value);
   }
-  else if (m_from_jack)
-    m_from_jack->write_control(port, value);
 }
 
 

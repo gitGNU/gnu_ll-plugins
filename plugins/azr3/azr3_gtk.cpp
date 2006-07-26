@@ -60,6 +60,7 @@ int main(int argc, char** argv) {
   
   fbox.get_window()->clear();
   
+  add_switch(fbox, lv2, 666, 59, 92, Switch::BigRed);
   add_knob(fbox, lv2, 0, 0, 1, 0.5, pixmap, 88, 88);
   add_knob(fbox, lv2, 1, 0, 1, 0.5, pixmap, 132, 88);
   add_knob(fbox, lv2, 2, 0, 1, 0.5, pixmap, 308, 88);
