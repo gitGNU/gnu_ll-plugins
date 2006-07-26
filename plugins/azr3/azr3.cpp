@@ -76,69 +76,104 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
     is_real_param(kNumParams, false),
     real_param(kNumParams, -1) {
   
+  int next = 0;
   is_real_param[n_click] = true;
-  real_param[n_click] = 0;
+  real_param[n_click] = next++;
+  cerr<<"n_click = "<<(next - 1)<<endl;
+  is_real_param[n_bender] = true;
+  real_param[n_bender] = next++;
+  cerr<<"n_bender = "<<(next - 1)<<endl;
   is_real_param[n_perc] = true;
-  real_param[n_perc] = 1;
+  real_param[n_perc] = next++;
+  cerr<<"n_perc = "<<(next - 1)<<endl;
   is_real_param[n_percvol] = true;
-  real_param[n_percvol] = 2;
+  real_param[n_percvol] = next++;
+  cerr<<"n_percvol = "<<(next - 1)<<endl;
   is_real_param[n_percfade] = true;
-  real_param[n_percfade] = 3;
+  real_param[n_percfade] = next++;
+  cerr<<"n_percfade = "<<(next - 1)<<endl;
   is_real_param[n_vol1] = true;
-  real_param[n_vol1] = 4;
+  real_param[n_vol1] = next++;
+  cerr<<"n_vol1 = "<<(next - 1)<<endl;
   is_real_param[n_vol2] = true;
-  real_param[n_vol2] = 5;
+  real_param[n_vol2] = next++;
+  cerr<<"n_vol2 = "<<(next - 1)<<endl;
   is_real_param[n_vol3] = true;
-  real_param[n_vol3] = 6;
+  real_param[n_vol3] = next++;
+  cerr<<"n_vol3 = "<<(next - 1)<<endl;
   is_real_param[n_master] = true;
-  real_param[n_master] = 7;
+  real_param[n_master] = next++;
+  cerr<<"n_master = "<<(next - 1)<<endl;
   is_real_param[n_1_perc] = true;
-  real_param[n_1_perc] = 8;
+  real_param[n_1_perc] = next++;
+  cerr<<"n_1_perc = "<<(next - 1)<<endl;
   is_real_param[n_2_perc] = true;
-  real_param[n_2_perc] = 9;
+  real_param[n_2_perc] = next++;
+  cerr<<"n_2_perc = "<<(next - 1)<<endl;
   is_real_param[n_3_perc] = true;
-  real_param[n_3_perc] = 10;
+  real_param[n_3_perc] = next++;
+  cerr<<"n_3_perc = "<<(next - 1)<<endl;
   is_real_param[n_mrvalve] = true;
-  real_param[n_mrvalve] = 11;
+  real_param[n_mrvalve] = next++;
+  cerr<<"n_mrvalve = "<<(next - 1)<<endl;
   is_real_param[n_drive] = true;
-  real_param[n_drive] = 12;
+  real_param[n_drive] = next++;
+  cerr<<"n_drive = "<<(next - 1)<<endl;
   is_real_param[n_set] = true;
-  real_param[n_set] = 13;
+  real_param[n_set] = next++;
+  cerr<<"n_set = "<<(next - 1)<<endl;
   is_real_param[n_tone] = true;
-  real_param[n_tone] = 14;
+  real_param[n_tone] = next++;
+  cerr<<"n_tone = "<<(next - 1)<<endl;
   is_real_param[n_mix] = true;
-  real_param[n_mix] = 15;
+  real_param[n_mix] = next++;
+  cerr<<"n_mix = "<<(next - 1)<<endl;
   is_real_param[n_speakers] = true;
-  real_param[n_speakers] = 16;
+  real_param[n_speakers] = next++;
+  cerr<<"n_speakers = "<<(next - 1)<<endl;
   is_real_param[n_speed] = true;
-  real_param[n_speed] = 17;
+  real_param[n_speed] = next++;
+  cerr<<"n_speed = "<<(next - 1)<<endl;
   is_real_param[n_l_slow] = true;
-  real_param[n_l_slow] = 18;
+  real_param[n_l_slow] = next++;
+  cerr<<"n_l_slow = "<<(next - 1)<<endl;
   is_real_param[n_l_fast] = true;
-  real_param[n_l_fast] = 19;
+  real_param[n_l_fast] = next++;
+  cerr<<"n_l_fast = "<<(next - 1)<<endl;
   is_real_param[n_u_slow] = true;
-  real_param[n_u_slow] = 20;
+  real_param[n_u_slow] = next++;
+  cerr<<"n_u_slow = "<<(next - 1)<<endl;
   is_real_param[n_u_fast] = true;
-  real_param[n_u_fast] = 21;
+  real_param[n_u_fast] = next++;
+  cerr<<"n_u_fast = "<<(next - 1)<<endl;
   is_real_param[n_belt] = true;
-  real_param[n_belt] = 22;
+  real_param[n_belt] = next++;
+  cerr<<"n_belt = "<<(next - 1)<<endl;
   is_real_param[n_spread] = true;
-  real_param[n_spread] = 23;
+  real_param[n_spread] = next++;
+  cerr<<"n_spread = "<<(next - 1)<<endl;
   is_real_param[n_splitpoint] = true;
-  real_param[n_splitpoint] = 24;
+  real_param[n_splitpoint] = next++;
+  cerr<<"n_splitpoint = "<<(next - 1)<<endl;
   is_real_param[n_complex] = true;
-  real_param[n_complex] = 25;
+  real_param[n_complex] = next++;
+  cerr<<"n_complex = "<<(next - 1)<<endl;
   is_real_param[n_pedalspeed] = true;
-  real_param[n_pedalspeed] = 26;
+  real_param[n_pedalspeed] = next++;
+  cerr<<"n_pedalspeed = "<<(next - 1)<<endl;
   is_real_param[n_sustain] = true;
-  real_param[n_sustain] = 27;
+  real_param[n_sustain] = next++;
+  cerr<<"n_sustain = "<<(next - 1)<<endl;
   is_real_param[n_1_sustain] = true;
-  real_param[n_1_sustain] = 28;
+  real_param[n_1_sustain] = next++;
+  cerr<<"n_1_sustain = "<<(next - 1)<<endl;
   is_real_param[n_2_sustain] = true;
-  real_param[n_2_sustain] = 29;
+  real_param[n_2_sustain] = next++;
+  cerr<<"n_2_sustain = "<<(next - 1)<<endl;
   is_real_param[n_3_sustain] = true;
-  real_param[n_3_sustain] = 30;
-
+  real_param[n_3_sustain] = next++;
+  cerr<<"n_3_sustain = "<<(next - 1)<<endl;
+  
   pthread_mutex_init(&m_lock, 0);
   
 	for(int x=0;x<WAVETABLESIZE*12+1;x++)
@@ -254,9 +289,9 @@ void AZR3::run(unsigned long sampleFrames) {
     - speakers
 	*/
   
-  midi_ptr = static_cast<LV2_MIDI*>(m_ports[31])->data;
-	out1 = static_cast<float*>(m_ports[32]);
-	out2 = static_cast<float*>(m_ports[33]);
+  midi_ptr = static_cast<LV2_MIDI*>(m_ports[32])->data;
+	out1 = static_cast<float*>(m_ports[33]);
+	out2 = static_cast<float*>(m_ports[34]);
   
   // compute click
   calc_click();
@@ -438,14 +473,31 @@ void AZR3::run(unsigned long sampleFrames) {
 			case evt_alloff:
 				n1.all_notes_off();
 				break;
+
 			case evt_pedal:
 				n1.set_pedal(evt[1], channel);
 				break;
-			case evt_pitch:
-				n1.set_pitch(evt[1], channel);
-				break;
-			}
-		}
+			
+      case evt_pitch: {
+        float bender = *static_cast<float*>(m_ports[real_param[n_bender]]);
+        float pitch = (float)(evt[2] * 128 + evt[1]);
+        if (pitch > 8192 + 600) {
+          float p = pitch / 8192 - 1;
+          pitch = p * (float)pow(1.059463094359, int(12 * bender)) + 1 - p;
+        }
+        else if(pitch < 8192 - 600) {
+          float p = (8192 - pitch) / 8192;
+          pitch = 1 / (p * (float)pow(1.059463094359, 
+                                      int(12 * bender)) + 1 - p);
+        }
+        else
+          pitch = 1;
+        n1.set_pitch(pitch, channel);
+        break;
+      }
+        
+      }
+    }
 		
 		p_mono = n1.clock();
 		mono1 = p_mono[0];
@@ -3552,36 +3604,8 @@ void AZR3::calc_click() {
 
 
 unsigned char* AZR3::event_clock(unsigned long offset) {
-  /*
-  static unsigned char evt[4];
-  static int state = 0;
-  if (state == 0) {
-    ++state;
-    evt[0] = 1;
-    evt[1] = 65;
-    evt[2] = 64;
-    evt[3] = 0;
-    return evt;
-  }
-  if (state == 1) {
-    ++state;
-    evt[0] = 1;
-    evt[1] = 80;
-    evt[2] = 64;
-    evt[3] = 0;
-    return evt;
-  }
-  if (state == 2) {
-    ++state;
-    evt[0] = 1;
-    evt[1] = 84;
-    evt[2] = 64;
-    evt[3] = 0;
-    return evt;
-  }
-  */
   
-  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[31]);
+  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[32]);
   
   // Are there any events left in the buffer?
   if (midi_ptr - midi->data >= midi->size)

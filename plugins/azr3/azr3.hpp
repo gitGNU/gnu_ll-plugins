@@ -14,7 +14,7 @@ enum
 	evt_noteoff = 0x80,
 	evt_alloff,
 	evt_pedal,
-	evt_pitch,
+	evt_pitch = 0xE0,
 	evt_modulation,
 	evt_volume,
 	evt_channel_volume,
