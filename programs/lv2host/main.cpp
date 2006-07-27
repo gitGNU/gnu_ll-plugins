@@ -208,7 +208,12 @@ int main(int argc, char** argv) {
       cerr<<"No standalone GUI"<<endl;
     
     // initialise JACK client and plugin port buffers
-    jack_client = jack_client_new("LV2Host");
+    if (!(jack_client = jack_client_new("LV2Host"))) {
+      cerr<<"jackd isn't running!"<<endl;
+      return -1;
+    }
+      
+    
     for (size_t i = 0; i < lv2h.get_ports().size(); ++i) {
       jack_port_t* port = 0;
       LV2Port& lv2port = lv2h.get_ports()[i];

@@ -6,6 +6,8 @@
 #include "panelfx.xpm"
 #include "knob.hpp"
 #include "switch.hpp"
+#include "Globals.h"
+
 
 using namespace Gtk;
 using namespace Gdk;
@@ -58,39 +60,49 @@ int main(int argc, char** argv) {
   pixbuf->render_pixmap_and_mask(pixmap, bitmap, 10);
   fbox.get_window()->set_back_pixmap(pixmap, false);
   
-  fbox.get_window()->clear();
+  // keyboard split switch
+  add_switch(fbox, lv2, n_split, 537, 49, Switch::Mini);
   
-  add_switch(fbox, lv2, 0, 59, 92, Switch::BigRed);
-  add_knob(fbox, lv2, 1, 0, 1, 0.5, pixmap, 88, 88);
-  add_knob(fbox, lv2, 2, 0, 1, 0.5, pixmap, 132, 88);
-  add_knob(fbox, lv2, 3, 0, 1, 0.5, pixmap, 308, 88);
-  add_knob(fbox, lv2, 4, 0, 1, 0.5, pixmap, 352, 88);
-  add_knob(fbox, lv2, 5, 0, 1, 0.5, pixmap, 396, 88);
-  add_knob(fbox, lv2, 6, 0, 1, 0.5, pixmap, 484, 88);
-  add_knob(fbox, lv2, 7, 0, 1, 0.5, pixmap, 528, 88);
-  add_knob(fbox, lv2, 8, 0, 1, 0.5, pixmap, 572, 88);
-  add_knob(fbox, lv2, 9, 0, 1, 0.5, pixmap, 616, 88);
-  add_switch(fbox, lv2, 10, 16, 173, Switch::Mini);
-  add_switch(fbox, lv2, 11, 279, 173, Switch::Mini);
-  add_switch(fbox, lv2, 12, 542, 173, Switch::Mini);
-  add_switch(fbox, lv2, 13, 39, 332, Switch::Green);
-  add_knob(fbox, lv2, 14, 0, 1, 0.5, pixmap, 44, 352);
-  add_knob(fbox, lv2, 15, 0, 1, 0.5, pixmap, 88, 352);
-  add_knob(fbox, lv2, 16, 0, 1, 0.5, pixmap, 132, 352);
-  add_knob(fbox, lv2, 17, 0, 1, 0.5, pixmap, 176, 352);
-  add_switch(fbox, lv2, 18, 302, 332, Switch::Green);
-  add_switch(fbox, lv2, 19, 323, 356, Switch::BigRed);
-  add_knob(fbox, lv2, 20, 0, 1, 0.5, pixmap, 352, 352);
-  add_knob(fbox, lv2, 21, 0, 1, 0.5, pixmap, 396, 352);
-  add_knob(fbox, lv2, 22, 0, 1, 0.5, pixmap, 440, 352);
-  add_knob(fbox, lv2, 23, 0, 1, 0.5, pixmap, 484, 352);
-  add_knob(fbox, lv2, 24, 0, 1, 0.5, pixmap, 528, 352);
-  add_knob(fbox, lv2, 25, 0, 1, 0.5, pixmap, 572, 352);
-  add_switch(fbox, lv2, 27, 443, 331, Switch::Mini);
-  add_knob(fbox, lv2, 28, 0, 1, 0.5, pixmap, 176, 88);
-  add_switch(fbox, lv2, 30, 16, 214, Switch::Mini);
-  add_switch(fbox, lv2, 31, 279, 214, Switch::Mini);
-  add_switch(fbox, lv2, 32, 542, 214, Switch::Mini);
+  // upper knobs
+  add_switch(fbox, lv2, n_mono, 59, 92, Switch::BigRed);
+  add_knob(fbox, lv2, n_click, 0, 1, 0.5, pixmap, 88, 88);
+  add_knob(fbox, lv2, n_bender, 0, 1, 0.5, pixmap, 132, 88);
+  add_knob(fbox, lv2, n_sustain, 0, 1, 0.5, pixmap, 176, 88);
+  add_knob(fbox, lv2, n_shape, 0, 1, 0.5, pixmap, 220, 88);
+  add_knob(fbox, lv2, n_perc, 0, 1, 0.5, pixmap, 308, 88);
+  add_knob(fbox, lv2, n_percvol, 0, 1, 0.5, pixmap, 352, 88);
+  add_knob(fbox, lv2, n_percfade, 0, 1, 0.5, pixmap, 396, 88);
+  add_knob(fbox, lv2, n_vol1, 0, 1, 0.5, pixmap, 484, 88);
+  add_knob(fbox, lv2, n_vol2, 0, 1, 0.5, pixmap, 528, 88);
+  add_knob(fbox, lv2, n_vol3, 0, 1, 0.5, pixmap, 572, 88);
+  add_knob(fbox, lv2, n_master, 0, 1, 0.5, pixmap, 616, 88);
+
+  // perc and sustain switches
+  add_switch(fbox, lv2, n_1_perc, 16, 173, Switch::Mini);
+  add_switch(fbox, lv2, n_2_perc, 279, 173, Switch::Mini);
+  add_switch(fbox, lv2, n_3_perc, 542, 173, Switch::Mini);
+  add_switch(fbox, lv2, n_1_sustain, 16, 214, Switch::Mini);
+  add_switch(fbox, lv2, n_2_sustain, 279, 214, Switch::Mini);
+  add_switch(fbox, lv2, n_3_sustain, 542, 214, Switch::Mini);
+  
+  // Mr Valve controls
+  add_switch(fbox, lv2, n_mrvalve, 39, 332, Switch::Green);
+  add_knob(fbox, lv2, n_drive, 0, 1, 0.5, pixmap, 44, 352);
+  add_knob(fbox, lv2, n_set, 0, 1, 0.5, pixmap, 88, 352);
+  add_knob(fbox, lv2, n_tone, 0, 1, 0.5, pixmap, 132, 352);
+  add_knob(fbox, lv2, n_mix, 0, 1, 0.5, pixmap, 176, 352);
+  
+  // Speaker controls
+  add_switch(fbox, lv2, n_speakers, 302, 332, Switch::Green);
+  add_switch(fbox, lv2, n_speed, 323, 356, Switch::BigRed);
+  add_knob(fbox, lv2, n_l_slow, 0, 1, 0.5, pixmap, 352, 352);
+  add_knob(fbox, lv2, n_l_fast, 0, 1, 0.5, pixmap, 396, 352);
+  add_knob(fbox, lv2, n_u_slow, 0, 1, 0.5, pixmap, 440, 352);
+  add_knob(fbox, lv2, n_u_fast, 0, 1, 0.5, pixmap, 484, 352);
+  add_knob(fbox, lv2, n_belt, 0, 1, 0.5, pixmap, 528, 352);
+  add_knob(fbox, lv2, n_spread, 0, 1, 0.5, pixmap, 572, 352);
+  add_switch(fbox, lv2, n_complex, 443, 331, Switch::Mini);
+  add_switch(fbox, lv2, n_pedalspeed, 510, 331, Switch::Mini);
   
   window.hide();
   

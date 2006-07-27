@@ -23,7 +23,6 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
     delay2(4410,true),
     delay3(4410,true),
     delay4(4410,true),
-    mono_before(0),
     samplecount(0),
     mono(0),
     mono1(0),
@@ -72,119 +71,26 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
     splitpoint(0),
     gp_value(0),
     last_shape(-1),
-    mute(true),
-    is_real_param(kNumParams, false),
-    real_param(kNumParams, -1) {
+    mute(true) {
   
   pthread_mutex_init(&m_notemaster_lock, 0);
   
-  int next = 0;
-  is_real_param[n_mono] = true;
-  real_param[n_mono] = next++;
-  cerr<<"n_mono = "<<(next - 1)<<endl;
-  is_real_param[n_click] = true;
-  real_param[n_click] = next++;
-  cerr<<"n_click = "<<(next - 1)<<endl;
-  is_real_param[n_bender] = true;
-  real_param[n_bender] = next++;
-  cerr<<"n_bender = "<<(next - 1)<<endl;
-  is_real_param[n_perc] = true;
-  real_param[n_perc] = next++;
-  cerr<<"n_perc = "<<(next - 1)<<endl;
-  is_real_param[n_percvol] = true;
-  real_param[n_percvol] = next++;
-  cerr<<"n_percvol = "<<(next - 1)<<endl;
-  is_real_param[n_percfade] = true;
-  real_param[n_percfade] = next++;
-  cerr<<"n_percfade = "<<(next - 1)<<endl;
-  is_real_param[n_vol1] = true;
-  real_param[n_vol1] = next++;
-  cerr<<"n_vol1 = "<<(next - 1)<<endl;
-  is_real_param[n_vol2] = true;
-  real_param[n_vol2] = next++;
-  cerr<<"n_vol2 = "<<(next - 1)<<endl;
-  is_real_param[n_vol3] = true;
-  real_param[n_vol3] = next++;
-  cerr<<"n_vol3 = "<<(next - 1)<<endl;
-  is_real_param[n_master] = true;
-  real_param[n_master] = next++;
-  cerr<<"n_master = "<<(next - 1)<<endl;
-  is_real_param[n_1_perc] = true;
-  real_param[n_1_perc] = next++;
-  cerr<<"n_1_perc = "<<(next - 1)<<endl;
-  is_real_param[n_2_perc] = true;
-  real_param[n_2_perc] = next++;
-  cerr<<"n_2_perc = "<<(next - 1)<<endl;
-  is_real_param[n_3_perc] = true;
-  real_param[n_3_perc] = next++;
-  cerr<<"n_3_perc = "<<(next - 1)<<endl;
-  is_real_param[n_mrvalve] = true;
-  real_param[n_mrvalve] = next++;
-  cerr<<"n_mrvalve = "<<(next - 1)<<endl;
-  is_real_param[n_drive] = true;
-  real_param[n_drive] = next++;
-  cerr<<"n_drive = "<<(next - 1)<<endl;
-  is_real_param[n_set] = true;
-  real_param[n_set] = next++;
-  cerr<<"n_set = "<<(next - 1)<<endl;
-  is_real_param[n_tone] = true;
-  real_param[n_tone] = next++;
-  cerr<<"n_tone = "<<(next - 1)<<endl;
-  is_real_param[n_mix] = true;
-  real_param[n_mix] = next++;
-  cerr<<"n_mix = "<<(next - 1)<<endl;
-  is_real_param[n_speakers] = true;
-  real_param[n_speakers] = next++;
-  cerr<<"n_speakers = "<<(next - 1)<<endl;
-  is_real_param[n_speed] = true;
-  real_param[n_speed] = next++;
-  cerr<<"n_speed = "<<(next - 1)<<endl;
-  is_real_param[n_l_slow] = true;
-  real_param[n_l_slow] = next++;
-  cerr<<"n_l_slow = "<<(next - 1)<<endl;
-  is_real_param[n_l_fast] = true;
-  real_param[n_l_fast] = next++;
-  cerr<<"n_l_fast = "<<(next - 1)<<endl;
-  is_real_param[n_u_slow] = true;
-  real_param[n_u_slow] = next++;
-  cerr<<"n_u_slow = "<<(next - 1)<<endl;
-  is_real_param[n_u_fast] = true;
-  real_param[n_u_fast] = next++;
-  cerr<<"n_u_fast = "<<(next - 1)<<endl;
-  is_real_param[n_belt] = true;
-  real_param[n_belt] = next++;
-  cerr<<"n_belt = "<<(next - 1)<<endl;
-  is_real_param[n_spread] = true;
-  real_param[n_spread] = next++;
-  cerr<<"n_spread = "<<(next - 1)<<endl;
-  is_real_param[n_splitpoint] = true;
-  real_param[n_splitpoint] = next++;
-  cerr<<"n_splitpoint = "<<(next - 1)<<endl;
-  is_real_param[n_complex] = true;
-  real_param[n_complex] = next++;
-  cerr<<"n_complex = "<<(next - 1)<<endl;
-  is_real_param[n_pedalspeed] = true;
-  real_param[n_pedalspeed] = next++;
-  cerr<<"n_pedalspeed = "<<(next - 1)<<endl;
-  is_real_param[n_sustain] = true;
-  real_param[n_sustain] = next++;
-  cerr<<"n_sustain = "<<(next - 1)<<endl;
-  is_real_param[n_1_sustain] = true;
-  real_param[n_1_sustain] = next++;
-  cerr<<"n_1_sustain = "<<(next - 1)<<endl;
-  is_real_param[n_2_sustain] = true;
-  real_param[n_2_sustain] = next++;
-  cerr<<"n_2_sustain = "<<(next - 1)<<endl;
-  is_real_param[n_3_sustain] = true;
-  real_param[n_3_sustain] = next++;
-  cerr<<"n_3_sustain = "<<(next - 1)<<endl;
-  
-	for(int x=0;x<WAVETABLESIZE*12+1;x++)
+	for(int x = 0; x < WAVETABLESIZE * 12 + 1; x++)
 		wavetable[x]=0;
 
-	for(int x=0;x<kNumParams;x++)
-		last_value[x]=-99;
-
+	for(int x = 0; x < kNumParams; x++) {
+		last_value[x] = -99;
+    slow_controls[x] = false;
+  }
+  slow_controls[n_mono] = true;
+  for (int x = 0; x < 9; ++x)
+    slow_controls[n_1_db1 + x] = true;
+  for (int x = 0; x < 9; ++x)
+    slow_controls[n_2_db1 + x] = true;
+  for (int x = 0; x < 5; ++x)
+    slow_controls[n_3_db1 + x] = true;
+  slow_controls[n_shape] = true;
+  
 	warmth.setparam(2700, 1.2f, samplerate);
 
   n1.set_samplerate(samplerate);
@@ -272,10 +178,14 @@ void AZR3::select_program(unsigned long program) {
 	flpProgram& ap = programs[program];
 
   for(unsigned long x = 0; x < kNumParams; x++) {
-    if (is_real_param[x])
-      *static_cast<float*>(m_ports[real_param[x]]) = ap.p[x];
-    else
-      setParameter(x, ap.p[x]);
+    *static_cast<float*>(m_ports[x]) = ap.p[x];
+    //setParameter(x, ap.p[x]);
+    if (slow_controls[x] && ap.p[x] != last_value[x]) {
+      PortChange pc(x, ap.p[x]);
+      m_queue.write(&pc);
+      sem_post(&m_qsem);
+      last_value[x] = ap.p[x];
+    }
   }
 }
 
@@ -304,17 +214,18 @@ void AZR3::run(unsigned long sampleFrames) {
     return;
   }
   
-  midi_ptr = static_cast<LV2_MIDI*>(m_ports[33])->data;
-	out1 = static_cast<float*>(m_ports[34]);
-	out2 = static_cast<float*>(m_ports[35]);
+  midi_ptr = static_cast<LV2_MIDI*>(m_ports[63])->data;
+	out1 = static_cast<float*>(m_ports[64]);
+	out2 = static_cast<float*>(m_ports[65]);
   
-  // send mono changes to the worker thread
-  float value = *(float*)(m_ports[real_param[n_mono]]);
-  if (value != mono_before) {
-    PortChange pc(real_param[n_mono], value);
-    m_queue.write(&pc, 1);
-    sem_post(&m_qsem);
-    mono_before = value;
+  // send slow port changes to the worker thread
+  for (int i = 0; i < kNumParams; ++i) {
+    if (slow_controls[i] && *(float*)m_ports[i] != last_value[i]) {
+      PortChange pc(i, *(float*)m_ports[i]);
+      m_queue.write(&pc);
+      sem_post(&m_qsem);
+      last_value[i] = *(float*)m_ports[i];
+    }
   }
   
   // compute click
@@ -322,7 +233,7 @@ void AZR3::run(unsigned long sampleFrames) {
   
   // set percussion parameters
   {
-    int v = (int)(*(float*)m_ports[real_param[n_perc]] * 10);
+    int v = (int)(*(float*)m_ports[n_perc] * 10);
     float pmult;
     if(v < 1)
       pmult = 0;
@@ -344,23 +255,23 @@ void AZR3::run(unsigned long sampleFrames) {
       pmult = 12;
     else
       pmult = 16;
-    n1.set_percussion(1.5f * *(float*)m_ports[real_param[n_percvol]], 
-                      pmult, *(float*)m_ports[real_param[n_percfade]]);
+    n1.set_percussion(1.5f * *(float*)m_ports[n_percvol], 
+                      pmult, *(float*)m_ports[n_percfade]);
   }
   
   // set volumes
-  n1.set_volume(*static_cast<float*>(m_ports[real_param[n_vol1]]) * 0.3f, 0);
-  n1.set_volume(*static_cast<float*>(m_ports[real_param[n_vol2]]) * 0.4f, 1);
-  n1.set_volume(*static_cast<float*>(m_ports[real_param[n_vol3]]) * 0.6f, 2);
+  n1.set_volume(*static_cast<float*>(m_ports[n_vol1]) * 0.3f, 0);
+  n1.set_volume(*static_cast<float*>(m_ports[n_vol2]) * 0.4f, 1);
+  n1.set_volume(*static_cast<float*>(m_ports[n_vol3]) * 0.6f, 2);
   
   // has the distortion switch changed?
-  if (*static_cast<float*>(m_ports[real_param[n_mrvalve]]) != oldmrvalve) {
+  if (*static_cast<float*>(m_ports[n_mrvalve]) != oldmrvalve) {
     odchanged = true;
-    oldmrvalve = *static_cast<float*>(m_ports[real_param[n_mrvalve]]);
+    oldmrvalve = *static_cast<float*>(m_ports[n_mrvalve]);
   }
   
   // compute distortion parameters
-  value = *static_cast<float*>(m_ports[real_param[n_drive]]);
+  float value = *static_cast<float*>(m_ports[n_drive]);
   if (value > 0)
     do_dist = true;
   else
@@ -370,41 +281,41 @@ void AZR3::run(unsigned long sampleFrames) {
   i_dist = 1 / dist;
   dist4 = 4 * dist;
   dist8 = 8 * dist;
-  fuzz_filt.setparam(800 + *static_cast<float*>(m_ports[real_param[n_tone]]) *
+  fuzz_filt.setparam(800 + *static_cast<float*>(m_ports[n_tone]) *
                      3000, 0.7f, samplerate);
-  value = *static_cast<float*>(m_ports[real_param[n_mix]]);
+  value = *static_cast<float*>(m_ports[n_mix]);
   if (value != oldmix) {
     odmix = value;
-    if (*static_cast<float*>(m_ports[real_param[n_mrvalve]]) == 1)
+    if (*static_cast<float*>(m_ports[n_mrvalve]) == 1)
       odchanged = true;
   }
 
   // speed control port
-  if (*static_cast<float*>(m_ports[real_param[n_speed]]) > 0.5f)
+  if (*static_cast<float*>(m_ports[n_speed]) > 0.5f)
     fastmode = true;
   else
     fastmode = false;
   
   // different rotation speeds
-  lslow = 10 * *static_cast<float*>(m_ports[real_param[n_l_slow]]);
-  lfast = 10 * *static_cast<float*>(m_ports[real_param[n_l_fast]]);
-  uslow = 10 * *static_cast<float*>(m_ports[real_param[n_u_slow]]);
-  ufast = 10 * *static_cast<float*>(m_ports[real_param[n_u_fast]]);
+  lslow = 10 * *static_cast<float*>(m_ports[n_l_slow]);
+  lfast = 10 * *static_cast<float*>(m_ports[n_l_fast]);
+  uslow = 10 * *static_cast<float*>(m_ports[n_u_slow]);
+  ufast = 10 * *static_cast<float*>(m_ports[n_u_fast]);
   
   // belt (?)
-  value = *static_cast<float*>(m_ports[real_param[n_belt]]);
+  value = *static_cast<float*>(m_ports[n_belt]);
   ubelt_up = (value * 3 + 1) * 0.012f;
   ubelt_down = (value * 3 + 1) * 0.008f;
   lbelt_up = (value * 3 + 1) * 0.0045f;
   lbelt_down = (value * 3 + 1) * 0.0035f;
   
-  if (oldspread != *static_cast<float*>(m_ports[real_param[n_spread]])) {
+  if (oldspread != *static_cast<float*>(m_ports[n_spread])) {
     lfos_ok = false;
-    oldspread = *static_cast<float*>(m_ports[real_param[n_spread]]);
+    oldspread = *static_cast<float*>(m_ports[n_spread]);
   }
   
   // keyboard split
-  splitpoint = (long)(*static_cast<float*>(m_ports[real_param[n_splitpoint]])
+  splitpoint = (long)(*static_cast<float*>(m_ports[n_splitpoint])
                       * 128);
   
 	int	x;
@@ -428,7 +339,7 @@ void AZR3::run(unsigned long sampleFrames) {
 			case evt_noteon: {
         unsigned char note = evt[1];
         bool percenable = false;
-        float sustain = *(float*)m_ports[real_param[n_sustain]] + .0001f;
+        float sustain = *(float*)m_ports[n_sustain] + .0001f;
 					
         // here we choose the correct wavetable according to the played note
 #define foldstart 80
@@ -457,21 +368,21 @@ void AZR3::run(unsigned long sampleFrames) {
           tbl = &wavetable[channel * WAVETABLESIZE * TABLES_PER_CHANNEL];
         
         if (channel == 0) {
-          if (*(float*)m_ports[real_param[n_1_perc]] > 0)
+          if (*(float*)m_ports[n_1_perc] > 0)
             percenable = true;
-          if (*(float*)m_ports[real_param[n_1_sustain]] < 0.5f)
+          if (*(float*)m_ports[n_1_sustain] < 0.5f)
             sustain = 0;
         }
         else if (channel == 1) {
-          if (*(float*)m_ports[real_param[n_2_perc]] > 0)
+          if (*(float*)m_ports[n_2_perc] > 0)
             percenable = true;
-          if (*(float*)m_ports[real_param[n_2_sustain]] < 0.5f)
+          if (*(float*)m_ports[n_2_sustain] < 0.5f)
             sustain = 0;
         }
         else if (channel == 2) {
-          if (*(float*)m_ports[real_param[n_3_perc]] > 0)
+          if (*(float*)m_ports[n_3_perc] > 0)
             percenable = true;
-          if (*(float*)m_ports[real_param[n_3_sustain]] < 0.5f)
+          if (*(float*)m_ports[n_3_sustain] < 0.5f)
             sustain = 0;
         }
 					
@@ -497,7 +408,7 @@ void AZR3::run(unsigned long sampleFrames) {
 				break;
 			
       case evt_pitch: {
-        float bender = *static_cast<float*>(m_ports[real_param[n_bender]]);
+        float bender = *static_cast<float*>(m_ports[n_bender]);
         float pitch = (float)(evt[2] * 128 + evt[1]);
         if (pitch > 8192 + 600) {
           float p = pitch / 8192 - 1;
@@ -552,9 +463,9 @@ void AZR3::run(unsigned long sampleFrames) {
 		
 		// smoothing of OD switch
 		if(odchanged && samplecount % 10 == 0) {
-			if(*static_cast<float*>(m_ports[real_param[n_mrvalve]]) > 0.5) {
+			if(*static_cast<float*>(m_ports[n_mrvalve]) > 0.5) {
 				odmix += 0.05f;
-				if (odmix >= *static_cast<float*>(m_ports[real_param[n_mix]]))
+				if (odmix >= *static_cast<float*>(m_ports[n_mix]))
 					odchanged = false;
 			}
 			else {
@@ -607,7 +518,7 @@ void AZR3::run(unsigned long sampleFrames) {
       effect, so we can switch warmth off and on without adding another 
       parameter.
 		*/
-		if (*static_cast<float*>(m_ports[real_param[n_mrvalve]]) > 0.5 || 
+		if (*static_cast<float*>(m_ports[n_mrvalve]) > 0.5 || 
                              odchanged) {
 			if (do_dist) {
 				body_filt.clock(mono);
@@ -615,7 +526,7 @@ void AZR3::run(unsigned long sampleFrames) {
 				fuzz = atanf(mono * dist4) * 0.25f + 
           postbody_filt.bp() + postbody_filt.hp();
         
-				if (_fabsf(mono) > *static_cast<float*>(m_ports[real_param[n_set]]))
+				if (_fabsf(mono) > *static_cast<float*>(m_ports[n_set]))
 					fuzz = atanf(fuzz * 10);
 				fuzz_filt.clock(fuzz);
 				mono = ((fuzz_filt.lp() * odmix * sin_dist + mono * (n2_odmix)) * 
@@ -654,7 +565,7 @@ void AZR3::run(unsigned long sampleFrames) {
       This should make it sound more realistic.
 		*/
 		
-		if (*static_cast<float*>(m_ports[real_param[n_speakers]]) > 0.5) {
+		if (*static_cast<float*>(m_ports[n_speakers]) > 0.5) {
 			if (samplecount % 100 == 0) {
         if (fastmode) {
 					if (lspeed < lfast)
@@ -680,7 +591,7 @@ void AZR3::run(unsigned long sampleFrames) {
 
 				//recalculate mic positions when "spread" has changed
 				if(!lfos_ok) {
-					float s = (*static_cast<float*>(m_ports[real_param[n_spread]])
+					float s = (*static_cast<float*>(m_ports[n_spread])
                      + 0.5f) * 0.8f;
 					spread = (s) * 2 + 1;
 					spread2 = (1 - spread) / 2;
@@ -762,7 +673,7 @@ void AZR3::run(unsigned long sampleFrames) {
 				}
 				
 				// additional delay lines in complex mode
-				if(*static_cast<float*>(m_ports[real_param[n_complex]]) > 0.5f) {
+				if(*static_cast<float*>(m_ports[n_complex]) > 0.5f) {
 					delay4.set_delay(llfo_d_out + 15);
 					delay3.set_delay(llfo_d_nout + 25);
 				}
@@ -809,7 +720,7 @@ void AZR3::run(unsigned long sampleFrames) {
 			
 
 			// We use two additional delay lines in "complex" mode
-			if(*static_cast<float*>(m_ports[real_param[n_complex]]) > 0.5f) {
+			if(*static_cast<float*>(m_ports[n_complex]) > 0.5f) {
 				right = right * 0.3f + 1.5f * er_r + 
           delay1.clock(right) + delay3.clock(er_r);
 				left = left * 0.3f + 1.5f * er_l + 
@@ -824,11 +735,11 @@ void AZR3::run(unsigned long sampleFrames) {
 			left *= 0.033f;
 			
 			// spread crossover (emulates mic positions)
-			last_out1 = (left + cross1 * right) * *(float*)(m_ports[real_param[n_master]]);
-			last_out2 = (right + cross1 * left) * *(float*)(m_ports[real_param[n_master]]);
+			last_out1 = (left + cross1 * right) * *(float*)(m_ports[n_master]);
+			last_out2 = (right + cross1 * left) * *(float*)(m_ports[n_master]);
 		}
 		else {
-			last_out1 = last_out2 = mono * *(float*)(m_ports[real_param[n_master]]);
+			last_out1 = last_out2 = mono * *(float*)(m_ports[n_master]);
 		}
 		if(mute) {
 			last_out1 = 0;
@@ -3297,19 +3208,7 @@ void AZR3::setParameter (long index, float value) {
 					calc_waveforms(3);
 				}
 				break;
-			case n_mono:
-				if (value != mono_before) {
-					if (value >= 0.5f)
-						n1.set_numofvoices(1);
-					else
-						n1.set_numofvoices(NUMOFVOICES);
-          
-					n1.set_volume(*(float*)(m_ports[real_param[n_vol1]]) * 0.3f, 0);
-					n1.set_volume(*(float*)(m_ports[real_param[n_vol2]]) * 0.3f, 1);
-					n1.set_volume(*(float*)(m_ports[real_param[n_vol3]]) * 0.6f, 2);
-				}
-				mono_before = value;
-				break;
+
 			case n_1_vibrato:
 				vibchanged1 = true;
 				break;
@@ -3496,17 +3395,17 @@ void AZR3::calc_click() {
     error". Improve it if you can, but PLEAZE tell me how you
     did it...
   */
-	click[0] = *(float*)m_ports[real_param[n_click]] *
+	click[0] = *(float*)m_ports[n_click] *
     (my_p[n_1_db1] + my_p[n_1_db2] + my_p[n_1_db3] + my_p[n_1_db4] +
      my_p[n_1_db5] + my_p[n_1_db6] + my_p[n_1_db7] + my_p[n_1_db8] +
      my_p[n_1_db9]) / 9;
 
-	click[1] = *(float*)m_ports[real_param[n_click]] *
+	click[1] = *(float*)m_ports[n_click] *
 	(my_p[n_2_db1] + my_p[n_2_db2] + my_p[n_2_db3] + my_p[n_2_db4] +
    my_p[n_2_db5] + my_p[n_2_db6] + my_p[n_2_db7]+my_p[n_2_db8] +
    my_p[n_2_db9]) / 9;
 
-	click[2] = *(float*)m_ports[real_param[n_click]] *
+	click[2] = *(float*)m_ports[n_click] *
 	(my_p[n_3_db1] + my_p[n_3_db2] + my_p[n_3_db3] + my_p[n_3_db4] + 
    my_p[n_1_db5]) / 22;
 }
@@ -3514,7 +3413,7 @@ void AZR3::calc_click() {
 
 unsigned char* AZR3::event_clock(unsigned long offset) {
   
-  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[33]);
+  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[63]);
   
   // Are there any events left in the buffer?
   if (midi_ptr - midi->data >= midi->size)
@@ -3549,15 +3448,66 @@ void* AZR3::worker_function(void* arg) {
     
     switch(pc.port) {
     
-    case 0: //(mono)
+    case n_mono:
       pthread_mutex_lock(&me.m_notemaster_lock);
       if (pc.value >= 0.5f)
         me.n1.set_numofvoices(1);
       else
         me.n1.set_numofvoices(NUMOFVOICES);
-      me.n1.set_volume(*(float*)(me.m_ports[me.real_param[n_vol1]]) * 0.3f, 0);
-      me.n1.set_volume(*(float*)(me.m_ports[me.real_param[n_vol2]]) * 0.3f, 1);
-      me.n1.set_volume(*(float*)(me.m_ports[me.real_param[n_vol3]]) * 0.6f, 2);
+      me.n1.set_volume(*(float*)(me.m_ports[n_vol1]) * 0.3f, 0);
+      me.n1.set_volume(*(float*)(me.m_ports[n_vol2]) * 0.3f, 1);
+      me.n1.set_volume(*(float*)(me.m_ports[n_vol3]) * 0.6f, 2);
+      pthread_mutex_unlock(&me.m_notemaster_lock);
+      break;
+
+    case n_1_db1:
+    case n_1_db2:
+    case n_1_db3:
+    case n_1_db4:
+    case n_1_db5:
+    case n_1_db6:
+    case n_1_db7:
+    case n_1_db8:
+    case n_1_db9:
+      pthread_mutex_lock(&me.m_notemaster_lock);
+      me.calc_waveforms(1);
+      me.calc_click();
+      pthread_mutex_unlock(&me.m_notemaster_lock);
+      break;
+      
+    case n_2_db1:
+    case n_2_db2:
+    case n_2_db3:
+    case n_2_db4:
+    case n_2_db5:
+    case n_2_db6:
+    case n_2_db7:
+    case n_2_db8:
+    case n_2_db9:
+      pthread_mutex_lock(&me.m_notemaster_lock);
+      me.calc_waveforms(2);
+      me.calc_click();
+      pthread_mutex_unlock(&me.m_notemaster_lock);
+      break;
+			
+    case n_3_db1:
+    case n_3_db2:
+    case n_3_db3:
+    case n_3_db4:
+    case n_3_db5:
+      pthread_mutex_lock(&me.m_notemaster_lock);
+      me.calc_waveforms(3);
+      me.calc_click();
+      pthread_mutex_unlock(&me.m_notemaster_lock);
+      break;
+			
+    case n_shape:
+      pthread_mutex_lock(&me.m_notemaster_lock);
+      if (me.make_waveforms(int(pc.value * (W_NUMOF - 1) + 1) - 1)) {
+        me.calc_waveforms(1);
+        me.calc_waveforms(2);
+        me.calc_waveforms(3);
+      }
       pthread_mutex_unlock(&me.m_notemaster_lock);
       break;
       

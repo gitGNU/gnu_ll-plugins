@@ -85,7 +85,8 @@ protected:
 	long	samplecount;
 	bool	waitforsplit;
 	long	splitpoint;
-
+  
+  bool slow_controls[kNumParams];
 	float	p[kNumParams],*my_p;
 	float	last_value[kNumParams];
 	float	*p_mono,mono,mono1,mono2;
@@ -155,9 +156,6 @@ protected:
 #endif
   
   LV2_ProgramDescriptor pdesc;
-  
-  std::vector<bool> is_real_param;
-  std::vector<unsigned long> real_param;
   
   pthread_mutex_t m_notemaster_lock;
   Ringbuffer<PortChange, 1024> m_queue;

@@ -31,15 +31,17 @@ public:
 
   Ringbuffer();
 
-  int read(T* dest, unsigned size);
-  int write(T* src, unsigned size);
-  int write_zeros(unsigned size);
-  int available() const;
-  int available_contiguous() const;
-  int get_read_pos() const;
-  int get_write_pos() const;
-  const T* get_read_ptr() const;
-  T* get_write_ptr();
+  inline int read(T* dest, unsigned size = 1);
+  inline int write(T* src, unsigned size = 1);
+  inline int write_zeros(unsigned size);
+  inline int available() const;
+  inline int available_contiguous() const;
+  inline int get_read_pos() const;
+  inline int get_write_pos() const;
+  inline const T* get_read_ptr() const;
+  inline T* get_write_ptr();
+  /** Not threadsafe! */
+  inline void clear();
   
 private:
   
@@ -212,6 +214,12 @@ template <class T, unsigned S>
 T* Ringbuffer<T, S>::get_write_ptr() {
   T* data = (T*)m_data;
   return data + m_write_pos;
+}
+
+
+template <class T, unsigned S>
+void Ringbuffer<T, S>::clear() {
+  m_read_pos = m_write_pos = 0;
 }
 
 
