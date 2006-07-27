@@ -2,10 +2,12 @@
 #define AZR3_HPP
 
 #include <pthread.h>
+#include <semaphore.h>
 
 #include "lv2instrument.hpp"
 #include "voice_classes.h"
 #include "Globals.h"
+#include "ringbuffer.hpp"
 
 
 enum
@@ -34,6 +36,13 @@ private:
 };
 
 
+struct PortChange {
+  PortChange(unsigned long p, float v) : port(p), value(v) { }
+  unsigned long port;
+  float value;
+};
+
+
 class AZR3 : public LV2Instrument {
 public:
   
@@ -42,6 +51,8 @@ public:
   ~AZR3();
   
   void activate();
+  
+  void deactivate();
   
   const LV2_ProgramDescriptor* get_program(unsigned long index);
   
@@ -59,6 +70,8 @@ protected:
 	void calc_waveforms(int number);
 	void calc_click();
   unsigned char* event_clock(unsigned long offset);
+  
+  static void* worker_function(void* arg);
   
 protected:
   
@@ -143,10 +156,13 @@ protected:
   
   LV2_ProgramDescriptor pdesc;
   
-  pthread_mutex_t m_lock;
-  
   std::vector<bool> is_real_param;
   std::vector<unsigned long> real_param;
+  
+  pthread_mutex_t m_notemaster_lock;
+  Ringbuffer<PortChange, 1024> m_queue;
+  sem_t m_qsem;
+  pthread_t m_worker;
 };
 
 

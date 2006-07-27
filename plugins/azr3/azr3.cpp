@@ -76,7 +76,12 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
     is_real_param(kNumParams, false),
     real_param(kNumParams, -1) {
   
+  pthread_mutex_init(&m_notemaster_lock, 0);
+  
   int next = 0;
+  is_real_param[n_mono] = true;
+  real_param[n_mono] = next++;
+  cerr<<"n_mono = "<<(next - 1)<<endl;
   is_real_param[n_click] = true;
   real_param[n_click] = next++;
   cerr<<"n_click = "<<(next - 1)<<endl;
@@ -174,8 +179,6 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
   real_param[n_3_sustain] = next++;
   cerr<<"n_3_sustain = "<<(next - 1)<<endl;
   
-  pthread_mutex_init(&m_lock, 0);
-  
 	for(int x=0;x<WAVETABLESIZE*12+1;x++)
 		wavetable[x]=0;
 
@@ -217,7 +220,7 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
 
 
 AZR3::~AZR3() {
-  pthread_mutex_destroy(&m_lock);
+  pthread_mutex_destroy(&m_notemaster_lock);
 }
 
 
@@ -238,6 +241,16 @@ void AZR3::activate() {
 	vdelay2.flood(0);
 	wand_r.flood(0);
 	wand_l.flood(0);
+  
+  sem_init(&m_qsem, 0, 0);
+  pthread_create(&m_worker, 0, &AZR3::worker_function, this);
+}
+
+
+void AZR3::deactivate() {
+  pthread_cancel(m_worker);
+  pthread_join(m_worker, 0);
+  sem_destroy(&m_qsem);
 }
 
 
@@ -256,8 +269,6 @@ void AZR3::select_program(unsigned long program) {
   if (program >= kNumPrograms)
     return;
   
-  pthread_mutex_lock(&m_lock);
-  
 	flpProgram& ap = programs[program];
 
   for(unsigned long x = 0; x < kNumParams; x++) {
@@ -266,8 +277,6 @@ void AZR3::select_program(unsigned long program) {
     else
       setParameter(x, ap.p[x]);
   }
-  
-  pthread_mutex_unlock(&m_lock);
 }
 
 
@@ -289,9 +298,24 @@ void AZR3::run(unsigned long sampleFrames) {
     - speakers
 	*/
   
-  midi_ptr = static_cast<LV2_MIDI*>(m_ports[32])->data;
-	out1 = static_cast<float*>(m_ports[33]);
-	out2 = static_cast<float*>(m_ports[34]);
+  if (pthread_mutex_trylock(&m_notemaster_lock)) {
+    memset(out1, 0, sizeof(float) * sampleFrames);
+    memset(out2, 0, sizeof(float) * sampleFrames);
+    return;
+  }
+  
+  midi_ptr = static_cast<LV2_MIDI*>(m_ports[33])->data;
+	out1 = static_cast<float*>(m_ports[34]);
+	out2 = static_cast<float*>(m_ports[35]);
+  
+  // send mono changes to the worker thread
+  float value = *(float*)(m_ports[real_param[n_mono]]);
+  if (value != mono_before) {
+    PortChange pc(real_param[n_mono], value);
+    m_queue.write(&pc, 1);
+    sem_post(&m_qsem);
+    mono_before = value;
+  }
   
   // compute click
   calc_click();
@@ -336,7 +360,7 @@ void AZR3::run(unsigned long sampleFrames) {
   }
   
   // compute distortion parameters
-  float value = *static_cast<float*>(m_ports[real_param[n_drive]]);
+  value = *static_cast<float*>(m_ports[real_param[n_drive]]);
   if (value > 0)
     do_dist = true;
   else
@@ -385,12 +409,6 @@ void AZR3::run(unsigned long sampleFrames) {
   
 	int	x;
 
-  if (pthread_mutex_trylock(&m_lock)) {
-    memset(out1, 0, sizeof(float) * sampleFrames);
-    memset(out2, 0, sizeof(float) * sampleFrames);
-  }
-	
-  
   for (unsigned long pframe = 0; pframe < sampleFrames; ++pframe) {
     
 		// we need this variable further down
@@ -821,21 +839,13 @@ void AZR3::run(unsigned long sampleFrames) {
 		(*out2++) = last_out2;
 	}
   
-  pthread_mutex_unlock(&m_lock);
-  
+  pthread_mutex_unlock(&m_notemaster_lock);
 }
 
 
 char* AZR3::configure(const char* key, const char* value) {
   
-  string param = "param";
-  if (!strncmp(key, param.c_str(), param.size())) {
-    long port = atol(key + param.size());
-    float fvalue = atof(value);
-    pthread_mutex_lock(&m_lock);
-    setParameter(port, fvalue);
-    pthread_mutex_unlock(&m_lock);
-  }
+
 }
 
 
@@ -3287,50 +3297,6 @@ void AZR3::setParameter (long index, float value) {
 					calc_waveforms(3);
 				}
 				break;
-			case n_1_perc:
-			case n_2_perc:
-			case n_3_perc:
-			case n_perc:
-			case n_percvol:
-			case n_percfade: {
-        int v = (int)(my_p[n_perc] * 10);
-        float pmult;
-        if(v < 1)
-          pmult = 0;
-        else if(v < 2)
-          pmult = 1;
-        else if(v < 3)
-          pmult = 2;
-        else if(v < 4)
-          pmult = 3;
-        else if(v < 5)
-          pmult = 4;
-        else if(v < 6)
-          pmult = 6;
-        else if(v < 7)
-          pmult = 8;
-        else if(v < 8)
-          pmult = 10;
-        else if(v < 9)
-          pmult = 12;
-        else
-          pmult = 16;
-        
-        n1.set_percussion(1.5f * my_p[n_percvol], pmult, my_p[n_percfade]);
-      }
-				break;
-			case n_click:
-				calc_click();
-				break;
-			case n_vol1:
-				n1.set_volume(value * 0.3f, 0);
-				break;
-			case n_vol2:
-				n1.set_volume(value * 0.4f, 1);
-				break;
-			case n_vol3:
-				n1.set_volume(value * 0.6f, 2);
-				break;
 			case n_mono:
 				if (value != mono_before) {
 					if (value >= 0.5f)
@@ -3361,63 +3327,6 @@ void AZR3::setParameter (long index, float value) {
 					vmix2 = value;
 					vibchanged2 = true;
 				}
-				break;
-			case n_drive:
-				if (value > 0)
-					do_dist = true;
-				else
-					do_dist = false;
-				dist = 2 * (0.1f + value);
-				sin_dist = sinf(dist);
-				i_dist = 1 / dist;
-				dist4 = 4 * dist;
-				dist8 = 8 * dist;
-				break;
-      case n_mrvalve:
-				odchanged = true;
-				break;
-			case n_mix:
-				odmix = value;
-				if (my_p[n_mrvalve] == 1)
-					odchanged = true;
-				break;
-			case n_tone:
-				fuzz_filt.setparam(800 + value * 3000, 0.7f, samplerate);
-				break;
-        
-        /* done as control rate port 1 mapped to modwheel
-			case n_speed:
-				if (value > 0.5f)
-					fastmode = true;
-				else
-					fastmode = false;
-				break;
-        */
-        
-        /* These are all done as control rate ports  2 - 6 
-			case n_l_slow:
-				lslow = value * 10;
-				break;
-			case n_l_fast:
-				lfast = value * 10;
-				break;
-			case n_u_slow:
-				uslow = value * 10;
-				break;
-			case n_u_fast:
-				ufast = value * 10;
-				break;
-			case n_belt:
-				ubelt_up = (value * 3 + 1) * 0.012f;
-				ubelt_down = (value * 3 + 1) * 0.008f;
-				lbelt_up = (value * 3 + 1) * 0.0045f;
-				lbelt_down = (value * 3 + 1) * 0.0035f;
-				break;
-        */
-        
-        
-			case n_spread:
-				lfos_ok = false;
 				break;
 			case n_splitpoint:
 				splitpoint = (long)(value * 128);
@@ -3605,7 +3514,7 @@ void AZR3::calc_click() {
 
 unsigned char* AZR3::event_clock(unsigned long offset) {
   
-  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[32]);
+  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[33]);
   
   // Are there any events left in the buffer?
   if (midi_ptr - midi->data >= midi->size)
@@ -3629,7 +3538,40 @@ unsigned char* AZR3::event_clock(unsigned long offset) {
 }
 
 
+void* AZR3::worker_function(void* arg) {
+  AZR3& me = *static_cast<AZR3*>(arg);
+  PortChange pc(0, 0);
+  do {
+    while (sem_wait(&me.m_qsem));
+    cerr<<"Got port change!"<<endl;
+    me.m_queue.read(&pc, 1);
+    cerr<<"port = "<<pc.port<<", value = "<<pc.value<<endl;
+    
+    switch(pc.port) {
+    
+    case 0: //(mono)
+      pthread_mutex_lock(&me.m_notemaster_lock);
+      if (pc.value >= 0.5f)
+        me.n1.set_numofvoices(1);
+      else
+        me.n1.set_numofvoices(NUMOFVOICES);
+      me.n1.set_volume(*(float*)(me.m_ports[me.real_param[n_vol1]]) * 0.3f, 0);
+      me.n1.set_volume(*(float*)(me.m_ports[me.real_param[n_vol2]]) * 0.3f, 1);
+      me.n1.set_volume(*(float*)(me.m_ports[me.real_param[n_vol3]]) * 0.6f, 2);
+      pthread_mutex_unlock(&me.m_notemaster_lock);
+      break;
+      
+    }
+    
+  } while (true);
+  
+  return 0;
+}
+
+
 void initialise() __attribute__((constructor));
 void initialise() {
   register_lv2_inst<AZR3>("http://ll-plugins.nongnu.org/lv2/dev/azr3/0.0.0");
 }
+
+
