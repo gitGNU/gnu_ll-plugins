@@ -40,15 +40,15 @@ int main(int argc, char** argv) {
   // query the ports
   Namespace lv2("<http://lv2plug.in/ontology#>");
   Variable plugin, port, index, symbol;
-  Query q = 
+  vector<QueryResult> qr = 
     select(index, symbol)
     .where(argv[3], rdf("type"), lv2("Plugin"))
     .where(argv[3], lv2("port"), port)
     .where(port, lv2("index"), index)
-    .where(port, lv2("symbol"), symbol);
+    .where(port, lv2("symbol"), symbol)
+    .run(data);
   
   // put ports in a map so they get sorted
-  vector<QueryResult> qr = q.run(data);
   map<int, string> ports;
   for (size_t i = 0; i < qr.size(); ++i) {
     int port_index = atoi(qr[i][index]->name.c_str());
