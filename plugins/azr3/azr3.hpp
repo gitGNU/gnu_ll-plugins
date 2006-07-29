@@ -87,7 +87,6 @@ protected:
 	long	splitpoint;
   
   bool slow_controls[kNumParams];
-	float	p[kNumParams],*my_p;
 	float	last_value[kNumParams];
 	float	*p_mono,mono,mono1,mono2;
   

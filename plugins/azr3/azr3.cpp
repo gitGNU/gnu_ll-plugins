@@ -119,7 +119,6 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
 	postbody_filt.setparam(1100, 1.5f, samplerate);
 
 	setFactorySounds();
-	my_p=programs[0].p;
 
 	make_waveforms(W_SINE);
 }
@@ -3161,10 +3160,6 @@ void AZR3::setParameter (long index, float value) {
 	if (index < 0 || index > kNumParams)
 		return;
   
-  p[index]=value;				// put value into edit buffer
-  my_p=p;						// let machine use edit buffer
-
-
 	{
 		last_value[index]=value;
 		switch(index) 
