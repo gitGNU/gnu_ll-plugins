@@ -3395,8 +3395,9 @@ void* AZR3::worker_function(void* arg) {
     // wait until the audio thread sends something
     while (sem_wait(&me.m_qsem));
     
-    // sleep for a while
-    usleep(1000000);
+    // sleep for a while - we don't need to update the tables for _every_ 
+    // change
+    usleep(10000);
     
     // read port changes from the queue until the semaphore would block
     do {
