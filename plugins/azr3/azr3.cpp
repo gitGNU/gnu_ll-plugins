@@ -175,16 +175,20 @@ void AZR3::select_program(unsigned long program) {
     return;
   
 	flpProgram& ap = programs[program];
-
+  
+  cerr<<__PRETTY_FUNCTION__<<endl;
+  
   for(unsigned long x = 0; x < kNumParams; x++) {
-    setParameter(x, ap.p[x]);
+    cerr<<"Setting parameter "<<x<<" to "<<ap.p[x]<<" from "<<last_value[x]<<endl;
     *static_cast<float*>(m_ports[x]) = ap.p[x];
     if (slow_controls[x] && ap.p[x] != last_value[x]) {
+      cerr<<"Sending port change to worker thread: "<<x<<" -> "<<ap.p[x]<<endl;
       PortChange pc(x, ap.p[x]);
       m_queue.write(&pc);
       sem_post(&m_qsem);
       last_value[x] = ap.p[x];
     }
+    setParameter(x, ap.p[x]);
   }
 }
 
@@ -226,6 +230,9 @@ void AZR3::run(unsigned long sampleFrames) {
       last_value[i] = *(float*)m_ports[i];
     }
   }
+  
+  // compute the splitpoint
+  splitpoint = (long)(*(float*)m_ports[n_splitpoint] * 128);
   
   // compute click
   calc_click();
@@ -3164,47 +3171,8 @@ void AZR3::setParameter (long index, float value) {
 		last_value[index]=value;
 		switch(index) 
       {
-      case n_1_db1:
-      case n_1_db2:
-      case n_1_db3:
-      case n_1_db4:
-      case n_1_db5:
-      case n_1_db6:
-      case n_1_db7:
-      case n_1_db8:
-      case n_1_db9:
-        calc_waveforms(1);
-        calc_click();
-        break;
-      case n_2_db1:
-      case n_2_db2:
-      case n_2_db3:
-      case n_2_db4:
-      case n_2_db5:
-      case n_2_db6:
-			case n_2_db7:
-			case n_2_db8:
-			case n_2_db9:
-				calc_waveforms(2);
-				calc_click();
-				break;
-			case n_3_db1:
-			case n_3_db2:
-			case n_3_db3:
-			case n_3_db4:
-			case n_3_db5:
-				calc_waveforms(3);
-				calc_click();
-				break;
-			case n_shape:
-				if(make_waveforms(int(value * (W_NUMOF - 1) + 1) - 1)) {
-					calc_waveforms(1);
-					calc_waveforms(2);
-					calc_waveforms(3);
-				}
-				break;
-
-			case n_1_vibrato:
+			
+      case n_1_vibrato:
 				vibchanged1 = true;
 				break;
 			case n_1_vmix:
@@ -3221,9 +3189,6 @@ void AZR3::setParameter (long index, float value) {
 					vmix2 = value;
 					vibchanged2 = true;
 				}
-				break;
-			case n_splitpoint:
-				splitpoint = (long)(value * 128);
 				break;
 		}
 
