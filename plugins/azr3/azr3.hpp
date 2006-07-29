@@ -79,7 +79,6 @@ protected:
 	float	click[16];
 	float	volume[16];
 	float	mono_before;
-	float	*out1,*out2;
 	float	samplerate;
 	long	samplecount;
 	bool	waitforsplit;
@@ -87,7 +86,6 @@ protected:
   
   bool slow_controls[kNumParams];
 	float	last_value[kNumParams];
-	float	*p_mono,mono,mono1,mono2;
   
 	flpProgram	programs[kNumPrograms];
 
@@ -108,28 +106,23 @@ protected:
 	float wavetable[WAVETABLESIZE*TABLES_PER_CHANNEL*3+1];	
 
 	lfo		vlfo;
-	delay	vdelay1,vdelay2;
+	delay	vdelay1, vdelay2;
 	float	viblfo;
-	bool	vibchanged1,vibchanged2,lfo_calced;
-	float	vmix1,vmix2;
+	bool	vibchanged1, vibchanged2;
+	float	vmix1, vmix2;
 	filt_lp	warmth;
 
-	filt1	fuzz_filt,body_filt,postbody_filt;
-	float	dist,sin_dist,i_dist,dist4,dist8;
+	filt1	fuzz_filt, body_filt, postbody_filt;
 	float	fuzz;
-	bool	do_dist;
   float oldmrvalve;
 	bool	odchanged;
   float oldmix;
-	float	odmix,n_odmix,n2_odmix,n25_odmix,odmix75;
+	float	odmix, n_odmix, n2_odmix, n25_odmix, odmix75;
 
-	float	oldspread,spread,spread2;
+	float	oldspread, spread, spread2;
 	float	cross1;
-	bool	fastmode;
-	float	lslow,lfast,uslow,ufast,lspeed,uspeed;
-	float	ubelt_up,ubelt_down,lbelt_up,lbelt_down;
-	float	er_r,er_r_before,er_l,er_feedback;
-	float	lp,right,left,lright,lleft,upper,lower,upper_damp;
+	float	lspeed, uspeed;
+	float	er_r, er_r_before, er_l, er_feedback;
 	float	llfo_out,llfo_nout,llfo_d_out,llfo_d_nout;
 	float	lfo_out,lfo_nout,lfo_d_out,lfo_d_nout;
 	float	last_out1,last_out2;
@@ -148,10 +141,6 @@ protected:
 	float		lfo_phaser1,lfo_phaser2;
   
   unsigned char* midi_ptr;
-  
-#ifdef DEVELOP
-	float		ctrl1,ctrl2,ctrl3,ctrl4;
-#endif
   
   LV2_ProgramDescriptor pdesc;
   

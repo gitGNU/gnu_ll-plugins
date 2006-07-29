@@ -24,40 +24,21 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
     delay3(4410,true),
     delay4(4410,true),
     samplecount(0),
-    mono(0),
-    mono1(0),
-    mono2(0),
     viblfo(0),
     vmix1(0),
     vmix2(0),
     oldmrvalve(0),
     oldmix(0),
-    dist(0),
     fuzz(0),
     odmix(0),
     oldspread(0),
     spread(0),
     spread2(0),
     cross1(0),
-    lslow(0),
-    lfast(0),
-    uslow(0),
-    ufast(0),
-    ubelt_up(0),
-    ubelt_down(0),
-    lbelt_up(0),
-    lbelt_down(0),
     lspeed(0),
     uspeed(0),
     er_r(0),
     er_l(0),
-    lp(0),
-    right(0),
-    left(0),
-    lright(0),
-    lleft(0),
-    upper(0),
-    lower(0),
     llfo_out(0),
     llfo_nout(0),
     llfo_d_out(0),
@@ -210,15 +191,15 @@ void AZR3::run(unsigned long sampleFrames) {
     - speakers
 	*/
   
+  midi_ptr = static_cast<LV2_MIDI*>(m_ports[63])->data;
+	float* out1 = static_cast<float*>(m_ports[64]);
+	float* out2 = static_cast<float*>(m_ports[65]);
+  
   if (pthread_mutex_trylock(&m_notemaster_lock)) {
     memset(out1, 0, sizeof(float) * sampleFrames);
     memset(out2, 0, sizeof(float) * sampleFrames);
     return;
   }
-  
-  midi_ptr = static_cast<LV2_MIDI*>(m_ports[63])->data;
-	out1 = static_cast<float*>(m_ports[64]);
-	out2 = static_cast<float*>(m_ports[65]);
   
   // send slow port changes to the worker thread
   for (int i = 0; i < kNumParams; ++i) {
@@ -253,9 +234,6 @@ void AZR3::run(unsigned long sampleFrames) {
     }
     last_value[n_2_vmix] = *(float*)m_ports[n_2_vmix];
   }
-  
-  // compute the splitpoint
-  splitpoint = (long)(*(float*)m_ports[n_splitpoint] * 128);
   
   // compute click
   calc_click();
@@ -301,15 +279,16 @@ void AZR3::run(unsigned long sampleFrames) {
   
   // compute distortion parameters
   float value = *static_cast<float*>(m_ports[n_drive]);
+  bool do_dist;
   if (value > 0)
     do_dist = true;
   else
     do_dist = false;
-  dist = 2 * (0.1f + value);
-  sin_dist = sinf(dist);
-  i_dist = 1 / dist;
-  dist4 = 4 * dist;
-  dist8 = 8 * dist;
+  float dist = 2 * (0.1f + value);
+  float sin_dist = sinf(dist);
+  float i_dist = 1 / dist;
+  float dist4 = 4 * dist;
+  float dist8 = 8 * dist;
   fuzz_filt.setparam(800 + *static_cast<float*>(m_ports[n_tone]) *
                      3000, 0.7f, samplerate);
   value = *static_cast<float*>(m_ports[n_mix]);
@@ -320,23 +299,24 @@ void AZR3::run(unsigned long sampleFrames) {
   }
 
   // speed control port
+  bool fastmode;
   if (*static_cast<float*>(m_ports[n_speed]) > 0.5f)
     fastmode = true;
   else
     fastmode = false;
   
   // different rotation speeds
-  lslow = 10 * *static_cast<float*>(m_ports[n_l_slow]);
-  lfast = 10 * *static_cast<float*>(m_ports[n_l_fast]);
-  uslow = 10 * *static_cast<float*>(m_ports[n_u_slow]);
-  ufast = 10 * *static_cast<float*>(m_ports[n_u_fast]);
+  float lslow = 10 * *static_cast<float*>(m_ports[n_l_slow]);
+  float lfast = 10 * *static_cast<float*>(m_ports[n_l_fast]);
+  float uslow = 10 * *static_cast<float*>(m_ports[n_u_slow]);
+  float ufast = 10 * *static_cast<float*>(m_ports[n_u_fast]);
   
   // belt (?)
   value = *static_cast<float*>(m_ports[n_belt]);
-  ubelt_up = (value * 3 + 1) * 0.012f;
-  ubelt_down = (value * 3 + 1) * 0.008f;
-  lbelt_up = (value * 3 + 1) * 0.0045f;
-  lbelt_down = (value * 3 + 1) * 0.0035f;
+  float ubelt_up = (value * 3 + 1) * 0.012f;
+  float ubelt_down = (value * 3 + 1) * 0.008f;
+  float lbelt_up = (value * 3 + 1) * 0.0045f;
+  float lbelt_down = (value * 3 + 1) * 0.0035f;
   
   if (oldspread != *static_cast<float*>(m_ports[n_spread])) {
     lfos_ok = false;
@@ -457,10 +437,10 @@ void AZR3::run(unsigned long sampleFrames) {
       }
     }
 		
-		p_mono = n1.clock();
-		mono1 = p_mono[0];
-		mono2 = p_mono[1];
-		mono = p_mono[2];
+		float* p_mono = n1.clock();
+		float mono1 = p_mono[0];
+		float mono2 = p_mono[1];
+		float mono = p_mono[2];
     
 		// smoothing of vibrato switch 1
 		if (vibchanged1 && samplecount % 10 == 0) {
@@ -509,7 +489,7 @@ void AZR3::run(unsigned long sampleFrames) {
 		}
 		
 		// Vibrato LFO
-		lfo_calced = false;
+		bool lfo_calced = false;
 		
 		// Vibrato 1
 		if(*(float*)m_ports[n_1_vibrato] == 1 || vibchanged1) {
@@ -663,15 +643,15 @@ void AZR3::run(unsigned long sampleFrames) {
 
 			// split signal into upper and lower cabinet speakers
 			split.clock(mono);
-			lower = split.lp() * 5;
-			upper = split.hp();
+			float lower = split.lp() * 5;
+			float upper = split.hp();
 			
 			// upper speaker is kind of a nasty horn - this makes up
 			// a major part of the typical sound!
 			horn_filt.clock(upper);
 			upper = upper * 0.5f + horn_filt.lp() * 2.3f;
 			damp.clock(upper);
-			upper_damp = damp.lp();
+			float upper_damp = damp.lp();
 			
 			// do lfo stuff
 			if(samplecount % 5 == 0) {
@@ -712,6 +692,7 @@ void AZR3::run(unsigned long sampleFrames) {
 				llfo_nout = llfo_d_nout * spread + spread2;
 			}
 			
+      float lright, lleft;
 			if(lslow > 0) {
 				lright = (1 + 0.6f * llfo_out) * lower;
 				lleft = (1 + 0.6f * llfo_nout) * lower;
@@ -722,8 +703,8 @@ void AZR3::run(unsigned long sampleFrames) {
 			
 			// emulate vertical horn characteristics
 			// (sound is dampened when listened from aside)
-			right = (3 + lfo_nout * 2.5f) * upper + 1.5f * upper_damp;
-			left = (3 + lfo_out * 2.5f) * upper + 1.5f * upper_damp;
+			float right = (3 + lfo_nout * 2.5f) * upper + 1.5f * upper_damp;
+			float left = (3 + lfo_out * 2.5f) * upper + 1.5f * upper_damp;
 
 			//phaser...
 			last_r = allpass_r[0].clock(
@@ -3388,8 +3369,10 @@ unsigned char* AZR3::event_clock(unsigned long offset) {
 
 
 void* AZR3::worker_function(void* arg) {
+
   AZR3& me = *static_cast<AZR3*>(arg);
   PortChange pc(0, 0);
+  
   do {
     
     // wait until the audio thread sends something
