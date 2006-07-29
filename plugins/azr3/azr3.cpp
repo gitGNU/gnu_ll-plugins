@@ -176,19 +176,18 @@ void AZR3::select_program(unsigned long program) {
   
 	flpProgram& ap = programs[program];
   
-  cerr<<__PRETTY_FUNCTION__<<endl;
+  //cerr<<__PRETTY_FUNCTION__<<endl;
   
   for(unsigned long x = 0; x < kNumParams; x++) {
-    cerr<<"Setting parameter "<<x<<" to "<<ap.p[x]<<" from "<<last_value[x]<<endl;
+    //cerr<<"Setting parameter "<<x<<" to "<<ap.p[x]<<" from "<<last_value[x]<<endl;
     *static_cast<float*>(m_ports[x]) = ap.p[x];
     if (slow_controls[x] && ap.p[x] != last_value[x]) {
-      cerr<<"Sending port change to worker thread: "<<x<<" -> "<<ap.p[x]<<endl;
+      //cerr<<"Sending port change to worker thread: "<<x<<" -> "<<ap.p[x]<<endl;
       PortChange pc(x, ap.p[x]);
       m_queue.write(&pc);
       sem_post(&m_qsem);
       last_value[x] = ap.p[x];
     }
-    setParameter(x, ap.p[x]);
   }
 }
 
@@ -229,6 +228,30 @@ void AZR3::run(unsigned long sampleFrames) {
       sem_post(&m_qsem);
       last_value[i] = *(float*)m_ports[i];
     }
+  }
+  
+  // vibrato handling
+  if (*(float*)m_ports[n_1_vibrato] != last_value[n_1_vibrato]) {
+    vibchanged1 = true;
+    last_value[n_1_vibrato] = *(float*)m_ports[n_1_vibrato];
+  }
+  if (*(float*)m_ports[n_2_vibrato] != last_value[n_2_vibrato]) {
+    vibchanged2 = true;
+    last_value[n_2_vibrato] = *(float*)m_ports[n_2_vibrato];
+  }
+  if (*(float*)m_ports[n_1_vmix] != last_value[n_1_vmix]) {
+    if (*(float*)m_ports[n_1_vibrato] == 1) {
+      vmix1 = *(float*)m_ports[n_1_vmix];
+      vibchanged1 = true;
+    }
+    last_value[n_1_vmix] = *(float*)m_ports[n_1_vmix];
+  }
+  if (*(float*)m_ports[n_2_vmix] != last_value[n_2_vmix]) {
+    if (*(float*)m_ports[n_2_vibrato] == 1) {
+      vmix2 = *(float*)m_ports[n_2_vmix];
+      vibchanged2 = true;
+    }
+    last_value[n_2_vmix] = *(float*)m_ports[n_2_vmix];
   }
   
   // compute the splitpoint
@@ -3160,39 +3183,6 @@ bool AZR3::make_waveforms(int shape) {
 	}
 	
 	return true;
-}
-
-
-void AZR3::setParameter (long index, float value) {
-	if (index < 0 || index > kNumParams)
-		return;
-  
-	{
-		last_value[index]=value;
-		switch(index) 
-      {
-			
-      case n_1_vibrato:
-				vibchanged1 = true;
-				break;
-			case n_1_vmix:
-				if (*(float*)m_ports[n_1_vibrato] == 1) {
-					vmix1 = value;
-					vibchanged1 = true;
-				}
-				break;
-			case n_2_vibrato:
-				vibchanged2 = true;
-				break;
-			case n_2_vmix:
-				if (*(float*)m_ports[n_2_vibrato] == 1) {
-					vmix2 = value;
-					vibchanged2 = true;
-				}
-				break;
-		}
-
-  }
 }
 
 

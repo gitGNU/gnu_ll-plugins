@@ -66,7 +66,6 @@ protected:
   
 	void setFactorySounds();
 	bool make_waveforms(int shape);
-  void setParameter(long index, float value);
 	void calc_waveforms(int number);
 	void calc_click();
   unsigned char* event_clock(unsigned long offset);
