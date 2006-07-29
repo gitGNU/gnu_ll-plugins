@@ -531,7 +531,7 @@ notemaster::~notemaster()
 {
 	for(x=0;x<MAXVOICES;x++)
 		if(voices[x]!=NULL)
-			voices[x]->~voice();
+			delete voices[x];
 }
 
 void notemaster::set_numofvoices(int number)
@@ -545,7 +545,7 @@ void notemaster::set_numofvoices(int number)
 	{
 		if(voices[x]!=NULL)
 		{
-			voices[x]->~voice();
+			delete voices[x];
 		}
 		voices[x]=NULL;
 		age[x]=0;

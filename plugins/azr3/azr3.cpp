@@ -3436,9 +3436,6 @@ void* AZR3::worker_function(void* arg) {
         me.n1.set_numofvoices(1);
       else
         me.n1.set_numofvoices(NUMOFVOICES);
-      me.n1.set_volume(*(float*)(me.m_ports[n_vol1]) * 0.3f, 0);
-      me.n1.set_volume(*(float*)(me.m_ports[n_vol2]) * 0.3f, 1);
-      me.n1.set_volume(*(float*)(me.m_ports[n_vol3]) * 0.6f, 2);
       pthread_mutex_unlock(&me.m_notemaster_lock);
       change_mono = false;
     }
