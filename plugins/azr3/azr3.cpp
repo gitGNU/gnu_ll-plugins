@@ -76,7 +76,7 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
   pthread_mutex_init(&m_notemaster_lock, 0);
   
 	for(int x = 0; x < WAVETABLESIZE * 12 + 1; x++)
-		wavetable[x]=0;
+		wavetable[x] = 0;
 
 	for(int x = 0; x < kNumParams; x++) {
 		last_value[x] = -99;
@@ -435,9 +435,9 @@ void AZR3::run(unsigned long sampleFrames) {
     
 		// smoothing of vibrato switch 1
 		if (vibchanged1 && samplecount % 10 == 0) {
-			if(my_p[n_1_vibrato] == 1) {
+			if(*(float*)m_ports[n_1_vibrato] == 1) {
 				vmix1 += 0.01f;
-				if (vmix1 >= my_p[n_1_vmix])
+				if (vmix1 >= *(float*)m_ports[n_1_vmix])
 					vibchanged1 = false;
 			}
 			else {
@@ -449,9 +449,9 @@ void AZR3::run(unsigned long sampleFrames) {
 		
 		// smoothing of vibrato switch 2
 		if(vibchanged2 && samplecount % 10 == 0) {
-			if(my_p[n_2_vibrato] == 1) {
+			if(*(float*)m_ports[n_2_vibrato] == 1) {
 				vmix2 += 0.01f;
-				if (vmix2 >= my_p[n_2_vmix])
+				if (vmix2 >= *(float*)m_ports[n_2_vmix])
 					vibchanged2 = false;
 			}
 			else {
@@ -483,21 +483,21 @@ void AZR3::run(unsigned long sampleFrames) {
 		lfo_calced = false;
 		
 		// Vibrato 1
-		if(my_p[n_1_vibrato] == 1 || vibchanged1) {
+		if(*(float*)m_ports[n_1_vibrato] == 1 || vibchanged1) {
 			if(samplecount % 5 == 0) {
 				viblfo = vlfo.clock();
 				lfo_calced = true;
-				vdelay1.set_delay(viblfo * 2 * my_p[n_1_vstrength]);
+				vdelay1.set_delay(viblfo * 2 * *(float*)m_ports[n_1_vstrength]);
 			}
 			mono1 = (1 - vmix1) * mono1 + vmix1 * vdelay1.clock(mono1);
 		}
 		
 		// Vibrato 2
-		if(my_p[n_2_vibrato] == 1 || vibchanged2) {
+		if(*(float*)m_ports[n_2_vibrato] == 1 || vibchanged2) {
 			if(samplecount % 5 == 0) {
 				if(!lfo_calced)
 					viblfo = vlfo.clock();
-				vdelay2.set_delay(viblfo * 2 * my_p[n_2_vstrength]);
+				vdelay2.set_delay(viblfo * 2 * *(float*)m_ports[n_2_vstrength]);
 			}
 			mono2 = (1 - vmix2) * mono2 + vmix2 * vdelay2.clock(mono2);
 		}
@@ -3213,7 +3213,7 @@ void AZR3::setParameter (long index, float value) {
 				vibchanged1 = true;
 				break;
 			case n_1_vmix:
-				if (my_p[n_1_vibrato] == 1) {
+				if (*(float*)m_ports[n_1_vibrato] == 1) {
 					vmix1 = value;
 					vibchanged1 = true;
 				}
@@ -3222,7 +3222,7 @@ void AZR3::setParameter (long index, float value) {
 				vibchanged2 = true;
 				break;
 			case n_2_vmix:
-				if (my_p[n_2_vibrato] == 1) {
+				if (*(float*)m_ports[n_2_vibrato] == 1) {
 					vmix2 = value;
 					vibchanged2 = true;
 				}
@@ -3247,7 +3247,7 @@ void AZR3::calc_waveforms(int number) {
 	float	this_p[kNumParams];
 
 	for (c = 0; c < kNumParams; c++)
-		this_p[c] = my_p[c];
+		this_p[c] = *(float*)m_ports[c];
 	if (number == 2) {
 		c = n_2_db1;
 		t = &wavetable[WAVETABLESIZE * TABLES_PER_CHANNEL];
@@ -3396,18 +3396,18 @@ void AZR3::calc_click() {
     did it...
   */
 	click[0] = *(float*)m_ports[n_click] *
-    (my_p[n_1_db1] + my_p[n_1_db2] + my_p[n_1_db3] + my_p[n_1_db4] +
-     my_p[n_1_db5] + my_p[n_1_db6] + my_p[n_1_db7] + my_p[n_1_db8] +
-     my_p[n_1_db9]) / 9;
+    (*(float*)m_ports[n_1_db1] + *(float*)m_ports[n_1_db2] + *(float*)m_ports[n_1_db3] + *(float*)m_ports[n_1_db4] +
+     *(float*)m_ports[n_1_db5] + *(float*)m_ports[n_1_db6] + *(float*)m_ports[n_1_db7] + *(float*)m_ports[n_1_db8] +
+     *(float*)m_ports[n_1_db9]) / 9;
 
 	click[1] = *(float*)m_ports[n_click] *
-	(my_p[n_2_db1] + my_p[n_2_db2] + my_p[n_2_db3] + my_p[n_2_db4] +
-   my_p[n_2_db5] + my_p[n_2_db6] + my_p[n_2_db7]+my_p[n_2_db8] +
-   my_p[n_2_db9]) / 9;
+	(*(float*)m_ports[n_2_db1] + *(float*)m_ports[n_2_db2] + *(float*)m_ports[n_2_db3] + *(float*)m_ports[n_2_db4] +
+   *(float*)m_ports[n_2_db5] + *(float*)m_ports[n_2_db6] + *(float*)m_ports[n_2_db7]+*(float*)m_ports[n_2_db8] +
+   *(float*)m_ports[n_2_db9]) / 9;
 
 	click[2] = *(float*)m_ports[n_click] *
-	(my_p[n_3_db1] + my_p[n_3_db2] + my_p[n_3_db3] + my_p[n_3_db4] + 
-   my_p[n_1_db5]) / 22;
+	(*(float*)m_ports[n_3_db1] + *(float*)m_ports[n_3_db2] + *(float*)m_ports[n_3_db3] + *(float*)m_ports[n_3_db4] + 
+   *(float*)m_ports[n_1_db5]) / 22;
 }
 
 
