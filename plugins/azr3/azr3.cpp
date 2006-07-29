@@ -3443,35 +3443,31 @@ void* AZR3::worker_function(void* arg) {
       change_mono = false;
     }
     
+    // this is not strictly safe - we are writing to the wavetable buffer
+    // while the audio thread may be reading from it. if you get crackly
+    // noises while moving the shape knob or the drawbars this might be 
+    // the cause.
     if (change_shape) {
-      pthread_mutex_lock(&me.m_notemaster_lock);
       if (me.make_waveforms(int(pc.value * (W_NUMOF - 1) + 1) - 1)) {
         me.calc_waveforms(1);
         me.calc_waveforms(2);
         me.calc_waveforms(3);
       }
-      pthread_mutex_unlock(&me.m_notemaster_lock);
       change_shape = false;
     }
     
     if (change_organ1) {
-      pthread_mutex_lock(&me.m_notemaster_lock);
       me.calc_waveforms(1);
-      pthread_mutex_unlock(&me.m_notemaster_lock);
       change_organ1 = false;
     }
     
     if (change_organ2) {
-      pthread_mutex_lock(&me.m_notemaster_lock);
       me.calc_waveforms(2);
-      pthread_mutex_unlock(&me.m_notemaster_lock);
       change_organ2 = false;
     }
         
     if (change_organ3) {
-      pthread_mutex_lock(&me.m_notemaster_lock);
       me.calc_waveforms(3);
-      pthread_mutex_unlock(&me.m_notemaster_lock);
       change_organ3 = false;
     } 
 
