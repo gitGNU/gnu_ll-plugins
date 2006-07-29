@@ -58,7 +58,7 @@ public:
 	void	reset();
 	void	suspend();
 	void	resume();
-	void	note_on(long note, long velocity, float *table, int size, float pitch, bool percenable, float sclick, float sust);
+	void	note_on(long note, long velocity, volatile float *table, int size, float pitch, bool percenable, float sclick, float sust);
 	void	note_off(long note);
 	void	force_off();
 	long	get_note();
@@ -94,7 +94,7 @@ private:
 	long	actual_note;	// Note-Daten
 	long	next_note;			// Vorbesetzung von actual_note.
 	long	perc_next_note;
-	float	*my_table;			// die Wavetable
+	volatile float	*my_table;			// die Wavetable
 	long	mask,my_size;		// Maske und Größe der Wavetable
 	float	samplerate;
 	double	midi_scaler;		// Umrechung Midi->float-Faktor [0..1]
@@ -121,7 +121,7 @@ public:
 	notemaster(int number);		// Anzahl der Stimmen
 	~notemaster();
 	void	set_numofvoices(int number);
-	void	note_on(long note, long velocity, float *table, int size1, int channel, bool percenable, float click, float sustain);
+	void	note_on(long note, long velocity, volatile float *table, int size1, int channel, bool percenable, float click, float sustain);
 	void	all_notes_off();
 	float	*clock();
 	void	note_off(long note, int channel);

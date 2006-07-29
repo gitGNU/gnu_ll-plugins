@@ -404,7 +404,7 @@ bool voice::get_active()
 		return(true);
 }
 
-void voice::note_on(long note, long velocity, float *table, int size, float pitch, bool percenable, float sclick, float sust)
+void voice::note_on(long note, long velocity, volatile float *table, int size, float pitch, bool percenable, float sclick, float sust)
 {
   
 	my_table=table;
@@ -566,7 +566,7 @@ void notemaster::set_numofvoices(int number)
 	numofvoices=number;
 }
 
-void notemaster::note_on(long note, long velocity, float *table, int size1, int channel, bool percenable, float click, float sustain)
+void notemaster::note_on(long note, long velocity, volatile float *table, int size1, int channel, bool percenable, float click, float sustain)
 {
 /*
 	The most interesting part here is the note priority and "stealing"

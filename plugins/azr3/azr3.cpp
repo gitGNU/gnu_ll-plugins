@@ -362,7 +362,7 @@ void AZR3::run(unsigned long sampleFrames) {
 		// read events from our own event queue
 		while((evt = this->event_clock(pframe)) != NULL) {
 			unsigned char channel = evt[0] & 0x0F;
-			float* tbl;
+			volatile float* tbl;
 			
 			if (channel > 2)
 				channel = 0;
@@ -3197,7 +3197,7 @@ void AZR3::calc_waveforms(int number) {
   cerr<<__PRETTY_FUNCTION__<<" with number "<<number<<endl;
   
 	int i, c;
-	float* t;
+	volatile float* t;
 	float	this_p[kNumParams];
 
 	for (c = 0; c < kNumParams; c++)

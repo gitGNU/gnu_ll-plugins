@@ -127,7 +127,7 @@ protected:
 
 // TABLES_PER_CHANNEL tables per channel; 3 channels; 1 spare table
 #define TABLES_PER_CHANNEL	8
-	float wavetable[WAVETABLESIZE*TABLES_PER_CHANNEL*3+1];	
+	volatile float wavetable[WAVETABLESIZE*TABLES_PER_CHANNEL*3+1];	
 
 	lfo		vlfo;
 	delay	vdelay1, vdelay2;
