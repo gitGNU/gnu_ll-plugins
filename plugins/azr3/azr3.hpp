@@ -168,6 +168,7 @@ protected:
   Ringbuffer<PortChange, 1024> m_queue;
   sem_t m_qsem;
   pthread_t m_worker;
+  float w_p[kNumParams];
 };
 
 

@@ -83,6 +83,7 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
 	for(int x = 0; x < kNumParams; x++) {
 		last_value[x] = -99;
     slow_controls[x] = false;
+    w_p[x] = -99;
   }
   slow_controls[n_mono] = true;
   for (int x = 0; x < 9; ++x)
@@ -122,7 +123,7 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
 
 	setFactorySounds();
 
-	make_waveforms(W_SINE);
+	//make_waveforms(W_SINE);
 }
 
 
@@ -183,7 +184,7 @@ void AZR3::select_program(unsigned long program) {
   for(unsigned long x = 0; x < kNumParams; x++) {
     //cerr<<"Setting parameter "<<x<<" to "<<ap.p[x]<<" from "<<last_value[x]<<endl;
     *static_cast<float*>(m_ports[x]) = ap.p[x];
-    if (slow_controls[x] && ap.p[x] != last_value[x]) {
+    if (slow_controls[x]) {
       //cerr<<"Sending port change to worker thread: "<<x<<" -> "<<ap.p[x]<<endl;
       PortChange pc(x, ap.p[x]);
       m_queue.write(&pc);
@@ -3200,7 +3201,7 @@ void AZR3::calc_waveforms(int number) {
 	float	this_p[kNumParams];
 
 	for (c = 0; c < kNumParams; c++)
-		this_p[c] = *(float*)m_ports[c];
+		this_p[c] = w_p[c];
 	if (number == 2) {
 		c = n_2_db1;
 		t = &wavetable[WAVETABLESIZE * TABLES_PER_CHANNEL];
@@ -3394,6 +3395,11 @@ void* AZR3::worker_function(void* arg) {
 
   AZR3& me = *static_cast<AZR3*>(arg);
   PortChange pc(0, 0);
+  bool change_mono = false;
+  bool change_shape = false;
+  bool change_organ1 = false;
+  bool change_organ2 = false;
+  bool change_organ3 = false;
   
   do {
     
@@ -3406,78 +3412,69 @@ void* AZR3::worker_function(void* arg) {
     
     // read port changes from the queue until the semaphore would block
     do {
-      cerr<<"Got port change!"<<endl;
       me.m_queue.read(&pc, 1);
-      cerr<<"port = "<<pc.port<<", value = "<<pc.value<<endl;
-      
-      switch(pc.port) {
-        
-      case n_mono:
-        pthread_mutex_lock(&me.m_notemaster_lock);
-        if (pc.value >= 0.5f)
-          me.n1.set_numofvoices(1);
-        else
-          me.n1.set_numofvoices(NUMOFVOICES);
-        me.n1.set_volume(*(float*)(me.m_ports[n_vol1]) * 0.3f, 0);
-        me.n1.set_volume(*(float*)(me.m_ports[n_vol2]) * 0.3f, 1);
-        me.n1.set_volume(*(float*)(me.m_ports[n_vol3]) * 0.6f, 2);
-        pthread_mutex_unlock(&me.m_notemaster_lock);
-        break;
-        
-      case n_1_db1:
-      case n_1_db2:
-      case n_1_db3:
-      case n_1_db4:
-      case n_1_db5:
-      case n_1_db6:
-      case n_1_db7:
-      case n_1_db8:
-      case n_1_db9:
-        pthread_mutex_lock(&me.m_notemaster_lock);
-        me.calc_waveforms(1);
-        me.calc_click();
-        pthread_mutex_unlock(&me.m_notemaster_lock);
-        break;
-        
-      case n_2_db1:
-      case n_2_db2:
-      case n_2_db3:
-      case n_2_db4:
-      case n_2_db5:
-      case n_2_db6:
-      case n_2_db7:
-      case n_2_db8:
-      case n_2_db9:
-        pthread_mutex_lock(&me.m_notemaster_lock);
-        me.calc_waveforms(2);
-        me.calc_click();
-        pthread_mutex_unlock(&me.m_notemaster_lock);
-        break;
-        
-      case n_3_db1:
-      case n_3_db2:
-      case n_3_db3:
-      case n_3_db4:
-      case n_3_db5:
-        pthread_mutex_lock(&me.m_notemaster_lock);
-        me.calc_waveforms(3);
-        me.calc_click();
-        pthread_mutex_unlock(&me.m_notemaster_lock);
-        break;
-        
-      case n_shape:
-        pthread_mutex_lock(&me.m_notemaster_lock);
-        if (me.make_waveforms(int(pc.value * (W_NUMOF - 1) + 1) - 1)) {
-          me.calc_waveforms(1);
-          me.calc_waveforms(2);
-          me.calc_waveforms(3);
+      if (pc.value != me.w_p[pc.port]) {
+        me.w_p[pc.port] = pc.value;
+        if (pc.port == n_mono)
+          change_mono = true;
+        else if (pc.port >= n_1_db1 && pc.port <= n_1_db9)
+          change_organ1 = true;
+        else if (pc.port >= n_2_db1 && pc.port <= n_2_db9)
+          change_organ2 = true;
+        else if (pc.port >= n_3_db1 && pc.port <= n_3_db5)
+          change_organ3 = true;
+        else if (pc.port == n_shape) {
+          change_shape = true;
         }
-        pthread_mutex_unlock(&me.m_notemaster_lock);
-        break;
-      } 
-      
+      }
     } while (!sem_trywait(&me.m_qsem));
     
+    // act on the port changes
+    if (change_mono) {
+      pthread_mutex_lock(&me.m_notemaster_lock);
+      if (pc.value >= 0.5f)
+        me.n1.set_numofvoices(1);
+      else
+        me.n1.set_numofvoices(NUMOFVOICES);
+      me.n1.set_volume(*(float*)(me.m_ports[n_vol1]) * 0.3f, 0);
+      me.n1.set_volume(*(float*)(me.m_ports[n_vol2]) * 0.3f, 1);
+      me.n1.set_volume(*(float*)(me.m_ports[n_vol3]) * 0.6f, 2);
+      pthread_mutex_unlock(&me.m_notemaster_lock);
+      change_mono = false;
+    }
+    
+    if (change_shape) {
+      pthread_mutex_lock(&me.m_notemaster_lock);
+      if (me.make_waveforms(int(pc.value * (W_NUMOF - 1) + 1) - 1)) {
+        me.calc_waveforms(1);
+        me.calc_waveforms(2);
+        me.calc_waveforms(3);
+      }
+      pthread_mutex_unlock(&me.m_notemaster_lock);
+      change_shape = false;
+    }
+    
+    if (change_organ1) {
+      pthread_mutex_lock(&me.m_notemaster_lock);
+      me.calc_waveforms(1);
+      pthread_mutex_unlock(&me.m_notemaster_lock);
+      change_organ1 = false;
+    }
+    
+    if (change_organ2) {
+      pthread_mutex_lock(&me.m_notemaster_lock);
+      me.calc_waveforms(2);
+      pthread_mutex_unlock(&me.m_notemaster_lock);
+      change_organ2 = false;
+    }
+        
+    if (change_organ3) {
+      pthread_mutex_lock(&me.m_notemaster_lock);
+      me.calc_waveforms(3);
+      pthread_mutex_unlock(&me.m_notemaster_lock);
+      change_organ3 = false;
+    } 
+
   } while (true);
   
   return 0;

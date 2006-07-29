@@ -36,7 +36,7 @@ using namespace Gdk;
 using namespace Glib;
 
 
-void add_knob(Fixed& fbox, LV2UIClient& lv2, unsigned long port, 
+Knob* add_knob(Fixed& fbox, LV2UIClient& lv2, unsigned long port, 
               float min, float max, float value, 
               RefPtr<Pixmap>& bg, int xoffset, int yoffset) {
   RefPtr<Pixmap> spix = Pixmap::create(bg, 44, 44);
@@ -45,14 +45,16 @@ void add_knob(Fixed& fbox, LV2UIClient& lv2, unsigned long port,
   fbox.put(*knob, xoffset, yoffset);
   knob->get_window()->set_back_pixmap(spix, false);
   lv2.connect_adjustment(&knob->get_adjustment(), port);
+  return knob;
 }
 
 
-void add_switch(Fixed& fbox, LV2UIClient& lv2, unsigned long port,
+Switch* add_switch(Fixed& fbox, LV2UIClient& lv2, unsigned long port,
                 int xoffset, int yoffset, Switch::Type type) {
   Switch* sw = manage(new Switch(type));
   fbox.put(*sw, xoffset, yoffset);
   lv2.connect_adjustment(&sw->get_adjustment(), port);
+  return sw;
 }
 
 
@@ -72,15 +74,17 @@ int main(int argc, char** argv) {
   Fixed fbox;
   fbox.set_has_window(true);
   window.add(fbox);
-  window.show_all();
   RefPtr<Pixbuf> pixbuf = Pixbuf::create_from_xpm_data(panelfx);
   fbox.set_size_request(pixbuf->get_width(), pixbuf->get_height());
+  window.show_all();
   RefPtr<Pixmap> pixmap = Pixmap::create(fbox.get_window(), 
                                          pixbuf->get_width(), 
                                          pixbuf->get_height());
+  window.hide();
   RefPtr<Bitmap> bitmap;
   pixbuf->render_pixmap_and_mask(pixmap, bitmap, 10);
   fbox.get_window()->set_back_pixmap(pixmap, false);
+  window.set_resizable(false);
   
   // keyboard split switch
   add_switch(fbox, lv2, n_split, 537, 49, Switch::Mini);
@@ -125,8 +129,6 @@ int main(int argc, char** argv) {
   add_knob(fbox, lv2, n_spread, 0, 1, 0.5, pixmap, 572, 352);
   add_switch(fbox, lv2, n_complex, 443, 331, Switch::Mini);
   add_switch(fbox, lv2, n_pedalspeed, 510, 331, Switch::Mini);
-  
-  window.hide();
   
   lv2.show_received.connect(mem_fun(window, &Gtk::Window::show_all));
   lv2.hide_received.connect(mem_fun(window, &Gtk::Window::hide));
