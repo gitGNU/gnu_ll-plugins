@@ -123,22 +123,18 @@ protected:
 	float	cross1;
 	float	lspeed, uspeed;
 	float	er_r, er_r_before, er_l, er_feedback;
-	float	llfo_out,llfo_nout,llfo_d_out,llfo_d_nout;
-	float	lfo_out,lfo_nout,lfo_d_out,lfo_d_nout;
-	float	last_out1,last_out2;
+	float	llfo_out, llfo_nout, llfo_d_out, llfo_d_nout;
+	float	lfo_out, lfo_nout, lfo_d_out, lfo_d_nout;
 	bool	lfos_ok;
 	filt1	split;
-	filt1	horn_filt,damp;
-	delay	wand_r,wand_l,delay1,delay2,delay3,delay4;
-	lfo		lfo1,lfo2,lfo3,lfo4;
+	filt1	horn_filt, damp;
+	delay	wand_r, wand_l, delay1, delay2, delay3, delay4;
+	lfo		lfo1, lfo2, lfo3, lfo4;
 
-	float		gp_value;
 	int			last_shape;
-	float		last_r,last_l;
-	unsigned char* evt;
+	float		last_r, last_l;
 
-	filt_allpass	allpass_l[4],allpass_r[4];
-	float		lfo_phaser1,lfo_phaser2;
+	filt_allpass	allpass_l[4], allpass_r[4];
   
   unsigned char* midi_ptr;
   

@@ -47,10 +47,7 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
     lfo_nout(0),
     lfo_d_out(0),
     lfo_d_nout(0),
-    last_out1(0),
-    last_out2(0),
     splitpoint(0),
-    gp_value(0),
     last_shape(-1),
     mute(true) {
   
@@ -328,7 +325,8 @@ void AZR3::run(unsigned long sampleFrames) {
                       * 128);
   
 	int	x;
-
+  float last_out1, last_out2;
+  unsigned char* evt;
   for (unsigned long pframe = 0; pframe < sampleFrames; ++pframe) {
     
 		// we need this variable further down
@@ -669,8 +667,8 @@ void AZR3::run(unsigned long sampleFrames) {
 				// phase shifting lines
 				// (do you remember? A light bulb and some LDRs...
 				//  DSPing is so much nicer than soldering...)
-				lfo_phaser1 = (1 - cosf(lfo_d_out * 1.8f) + 1) * 0.054f;
-				lfo_phaser2 = (1 - cosf(lfo_d_nout * 1.8f) + 1) * .054f;
+				float lfo_phaser1 = (1 - cosf(lfo_d_out * 1.8f) + 1) * 0.054f;
+				float lfo_phaser2 = (1 - cosf(lfo_d_nout * 1.8f) + 1) * .054f;
 				for(x = 0; x < 4; x++) {
 					allpass_r[x].set_delay(lfo_phaser1);
 					allpass_l[x].set_delay(lfo_phaser2);
