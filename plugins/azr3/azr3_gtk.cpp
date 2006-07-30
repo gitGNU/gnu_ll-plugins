@@ -46,11 +46,12 @@ vector<Widget*> voice_widgets;
 
 
 Knob* add_knob(Fixed& fbox, LV2UIClient& lv2, unsigned long port, 
-              float min, float max, float value, 
-              RefPtr<Pixmap>& bg, int xoffset, int yoffset) {
+               float min, float max, float value, 
+               RefPtr<Pixmap>& bg, int xoffset, int yoffset,
+               float dmin, float dmax, bool decimal) {
   RefPtr<Pixmap> spix = Pixmap::create(bg, 44, 44);
   spix->draw_drawable(GC::create(spix), bg, xoffset, yoffset,0, 0, 44, 44);
-  Knob* knob = manage(new Knob(min, max, value));
+  Knob* knob = manage(new Knob(min, max, value, dmin, dmax, decimal));
   fbox.put(*knob, xoffset, yoffset);
   knob->get_window()->set_back_pixmap(spix, false);
   lv2.connect_adjustment(&knob->get_adjustment(), port);
@@ -163,17 +164,17 @@ int main(int argc, char** argv) {
   
   // upper knobs
   add_switch(fbox, lv2, n_mono, 59, 92, Switch::BigRed);
-  add_knob(fbox, lv2, n_click, 0, 1, 0.5, pixmap, 88, 88);
-  add_knob(fbox, lv2, n_bender, 0, 1, 0.5, pixmap, 132, 88);
-  add_knob(fbox, lv2, n_sustain, 0, 1, 0.5, pixmap, 176, 88);
-  add_knob(fbox, lv2, n_shape, 0, 1, 0.5, pixmap, 220, 88);
-  add_knob(fbox, lv2, n_perc, 0, 1, 0.5, pixmap, 308, 88);
-  add_knob(fbox, lv2, n_percvol, 0, 1, 0.5, pixmap, 352, 88);
-  add_knob(fbox, lv2, n_percfade, 0, 1, 0.5, pixmap, 396, 88);
-  add_knob(fbox, lv2, n_vol1, 0, 1, 0.5, pixmap, 484, 88);
-  add_knob(fbox, lv2, n_vol2, 0, 1, 0.5, pixmap, 528, 88);
-  add_knob(fbox, lv2, n_vol3, 0, 1, 0.5, pixmap, 572, 88);
-  add_knob(fbox, lv2, n_master, 0, 1, 0.5, pixmap, 616, 88);
+  add_knob(fbox, lv2, n_click, 0, 1, 0.5, pixmap, 88, 88, 0, 100, false);
+  add_knob(fbox, lv2, n_bender, 0, 1, 0.5, pixmap, 132, 88, 0, 10, false);
+  add_knob(fbox, lv2, n_sustain, 0, 1, 0.5, pixmap, 176, 88, 0, 100, false);
+  add_knob(fbox, lv2, n_shape, 0, 1, 0.5, pixmap, 220, 88, 1, 6.999, false);
+  add_knob(fbox, lv2, n_perc, 0, 1, 0.5, pixmap, 308, 88, 0, 10, false);
+  add_knob(fbox, lv2, n_percvol, 0, 1, 0.5, pixmap, 352, 88, 0, 100, false);
+  add_knob(fbox, lv2, n_percfade, 0, 1, 0.5, pixmap, 396, 88, 0, 100, false);
+  add_knob(fbox, lv2, n_vol1, 0, 1, 0.5, pixmap, 484, 88, 0, 100, false);
+  add_knob(fbox, lv2, n_vol2, 0, 1, 0.5, pixmap, 528, 88, 0, 100, false);
+  add_knob(fbox, lv2, n_vol3, 0, 1, 0.5, pixmap, 572, 88, 0, 100, false);
+  add_knob(fbox, lv2, n_master, 0, 1, 0.5, pixmap, 616, 88, 0, 100, false);
 
   // perc and sustain switches
   add_switch(fbox, lv2, n_1_perc, 16, 173, Switch::Mini);
@@ -222,12 +223,13 @@ int main(int argc, char** argv) {
   fx_widgets.push_back(add_switch(fbox, lv2, n_mrvalve,
                                   39, 332, Switch::Green));
   fx_widgets.push_back(add_knob(fbox, lv2, n_drive, 
-                                0, 1, 0.5, pixmap, 44, 352));
-  fx_widgets.push_back(add_knob(fbox, lv2, n_set, 0, 1, 0.5, pixmap, 88, 352));
+                                0, 1, 0.5, pixmap, 44, 352, 0, 100, false));
+  fx_widgets.push_back(add_knob(fbox, lv2, n_set, 
+                                0, 1, 0.5, pixmap, 88, 352, 0, 100, false));
   fx_widgets.push_back(add_knob(fbox, lv2, n_tone, 0, 
-                                1, 0.5, pixmap, 132, 352));
+                                1, 0.5, pixmap, 132, 352, 0, 5000, false));
   fx_widgets.push_back(add_knob(fbox, lv2, n_mix, 0, 1, 
-                                0.5, pixmap, 176, 352));
+                                0.5, pixmap, 176, 352, 0, 100, false));
   
   // Speaker controls
   fx_widgets.push_back(add_switch(fbox, lv2, n_speakers, 
@@ -235,17 +237,17 @@ int main(int argc, char** argv) {
   fx_widgets.push_back(add_switch(fbox, lv2, n_speed, 
                                   323, 356, Switch::BigRed));
   fx_widgets.push_back(add_knob(fbox, lv2, n_l_slow, 
-                                0, 1, 0.5, pixmap, 352, 352));
+                                0, 1, 0.5, pixmap, 352, 352, 0, 10, true));
   fx_widgets.push_back(add_knob(fbox, lv2, n_l_fast, 
-                                0, 1, 0.5, pixmap, 396, 352));
+                                0, 1, 0.5, pixmap, 396, 352, 0, 10, true));
   fx_widgets.push_back(add_knob(fbox, lv2, n_u_slow, 
-                                0, 1, 0.5, pixmap, 440, 352));
+                                0, 1, 0.5, pixmap, 440, 352, 0, 10, true));
   fx_widgets.push_back(add_knob(fbox, lv2, n_u_fast, 
-                                0, 1, 0.5, pixmap, 484, 352));
+                                0, 1, 0.5, pixmap, 484, 352, 0, 10, true));
   fx_widgets.push_back(add_knob(fbox, lv2, n_belt, 
-                                0, 1, 0.5, pixmap, 528, 352));
+                                0, 1, 0.5, pixmap, 528, 352, 0, 100, false));
   fx_widgets.push_back(add_knob(fbox, lv2, n_spread, 
-                                0, 1, 0.5, pixmap, 572, 352));
+                                0, 1, 0.5, pixmap, 572, 352, 0, 100, false));
   fx_widgets.push_back(add_switch(fbox, lv2, n_complex, 
                                   443, 331, Switch::Mini));
   fx_widgets.push_back(add_switch(fbox, lv2, 
@@ -258,11 +260,13 @@ int main(int argc, char** argv) {
 
   // vibrato controls
   add_switch(vbox, lv2, n_1_vibrato, 39, 17, Switch::Green);
-  add_knob(vbox, lv2, n_1_vstrength, 0, 1, 0.5, voicepxm, 88, 37);
-  add_knob(vbox, lv2, n_1_vmix, 0, 1, 0.5, voicepxm, 176, 37);
+  add_knob(vbox, lv2, n_1_vstrength, 0, 1, 0.5, voicepxm, 
+           88, 37, 0, 100, false);
+  add_knob(vbox, lv2, n_1_vmix, 0, 1, 0.5, voicepxm, 176, 37, 0, 100, false);
   add_switch(vbox, lv2, n_2_vibrato, 302, 17, Switch::Green);
-  add_knob(vbox, lv2, n_2_vstrength, 0, 1, 0.5, voicepxm, 352, 37);
-  add_knob(vbox, lv2, n_2_vmix, 0, 1, 0.5, voicepxm, 440, 37);
+  add_knob(vbox, lv2, n_2_vstrength, 0, 1, 0.5, voicepxm, 
+           352, 37, 0, 100, false);
+  add_knob(vbox, lv2, n_2_vmix, 0, 1, 0.5, voicepxm, 440, 37, 0, 100, false);
   
   
   lv2.show_received.connect(mem_fun(window, &Gtk::Window::show_all));

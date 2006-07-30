@@ -29,18 +29,23 @@
 class Knob : public Gtk::DrawingArea {
 public:
   
-  Knob(float min, float max, float value);
+  Knob(float min, float max, float value, 
+       float dmin, float dmax, bool decimal);
   
   void set_value(float value);
   
   Gtk::Adjustment& get_adjustment();
   
+protected:
+  
   void on_realize();
   bool on_expose_event(GdkEventExpose* event);
   bool on_motion_notify_event(GdkEventMotion* event);
   bool on_button_press_event(GdkEventButton* event);
-
-protected:
+  
+  void draw_digits(Glib::RefPtr<Gdk::Window>& win, Glib::RefPtr<Gdk::GC>& gc);
+  void draw_digit(Glib::RefPtr<Gdk::Window>& win, Glib::RefPtr<Gdk::GC>& gc,
+                  int xoffset, int digit);
   
   Gtk::Adjustment m_adj;
   Glib::RefPtr<Gdk::Pixmap> m_pixmap;
@@ -49,6 +54,9 @@ protected:
   Glib::RefPtr<Gdk::Bitmap> m_digbit;
   int m_click_offset;
   float m_value_offset;
+  float m_dmin;
+  float m_dmax;
+  bool m_decimal;
 };
 
 

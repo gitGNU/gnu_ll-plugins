@@ -3080,7 +3080,7 @@ void AZR3::setFactorySounds() {
 
 bool AZR3::make_waveforms(int shape) {
   
-  cerr<<__PRETTY_FUNCTION__<<" with shape "<<shape<<endl;
+  //cerr<<__PRETTY_FUNCTION__<<" with shape "<<shape<<endl;
   
 	long	i;
 	float	amp = 0.5f;
@@ -3194,7 +3194,7 @@ bool AZR3::make_waveforms(int shape) {
 // per set. "number" is 1..3 and references the waveform set
 void AZR3::calc_waveforms(int number) {
   
-  cerr<<__PRETTY_FUNCTION__<<" with number "<<number<<endl;
+  //cerr<<__PRETTY_FUNCTION__<<" with number "<<number<<endl;
   
 	int i, c;
 	volatile float* t;
