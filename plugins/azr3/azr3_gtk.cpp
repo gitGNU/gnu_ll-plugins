@@ -66,6 +66,17 @@ Switch* add_switch(Fixed& fbox, LV2UIClient& lv2, unsigned long port,
 }
 
 
+EventBox* add_clickbox(Fixed& fbox, int xoffset, int yoffset, 
+                       int width, int height) {
+  EventBox* eb = manage(new EventBox);
+  eb->set_events(BUTTON_PRESS_MASK);
+  eb->set_size_request(width, height);
+  fbox.put(*eb, xoffset, yoffset);
+  eb->set_visible_window(false);
+  return eb;
+}
+
+
 bool change_mode(bool fx_mode, Fixed& fbox) {
   int x, y;
   if (fx_mode && !showing_fx_controls) {
@@ -158,13 +169,10 @@ int main(int argc, char** argv) {
   add_switch(fbox, lv2, n_3_sustain, 542, 214, Switch::Mini);
   
   // mode switcher
-  EventBox eb1;
-  fx_widgets.push_back(&eb1);
-  eb1.set_events(BUTTON_PRESS_MASK);
-  eb1.signal_button_press_event().connect(hide(bind(bind(&change_mode, 
+  Widget* eb = add_clickbox(fbox, 14, 319, 14, 44);
+  eb->signal_button_press_event().connect(hide(bind(bind(&change_mode, 
                                                          ref(fbox)), false)));
-  eb1.set_size_request(14, 44);
-  fbox.put(eb1, 14, 319);
+  fx_widgets.push_back(eb);
   
   // Mr Valve controls
   fx_widgets.push_back(add_switch(fbox, lv2, n_mrvalve,
@@ -200,13 +208,10 @@ int main(int argc, char** argv) {
                                   n_pedalspeed, 510, 331, Switch::Mini));
 
   // mode switcher 2
-  EventBox eb2;
-  eb2.set_events(BUTTON_PRESS_MASK);
-  eb2.signal_button_press_event().connect(hide(bind(bind(&change_mode, 
+  Widget* eb2 = add_clickbox(vbox, 14, 53, 14, 44);
+  eb2->signal_button_press_event().connect(hide(bind(bind(&change_mode, 
                                                          ref(fbox)), true)));
-  eb2.set_size_request(14, 44);
-  vbox.put(eb2, 14, 53);
-  
+
   // vibrato controls
   add_switch(vbox, lv2, n_1_vibrato, 39, 17, Switch::Green);
   add_knob(vbox, lv2, n_1_vstrength, 0, 1, 0.5, voicepxm, 88, 38);
