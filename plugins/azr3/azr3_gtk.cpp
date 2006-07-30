@@ -272,10 +272,6 @@ int main(int argc, char** argv) {
   
   lv2.send_update_request();
   
-  window.show_all();
-  
-  //change_mode(false, fbox);
-  
   kit.run();
 
   return 0;
