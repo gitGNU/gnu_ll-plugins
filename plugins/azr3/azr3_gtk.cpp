@@ -258,11 +258,11 @@ int main(int argc, char** argv) {
 
   // vibrato controls
   add_switch(vbox, lv2, n_1_vibrato, 39, 17, Switch::Green);
-  add_knob(vbox, lv2, n_1_vstrength, 0, 1, 0.5, voicepxm, 88, 38);
-  add_knob(vbox, lv2, n_1_vmix, 0, 1, 0.5, voicepxm, 176, 38);
+  add_knob(vbox, lv2, n_1_vstrength, 0, 1, 0.5, voicepxm, 88, 37);
+  add_knob(vbox, lv2, n_1_vmix, 0, 1, 0.5, voicepxm, 176, 37);
   add_switch(vbox, lv2, n_2_vibrato, 302, 17, Switch::Green);
-  add_knob(vbox, lv2, n_2_vstrength, 0, 1, 0.5, voicepxm, 352, 38);
-  add_knob(vbox, lv2, n_2_vmix, 0, 1, 0.5, voicepxm, 440, 38);
+  add_knob(vbox, lv2, n_2_vstrength, 0, 1, 0.5, voicepxm, 352, 37);
+  add_knob(vbox, lv2, n_2_vmix, 0, 1, 0.5, voicepxm, 440, 37);
   
   
   lv2.show_received.connect(mem_fun(window, &Gtk::Window::show_all));

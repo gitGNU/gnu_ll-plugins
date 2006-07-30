@@ -45,6 +45,8 @@ protected:
   Gtk::Adjustment m_adj;
   Glib::RefPtr<Gdk::Pixmap> m_pixmap;
   Glib::RefPtr<Gdk::Bitmap> m_bitmap;
+  Glib::RefPtr<Gdk::Pixmap> m_digpix;
+  Glib::RefPtr<Gdk::Bitmap> m_digbit;
   int m_click_offset;
   float m_value_offset;
 };

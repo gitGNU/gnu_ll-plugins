@@ -24,6 +24,7 @@
 
 #include "knob.hpp"
 #include "cknob.xpm"
+#include "num_yellow.xpm"
 
 
 using namespace Gtk;
@@ -57,6 +58,9 @@ void Knob::on_realize() {
   memset(bits, 0, sizeof(char) * pixsize);
   m_bitmap = Bitmap::create(bits, 44, 1804);
   m_pixmap = Pixmap::create_from_xpm(Colormap::get_system(), m_bitmap, cknob);
+  m_digbit = Bitmap::create(bits, 5, 84);
+  m_digpix = Pixmap::create_from_xpm(Colormap::get_system(), m_digbit, 
+                                     num_yellow);
 }
 
 
@@ -73,6 +77,9 @@ bool Knob::on_expose_event(GdkEventExpose* event) {
   gc->set_clip_mask(m_bitmap);
   gc->set_clip_origin(0, -44 * int(value));
   win->draw_drawable(gc, m_pixmap, 0, 44 * int(value), 0, 0, 44, 44);
+  gc->set_clip_mask(m_digbit);
+  gc->set_clip_origin(22, 18);
+  win->draw_drawable(gc, m_digpix, 0, 0, 22, 18, 5, 7);
   return true;
 }
 
