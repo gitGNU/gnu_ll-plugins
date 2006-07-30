@@ -111,9 +111,9 @@ bool Knob::on_button_press_event(GdkEventButton* event) {
 
 void Knob::draw_digits(RefPtr<Gdk::Window>& win, RefPtr<GC>& gc) {
   
-  int xoffset = 4;
+  int xoffset = 7;
   if (m_dmax >= 1000)
-    xoffset += 6;
+    xoffset += 5;
   
   float dvalue = (m_adj.get_value() - m_adj.get_lower()) / 
     (m_adj.get_upper() - m_adj.get_lower());
@@ -122,17 +122,17 @@ void Knob::draw_digits(RefPtr<Gdk::Window>& win, RefPtr<GC>& gc) {
   
   if (dvalue >= 1000)
     draw_digit(win, gc, xoffset, int(dvalue) / 1000);
-  xoffset += 6;
+  xoffset += 5;
   if (dvalue >= 100)
     draw_digit(win, gc, xoffset, (int(dvalue) / 100) % 10);
-  xoffset += 6;
+  xoffset += 5;
   if (dvalue >= 10)
     draw_digit(win, gc, xoffset, (int(dvalue) / 10) % 10);
-  xoffset += 6;
+  xoffset += 5;
   draw_digit(win, gc, xoffset, int(dvalue) % 10);
   if (m_decimal) {
     draw_digit(win, gc, xoffset, 10);
-    xoffset += 6;
+    xoffset += 5;
     draw_digit(win, gc, xoffset, int(dvalue * 10) % 10);
   }
 }
@@ -142,6 +142,7 @@ void Knob::draw_digit(RefPtr<Gdk::Window>& win, RefPtr<GC>& gc,
                       int xoffset, int digit) {
   //  cerr<<__PRETTY_FUNCTION__<<" with xoffset = "<<xoffset<<", digit = "<<digit<<endl;
   gc->set_clip_mask(m_digbit);
-  gc->set_clip_origin(xoffset, 18 - digit * 7);
-  win->draw_drawable(gc, m_digpix, 0, digit * 7, xoffset, 18, 5, 7);
+  gc->set_clip_origin(xoffset, 18 - digit * 7 + (digit < 10 ? 0 : 1));
+  win->draw_drawable(gc, m_digpix, 0, digit * 7, 
+                     xoffset, 18 + (digit < 10 ? 0 : 1), 5, 7);
 }
