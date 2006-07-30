@@ -165,9 +165,9 @@ int main(int argc, char** argv) {
   // upper knobs
   add_switch(fbox, lv2, n_mono, 59, 92, Switch::BigRed);
   add_knob(fbox, lv2, n_click, 0, 1, 0.5, pixmap, 88, 88, 0, 100, false);
-  add_knob(fbox, lv2, n_bender, 0, 1, 0.5, pixmap, 132, 88, 0, 10, false);
+  add_knob(fbox, lv2, n_bender, 0, 1, 0.5, pixmap, 132, 88, 0, 12, false);
   add_knob(fbox, lv2, n_sustain, 0, 1, 0.5, pixmap, 176, 88, 0, 100, false);
-  add_knob(fbox, lv2, n_shape, 0, 1, 0.5, pixmap, 220, 88, 1, 6.999, false);
+  add_knob(fbox, lv2, n_shape, 0, 1, 0.5, pixmap, 220, 88, 1, 6, false);
   add_knob(fbox, lv2, n_perc, 0, 1, 0.5, pixmap, 308, 88, 0, 10, false);
   add_knob(fbox, lv2, n_percvol, 0, 1, 0.5, pixmap, 352, 88, 0, 100, false);
   add_knob(fbox, lv2, n_percfade, 0, 1, 0.5, pixmap, 396, 88, 0, 100, false);
@@ -227,7 +227,7 @@ int main(int argc, char** argv) {
   fx_widgets.push_back(add_knob(fbox, lv2, n_set, 
                                 0, 1, 0.5, pixmap, 88, 352, 0, 100, false));
   fx_widgets.push_back(add_knob(fbox, lv2, n_tone, 0, 
-                                1, 0.5, pixmap, 132, 352, 0, 5000, false));
+                                1, 0.5, pixmap, 132, 352, 300, 3500, false));
   fx_widgets.push_back(add_knob(fbox, lv2, n_mix, 0, 1, 
                                 0.5, pixmap, 176, 352, 0, 100, false));
   
