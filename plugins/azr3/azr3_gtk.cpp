@@ -28,6 +28,7 @@
 #include "lv2uiclient.hpp"
 #include "panelfx.xpm"
 #include "voice.xpm"
+#include "drawbar.hpp"
 #include "knob.hpp"
 #include "switch.hpp"
 #include "Globals.h"
@@ -54,6 +55,20 @@ Knob* add_knob(Fixed& fbox, LV2UIClient& lv2, unsigned long port,
   knob->get_window()->set_back_pixmap(spix, false);
   lv2.connect_adjustment(&knob->get_adjustment(), port);
   return knob;
+}
+
+
+Drawbar* add_drawbar(Fixed& fbox, LV2UIClient& lv2, unsigned long port, 
+                     float min, float max, float value, 
+                     RefPtr<Pixmap>& bg, int xoffset, int yoffset, 
+                     Drawbar::Type type) {
+  RefPtr<Pixmap> spix = Pixmap::create(bg, 22, 150);
+  spix->draw_drawable(GC::create(spix), bg, xoffset, yoffset, 0, 0, 22, 150);
+  Drawbar* db = manage(new Drawbar(min, max, value, type));
+  fbox.put(*db, xoffset, yoffset);
+  db->get_window()->set_back_pixmap(spix, false);
+  lv2.connect_adjustment(&db->get_adjustment(), port);
+  return db;
 }
 
 
@@ -167,6 +182,35 @@ int main(int argc, char** argv) {
   add_switch(fbox, lv2, n_1_sustain, 16, 214, Switch::Mini);
   add_switch(fbox, lv2, n_2_sustain, 279, 214, Switch::Mini);
   add_switch(fbox, lv2, n_3_sustain, 542, 214, Switch::Mini);
+  
+  // drawbars for channel 1
+  add_drawbar(fbox, lv2, n_1_db1, 0, 1, 0.5, pixmap, 42, 159, Drawbar::Brown);
+  add_drawbar(fbox, lv2, n_1_db2, 0, 1, 0.5, pixmap, 66, 159, Drawbar::Brown);
+  add_drawbar(fbox, lv2, n_1_db3, 0, 1, 0.5, pixmap, 90, 159, Drawbar::White);
+  add_drawbar(fbox, lv2, n_1_db4, 0, 1, 0.5, pixmap, 114, 159, Drawbar::White);
+  add_drawbar(fbox, lv2, n_1_db5, 0, 1, 0.5, pixmap, 138, 159, Drawbar::Black);
+  add_drawbar(fbox, lv2, n_1_db6, 0, 1, 0.5, pixmap, 162, 159, Drawbar::White);
+  add_drawbar(fbox, lv2, n_1_db7, 0, 1, 0.5, pixmap, 186, 159, Drawbar::Black);
+  add_drawbar(fbox, lv2, n_1_db8, 0, 1, 0.5, pixmap, 210, 159, Drawbar::Black);
+  add_drawbar(fbox, lv2, n_1_db9, 0, 1, 0.5, pixmap, 234, 159, Drawbar::White);
+  
+  // drawbars for channel 2
+  add_drawbar(fbox, lv2, n_2_db1, 0, 1, 0.5, pixmap, 306, 159, Drawbar::Brown);
+  add_drawbar(fbox, lv2, n_2_db2, 0, 1, 0.5, pixmap, 330, 159, Drawbar::Brown);
+  add_drawbar(fbox, lv2, n_2_db3, 0, 1, 0.5, pixmap, 354, 159, Drawbar::White);
+  add_drawbar(fbox, lv2, n_2_db4, 0, 1, 0.5, pixmap, 378, 159, Drawbar::White);
+  add_drawbar(fbox, lv2, n_2_db5, 0, 1, 0.5, pixmap, 402, 159, Drawbar::Black);
+  add_drawbar(fbox, lv2, n_2_db6, 0, 1, 0.5, pixmap, 426, 159, Drawbar::White);
+  add_drawbar(fbox, lv2, n_2_db7, 0, 1, 0.5, pixmap, 450, 159, Drawbar::Black);
+  add_drawbar(fbox, lv2, n_2_db8, 0, 1, 0.5, pixmap, 474, 159, Drawbar::Black);
+  add_drawbar(fbox, lv2, n_2_db9, 0, 1, 0.5, pixmap, 498, 159, Drawbar::White);
+
+  // drawbars for channel 3
+  add_drawbar(fbox, lv2, n_3_db1, 0, 1, 0.5, pixmap, 570, 159, Drawbar::Brown);
+  add_drawbar(fbox, lv2, n_3_db2, 0, 1, 0.5, pixmap, 594, 159, Drawbar::Brown);
+  add_drawbar(fbox, lv2, n_3_db3, 0, 1, 0.5, pixmap, 618, 159, Drawbar::White);
+  add_drawbar(fbox, lv2, n_3_db4, 0, 1, 0.5, pixmap, 642, 159, Drawbar::White);
+  add_drawbar(fbox, lv2, n_3_db5, 0, 1, 0.5, pixmap, 666, 159, Drawbar::Black);
   
   // mode switcher
   Widget* eb = add_clickbox(fbox, 14, 319, 14, 44);
