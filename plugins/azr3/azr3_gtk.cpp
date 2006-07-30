@@ -163,7 +163,7 @@ int main(int argc, char** argv) {
   add_switch(fbox, lv2, n_split, 537, 49, Switch::Mini);
   
   // upper knobs
-  add_switch(fbox, lv2, n_mono, 59, 92, Switch::BigRed);
+  add_switch(fbox, lv2, n_mono, 61, 105, Switch::Mini);
   add_knob(fbox, lv2, n_click, 0, 1, 0.5, pixmap, 88, 88, 0, 100, false);
   add_knob(fbox, lv2, n_bender, 0, 1, 0.5, pixmap, 132, 88, 0, 12, false);
   add_knob(fbox, lv2, n_sustain, 0, 1, 0.5, pixmap, 176, 88, 0, 100, false);
