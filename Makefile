@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.68
+PACKAGE_VERSION = 0.1.69
 PKG_DEPS = jack>=0.102.6 liblo>=0.22 gtkmm-2.4>=2.8.8 libglademm-2.4>=2.6.2
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
@@ -96,13 +96,14 @@ azr3_lv2_SOURCES = \
 	Globals.h \
 	fx.h fx.cpp \
 	voice_classes.h voice_classes.cpp \
+	programlist.hpp \
 	cknob.xpm minioffon.xpm onoffgreen.xpm panelfx.xpm vonoff.xpm
 azr3_lv2_DATA = manifest.ttl azr3.ttl
 azr3_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype -Iextensions/instrument -Ilibraries/components
 azr3_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 azr3_lv2_SOURCEDIR = plugins/azr3
 azr3_lv2_PROGRAMS = azr3_gtk
-azr3_gtk_SOURCES = azr3_gtk.cpp knob.hpp knob.cpp switch.hpp switch.cpp drawbar.hpp drawbar.cpp
+azr3_gtk_SOURCES = azr3_gtk.cpp knob.hpp knob.cpp switch.hpp switch.cpp drawbar.hpp drawbar.cpp textbox.hpp textbox.cpp
 azr3_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Ilibraries/lv2oscui
 azr3_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo` libraries/lv2oscui/liblv2_oscui.a
 azr3_gtk_SOURCEDIR = plugins/azr3
