@@ -36,7 +36,7 @@ Textbox::Textbox(int width, int height, int lines)
     m_strings(lines) {
   
   FontDescription fd("monaco,monospace,courier bold");
-  fd.set_absolute_size(10 * PANGO_SCALE);
+  pango_font_description_set_absolute_size(fd.gobj(), 10 * PANGO_SCALE);
   
   for (int i = 0; i < lines; ++i) {
     m_strings[i] = Pango::Layout::create(get_pango_context());
