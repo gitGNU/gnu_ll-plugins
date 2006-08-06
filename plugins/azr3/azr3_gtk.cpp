@@ -20,7 +20,9 @@
 
 ****************************************************************************/
 
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 #include <gtkmm.h>
@@ -32,6 +34,8 @@
 #include "knob.hpp"
 #include "switch.hpp"
 #include "Globals.h"
+#include "programlist.hpp"
+#include "textbox.hpp"
 
 
 using namespace Gtk;
@@ -43,7 +47,9 @@ using namespace std;
 bool showing_fx_controls = true;
 vector<Widget*> fx_widgets;
 vector<Widget*> voice_widgets;
-
+vector<Program> programs(32);
+int current_program = 0;
+Textbox* tbox;
 
 Knob* add_knob(Fixed& fbox, LV2UIClient& lv2, unsigned long port, 
                float min, float max, float value, 
@@ -93,6 +99,19 @@ EventBox* add_clickbox(Fixed& fbox, int xoffset, int yoffset,
 }
 
 
+Textbox* add_textbox(Fixed& fbox, RefPtr<Pixmap>& bg, 
+                     int xoffset, int yoffset, int lines, 
+                     int width, int height) {
+  RefPtr<Pixmap> spix = Pixmap::create(bg, width, height);
+  spix->draw_drawable(GC::create(spix), bg, xoffset, yoffset, 0, 0, 
+                      width, height);
+  Textbox* db = manage(new Textbox(width, height, lines));
+  fbox.put(*db, xoffset, yoffset);
+  db->get_window()->set_back_pixmap(spix, false);
+  return db;
+}
+
+
 bool change_mode(bool fx_mode, Fixed& fbox) {
   int x, y;
   if (fx_mode && !showing_fx_controls) {
@@ -120,7 +139,29 @@ bool change_mode(bool fx_mode, Fixed& fbox) {
 }
 
 
+void program_changed(int program) {
+  if (program < programs.size() && program >= 0) {
+    ostringstream oss;
+    oss<<"AZR-3 LV2 P"<<setw(2)<<setfill('0')<<program;
+    tbox->set_string(0, oss.str());
+    tbox->set_string(1, programs[program].name);
+    current_program = program;
+  }
+}
+
+
+bool display_scroll(GdkEventScroll* e, LV2UIClient& lv2) {
+  if (e->direction == GDK_SCROLL_UP)
+    lv2.send_program((current_program + 1) % programs.size());
+  else if (e->direction == GDK_SCROLL_DOWN)
+    lv2.send_program((current_program - 1) % programs.size());
+  return true;
+}
+
+
 int main(int argc, char** argv) {
+  
+  setFactorySounds(&programs[0]);
   
   LV2UIClient lv2(argc, argv, true);
   if (!lv2.is_valid()) {
@@ -158,6 +199,11 @@ int main(int argc, char** argv) {
   fbox.get_window()->set_back_pixmap(pixmap, false);
   vbox.get_window()->set_back_pixmap(voicepxm, false);
   window.set_resizable(false);
+  
+  // add the display
+  tbox = add_textbox(fbox, pixmap, 391, 19, 3, 140, 39);
+  tbox->add_events(SCROLL_MASK);
+  tbox->signal_scroll_event().connect(bind(&display_scroll, ref(lv2)));
   
   // keyboard split switch
   add_switch(fbox, lv2, n_split, 537, 49, Switch::Mini);
@@ -272,6 +318,7 @@ int main(int argc, char** argv) {
   lv2.show_received.connect(mem_fun(window, &Gtk::Window::show_all));
   lv2.hide_received.connect(mem_fun(window, &Gtk::Window::hide));
   lv2.quit_received.connect(&Main::quit);
+  lv2.program_received.connect(&program_changed);
   window.signal_delete_event().connect(bind_return(hide(&Main::quit), true));
   
   lv2.send_update_request();

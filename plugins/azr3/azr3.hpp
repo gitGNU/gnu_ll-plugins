@@ -32,6 +32,7 @@
 #include "voice_classes.h"
 #include "Globals.h"
 #include "ringbuffer.hpp"
+#include "programlist.hpp"
 
 
 enum
@@ -45,18 +46,6 @@ enum
 	evt_volume,
 	evt_channel_volume,
 	evt_drawbar,
-};
-
-
-class flpProgram
-{
-friend class AZR3;
-public:
-	flpProgram() {};
-	~flpProgram() {}
-private:
-	float	p[kNumParams];
-	char name[24];
 };
 
 
@@ -88,7 +77,6 @@ public:
   
 protected:  
   
-	void setFactorySounds();
 	bool make_waveforms(int shape);
 	void calc_waveforms(int number);
 	void calc_click();
@@ -111,7 +99,7 @@ protected:
   bool slow_controls[kNumParams];
 	float	last_value[kNumParams];
   
-	flpProgram	programs[kNumPrograms];
+	Program	programs[kNumPrograms];
 
 	float tonewheel[WAVETABLESIZE];	// master waveform
 

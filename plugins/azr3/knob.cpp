@@ -140,7 +140,6 @@ void Knob::draw_digits(RefPtr<Gdk::Window>& win, RefPtr<GC>& gc) {
 
 void Knob::draw_digit(RefPtr<Gdk::Window>& win, RefPtr<GC>& gc,
                       int xoffset, int digit) {
-  //  cerr<<__PRETTY_FUNCTION__<<" with xoffset = "<<xoffset<<", digit = "<<digit<<endl;
   gc->set_clip_mask(m_digbit);
   gc->set_clip_origin(xoffset, 18 - digit * 7 + (digit < 10 ? 0 : 1));
   win->draw_drawable(gc, m_digpix, 0, digit * 7, 
