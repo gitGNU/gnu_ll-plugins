@@ -366,6 +366,12 @@ void AZR3::run(unsigned long sampleFrames) {
 			
 			if (channel > 2)
 				channel = 0;
+      
+      // do the keyboard split
+      if (((evt[0] & 0xF0) == 0x80 || (evt[0] & 0xF0) == 0x90) &&
+          splitpoint > 0 && channel == 0 && evt[1] <= splitpoint)
+        channel = 2;
+
 			switch (evt[0] & 0xF0)
 			{
 			case evt_noteon: {

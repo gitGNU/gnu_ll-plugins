@@ -425,6 +425,7 @@ void LV2Host::run(unsigned long nframes) {
       const unsigned long& port = e.control.port;
       const float& value = e.control.value;
       *static_cast<float*>(m_ports[port].buffer) = value;
+      //queue_control(port, value, false);
       break;
     }
       

@@ -62,7 +62,7 @@ public:
   
 protected:
   
-  Ringbuffer<unsigned char, 1024> m_queue;
+  Ringbuffer<unsigned char, 102400> m_queue;
   bool m_read_event_type;
   Type m_next_event_type;
   Event m_event;

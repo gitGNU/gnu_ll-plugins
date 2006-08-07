@@ -49,7 +49,56 @@ vector<Widget*> fx_widgets;
 vector<Widget*> voice_widgets;
 vector<Program> programs(32);
 int current_program = 0;
+int splitkey = 0;
 Textbox* tbox;
+Switch* splitswitch;
+
+// -------- helper function
+string note2str(long note) {
+	static char	notestr[4];
+	int octave = int(note / 12);
+	switch(note % 12)
+	{
+	case 0:
+		sprintf(notestr, "C%1d", octave);
+		break;
+	case 1:
+		sprintf(notestr, "C#%1d", octave);
+		break;
+	case 2:
+		sprintf(notestr, "D%1d", octave);
+		break;
+	case 3:
+		sprintf(notestr, "D#%1d", octave);
+		break;
+	case 4:
+		sprintf(notestr, "E%1d", octave);
+		break;
+	case 5:
+		sprintf(notestr, "F%1d", octave);
+		break;
+	case 6:
+		sprintf(notestr, "F#%1d", octave);
+		break;
+	case 7:
+		sprintf(notestr, "G%1d", octave);
+		break;
+	case 8:
+		sprintf(notestr, "G#%1d", octave);
+		break;
+	case 9:
+		sprintf(notestr, "A%1d", octave);
+		break;
+	case 10:
+		sprintf(notestr, "A#%1d", octave);
+		break;
+	case 11:
+		sprintf(notestr, "B%1d", octave);
+		break;
+	}
+	return string(notestr);
+}
+
 
 Knob* add_knob(Fixed& fbox, LV2UIClient& lv2, unsigned long port, 
                float min, float max, float value, 
@@ -150,11 +199,35 @@ void program_changed(int program) {
 }
 
 
+void control_changed(int port, float value) {
+  if (port == n_splitpoint) {
+    splitkey = int(value * 128);
+    if (splitkey <= 0 || splitkey >= 128)
+      tbox->set_string(2, "Keyboard split OFF");
+    else
+      tbox->set_string(2, string("Splitpoint: ") + note2str(splitkey));
+  }
+}
+
+
 bool display_scroll(GdkEventScroll* e, LV2UIClient& lv2) {
-  if (e->direction == GDK_SCROLL_UP)
-    lv2.send_program((current_program + 1) % programs.size());
-  else if (e->direction == GDK_SCROLL_DOWN)
-    lv2.send_program((current_program - 1) % programs.size());
+  if (splitswitch->get_adjustment().get_value() < 0.5) {
+    if (e->direction == GDK_SCROLL_UP)
+      lv2.send_program((current_program + 1) % programs.size());
+    else if (e->direction == GDK_SCROLL_DOWN)
+      lv2.send_program((current_program - 1) % programs.size());
+  }
+  else {
+    int oldsplitkey = splitkey;
+    if (e->direction == GDK_SCROLL_UP)
+      splitkey = (splitkey + 1) % 128;
+    else if (e->direction == GDK_SCROLL_DOWN)
+      splitkey = (splitkey - 1) % 128;
+    if (oldsplitkey != splitkey) {
+      lv2.send_control(n_splitpoint, splitkey / 128.0);
+      control_changed(n_splitpoint, splitkey / 128.0);
+    }
+  }
   return true;
 }
 
@@ -206,7 +279,7 @@ int main(int argc, char** argv) {
   tbox->signal_scroll_event().connect(bind(&display_scroll, ref(lv2)));
   
   // keyboard split switch
-  add_switch(fbox, lv2, n_split, 537, 49, Switch::Mini);
+  splitswitch = add_switch(fbox, lv2, n_split, 537, 49, Switch::Mini);
   
   // upper knobs
   add_switch(fbox, lv2, n_mono, 61, 105, Switch::Mini);
@@ -319,6 +392,7 @@ int main(int argc, char** argv) {
   lv2.hide_received.connect(mem_fun(window, &Gtk::Window::hide));
   lv2.quit_received.connect(&Main::quit);
   lv2.program_received.connect(&program_changed);
+  lv2.control_received.connect(&control_changed);
   window.signal_delete_event().connect(bind_return(hide(&Main::quit), true));
   
   lv2.send_update_request();
