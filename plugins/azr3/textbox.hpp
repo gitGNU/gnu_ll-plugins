@@ -37,10 +37,13 @@ public:
   
   void set_string(int line, const std::string& str);
   
+  sigc::signal<void, int, GdkEventScroll*> signal_scroll_display;
+  
 protected:
   
   bool on_expose_event(GdkEventExpose* event);
-
+  bool on_scroll_event(GdkEventScroll* event);
+  
   int m_width;
   int m_height;
   std::vector<Glib::RefPtr<Pango::Layout> > m_strings;

@@ -71,3 +71,9 @@ bool Textbox::on_expose_event(GdkEventExpose* event) {
   }
   return true;
 }
+
+
+bool Textbox::on_scroll_event(GdkEventScroll* event) {
+  int line = int(event->y) / (m_height / m_strings.size());
+  signal_scroll_display(line, event);
+}

@@ -201,17 +201,22 @@ void program_changed(int program) {
 
 void control_changed(int port, float value) {
   if (port == n_splitpoint) {
-    splitkey = int(value * 128);
-    if (splitkey <= 0 || splitkey >= 128)
+    int key = int(value * 128);
+    if (key <= 0 || key >= 128) {
       tbox->set_string(2, "Keyboard split OFF");
-    else
-      tbox->set_string(2, string("Splitpoint: ") + note2str(splitkey));
+      splitswitch->get_adjustment().set_value(0);
+    }
+    else {
+      splitkey = key;
+      tbox->set_string(2, string("Splitpoint: ") + note2str(key));
+      splitswitch->get_adjustment().set_value(1);
+    }
   }
 }
 
 
-bool display_scroll(GdkEventScroll* e, LV2UIClient& lv2) {
-  if (splitswitch->get_adjustment().get_value() < 0.5) {
+void display_scroll(int line, GdkEventScroll* e, LV2UIClient& lv2) {
+  if (line < 2) {
     if (e->direction == GDK_SCROLL_UP)
       lv2.send_program((current_program + 1) % programs.size());
     else if (e->direction == GDK_SCROLL_DOWN)
@@ -219,16 +224,32 @@ bool display_scroll(GdkEventScroll* e, LV2UIClient& lv2) {
   }
   else {
     int oldsplitkey = splitkey;
+    if (splitswitch->get_adjustment().get_value() < 0.5)
+      splitkey = 0;
     if (e->direction == GDK_SCROLL_UP)
       splitkey = (splitkey + 1) % 128;
     else if (e->direction == GDK_SCROLL_DOWN)
       splitkey = (splitkey - 1) % 128;
+    while (splitkey < 0)
+      splitkey += 128;
     if (oldsplitkey != splitkey) {
       lv2.send_control(n_splitpoint, splitkey / 128.0);
       control_changed(n_splitpoint, splitkey / 128.0);
     }
   }
-  return true;
+}
+
+
+void splitbox_clicked(LV2UIClient& lv2) {
+  if (splitswitch->get_adjustment().get_value() < 0.5) {
+    lv2.send_control(n_splitpoint, 0);
+    control_changed(n_splitpoint, 0);
+  }
+  else {
+    lv2.send_control(n_splitpoint, splitkey / 128.0);
+    control_changed(n_splitpoint, splitkey / 128.0);
+  }
+  
 }
 
 
@@ -276,10 +297,12 @@ int main(int argc, char** argv) {
   // add the display
   tbox = add_textbox(fbox, pixmap, 391, 19, 3, 140, 39);
   tbox->add_events(SCROLL_MASK);
-  tbox->signal_scroll_event().connect(bind(&display_scroll, ref(lv2)));
+  tbox->signal_scroll_display.connect(bind(&display_scroll, ref(lv2)));
   
   // keyboard split switch
   splitswitch = add_switch(fbox, lv2, n_split, 537, 49, Switch::Mini);
+  splitswitch->get_adjustment().signal_value_changed().
+    connect(bind(&splitbox_clicked, ref(lv2)));
   
   // upper knobs
   add_switch(fbox, lv2, n_mono, 61, 105, Switch::Mini);
