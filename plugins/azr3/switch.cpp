@@ -51,7 +51,7 @@ Switch::Switch(Type type)
     m_height = 12;
   }
   set_size_request(m_width, m_height);
-  add_events(EXPOSURE_MASK | BUTTON_PRESS_MASK);
+  add_events(EXPOSURE_MASK | BUTTON_PRESS_MASK | SCROLL_MASK);
   m_adj.signal_value_changed().connect(mem_fun(*this, &Switch::queue_draw));
 }
  
@@ -97,4 +97,12 @@ bool Switch::on_expose_event(GdkEventExpose* event) {
 bool Switch::on_button_press_event(GdkEventButton* event) {
   m_adj.set_value(m_adj.get_value() < 0.5 ? 1 : 0);
   return true;
+}
+
+
+bool Switch::on_scroll_event(GdkEventScroll* event) {
+  if (event->direction == GDK_SCROLL_UP)
+    m_adj.set_value(1);
+  else if (event->direction == GDK_SCROLL_DOWN)
+    m_adj.set_value(0);
 }

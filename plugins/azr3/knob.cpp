@@ -44,7 +44,8 @@ Knob::Knob(float min, float max, float value,
     m_decimal = false;
   
   set_size_request(44, 44);
-  add_events(EXPOSURE_MASK | BUTTON1_MOTION_MASK | BUTTON_PRESS_MASK);
+  add_events(EXPOSURE_MASK | BUTTON1_MOTION_MASK | 
+             BUTTON_PRESS_MASK | SCROLL_MASK);
   m_adj.signal_value_changed().connect(mem_fun(*this, &Knob::queue_draw));
 }
  
@@ -144,4 +145,14 @@ void Knob::draw_digit(RefPtr<Gdk::Window>& win, RefPtr<GC>& gc,
   gc->set_clip_origin(xoffset, 18 - digit * 7 + (digit < 10 ? 0 : 1));
   win->draw_drawable(gc, m_digpix, 0, digit * 7, 
                      xoffset, 18 + (digit < 10 ? 0 : 1), 5, 7);
+}
+
+
+bool Knob::on_scroll_event(GdkEventScroll* event) {
+  if (event->direction == GDK_SCROLL_UP)
+    m_adj.set_value(m_adj.get_value() + 
+                    (m_adj.get_upper() - m_adj.get_lower()) / 30);
+  else if (event->direction == GDK_SCROLL_DOWN)
+    m_adj.set_value(m_adj.get_value() - 
+                    (m_adj.get_upper() - m_adj.get_lower()) / 30);
 }

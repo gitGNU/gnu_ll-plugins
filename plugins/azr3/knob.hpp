@@ -42,6 +42,7 @@ protected:
   bool on_expose_event(GdkEventExpose* event);
   bool on_motion_notify_event(GdkEventMotion* event);
   bool on_button_press_event(GdkEventButton* event);
+  bool on_scroll_event(GdkEventScroll* event);
   
   void draw_digits(Glib::RefPtr<Gdk::Window>& win, Glib::RefPtr<Gdk::GC>& gc);
   void draw_digit(Glib::RefPtr<Gdk::Window>& win, Glib::RefPtr<Gdk::GC>& gc,

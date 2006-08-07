@@ -38,7 +38,8 @@ Drawbar::Drawbar(float min, float max, float value, Type type)
   : m_adj(value, min, max),
     m_type(type) {
   set_size_request(22, 150);
-  add_events(EXPOSURE_MASK | BUTTON1_MOTION_MASK | BUTTON_PRESS_MASK);
+  add_events(EXPOSURE_MASK | BUTTON1_MOTION_MASK | 
+             BUTTON_PRESS_MASK | SCROLL_MASK);
   m_adj.signal_value_changed().connect(mem_fun(*this, &Drawbar::queue_draw));
 }
  
@@ -99,4 +100,14 @@ bool Drawbar::on_button_press_event(GdkEventButton* event) {
   m_click_offset = (int)event->y;
   m_value_offset = m_adj.get_value();
   return true;
+}
+
+
+bool Drawbar::on_scroll_event(GdkEventScroll* event) {
+  if (event->direction == GDK_SCROLL_UP)
+    m_adj.set_value(m_adj.get_value() - 
+                    (m_adj.get_upper() - m_adj.get_lower()) / 30);
+  else if (event->direction == GDK_SCROLL_DOWN)
+    m_adj.set_value(m_adj.get_value() + 
+                    (m_adj.get_upper() - m_adj.get_lower()) / 30);
 }
