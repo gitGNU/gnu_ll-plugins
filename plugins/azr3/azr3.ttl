@@ -18,6 +18,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 126;
+    ];
   ],
   
   [
@@ -29,6 +33,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 2;
+    ];
   ],
   
   [
@@ -40,6 +48,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 3;
+    ];
   ],
   
   [
@@ -51,6 +63,10 @@
     lv2:minimum 0;
     lv2:default 0;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 4;
+    ];
   ],
   
   [
@@ -62,6 +78,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 5;
+    ];
   ],
   
   [
@@ -73,6 +93,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 6;
+    ];
   ],
   
   [
@@ -84,6 +108,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 8;
+    ];
   ],
   
   [
@@ -95,6 +123,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 9;
+    ];
   ],
   
   [
@@ -106,6 +138,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 10;
+    ];
   ],
   
   [
@@ -117,6 +153,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 11;
+    ];
   ],
   
   [
@@ -128,6 +168,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 7;
+    ];
   ],
   
   [
@@ -139,6 +183,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 12;
+    ];
   ],
   
   [
@@ -150,6 +198,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 13;
+    ];
   ],
   
   [
@@ -161,6 +213,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 14;
+    ];
   ],
   
   [
@@ -172,6 +228,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 15;
+    ];
   ],
   
   [
@@ -183,6 +243,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 16;
+    ];
   ],
   
   [
@@ -194,6 +258,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 17;
+    ];
   ],
   
   [
@@ -205,6 +273,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 18;
+    ];
   ],
   
   [
@@ -216,6 +288,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 19;
+    ];
   ],
   
   [
@@ -227,6 +303,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 20;
+    ];
   ],
   
   [
@@ -238,6 +318,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 21;
+    ];
   ],
   
   [
@@ -249,6 +333,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 22;
+    ];
   ],
   
   [
@@ -260,6 +348,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 23;
+    ];
   ],
   
   [
@@ -271,6 +363,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 24;
+    ];
   ],
   
   [
@@ -282,6 +378,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 25;
+    ];
   ],
   
   [
@@ -293,6 +393,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 26;
+    ];
   ],
   
   [
@@ -304,6 +408,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 27;
+    ];
   ],
   
   [
@@ -315,6 +423,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 28;
+    ];
   ],
   
   [
@@ -326,6 +438,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 29;
+    ];
   ],
   
   [
@@ -337,6 +453,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 30;
+    ];
   ],
   
   [
@@ -348,6 +468,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 31;
+    ];
   ],
   
   [
@@ -359,6 +483,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 32;
+    ];
   ],
   
   [
@@ -370,6 +498,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 33;
+    ];
   ],
   
   [
@@ -381,6 +513,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 34;
+    ];
   ],
   
   [
@@ -392,6 +528,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 35;
+    ];
   ],
   
   [
@@ -403,6 +543,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 36;
+    ];
   ],
   
   [
@@ -414,6 +558,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 37;
+    ];
   ],
   
   [
@@ -425,6 +573,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 38;
+    ];
   ],
   
   [
@@ -436,6 +588,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 39;
+    ];
   ],
   
   [
@@ -447,6 +603,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 40;
+    ];
   ],
   
   [
@@ -458,6 +618,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 41;
+    ];
   ],
   
   [
@@ -469,6 +633,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 42;
+    ];
   ],
   
   [
@@ -480,6 +648,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 43;
+    ];
   ],
   
   [
@@ -491,6 +663,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 44;
+    ];
   ],
   
   [
@@ -502,6 +678,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 45;
+    ];
   ],
   
   [
@@ -513,6 +693,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 46;
+    ];
   ],
   
   [
@@ -524,6 +708,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 47;
+    ];
   ],
   
   [
@@ -535,6 +723,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 48;
+    ];
   ],
   
   [
@@ -546,6 +738,10 @@
     lv2:minimum 0;
     lv2:default 1;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 49;
+    ];
   ],
   
   [
@@ -572,6 +768,10 @@
     lv2:minimum 0;
     lv2:default 0.05;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 50;
+    ];
   ],
   
   [
@@ -583,6 +783,10 @@
     lv2:minimum 0;
     lv2:default 0.75;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 51;
+    ];
   ],
   
   [
@@ -594,6 +798,10 @@
     lv2:minimum 0;
     lv2:default 0.05;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 52;
+    ];
   ],
   
   [
@@ -605,6 +813,10 @@
     lv2:minimum 0;
     lv2:default 0.75;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 53;
+    ];
   ],
   
   [
@@ -616,6 +828,10 @@
     lv2:minimum 0;
     lv2:default 0.5;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 54;
+    ];
   ],
   
   [
@@ -627,6 +843,10 @@
     lv2:minimum 0;
     lv2:default 0.5;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 55;
+    ];
   ],
   
   [
@@ -638,6 +858,10 @@
     lv2:minimum 0;
     lv2:default 0.5;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 56;
+    ];
   ],
   
   [
@@ -649,6 +873,10 @@
     lv2:minimum 0;
     lv2:default 0.5;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 57;
+    ];
   ],
   
   [
@@ -660,6 +888,10 @@
     lv2:minimum 0;
     lv2:default 0.5;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 58;
+    ];
   ],
   
   [
@@ -671,6 +903,10 @@
     lv2:minimum 0;
     lv2:default 0.5;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 59;
+    ];
   ],
   
   [
@@ -682,6 +918,10 @@
     lv2:minimum 0;
     lv2:default 0.5;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 60;
+    ];
   ],
   
   [
@@ -693,6 +933,10 @@
     lv2:minimum 0;
     lv2:default 0.5;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 61;
+    ];
   ],
   
   [
@@ -704,6 +948,10 @@
     lv2:minimum 0;
     lv2:default 0.5;
     lv2:maximum 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 62;
+    ];
   ],
   
   [
