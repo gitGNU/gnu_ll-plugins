@@ -27,7 +27,7 @@ public:
   };
   
   struct ConfigRequestEvent {
-
+    EventQueue* sender;
   };
   
   struct PassthroughEvent {
@@ -55,8 +55,8 @@ public:
   
   bool write_control(unsigned long port, float value);
   bool write_program(unsigned long program);
-  bool write_config_request();
-  bool write_passthrough(const char* msg, void* ptr);
+  bool write_config_request(EventQueue* sender);
+  bool write_passthrough(const char* msg, void* ptr = 0);
   
   bool wait();
   

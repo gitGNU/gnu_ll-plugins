@@ -32,6 +32,10 @@ EventQueue::Type EventQueue::read_event() {
     return Control;
     
   case ConfigRequest:
+    if (m_queue.available() < sizeof(ConfigRequest))
+      return None;
+    m_queue.read(reinterpret_cast<unsigned char*>(&m_event.config),
+                 sizeof(ConfigRequestEvent));
     return ConfigRequest;
     
   case Passthrough:
@@ -74,9 +78,13 @@ bool EventQueue::write_program(unsigned long program) {
 }
 
 
-bool EventQueue::write_config_request() {
+bool EventQueue::write_config_request(EventQueue* sender) {
   Type t = ConfigRequest;
   m_queue.write(reinterpret_cast<unsigned char*>(&t), sizeof(Type));
+  ConfigRequestEvent ce;
+  ce.sender = sender;
+  m_queue.write(reinterpret_cast<unsigned char*>(&ce), 
+                sizeof(ConfigRequestEvent));
   sem_post(&m_sem);
   return true;
 }

@@ -1,6 +1,6 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.79
-PKG_DEPS = jack>=0.102.6 liblo>=0.22 gtkmm-2.4>=2.8.8 libglademm-2.4>=2.6.2
+PACKAGE_VERSION = 0.1.80
+PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.8.8 libglademm-2.4>=2.6.2
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
 
@@ -35,8 +35,8 @@ lv2host_SOURCES = \
 	osccontroller.hpp osccontroller.cpp \
 	eventqueue.hpp eventqueue.cpp \
 	main.cpp
-lv2host_CFLAGS = `pkg-config --cflags jack liblo` -Iextensions/miditype -Iextensions/instrument -Ilibraries/paq -Ilibraries/components
-lv2host_LDFLAGS = `pkg-config --libs jack liblo` libraries/paq/libpaq.a -lpthread
+lv2host_CFLAGS = `pkg-config --cflags jack liblo lash-1.0` -Iextensions/miditype -Iextensions/instrument -Ilibraries/paq -Ilibraries/components
+lv2host_LDFLAGS = `pkg-config --libs jack liblo lash-1.0` libraries/paq/libpaq.a -lpthread
 lv2host_SOURCEDIR = programs/lv2host
 
 LV2_PLUGINS = sineshaper.lv2 control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 azr3.lv2

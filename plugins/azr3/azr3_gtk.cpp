@@ -61,40 +61,40 @@ string note2str(long note) {
 	switch(note % 12)
 	{
 	case 0:
-		sprintf(notestr, "C%1d", octave);
+		sprintf(notestr, "C %1d", octave);
 		break;
 	case 1:
 		sprintf(notestr, "C#%1d", octave);
 		break;
 	case 2:
-		sprintf(notestr, "D%1d", octave);
+		sprintf(notestr, "D %1d", octave);
 		break;
 	case 3:
 		sprintf(notestr, "D#%1d", octave);
 		break;
 	case 4:
-		sprintf(notestr, "E%1d", octave);
+		sprintf(notestr, "E %1d", octave);
 		break;
 	case 5:
-		sprintf(notestr, "F%1d", octave);
+		sprintf(notestr, "F %1d", octave);
 		break;
 	case 6:
 		sprintf(notestr, "F#%1d", octave);
 		break;
 	case 7:
-		sprintf(notestr, "G%1d", octave);
+		sprintf(notestr, "G %1d", octave);
 		break;
 	case 8:
 		sprintf(notestr, "G#%1d", octave);
 		break;
 	case 9:
-		sprintf(notestr, "A%1d", octave);
+		sprintf(notestr, "A %1d", octave);
 		break;
 	case 10:
 		sprintf(notestr, "A#%1d", octave);
 		break;
 	case 11:
-		sprintf(notestr, "B%1d", octave);
+		sprintf(notestr, "B %1d", octave);
 		break;
 	}
 	return string(notestr);

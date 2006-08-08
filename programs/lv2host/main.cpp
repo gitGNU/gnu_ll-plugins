@@ -1,15 +1,18 @@
 #include <csignal>
+#include <fstream>
 #include <iostream>
 #include <vector>
 #include <unistd.h>
 
 #include <jack/jack.h>
 #include <jack/midiport.h>
+#include <lash/lash.h>
 
 #include "lv2host.hpp"
 #include "lv2-miditype.h"
 
 #include "osccontroller.hpp"
+#include "eventqueue.hpp"
 
 
 using namespace std;
@@ -17,6 +20,25 @@ using namespace std;
 
 vector<jack_port_t*> jack_ports;
 jack_client_t* jack_client;
+lash_client_t* lash_client;
+
+
+bool init_lash(int argc, char** argv) {
+  cerr<<"Initialising LASH client"<<endl;
+  lash_client = lash_init(lash_extract_args(&argc, &argv), "lv2host", 
+                          LASH_Config_File, LASH_PROTOCOL(2, 0));
+  
+  if (lash_client) {
+    lash_event_t* event = lash_event_new_with_type(LASH_Client_Name);
+    lash_event_set_string(event, "LV2Host");
+    lash_send_event(lash_client, event);      
+    lash_jack_client_name(lash_client, "LV2Host");
+  }
+  else
+    cerr<<"Could not initialise LASH!"<<endl;
+  
+  return (lash_client != 0);
+}
 
 
 /** Translate from an LV2 MIDI buffer to a JACK MIDI buffer. */
@@ -190,6 +212,11 @@ int main(int argc, char** argv) {
   
   if (lv2h.is_valid()) {
     
+    if (!init_lash(argc, argv)) {
+      cerr<<"Could not initialise LASH"<<endl;
+      return -1;
+    }
+    
     cerr<<"MIDI map:"<<endl;
     for (unsigned i = 0; i < 127; ++i) {
       long port = lv2h.get_midi_map()[i];
@@ -268,8 +295,72 @@ int main(int argc, char** argv) {
       }
     }
     
+    // queue that the host can pass configurations to
+    EventQueue conf_q;
+    
     // wait until we are killed
     while (still_running) {
+      lash_event_t* event;
+      while ((event = lash_get_event(lash_client))) {
+        
+        // save
+        if (lash_event_get_type(event) == LASH_Save_File) {
+          cerr<<"LASH SAVE"<<endl;
+          lv2h.queue_config_request(&conf_q);
+          ofstream of((string(lash_event_get_string(event)) + 
+                       "/lv2host").c_str());
+          EventQueue::Type t;
+          do {
+            while (!conf_q.wait() && still_running);
+            t = conf_q.read_event();
+            switch (t) {
+            case EventQueue::Program:
+              of<<"program "<<conf_q.get_event().program.program<<endl;
+              break;
+            case EventQueue::Control:
+              of<<"control "<<conf_q.get_event().control.port<<" "
+                <<conf_q.get_event().control.value<<endl;
+            }
+          } while (t != EventQueue::Passthrough && still_running);
+
+          lash_send_event(lash_client, 
+                          lash_event_new_with_type(LASH_Save_File));
+        }
+        
+        // restore
+        else if (lash_event_get_type(event) == LASH_Restore_File) {
+          cerr<<"LASH RESTORE"<<endl;
+          ifstream ifs((string(lash_event_get_string(event)) + 
+                        "/lv2host").c_str());
+          while (ifs) {
+            string word;
+            ifs>>word;
+            if (word == "program") {
+              unsigned long program;
+              ifs>>program;
+              lv2h.queue_program(program);
+            }
+            if (word == "control") {
+              unsigned long port;
+              float value;
+              ifs>>port>>value;
+              lv2h.queue_control(port, value);
+            }
+              
+          }
+          lash_send_event(lash_client,
+                          lash_event_new_with_type(LASH_Restore_File));
+        }
+        
+        // quit
+        else if (lash_event_get_type(event) == LASH_Quit) {
+          cerr<<"LASH QUIT"<<endl;
+          still_running = false;
+        }
+        
+        lash_event_destroy(event);
+      }
+      
       /*
       string word;
       cin>>word;
@@ -290,7 +381,8 @@ int main(int argc, char** argv) {
         cout<<"Unknown command \""<<word<<"\""<<endl;
       }
       */
-      usleep(500000);
+      
+      usleep(100000);
     }
     
     // kill the GUI

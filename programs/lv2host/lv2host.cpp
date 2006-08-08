@@ -432,14 +432,15 @@ void LV2Host::run(unsigned long nframes) {
     case EventQueue::ConfigRequest:
       if (m_from_jack) {
         if (m_program_is_valid)
-          m_from_jack->write_program(m_program);
+          e.config.sender->write_program(m_program);
         for (unsigned long p = 0; p < m_ports.size(); ++p) {
           if (!m_ports[p].midi && m_ports[p].rate == ControlRate &&
               m_ports[p].direction == InputPort) {
-            m_from_jack->
+            e.config.sender->
               write_control(p, *static_cast<float*>(m_ports[p].buffer));
           }
         }
+        e.config.sender->write_passthrough("cend");
       }
       break;
       
@@ -564,8 +565,8 @@ void LV2Host::queue_midi(unsigned long port, const unsigned char* midi) {
 }
 
 
-void LV2Host::queue_config_request() {
-  m_to_jack.write_config_request();
+void LV2Host::queue_config_request(EventQueue* sender) {
+  m_to_jack.write_config_request(sender);
 }
 
 
