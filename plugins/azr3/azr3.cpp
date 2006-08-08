@@ -73,7 +73,8 @@ AZR3::AZR3(unsigned long rate, const char* bundle_path,
     lfo_d_nout(0),
     splitpoint(0),
     last_shape(-1),
-    mute(true) {
+    mute(true),
+    pedal(false) {
   
   pthread_mutex_init(&m_notemaster_lock, 0);
   
@@ -435,16 +436,19 @@ void AZR3::run(unsigned long sampleFrames) {
 				break;
         
       case 0xB0:
+        
+        // all notes off
+        if (evt[1] >= 0x78 && evt[1] <= 0x7F)
+          n1.all_notes_off();
+        
+        // hold pedal
+        else if (evt[1] == 0x40) {
+          pedal = evt[2] >= 64;
+          if (*static_cast<float*>(m_ports[n_pedalspeed]) < 0.5)
+            n1.set_pedal(evt[2], channel);
+        }
         break;
         
-			case evt_alloff:
-				n1.all_notes_off();
-				break;
-
-			case evt_pedal:
-				n1.set_pedal(evt[1], channel);
-				break;
-			
       case evt_pitch: {
         float bender = *static_cast<float*>(m_ports[n_bender]);
         float pitch = (float)(evt[2] * 128 + evt[1]);
@@ -465,7 +469,11 @@ void AZR3::run(unsigned long sampleFrames) {
         
       }
     }
-		
+    
+    // if n_pedalspeed is on, use the hold pedal for speed
+    if (*static_cast<float*>(m_ports[n_pedalspeed]) >= 0.5)
+      fastmode = pedal;
+    
 		float* p_mono = n1.clock();
 		float mono1 = p_mono[0];
 		float mono2 = p_mono[1];
@@ -609,7 +617,7 @@ void AZR3::run(unsigned long sampleFrames) {
 					if (lspeed < lfast)
 						lspeed += lbelt_up;
 					if (lspeed > lfast)
-						lspeed=lfast;
+						lspeed = lfast;
 					
 					if (uspeed < ufast)
 						uspeed += ubelt_up;

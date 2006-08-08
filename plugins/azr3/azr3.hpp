@@ -148,6 +148,8 @@ protected:
 
 	filt_allpass	allpass_l[4], allpass_r[4];
   
+  bool pedal;
+  
   unsigned char* midi_ptr;
   
   LV2_ProgramDescriptor pdesc;
