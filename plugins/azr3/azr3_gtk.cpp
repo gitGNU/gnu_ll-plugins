@@ -53,6 +53,7 @@ int splitkey = 0;
 Textbox* tbox;
 Switch* splitswitch;
 
+
 // -------- helper function
 string note2str(long note) {
 	static char	notestr[4];
@@ -97,6 +98,56 @@ string note2str(long note) {
 		break;
 	}
 	return string(notestr);
+}
+
+
+void save_program() {
+  cerr<<__PRETTY_FUNCTION__<<" is not implemented yet"<<endl;
+}
+
+
+Menu* create_menu(LV2UIClient& lv2) {
+
+  Color bg, fg;
+  bg.set_rgb(16000, 16000, 16000);
+  fg.set_rgb(65535, 65535, 50000);
+  Menu* menu = manage(new Menu);
+  
+  Menu* program_menu = manage(new Menu);
+  for (int i = 0; i < kNumPrograms; ++i) {
+    ostringstream oss;
+    oss<<setw(2)<<setfill('0')<<i<<' '<<programs[i].name;
+    MenuItem* item = manage(new MenuItem(oss.str()));
+    item->signal_activate().
+      connect(bind(mem_fun(lv2, &LV2UIClient::send_program), i));
+    program_menu->items().push_back(*item);
+    item->show();
+    item->get_child()->modify_fg(STATE_NORMAL, fg);
+  }
+  MenuItem* program_item = manage(new MenuItem("Select program"));
+  program_item->set_submenu(*program_menu);
+  program_item->show();
+  program_item->get_child()->modify_fg(STATE_NORMAL, fg);
+  
+  MenuItem* save_item = manage(new MenuItem("Save program"));
+  save_item->signal_activate().connect(&save_program);
+  save_item->show();
+  save_item->get_child()->modify_fg(STATE_NORMAL, fg);
+
+  menu->items().push_back(*program_item);
+  menu->items().push_back(*save_item);
+  
+  menu->modify_bg(STATE_NORMAL, bg);
+  menu->modify_fg(STATE_NORMAL, fg);
+  program_menu->modify_bg(STATE_NORMAL, bg);
+  program_menu->modify_fg(STATE_NORMAL, fg);
+  
+  return menu;
+}
+
+
+bool popup_menu(GdkEventButton* event, Menu* menu) {
+  menu->popup(event->button, event->time);
 }
 
 
@@ -298,6 +349,8 @@ int main(int argc, char** argv) {
   tbox = add_textbox(fbox, pixmap, 391, 19, 3, 140, 39);
   tbox->add_events(SCROLL_MASK);
   tbox->signal_scroll_display.connect(bind(&display_scroll, ref(lv2)));
+  Menu* menu = create_menu(lv2);
+  tbox->signal_button_press_event().connect(bind(&popup_menu, menu));
   
   // keyboard split switch
   splitswitch = add_switch(fbox, lv2, n_split, 537, 49, Switch::Mini);
