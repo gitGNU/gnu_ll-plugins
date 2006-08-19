@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.80
+PACKAGE_VERSION = 0.1.81
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.8.8 libglademm-2.4>=2.6.2
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
@@ -39,7 +39,7 @@ lv2host_CFLAGS = `pkg-config --cflags jack liblo lash-1.0` -Iextensions/miditype
 lv2host_LDFLAGS = `pkg-config --libs jack liblo lash-1.0` libraries/paq/libpaq.a -lpthread
 lv2host_SOURCEDIR = programs/lv2host
 
-LV2_PLUGINS = sineshaper.lv2 control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 azr3.lv2
+LV2_PLUGINS = sineshaper.lv2 control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 azr3.lv2 phase-distortion-osc.lv2
 
 # Control2MIDI
 control2midi_lv2_SOURCES = control2midi.cpp
@@ -47,6 +47,13 @@ control2midi_lv2_DATA = manifest.ttl control2midi.ttl
 control2midi_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype
 control2midi_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
 control2midi_lv2_SOURCEDIR = plugins/control2midi
+
+# Phase distortion oscillator
+phase-distortion-osc_lv2_SOURCES = phase-distortion-osc.cpp
+phase-distortion-osc_lv2_DATA = manifest.ttl phase-distortion-osc.ttl
+phase-distortion-osc_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components
+phase-distortion-osc_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
+phase-distortion-osc_lv2_SOURCEDIR = plugins/phase-distortion-osc
 
 # Sineshaper
 sineshaper_lv2_SOURCES = \

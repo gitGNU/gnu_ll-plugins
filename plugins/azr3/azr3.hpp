@@ -159,6 +159,7 @@ protected:
   sem_t m_qsem;
   pthread_t m_worker;
   float w_p[kNumParams];
+  
 };
 
 

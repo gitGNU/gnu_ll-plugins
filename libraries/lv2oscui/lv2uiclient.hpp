@@ -75,6 +75,11 @@ public:
   //void connect_gui(RefPtr<Xml> xml);
   /** Connects a Gtk::Adjustment to a LV2 port. */
   void connect_adjustment(Adjustment* adj, int port);
+  Gtk::Adjustment* get_adjustment(int port);
+  /** Returns the value of a connected adjustment. */
+  float get_adjustment_value(int port);
+  /** Get active program. */
+  bool get_active_program(unsigned long& program);
   
   // C++ wrappers for OSC methods specified in the LV2 RFC:
   // UI to host
@@ -188,6 +193,8 @@ private:
     m_blocking = true;
     int program = m_program_queue.front();
     m_program_queue.pop();
+    m_program_is_set = true;
+    m_active_program = program;
     program_received(program);
     m_blocking = false;
   }
@@ -214,6 +221,9 @@ private:
   
   vector<Adjustment*> m_adjustments;
   bool m_blocking;
+  
+  bool m_program_is_set;
+  unsigned long m_active_program;
 };
 
 

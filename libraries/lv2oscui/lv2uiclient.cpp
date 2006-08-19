@@ -155,6 +155,27 @@ void LV2UIClient::connect_adjustment(Adjustment* adj, int port) {
 }
 
 
+Adjustment* LV2UIClient::get_adjustment(int port) {
+  if (port >= 0 && port < m_adjustments.size())
+    return m_adjustments[port];
+  return 0;
+}
+
+
+float LV2UIClient::get_adjustment_value(int port) {
+  if (port >= 0 && port < m_adjustments.size() && m_adjustments[port]) {
+    return m_adjustments[port]->get_value();
+  }
+  return 0;
+}
+
+
+bool LV2UIClient::get_active_program(unsigned long& program) {
+  program = m_active_program;
+  return m_program_is_set;
+}
+
+
 void LV2UIClient::send_control(int port, float value) {
   if (m_valid && !m_blocking) {
     lo_send(m_plugin_address, string(m_plugin_path + "/control").c_str(),
@@ -170,6 +191,8 @@ void LV2UIClient::send_program(int program) {
     /* The host does not send a /program back when we told it to change
        program, so we fire off the signal directly instead */
     m_blocking = true;
+    m_program_is_set = true;
+    m_active_program = program;
     program_received(program);
     m_blocking = false;
   }

@@ -22,8 +22,9 @@
 
 ****************************************************************************/
 
-#include <iostream>
 #include <cmath>
+#include <iostream>
+#include <sstream>
 
 #include "azr3.hpp"
 #include "lv2-miditype.h"
@@ -802,8 +803,18 @@ void AZR3::run(unsigned long sampleFrames) {
 
 
 char* AZR3::configure(const char* key, const char* value) {
-  
-
+  // XXX This is NOT threadsafe!
+  if (!strncmp(key, "program", 7)) {
+    int program = atoi(key + 7);
+    if (program >= 0 && program < kNumPrograms) {
+      
+      cerr<<"editing program "<<program<<endl;
+      
+      istringstream iss(value);
+      for (int i = 0; i < kNumParams; ++i)
+        iss>>programs[program].p[i];
+    }
+  }
 }
 
 

@@ -28,6 +28,8 @@ OSCController::OSCController(LV2Host& host, bool& still_running)
                               &OSCController::exiting_handler, &m_cbdata);
   lo_server_thread_add_method(m_server, "/lv2/control", "if", 
                               &OSCController::control_handler, &m_cbdata);
+  lo_server_thread_add_method(m_server, "/lv2/configure", "ss", 
+                              &OSCController::configure_handler, &m_cbdata);
   lo_server_thread_add_method(m_server, "/lv2/program", "i", 
                               &OSCController::program_handler, &m_cbdata);
   
@@ -102,6 +104,12 @@ int OSCController::control_handler(const char*, const char*, lo_arg** argv,
   unsigned long port = argv[0]->i;
   float value = argv[1]->f;
   static_cast<CallbackData*>(cbdata)->host.queue_control(port, value);
+}
+
+
+int OSCController::configure_handler(const char*, const char*, lo_arg** argv, 
+                                     int argc, lo_message, void* cbdata) {
+  static_cast<CallbackData*>(cbdata)->host.configure(&argv[0]->s, &argv[1]->s);
 }
 
 

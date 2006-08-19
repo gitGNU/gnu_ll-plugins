@@ -52,6 +52,7 @@ int current_program = 0;
 int splitkey = 0;
 Textbox* tbox;
 Switch* splitswitch;
+Adjustment* splitpoint_adj;
 
 
 // -------- helper function
@@ -101,8 +102,45 @@ string note2str(long note) {
 }
 
 
-void save_program() {
-  cerr<<__PRETTY_FUNCTION__<<" is not implemented yet"<<endl;
+void save_program(LV2UIClient& lv2) {
+  Dialog dlg("Save program");
+  dlg.add_button(Stock::CANCEL, RESPONSE_CANCEL);
+  dlg.add_button(Stock::OK, RESPONSE_OK);
+  Table tbl(2, 2);
+  tbl.set_col_spacings(3);
+  tbl.set_row_spacings(3);
+  tbl.set_border_width(3);
+  Label lbl1("Name:");
+  Label lbl2("Number:");
+  Entry ent;
+  ent.set_max_length(23);
+  Adjustment adj(0, 0, 31);
+  SpinButton spb(adj);
+  unsigned long program = 0;
+  if (lv2.get_active_program(program))
+    spb.set_value(program);
+  tbl.attach(lbl1, 0, 1, 0, 1);
+  tbl.attach(lbl2, 0, 1, 1, 2);
+  tbl.attach(ent, 1, 2, 0, 1);
+  tbl.attach(spb, 1, 2, 1, 2);
+  dlg.get_vbox()->pack_start(tbl);
+  dlg.show_all();
+  if (dlg.run() == RESPONSE_OK) {
+    ostringstream oss;
+    oss<<"program"<<int(adj.get_value());
+    string key = oss.str();
+    oss.str("");
+    memset(programs[int(adj.get_value())].name, 0, 24);
+    strncpy(programs[int(adj.get_value())].name, ent.get_text().c_str(), 23);
+    for (int i = 0; i < kNumParams; ++i) {
+      cerr<<i<<endl;
+      float value = lv2.get_adjustment(i)->get_value();
+      oss<<(i != 0 ? " " : "")<<value;
+      programs[int(adj.get_value())].p[i] = value;
+    }
+    lv2.send_configure(key, oss.str());
+    cerr<<"sent /configure "<<key<<" "<<oss.str()<<endl;
+  }
 }
 
 
@@ -130,7 +168,7 @@ Menu* create_menu(LV2UIClient& lv2) {
   program_item->get_child()->modify_fg(STATE_NORMAL, fg);
   
   MenuItem* save_item = manage(new MenuItem("Save program"));
-  save_item->signal_activate().connect(&save_program);
+  save_item->signal_activate().connect(bind(&save_program, ref(lv2)));
   save_item->show();
   save_item->get_child()->modify_fg(STATE_NORMAL, fg);
 
@@ -151,15 +189,22 @@ bool popup_menu(GdkEventButton* event, Menu* menu) {
 }
 
 
+void set_back_pixmap(Widget* wdg, RefPtr<Pixmap> pm) {
+  wdg->get_window()->set_back_pixmap(pm, false);
+}
+
+
 Knob* add_knob(Fixed& fbox, LV2UIClient& lv2, unsigned long port, 
                float min, float max, float value, 
                RefPtr<Pixmap>& bg, int xoffset, int yoffset,
                float dmin, float dmax, bool decimal) {
-  RefPtr<Pixmap> spix = Pixmap::create(bg, 44, 44);
-  spix->draw_drawable(GC::create(spix), bg, xoffset, yoffset,0, 0, 44, 44);
   Knob* knob = manage(new Knob(min, max, value, dmin, dmax, decimal));
   fbox.put(*knob, xoffset, yoffset);
-  knob->get_window()->set_back_pixmap(spix, false);
+  knob->modify_bg_pixmap(STATE_NORMAL, "<parent>");
+  knob->modify_bg_pixmap(STATE_ACTIVE, "<parent>");
+  knob->modify_bg_pixmap(STATE_PRELIGHT, "<parent>");
+  knob->modify_bg_pixmap(STATE_SELECTED, "<parent>");
+  knob->modify_bg_pixmap(STATE_INSENSITIVE, "<parent>");
   lv2.connect_adjustment(&knob->get_adjustment(), port);
   return knob;
 }
@@ -169,11 +214,13 @@ Drawbar* add_drawbar(Fixed& fbox, LV2UIClient& lv2, unsigned long port,
                      float min, float max, float value, 
                      RefPtr<Pixmap>& bg, int xoffset, int yoffset, 
                      Drawbar::Type type) {
-  RefPtr<Pixmap> spix = Pixmap::create(bg, 22, 150);
-  spix->draw_drawable(GC::create(spix), bg, xoffset, yoffset, 0, 0, 22, 150);
   Drawbar* db = manage(new Drawbar(min, max, value, type));
   fbox.put(*db, xoffset, yoffset);
-  db->get_window()->set_back_pixmap(spix, false);
+  db->modify_bg_pixmap(STATE_NORMAL, "<parent>");
+  db->modify_bg_pixmap(STATE_ACTIVE, "<parent>");
+  db->modify_bg_pixmap(STATE_PRELIGHT, "<parent>");
+  db->modify_bg_pixmap(STATE_SELECTED, "<parent>");
+  db->modify_bg_pixmap(STATE_INSENSITIVE, "<parent>");
   lv2.connect_adjustment(&db->get_adjustment(), port);
   return db;
 }
@@ -202,12 +249,13 @@ EventBox* add_clickbox(Fixed& fbox, int xoffset, int yoffset,
 Textbox* add_textbox(Fixed& fbox, RefPtr<Pixmap>& bg, 
                      int xoffset, int yoffset, int lines, 
                      int width, int height) {
-  RefPtr<Pixmap> spix = Pixmap::create(bg, width, height);
-  spix->draw_drawable(GC::create(spix), bg, xoffset, yoffset, 0, 0, 
-                      width, height);
   Textbox* db = manage(new Textbox(width, height, lines));
   fbox.put(*db, xoffset, yoffset);
-  db->get_window()->set_back_pixmap(spix, false);
+  db->modify_bg_pixmap(STATE_NORMAL, "<parent>");
+  db->modify_bg_pixmap(STATE_ACTIVE, "<parent>");
+  db->modify_bg_pixmap(STATE_PRELIGHT, "<parent>");
+  db->modify_bg_pixmap(STATE_SELECTED, "<parent>");
+  db->modify_bg_pixmap(STATE_INSENSITIVE, "<parent>");
   return db;
 }
 
@@ -250,18 +298,17 @@ void program_changed(int program) {
 }
 
 
-void control_changed(int port, float value) {
-  if (port == n_splitpoint) {
-    int key = int(value * 128);
-    if (key <= 0 || key >= 128) {
-      tbox->set_string(2, "Keyboard split OFF");
-      splitswitch->get_adjustment().set_value(0);
-    }
-    else {
-      splitkey = key;
-      tbox->set_string(2, string("Splitpoint: ") + note2str(key));
-      splitswitch->get_adjustment().set_value(1);
-    }
+void splitpoint_changed(Adjustment* adj) {
+  float value = adj->get_value();
+  int key = int(value * 128);
+  if (key <= 0 || key >= 128) {
+    tbox->set_string(2, "Keyboard split OFF");
+    splitswitch->get_adjustment().set_value(0);
+  }
+  else {
+    splitkey = key;
+    tbox->set_string(2, string("Splitpoint: ") + note2str(key));
+    splitswitch->get_adjustment().set_value(1);
   }
 }
 
@@ -283,24 +330,17 @@ void display_scroll(int line, GdkEventScroll* e, LV2UIClient& lv2) {
       splitkey = (splitkey - 1) % 128;
     while (splitkey < 0)
       splitkey += 128;
-    if (oldsplitkey != splitkey) {
-      lv2.send_control(n_splitpoint, splitkey / 128.0);
-      control_changed(n_splitpoint, splitkey / 128.0);
-    }
+    if (oldsplitkey != splitkey)
+      splitpoint_adj->set_value(splitkey / 128.0);
   }
 }
 
 
 void splitbox_clicked(LV2UIClient& lv2) {
-  if (splitswitch->get_adjustment().get_value() < 0.5) {
-    lv2.send_control(n_splitpoint, 0);
-    control_changed(n_splitpoint, 0);
-  }
-  else {
-    lv2.send_control(n_splitpoint, splitkey / 128.0);
-    control_changed(n_splitpoint, splitkey / 128.0);
-  }
-  
+  if (splitswitch->get_adjustment().get_value() < 0.5)
+    splitpoint_adj->set_value(0);
+  else
+    splitpoint_adj->set_value(splitkey / 128.0);
 }
 
 
@@ -317,8 +357,10 @@ int main(int argc, char** argv) {
   }
 
   Main kit(argc, argv);
+  
   Gtk::Window window;
   window.set_title(string("AZR-3: ") + lv2.get_identifier());
+
   Fixed fbox;
   fbox.set_has_window(true);
   Fixed vbox;
@@ -341,8 +383,20 @@ int main(int argc, char** argv) {
   RefPtr<Bitmap> bitmap;
   pixbuf->render_pixmap_and_mask(pixmap, bitmap, 10);
   voicebuf->render_pixmap_and_mask(voicepxm, bitmap, 10);
-  fbox.get_window()->set_back_pixmap(pixmap, false);
-  vbox.get_window()->set_back_pixmap(voicepxm, false);
+  RefPtr<Style> s = fbox.get_style()->copy();
+  s->set_bg_pixmap(STATE_NORMAL, pixmap);
+  s->set_bg_pixmap(STATE_ACTIVE, pixmap);
+  s->set_bg_pixmap(STATE_PRELIGHT, pixmap);
+  s->set_bg_pixmap(STATE_SELECTED, pixmap);
+  s->set_bg_pixmap(STATE_INSENSITIVE, pixmap);
+  fbox.set_style(s);
+  s = vbox.get_style()->copy();
+  s->set_bg_pixmap(STATE_NORMAL, voicepxm);
+  s->set_bg_pixmap(STATE_ACTIVE, voicepxm);
+  s->set_bg_pixmap(STATE_PRELIGHT, voicepxm);
+  s->set_bg_pixmap(STATE_SELECTED, voicepxm);
+  s->set_bg_pixmap(STATE_INSENSITIVE, voicepxm);
+  vbox.set_style(s);
   window.set_resizable(false);
   
   // add the display
@@ -351,6 +405,13 @@ int main(int argc, char** argv) {
   tbox->signal_scroll_display.connect(bind(&display_scroll, ref(lv2)));
   Menu* menu = create_menu(lv2);
   tbox->signal_button_press_event().connect(bind(&popup_menu, menu));
+  splitpoint_adj = new Adjustment(0, 0, 1);
+  lv2.connect_adjustment(splitpoint_adj, n_splitpoint);
+  splitpoint_adj->signal_value_changed().
+    connect(bind(&splitpoint_changed, splitpoint_adj));
+  //splitpoint_adj->signal_value_changed().
+  //  connect(compose(&splitpoint_changed, 
+  //                  mem_fun(*splitpoint_adj, &Adjustment::get_value)));
   
   // keyboard split switch
   splitswitch = add_switch(fbox, lv2, n_split, 537, 49, Switch::Mini);
@@ -468,7 +529,6 @@ int main(int argc, char** argv) {
   lv2.hide_received.connect(mem_fun(window, &Gtk::Window::hide));
   lv2.quit_received.connect(&Main::quit);
   lv2.program_received.connect(&program_changed);
-  lv2.control_received.connect(&control_changed);
   window.signal_delete_event().connect(bind_return(hide(&Main::quit), true));
   
   lv2.send_update_request();
