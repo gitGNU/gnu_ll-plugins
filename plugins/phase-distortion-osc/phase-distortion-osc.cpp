@@ -32,9 +32,6 @@ public:
     amount = (amount < 0 ? 0 : amount);
     amount = (amount > 0.999 ? 0.999 : amount);
     
-    ishape = 0;
-    amount = 0.999;
-    
     for (unsigned long i = 0; i < nframes; ++i)
       output[i] = m_osc.run(440, ishape, amount);
   }
