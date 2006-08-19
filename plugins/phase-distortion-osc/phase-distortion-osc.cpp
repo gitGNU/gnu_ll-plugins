@@ -1,5 +1,3 @@
-#include <cmath>
-
 #include "lv2plugin.hpp"
 #include "pdosc.hpp"
 
