@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.84
+PACKAGE_VERSION = 0.1.85
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.8.8 libglademm-2.4>=2.6.2
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
@@ -120,7 +120,7 @@ azr3_lv2_SOURCES = \
 	fx.h fx.cpp \
 	voice_classes.h voice_classes.cpp \
 	programlist.hpp \
-	cknob.xpm minioffon.xpm onoffgreen.xpm panelfx.xpm vonoff.xpm
+	cknob.xpm minioffon.xpm onoffgreen.xpm panelfx.xpm vonoff.xpm voice.xpm num_yellow.xpm dbblack.xpm dbbrown.xpm dbwhite.xpm
 azr3_lv2_DATA = manifest.ttl azr3.ttl
 azr3_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype -Iextensions/instrument -Ilibraries/components -I.
 azr3_lv2_LDFLAGS = libraries/lv2plugin/liblv2_plugin.a
@@ -134,6 +134,7 @@ azr3_gtk_SOURCEDIR = plugins/azr3
 
 # The shared headers need to go in the distribution too
 EXTRA_DIST = \
+  lv2.h \
 	libraries/components/adsr.hpp \
 	libraries/components/chebyshevshaper.hpp \
 	libraries/components/dcblocker.hpp \
@@ -143,12 +144,14 @@ EXTRA_DIST = \
 	libraries/components/ladspawrapper.hpp \
 	libraries/components/monophonicmidinote.hpp \
 	libraries/components/mooglpf.hpp \
+	libraries/components/pdosc.hpp \
 	libraries/components/polyphonicmidinote.hpp \
 	libraries/components/programmanager.hpp \
 	libraries/components/randomsineoscillator.hpp \
 	libraries/components/ringbuffer.hpp \
 	libraries/components/sineoscillator.hpp \
 	libraries/components/slide.hpp \
+	libraries/components/voicehandler.hpp \
 	libraries/components/wavewrapper.hpp \
 	\
 	extensions/miditype/lv2-miditype.h \
