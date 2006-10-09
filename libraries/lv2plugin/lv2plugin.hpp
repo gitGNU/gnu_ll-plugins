@@ -125,7 +125,7 @@ protected:
    use them directly. */
 namespace LV2SupportFunctions {
   
-  typedef std::vector<std::pair<LV2_Descriptor, uint32_t> > DescList;
+  typedef std::vector<LV2_Descriptor> DescList;
   
   void connect_port(LV2_Handle instance, uint32_t port, 
                     void* data_location);
@@ -167,10 +167,9 @@ namespace LV2SupportFunctions {
     @endcode
     
     @param uri The unique LV2 URI for this plugin.
-    @param ports The number of ports for this plugin.
 */
 template <class T>
-size_t register_lv2(const std::string& uri, uint32_t ports = 0) {
+size_t register_lv2(const std::string& uri) {
   using namespace LV2SupportFunctions;
   LV2_Descriptor desc;
   std::memset(&desc, 0, sizeof(LV2_Descriptor));
@@ -183,7 +182,7 @@ size_t register_lv2(const std::string& uri, uint32_t ports = 0) {
   desc.run = &run;
   desc.deactivate = &deactivate;
   desc.cleanup = &delete_plugin_instance;
-  get_lv2_descriptors().push_back(std::make_pair(desc, ports));
+  get_lv2_descriptors().push_back(desc);
   return get_lv2_descriptors().size() - 1;
 }
 

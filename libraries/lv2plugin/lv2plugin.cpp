@@ -49,7 +49,7 @@ namespace LV2SupportFunctions {
   }
 
   DescList& get_lv2_descriptors() {
-    static vector<pair<LV2_Descriptor, uint32_t> > descriptors;
+    static vector<LV2_Descriptor> descriptors;
     return descriptors;
   }
 
@@ -63,7 +63,7 @@ extern "C" {
   const LV2_Descriptor* lv2_descriptor(uint32_t index) {
     using namespace LV2SupportFunctions;
     if (index < get_lv2_descriptors().size())
-      return &get_lv2_descriptors()[index].first;
+      return &get_lv2_descriptors()[index];
     return NULL;
   }
 }

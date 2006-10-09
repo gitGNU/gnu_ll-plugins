@@ -35,7 +35,7 @@
 using namespace std;
 
 
-AZR3::AZR3(unsigned long rate, const char* bundle_path, 
+AZR3::AZR3(uint32_t rate, const char* bundle_path, 
            const LV2_Host_Feature**)
   : LV2Instrument(kNumParams + 3),
     n1(NUMOFVOICES),
@@ -164,7 +164,7 @@ void AZR3::deactivate() {
 }
 
 
-const LV2_ProgramDescriptor* AZR3::get_program(unsigned long index) {
+const LV2_ProgramDescriptor* AZR3::get_program(uint32_t index) {
   if (index < kNumPrograms) {
     pdesc.name = programs[index].name;
     pdesc.number = index;
@@ -174,7 +174,7 @@ const LV2_ProgramDescriptor* AZR3::get_program(unsigned long index) {
 }
 
 
-void AZR3::select_program(unsigned long program) {
+void AZR3::select_program(uint32_t program) {
   
   if (program >= kNumPrograms)
     return;
@@ -183,7 +183,7 @@ void AZR3::select_program(unsigned long program) {
   
   //cerr<<__PRETTY_FUNCTION__<<endl;
   
-  for(unsigned long x = 0; x < kNumParams; x++) {
+  for(uint32_t x = 0; x < kNumParams; x++) {
     //cerr<<"Setting parameter "<<x<<" to "<<ap.p[x]<<" from "<<last_value[x]<<endl;
     *static_cast<float*>(m_ports[x]) = ap.p[x];
     if (slow_controls[x]) {
@@ -197,7 +197,7 @@ void AZR3::select_program(unsigned long program) {
 }
 
 
-void AZR3::run(unsigned long sampleFrames) {
+void AZR3::run(uint32_t sampleFrames) {
   
   /*
     OK, here we go. This is the order of actions in here:
@@ -354,7 +354,7 @@ void AZR3::run(unsigned long sampleFrames) {
 	int	x;
   float last_out1, last_out2;
   unsigned char* evt;
-  for (unsigned long pframe = 0; pframe < sampleFrames; ++pframe) {
+  for (uint32_t pframe = 0; pframe < sampleFrames; ++pframe) {
     
 		// we need this variable further down
 		samplecount++;
@@ -1105,7 +1105,7 @@ void AZR3::calc_click() {
 }
 
 
-unsigned char* AZR3::event_clock(unsigned long offset) {
+unsigned char* AZR3::event_clock(uint32_t offset) {
   
   LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[63]);
   

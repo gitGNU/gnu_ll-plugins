@@ -50,8 +50,8 @@ enum
 
 
 struct PortChange {
-  PortChange(unsigned long p, float v) : port(p), value(v) { }
-  unsigned long port;
+  PortChange(uint32_t p, float v) : port(p), value(v) { }
+  uint32_t port;
   float value;
 };
 
@@ -59,7 +59,7 @@ struct PortChange {
 class AZR3 : public LV2Instrument {
 public:
   
-  AZR3(unsigned long rate, const char* bundle_path, const LV2_Host_Feature**);
+  AZR3(uint32_t rate, const char* bundle_path, const LV2_Host_Feature**);
   
   ~AZR3();
   
@@ -67,11 +67,11 @@ public:
   
   void deactivate();
   
-  const LV2_ProgramDescriptor* get_program(unsigned long index);
+  const LV2_ProgramDescriptor* get_program(uint32_t index);
   
-  void select_program(unsigned long number);
+  void select_program(uint32_t number);
   
-  void run(unsigned long nframes);
+  void run(uint32_t nframes);
   
   char* configure(const char* key, const char* value);
   
@@ -80,7 +80,7 @@ protected:
 	bool make_waveforms(int shape);
 	void calc_waveforms(int number);
 	void calc_click();
-  unsigned char* event_clock(unsigned long offset);
+  unsigned char* event_clock(uint32_t offset);
   
   static void* worker_function(void* arg);
   

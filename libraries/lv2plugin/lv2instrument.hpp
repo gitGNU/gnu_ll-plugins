@@ -129,14 +129,13 @@ namespace LV2SupportFunctions {
     the parameters, you need to give it explicitly like this:
     
     @code
-    register_lv2_inst<MyInstrumentClass>("http://ll-plugins.sf.net/MyPlugin", 4);
+    register_lv2_inst<MyInstrumentClass>("http://ll-plugins.sf.net/MyPlugin");
     @endcode
     
     @param uri The unique LV2 URI for this plugin.
-    @param ports The number of ports for this plugin.
 */
 template <class T>
-size_t register_lv2_inst(const std::string& uri, uint32_t ports = 0) {
+size_t register_lv2_inst(const std::string& uri) {
   using namespace LV2SupportFunctions;
   LV2_Descriptor desc;
   std::memset(&desc, 0, sizeof(LV2_Descriptor));
@@ -149,7 +148,7 @@ size_t register_lv2_inst(const std::string& uri, uint32_t ports = 0) {
   desc.run = &run;
   desc.deactivate = &deactivate;
   desc.cleanup = &delete_plugin_instance;
-  get_lv2_descriptors().push_back(std::make_pair(desc, ports));
+  get_lv2_descriptors().push_back(desc);
   return get_lv2_descriptors().size() - 1;
 }
 

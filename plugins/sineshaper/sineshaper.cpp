@@ -327,7 +327,6 @@ void SineShaper::select_program(unsigned long program) {
 
 
 void initialise() {
-  register_lv2_inst<SineShaper>("http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0",
-                                SINESHAPER_PORT_COUNT);
+  register_lv2_inst<SineShaper>("http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0");
 }
 
