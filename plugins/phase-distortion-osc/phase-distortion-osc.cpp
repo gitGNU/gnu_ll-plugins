@@ -26,7 +26,7 @@ public:
     
     int ishape = int(shape);
     ishape = (ishape < 0 ? 0 : ishape);
-    ishape = (ishape > 3 ? 3 : ishape);
+    ishape = (ishape > 5 ? 5 : ishape);
     amount = (amount < 0 ? 0 : amount);
     amount = (amount > 0.999 ? 0.999 : amount);
     

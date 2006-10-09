@@ -36,7 +36,7 @@ using namespace std;
 class ChebyshevShaper {
 public:
   
-  inline ChebyshevShaper(unsigned long frame_rate);
+  inline ChebyshevShaper(uint32_t frame_rate);
   
   inline LADSPA_Data run(LADSPA_Data input, LADSPA_Data freq);
   
@@ -46,11 +46,11 @@ private:
   
   int m_order;
   LADSPA_Data* m_coeffs;
-  unsigned long m_frame_rate;
+  uint32_t m_frame_rate;
 };
 
 
-ChebyshevShaper::ChebyshevShaper(unsigned long frame_rate) 
+ChebyshevShaper::ChebyshevShaper(uint32_t frame_rate) 
   : m_order(0), m_coeffs(NULL), m_frame_rate(frame_rate) { 
  
 }

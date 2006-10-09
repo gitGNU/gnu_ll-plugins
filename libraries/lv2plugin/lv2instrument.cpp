@@ -44,12 +44,12 @@ namespace LV2SupportFunctions {
   
   
   const LV2_ProgramDescriptor* get_program(LV2_Handle instance, 
-                                           unsigned long index) {
+                                           uint32_t index) {
     return reinterpret_cast<LV2Instrument*>(instance)->get_program(index);
   }
   
   
-  void select_program(LV2_Handle instance, unsigned long program) {
+  void select_program(LV2_Handle instance, uint32_t program) {
     reinterpret_cast<LV2Instrument*>(instance)->select_program(program);
   }
 

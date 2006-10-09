@@ -28,7 +28,7 @@ using namespace std;
 
 namespace LV2SupportFunctions {
 
-  void connect_port(LV2_Handle instance, unsigned long port, 
+  void connect_port(LV2_Handle instance, uint32_t port, 
                     void* data_location) {
     reinterpret_cast<LV2Plugin*>(instance)->connect_port(port, data_location);
   }
@@ -39,7 +39,7 @@ namespace LV2SupportFunctions {
   }
 
 
-  void run(LV2_Handle instance, unsigned long sample_count) {
+  void run(LV2_Handle instance, uint32_t sample_count) {
     reinterpret_cast<LV2Plugin*>(instance)->run(sample_count);
   }
   
@@ -49,7 +49,7 @@ namespace LV2SupportFunctions {
   }
 
   DescList& get_lv2_descriptors() {
-    static vector<pair<LV2_Descriptor, unsigned long> > descriptors;
+    static vector<pair<LV2_Descriptor, uint32_t> > descriptors;
     return descriptors;
   }
 
@@ -60,7 +60,7 @@ namespace LV2SupportFunctions {
 }
   
 extern "C" {
-  const LV2_Descriptor* lv2_descriptor(unsigned long index) {
+  const LV2_Descriptor* lv2_descriptor(uint32_t index) {
     using namespace LV2SupportFunctions;
     if (index < get_lv2_descriptors().size())
       return &get_lv2_descriptors()[index].first;

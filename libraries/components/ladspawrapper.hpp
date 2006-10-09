@@ -16,7 +16,7 @@ class LADSPAWrapper {
 public:
   
   LADSPAWrapper(const std::string& filename, 
-		unsigned long uid, unsigned long rate);
+                unsigned long uid, unsigned long rate);
   ~LADSPAWrapper();
   
   void connect_port(unsigned long port, LADSPA_Data* data_location);

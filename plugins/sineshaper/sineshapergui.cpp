@@ -170,7 +170,7 @@ void SineShaperGUI::init() {
   m_factory_preset_list->get_selection()->signal_changed().
     connect(mem_fun(*this, &SineShaperGUI::factory_preset_selected));
   LV2_ProgramDescriptor pdesc;
-  for (unsigned long i = 0; m_pm.get_program_at_index(i, &pdesc); ++i) {
+  for (uint32_t i = 0; m_pm.get_program_at_index(i, &pdesc); ++i) {
     ListStore::iterator iter = m_factory_preset_model->append();
     (*iter)[m_preset_columns.col_number] = pdesc.number;
     (*iter)[m_preset_columns.col_index] = i;
@@ -223,11 +223,11 @@ void SineShaperGUI::program_selected(int program) {
   // find the program and update all knobs
   ListStore::const_iterator iter = m_factory_preset_model->children().begin();
   for ( ; iter != m_factory_preset_model->children().end(); ++iter) {
-    if ((*iter)[m_preset_columns.col_number] == (unsigned long)program) {
+    if ((*iter)[m_preset_columns.col_number] == (uint32_t)program) {
       m_factory_preset_list->get_selection()->select(iter);
       int index = (*iter)[m_preset_columns.col_index];
-      const std::map<unsigned long, float>* values = m_pm.get_values(program);
-      std::map<unsigned long, float>::const_iterator viter;
+      const std::map<uint32_t, float>* values = m_pm.get_values(program);
+      std::map<uint32_t, float>::const_iterator viter;
       for (viter = values->begin(); viter != values->end(); ++viter) {
         if (viter->first < INPUT_PORTS)
           m_adjs[viter->first]->set_value(viter->second);
@@ -293,7 +293,7 @@ void SineShaperGUI::save_preset() {
     m_save_name->set_text("");
     
     // suggest an empty preset number
-    unsigned long first_free = 0;
+    uint32_t first_free = 0;
   for (unsigned i = 0; i < m_pm.get_bank(1).size(); ++i) {
     if (m_pm.get_bank(1)[i].number >= first_free)
       first_free = m_pm.get_bank(1)[i].number + 1;

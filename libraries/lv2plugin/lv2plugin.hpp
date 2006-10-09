@@ -36,7 +36,7 @@
 /** This is a base class for LV2 plugins. It has default implementations for
     all functions, so you only have to implement the functions that you need
     (for example run()). Any subclass must have a constructor that takes
-    a single <code>unsigned long</code> as parameter, otherwise it will 
+    a single <code>uint32_t</code> as parameter, otherwise it will 
     not work with the template function register_ladspa(). The host will use 
     this parameter to pass the sample rate when it creates a new instance of
     the plugin. 
@@ -49,8 +49,8 @@
 
 class TestLV2 : public LV2Plugin {
 public:
-  TestLV2(unsigned long, const char*, const LV2_Host_Feature**) { }
-  void run(unsigned long sample_count) {
+  TestLV2(uint32_t, const char*, const LV2_Host_Feature**) { }
+  void run(uint32_t sample_count) {
     memcpy(m_ports[1], m_ports[0], sample_count * sizeof(float));
   }
 };
@@ -87,14 +87,14 @@ public:
   
   /** This constructor is needed to initialise the port vector with the
       correct number of ports. */
-  LV2Plugin(unsigned long ports) : m_ports(ports, 0) { }
+  LV2Plugin(uint32_t ports) : m_ports(ports, 0) { }
   
   /** We need a virtual destructor since we have virtual member functions. */
   virtual ~LV2Plugin() { }
   
   /** Connects the ports. You shouldn't have to override this, just use
       m_ports[port] to access the port buffers. */
-  virtual void connect_port(unsigned long port, void* data_location) {
+  virtual void connect_port(uint32_t port, void* data_location) {
     m_ports[port] = data_location;
   }
   
@@ -105,7 +105,7 @@ public:
   
   /** This is the process callback which should fill all output port buffers. 
       You most likely want to override it. */
-  virtual void run(unsigned long sample_count) { }
+  virtual void run(uint32_t sample_count) { }
   
   /** Override this function if you need to do anything on deactivation. 
       The host calls this when it does not plan to make any more calls to 
@@ -125,12 +125,12 @@ protected:
    use them directly. */
 namespace LV2SupportFunctions {
   
-  typedef std::vector<std::pair<LV2_Descriptor, unsigned long> > DescList;
+  typedef std::vector<std::pair<LV2_Descriptor, uint32_t> > DescList;
   
-  void connect_port(LV2_Handle instance, unsigned long port, 
+  void connect_port(LV2_Handle instance, uint32_t port, 
                     void* data_location);
   void activate(LV2_Handle instance);
-  void run(LV2_Handle instance, unsigned long sample_count);
+  void run(LV2_Handle instance, uint32_t sample_count);
   void deactivate(LV2_Handle instance);
   
   /* This function returns the list of LV2 descriptors. It should only be 
@@ -142,7 +142,7 @@ namespace LV2SupportFunctions {
      it directly. */
   template <class T>
   LV2_Handle create_plugin_instance(const LV2_Descriptor* descriptor,
-                                    unsigned long sample_rate,
+                                    uint32_t sample_rate,
                                     const char* bundle_path,
                                     const LV2_Host_Feature** host_features) {
     T* t = new T(sample_rate, bundle_path, host_features);
@@ -170,7 +170,7 @@ namespace LV2SupportFunctions {
     @param ports The number of ports for this plugin.
 */
 template <class T>
-size_t register_lv2(const std::string& uri, unsigned long ports = 0) {
+size_t register_lv2(const std::string& uri, uint32_t ports = 0) {
   using namespace LV2SupportFunctions;
   LV2_Descriptor desc;
   std::memset(&desc, 0, sizeof(LV2_Descriptor));

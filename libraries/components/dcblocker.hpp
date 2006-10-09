@@ -26,7 +26,7 @@
 
 class DCBlocker {
 public:
-  DCBlocker(unsigned long framerate) : m_x1(0.0), m_y1(0.0), m_R(0.995) {
+  DCBlocker(uint32_t framerate) : m_x1(0.0), m_y1(0.0), m_R(0.995) {
     // XXX R should depend on the framerate
   }
   
@@ -38,7 +38,7 @@ public:
   }
   
 private:
-  unsigned long m_framerate;
+  uint32_t m_framerate;
   float m_x1;
   float m_y1;
   float m_R;

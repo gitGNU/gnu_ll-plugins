@@ -36,12 +36,12 @@ using namespace std;
 class PolyphonicMidiNote {
 public:
   
-  inline PolyphonicMidiNote(unsigned long samplerate);
+  inline PolyphonicMidiNote(uint32_t samplerate);
   
   inline const LADSPA_Data run(snd_seq_event_t* events, 
-			       unsigned long event_count, 
-			       unsigned long& next_event,
-			       unsigned long tick);
+                               uint32_t event_count, 
+                               uint32_t& next_event,
+                               uint32_t tick);
   
   inline const LADSPA_Data& get_gate(int voice) const;
   inline const LADSPA_Data get_frequency(int voice) const;
@@ -61,7 +61,7 @@ private:
 };
 
 
-PolyphonicMidiNote::PolyphonicMidiNote(unsigned long) : m_bend_factor(1) {
+PolyphonicMidiNote::PolyphonicMidiNote(uint32_t) : m_bend_factor(1) {
   for (int i = 0; i < 4; ++i) {
     m_gate[i] = 0;
     m_frequency[i] = 0;
@@ -73,9 +73,9 @@ PolyphonicMidiNote::PolyphonicMidiNote(unsigned long) : m_bend_factor(1) {
 
 
 const LADSPA_Data PolyphonicMidiNote::run(snd_seq_event_t* events, 
-					  unsigned long event_count,
-					  unsigned long& next_event,
-					  unsigned long tick) {
+                                          uint32_t event_count,
+                                          uint32_t& next_event,
+                                          uint32_t tick) {
   static int next_voice = 0;
   for (int i = 0; i < 4; ++i)
     m_trigger[i] = false;

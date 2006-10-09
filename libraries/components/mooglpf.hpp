@@ -12,7 +12,7 @@ class MoogLPF {
 public:
   
   
-  MoogLPF::MoogLPF(unsigned long rate) 
+  MoogLPF::MoogLPF(uint32_t rate) 
     : m_rate(rate) {
     
   }
@@ -23,7 +23,7 @@ public:
   }
 
   
-  void MoogLPF::run(unsigned long samples, float* input, float* output,
+  void MoogLPF::run(uint32_t samples, float* input, float* output,
 		    float* frequency, float* exp_fm, float* resonance,
 		    float input_gain, float freq_ctrl, float exp_fm_gain,
 		    float res_ctrl, float res_gain, float poles, 
@@ -139,7 +139,7 @@ protected:
 
   
   float _c1, _c2, _c3, _c4, _c5, _w, _r;
-  unsigned long m_rate;
+  uint32_t m_rate;
   
 };
 

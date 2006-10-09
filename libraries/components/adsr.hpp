@@ -23,25 +23,27 @@
 #ifndef ADSR_HPP
 #define ADSR_HPP
 
+#include <stdint.h>
+
 
 /** A simple ADSR envelope generator. */
 class ADSR {
 public:
   
-  inline ADSR(unsigned long frame_rate);
+  inline ADSR(uint32_t frame_rate);
   
   /** Turn the envelope on (when a key is pressed). */
-  inline void on(unsigned long now);
+  inline void on(uint32_t now);
   
   /** Turn the envelope off (when a key is released). */
-  inline void off(unsigned long now);
+  inline void off(uint32_t now);
   
   /** Turn the envelope off without a long release time. Useful if you want
       to stop all sound, but still want a short release to avoid clicks. */
-  inline void fast_off(unsigned long now);
+  inline void fast_off(uint32_t now);
   
   /** Compute one sample. */
-  inline float run(unsigned long now, float level, float att,
+  inline float run(uint32_t now, float level, float att,
                    float dec, float sus, float rel);
 
 protected:
@@ -54,7 +56,7 @@ protected:
     Release,
     FastRelease
   } m_state;
-  unsigned long m_segment_start_time;
+  uint32_t m_segment_start_time;
   float m_segment_start_value;
   float m_inv_rate;
   float m_last_value;
@@ -62,20 +64,20 @@ protected:
 };
 
 
-ADSR::ADSR(unsigned long frame_rate) 
+ADSR::ADSR(uint32_t frame_rate) 
   : m_state(Off), m_inv_rate(1.0f / frame_rate) {
   
 }
 
 
-void ADSR::on(unsigned long now) {
+void ADSR::on(uint32_t now) {
   m_state = Attack;
   m_segment_start_time = now;
   m_segment_start_value = m_last_value;
 }
 
 
-void ADSR::off(unsigned long now) {
+void ADSR::off(uint32_t now) {
   if (m_state != Off && m_state != Release) {
     m_state = Release;
     m_segment_start_time = now;
@@ -84,7 +86,7 @@ void ADSR::off(unsigned long now) {
 }
  
 
-void ADSR::fast_off(unsigned long now) {
+void ADSR::fast_off(uint32_t now) {
   if (m_state != Off && m_state != FastRelease) {
     m_state = FastRelease;
     m_segment_start_time = now;
@@ -93,7 +95,7 @@ void ADSR::fast_off(unsigned long now) {
 }
  
 
-float ADSR::run(unsigned long now, float level, float att, 
+float ADSR::run(uint32_t now, float level, float att, 
                 float dec, float sus, float rel) {
   float tmp = 0;
 

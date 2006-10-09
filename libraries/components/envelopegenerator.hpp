@@ -115,13 +115,13 @@ static inline double env_sigmoid(double phase) {
 class EnvelopeGenerator {
 public:
 
-  inline EnvelopeGenerator(unsigned long frame_rate);
+  inline EnvelopeGenerator(uint32_t frame_rate);
   
-  inline void on(unsigned long now);
-  inline void off(unsigned long now);
+  inline void on(uint32_t now);
+  inline void off(uint32_t now);
   inline void set_string(const string& str);
   
-  inline LADSPA_Data run(unsigned long now, 
+  inline LADSPA_Data run(uint32_t now, 
 			 LADSPA_Data speed, LADSPA_Data modulation);
 
 private:
@@ -129,9 +129,9 @@ private:
   LADSPA_Data m_inv_rate;
   int m_stage;
   LADSPA_Data m_phase;
-  unsigned long m_last_t;
+  uint32_t m_last_t;
   LADSPA_Data m_start_v;
-  unsigned long m_start_t;
+  uint32_t m_start_t;
   LADSPA_Data m_last_value;
   
   EnvelopeData d;
@@ -139,7 +139,7 @@ private:
 };
 
 
-EnvelopeGenerator::EnvelopeGenerator(unsigned long frame_rate) {
+EnvelopeGenerator::EnvelopeGenerator(uint32_t frame_rate) {
   m_inv_rate = 1.0f / frame_rate;
   m_last_value = 0.0f;
   m_stage = -1;
@@ -147,7 +147,7 @@ EnvelopeGenerator::EnvelopeGenerator(unsigned long frame_rate) {
 }
 
 
-void EnvelopeGenerator::on(unsigned long now) {
+void EnvelopeGenerator::on(uint32_t now) {
   m_stage = 0;
   m_phase = 0;
   m_start_t = now;
@@ -155,7 +155,7 @@ void EnvelopeGenerator::on(unsigned long now) {
 }
 
 
-void EnvelopeGenerator::off(unsigned long now) {
+void EnvelopeGenerator::off(uint32_t now) {
   if (d.loop_end != -1 && m_stage <= d.loop_end) {
     m_start_t = now;
     m_start_v = m_last_value;
@@ -183,8 +183,8 @@ void EnvelopeGenerator::set_string(const string& str) {
 }
 
 
-LADSPA_Data EnvelopeGenerator::run(unsigned long now, LADSPA_Data speed,
-				   LADSPA_Data modulation) {
+LADSPA_Data EnvelopeGenerator::run(uint32_t now, LADSPA_Data speed,
+                                   LADSPA_Data modulation) {
   // try to get the lock before we touch the data
   if (pthread_mutex_trylock(&m_mutex))
     return m_last_value;

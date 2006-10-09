@@ -37,7 +37,7 @@ using namespace std;
 class RandomSineOscillator {
 public:
   
-  inline RandomSineOscillator(unsigned long frame_rate);
+  inline RandomSineOscillator(uint32_t frame_rate);
   
   inline void reset();
   inline LADSPA_Data run(LADSPA_Data frequency);
@@ -56,7 +56,7 @@ protected:
 };
 
 
-RandomSineOscillator::RandomSineOscillator(unsigned long frame_rate)
+RandomSineOscillator::RandomSineOscillator(uint32_t frame_rate)
   : m_phase(0), m_phase_step(0), m_cached_frequency(0), 
     m_limit_frequency(LADSPA_Data(frame_rate * 0.5)),
     m_inv_rate(1.0 / frame_rate), m_harmonic(1) {

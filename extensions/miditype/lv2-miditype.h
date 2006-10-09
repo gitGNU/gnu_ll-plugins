@@ -43,7 +43,7 @@
     @code
     
       size_t buffer_offset = 0;
-      unsigned long i;
+      uint32_t i;
       for (i = 0; i < midi_data->event_count; ++i) {
         double timestamp = *(double*)(midi_data->data + buffer_offset);
         buffer_offset += sizeof(double);
@@ -66,13 +66,13 @@ typedef struct {
       from the run() function. Any initial value should be ignored by the
       plugin.
   */
-  unsigned long  event_count;
+  uint32_t  event_count;
   
   /** The size of the data buffer in bytes. It is set by the host and may not
       be changed by the plugin. The host is allowed to change this between
       run() calls.
   */
-  unsigned long  capacity;
+  uint32_t  capacity;
   
   /** The size of the initial part of the data buffer that actually contains
       data.
@@ -85,7 +85,7 @@ typedef struct {
       buffer (including timestamps and size fields) before returning from
       the run() function. Any initial value should be ignored by the plugin.
   */
-  unsigned long  size;
+  uint32_t  size;
   
   /** The data buffer that is used to store MIDI events. The events are packed
       after each other, and the format of each event is as follows:

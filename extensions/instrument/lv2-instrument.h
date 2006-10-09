@@ -100,7 +100,7 @@ typedef struct {
       programs should use the macros at the end of this header file to
       transform MIDI bank and program numbers to plain program numbers.
   */
-  unsigned long number;
+  uint32_t number;
   
   /** Name of the program. 
    */
@@ -208,7 +208,7 @@ typedef struct {
       This function does not need to be realtime safe.
   */
   const LV2_ProgramDescriptor *(*get_program)(LV2_Handle instance, 
-                                              unsigned long index);
+                                              uint32_t index);
   
   
   /** This member is a function pointer that selects a new program
@@ -243,7 +243,7 @@ typedef struct {
       If the plugin supports the hardRtCapable property, this function
       needs to be realtime safe.
   */
-  void (*select_program)(LV2_Handle instance, unsigned long program);
+  void (*select_program)(LV2_Handle instance, uint32_t program);
   
   
 } LV2_InstrumentDescriptor;

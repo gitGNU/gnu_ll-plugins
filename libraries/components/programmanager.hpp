@@ -62,12 +62,12 @@ public:
   
   
   /** Apply a program to the given port buffer vector. */
-  inline void apply_program(std::vector<void*>& ports, unsigned long program) {
+  inline void apply_program(std::vector<void*>& ports, uint32_t program) {
     size_t index = find_program(program);
     if (index >= m_programs.size())
       return;
-    std::map<unsigned long, float>::const_iterator iter;
-    const std::map<unsigned long, float>& values = m_programs[index].values;
+    std::map<uint32_t, float>::const_iterator iter;
+    const std::map<uint32_t, float>& values = m_programs[index].values;
     for (iter = values.begin(); iter != values.end(); ++iter) {
       if (iter->first < ports.size())
         *static_cast<float*>(ports[iter->first]) = iter->second;
@@ -76,8 +76,8 @@ public:
   
   
   /** Add a new program. */
-  inline void add_program(unsigned long program, const std::string& name,
-                          const std::map<unsigned long, float>& values) {
+  inline void add_program(uint32_t program, const std::string& name,
+                          const std::map<uint32_t, float>& values) {
     size_t index = find_program(program);
     if (index >= m_programs.size()) {
       Program p;
@@ -91,7 +91,7 @@ public:
   
   
   /** Remove an existing program. */
-  inline void remove_program(unsigned long program) {
+  inline void remove_program(uint32_t program) {
     size_t index = find_program(program);
     if (index < m_programs.size())
       m_programs.erase(m_programs.begin() + index);
@@ -114,7 +114,7 @@ public:
   
   
   /** Get the port values for a program. */
-  const std::map<unsigned long, float>* get_values(unsigned long program) {
+  const std::map<uint32_t, float>* get_values(uint32_t program) {
     size_t index = find_program(program);
     if (index < m_programs.size()) {
       return &m_programs[index].values;
@@ -126,7 +126,7 @@ public:
 protected:
   
   
-  inline size_t find_program(unsigned long number) {
+  inline size_t find_program(uint32_t number) {
     if (m_programs.empty())
       return 0;
     size_t a = 0;
@@ -148,8 +148,8 @@ protected:
   
   struct Program {
     std::string name;
-    unsigned long number;
-    std::map<unsigned long, float> values;
+    uint32_t number;
+    std::map<uint32_t, float> values;
   };
   
   

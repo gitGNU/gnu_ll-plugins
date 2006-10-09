@@ -7,7 +7,7 @@
 class PDOsc {
 public:
   
-  inline PDOsc(unsigned long rate);
+  inline PDOsc(uint32_t rate);
   inline void reset();
   inline float run(float freq, int shape, float amount);
 
@@ -19,7 +19,7 @@ protected:
 };
 
 
-PDOsc::PDOsc(unsigned long rate)
+PDOsc::PDOsc(uint32_t rate)
   : m_phase(0.25),
     m_inv_rate(1.0 / rate) {
   
@@ -66,8 +66,23 @@ float PDOsc::run(float freq, int shape, float amount) {
     if (m_phase < amount)
       dphase = 0.25;
     else
-      dphase = 0.25 + (m_phase - amount) / (2 * (1 - amount));
+      dphase = 0.25 + 0.5 * (m_phase - amount) / (1 - amount);
     break;
+
+  case 4:
+    if (m_phase < amount)
+      dphase = 0.25;
+    else
+      dphase = 0.25 + 2 * (m_phase - amount) / (1 - amount);
+    break;
+
+  case 5:
+    if (m_phase < amount)
+      dphase = 0.25;
+    else
+      dphase = 0.25 + 3 * (m_phase - amount) / (1 - amount);
+    break;
+
   }
   
   return cos(dphase * 2 * M_PI);

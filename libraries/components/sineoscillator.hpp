@@ -28,7 +28,7 @@
 #include <cmath>
 
 #define SINE_TABLE_BITS 14
-#define SINE_TABLE_SHIFT (8 * sizeof(unsigned long) - SINE_TABLE_BITS)
+#define SINE_TABLE_SHIFT (8 * sizeof(uint32_t) - SINE_TABLE_BITS)
 
 
 using namespace std;
@@ -38,7 +38,7 @@ using namespace std;
 class SineOscillator {
 public:
   
-  inline SineOscillator(unsigned long frame_rate);
+  inline SineOscillator(uint32_t frame_rate);
   
   /** Reset the phase to 0. */
   inline void reset();
@@ -54,8 +54,8 @@ protected:
   /** Fill the sine table (only done once, the table is a static member). */
   static inline void initialise_table();
   
-  unsigned long m_phase;
-  unsigned long m_phase_step;
+  uint32_t m_phase;
+  uint32_t m_phase_step;
   float m_cached_frequency;
   const float m_limit_frequency;
   float m_phase_step_scalar;
@@ -71,7 +71,7 @@ float SineOscillator::m_phase_step_base;
 bool SineOscillator::m_initialised(false);
 
 
-SineOscillator::SineOscillator(unsigned long frame_rate)
+SineOscillator::SineOscillator(uint32_t frame_rate)
   : m_phase(0), m_phase_step(0), m_cached_frequency(0), 
     m_limit_frequency(float(frame_rate * 0.5)) {
 
@@ -98,7 +98,7 @@ float SineOscillator::run(float frequency) {
 void SineOscillator::set_frequency(float frequency) {
   if (frequency != m_cached_frequency) {
     if (frequency >= 0 && frequency < m_limit_frequency) 
-      m_phase_step = (unsigned long)(m_phase_step_scalar * frequency);
+      m_phase_step = (uint32_t)(m_phase_step_scalar * frequency);
     else 
       m_phase_step = 0;
     m_cached_frequency = frequency;
@@ -107,11 +107,11 @@ void SineOscillator::set_frequency(float frequency) {
 
 
 void SineOscillator::initialise_table() {
-  unsigned long lTableSize = 1 << SINE_TABLE_BITS;
+  uint32_t lTableSize = 1 << SINE_TABLE_BITS;
   double dShift = (double(M_PI) * 2) / lTableSize;
-  for (unsigned long lIndex = 0; lIndex < lTableSize; lIndex++)
+  for (uint32_t lIndex = 0; lIndex < lTableSize; lIndex++)
     m_sine[lIndex] = float(sin(dShift * lIndex));
-  m_phase_step_base = (float)pow(2.0f, int(sizeof(unsigned long) * 8));
+  m_phase_step_base = (float)pow(2.0f, int(sizeof(uint32_t) * 8));
 }
 
 

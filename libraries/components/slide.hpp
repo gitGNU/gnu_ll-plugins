@@ -27,25 +27,25 @@
 class Slide {
 public:
   
-  inline Slide(unsigned long frame_rate);
+  inline Slide(uint32_t frame_rate);
   
-  inline float run(float input, unsigned long slide_time);
+  inline float run(float input, uint32_t slide_time);
   
 protected:
   
-  unsigned long m_last_change;
+  uint32_t m_last_change;
   float m_from;
   float m_to;
   float m_last_output;
 };
 
 
-Slide::Slide(unsigned long) : m_from(0), m_to(0), m_last_output(0) {
+Slide::Slide(uint32_t) : m_from(0), m_to(0), m_last_output(0) {
 
 }
 
 
-float Slide::run(float input, unsigned long slide_time) {
+float Slide::run(float input, uint32_t slide_time) {
   if (input != m_to) {
     m_from = m_last_output;
     m_to = input;

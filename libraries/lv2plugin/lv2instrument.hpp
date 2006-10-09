@@ -40,7 +40,7 @@ public:
   
   /** This constructor is needed to initialise the port vector with the
       correct number of ports. */
-  LV2Instrument(unsigned long ports) : LV2Plugin(ports) { }
+  LV2Instrument(uint32_t ports) : LV2Plugin(ports) { }
   
   /** We need a virtual destructor since we have virtual member functions. */
   virtual ~LV2Instrument() { }
@@ -56,12 +56,12 @@ public:
   }
   
   /** List the available program at a given index. */
-  virtual const LV2_ProgramDescriptor* get_program(unsigned long index) { 
+  virtual const LV2_ProgramDescriptor* get_program(uint32_t index) { 
     return 0; 
   }
   
   /** Select a program. Should be RT safe if the plugin is. */
-  virtual void select_program(unsigned long program) { }
+  virtual void select_program(uint32_t program) { }
   
 protected:
   
@@ -82,9 +82,9 @@ namespace LV2SupportFunctions {
                                char*** keys, char*** filepaths);
   
   const LV2_ProgramDescriptor* get_program(LV2_Handle instance, 
-                                           unsigned long index);
+                                           uint32_t index);
   
-  void select_program(LV2_Handle instance, unsigned long program);
+  void select_program(LV2_Handle instance, uint32_t program);
   
   const LV2_InstrumentDescriptor* get_instrument_descriptor();
   
@@ -94,7 +94,7 @@ namespace LV2SupportFunctions {
      it directly. */
   template <class T>
   LV2_Handle create_instrument_instance(const LV2_Descriptor* descriptor,
-                                        unsigned long sample_rate,
+                                        uint32_t sample_rate,
                                         const char* bundle_path,
                                         const LV2_Host_Feature** host_features) {
     // check that the host supports the Instrument extension
@@ -136,7 +136,7 @@ namespace LV2SupportFunctions {
     @param ports The number of ports for this plugin.
 */
 template <class T>
-size_t register_lv2_inst(const std::string& uri, unsigned long ports = 0) {
+size_t register_lv2_inst(const std::string& uri, uint32_t ports = 0) {
   using namespace LV2SupportFunctions;
   LV2_Descriptor desc;
   std::memset(&desc, 0, sizeof(LV2_Descriptor));

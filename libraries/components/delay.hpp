@@ -26,22 +26,22 @@
 
 class Delay {
 public:
-  inline Delay(unsigned long frame_rate, float max_delay);
+  inline Delay(uint32_t frame_rate, float max_delay);
   inline ~Delay();
   inline void reset();
   inline float run(float input, float time, 
                    float feedback);
 protected:
   
-  unsigned long m_line_size;
+  uint32_t m_line_size;
   float* m_delay_line;
-  unsigned long m_frame_rate;
-  unsigned long m_write_pos;
+  uint32_t m_frame_rate;
+  uint32_t m_write_pos;
 };
 
 
-Delay::Delay(unsigned long frame_rate, float max_delay)
-  : m_line_size((unsigned long)(max_delay * frame_rate + 1)),
+Delay::Delay(uint32_t frame_rate, float max_delay)
+  : m_line_size((uint32_t)(max_delay * frame_rate + 1)),
     m_delay_line(new float[m_line_size]),
     m_write_pos(0),
     m_frame_rate(frame_rate) {
@@ -62,8 +62,8 @@ void Delay::reset() {
 float Delay::run(float input, float time,
                  float feedback) {
   m_write_pos = (m_write_pos + 1) % m_line_size;
-  unsigned long read_pos = (m_write_pos + m_line_size - 
-                            (unsigned long)(time * m_frame_rate)) % m_line_size;
+  uint32_t read_pos = (m_write_pos + m_line_size - 
+                       (uint32_t)(time * m_frame_rate)) % m_line_size;
   m_delay_line[m_write_pos] = input + feedback * m_delay_line[read_pos];
   return m_delay_line[read_pos];
 }
