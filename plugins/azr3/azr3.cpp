@@ -185,7 +185,7 @@ void AZR3::select_program(uint32_t program) {
   
   for(uint32_t x = 0; x < kNumParams; x++) {
     //cerr<<"Setting parameter "<<x<<" to "<<ap.p[x]<<" from "<<last_value[x]<<endl;
-    *static_cast<float*>(m_ports[x]) = ap.p[x];
+    *p(x) = ap.p[x];
     if (slow_controls[x]) {
       //cerr<<"Sending port change to worker thread: "<<x<<" -> "<<ap.p[x]<<endl;
       PortChange pc(x, ap.p[x]);
@@ -215,9 +215,9 @@ void AZR3::run(uint32_t sampleFrames) {
     - speakers
 	*/
   
-  midi_ptr = static_cast<LV2_MIDI*>(m_ports[63])->data;
-	float* out1 = static_cast<float*>(m_ports[64]);
-	float* out2 = static_cast<float*>(m_ports[65]);
+  midi_ptr = p<LV2_MIDI>(63)->data;
+	float* out1 = p(64);
+	float* out2 = p(65);
   
   if (pthread_mutex_trylock(&m_notemaster_lock)) {
     memset(out1, 0, sizeof(float) * sampleFrames);
@@ -291,18 +291,18 @@ void AZR3::run(uint32_t sampleFrames) {
   }
   
   // set volumes
-  n1.set_volume(*static_cast<float*>(m_ports[n_vol1]) * 0.3f, 0);
-  n1.set_volume(*static_cast<float*>(m_ports[n_vol2]) * 0.4f, 1);
-  n1.set_volume(*static_cast<float*>(m_ports[n_vol3]) * 0.6f, 2);
+  n1.set_volume(*p(n_vol1) * 0.3f, 0);
+  n1.set_volume(*p(n_vol2) * 0.4f, 1);
+  n1.set_volume(*p(n_vol3) * 0.6f, 2);
   
   // has the distortion switch changed?
-  if (*static_cast<float*>(m_ports[n_mrvalve]) != oldmrvalve) {
+  if (*p(n_mrvalve) != oldmrvalve) {
     odchanged = true;
-    oldmrvalve = *static_cast<float*>(m_ports[n_mrvalve]);
+    oldmrvalve = *p(n_mrvalve);
   }
   
   // compute distortion parameters
-  float value = *static_cast<float*>(m_ports[n_drive]);
+  float value = *p(n_drive);
   bool do_dist;
   if (value > 0)
     do_dist = true;
@@ -313,43 +313,42 @@ void AZR3::run(uint32_t sampleFrames) {
   float i_dist = 1 / dist;
   float dist4 = 4 * dist;
   float dist8 = 8 * dist;
-  fuzz_filt.setparam(800 + *static_cast<float*>(m_ports[n_tone]) *
+  fuzz_filt.setparam(800 + *p(n_tone) *
                      3000, 0.7f, samplerate);
-  value = *static_cast<float*>(m_ports[n_mix]);
+  value = *p(n_mix);
   if (value != oldmix) {
     odmix = value;
-    if (*static_cast<float*>(m_ports[n_mrvalve]) == 1)
+    if (*p(n_mrvalve) == 1)
       odchanged = true;
   }
 
   // speed control port
   bool fastmode;
-  if (*static_cast<float*>(m_ports[n_speed]) > 0.5f)
+  if (*p(n_speed) > 0.5f)
     fastmode = true;
   else
     fastmode = false;
   
   // different rotation speeds
-  float lslow = 10 * *static_cast<float*>(m_ports[n_l_slow]);
-  float lfast = 10 * *static_cast<float*>(m_ports[n_l_fast]);
-  float uslow = 10 * *static_cast<float*>(m_ports[n_u_slow]);
-  float ufast = 10 * *static_cast<float*>(m_ports[n_u_fast]);
+  float lslow = 10 * *p(n_l_slow);
+  float lfast = 10 * *p(n_l_fast);
+  float uslow = 10 * *p(n_u_slow);
+  float ufast = 10 * *p(n_u_fast);
   
   // belt (?)
-  value = *static_cast<float*>(m_ports[n_belt]);
+  value = *p(n_belt);
   float ubelt_up = (value * 3 + 1) * 0.012f;
   float ubelt_down = (value * 3 + 1) * 0.008f;
   float lbelt_up = (value * 3 + 1) * 0.0045f;
   float lbelt_down = (value * 3 + 1) * 0.0035f;
   
-  if (oldspread != *static_cast<float*>(m_ports[n_spread])) {
+  if (oldspread != *p(n_spread)) {
     lfos_ok = false;
-    oldspread = *static_cast<float*>(m_ports[n_spread]);
+    oldspread = *p(n_spread);
   }
   
   // keyboard split
-  splitpoint = (long)(*static_cast<float*>(m_ports[n_splitpoint])
-                      * 128);
+  splitpoint = (long)(*p(n_splitpoint) * 128);
   
 	int	x;
   float last_out1, last_out2;
@@ -445,13 +444,13 @@ void AZR3::run(uint32_t sampleFrames) {
         // hold pedal
         else if (evt[1] == 0x40) {
           pedal = evt[2] >= 64;
-          if (*static_cast<float*>(m_ports[n_pedalspeed]) < 0.5)
+          if (*p(n_pedalspeed) < 0.5)
             n1.set_pedal(evt[2], channel);
         }
         break;
         
       case evt_pitch: {
-        float bender = *static_cast<float*>(m_ports[n_bender]);
+        float bender = *p(n_bender);
         float pitch = (float)(evt[2] * 128 + evt[1]);
         if (pitch > 8192 + 600) {
           float p = pitch / 8192 - 1;
@@ -472,7 +471,7 @@ void AZR3::run(uint32_t sampleFrames) {
     }
     
     // if n_pedalspeed is on, use the hold pedal for speed
-    if (*static_cast<float*>(m_ports[n_pedalspeed]) >= 0.5)
+    if (*p(n_pedalspeed) >= 0.5)
       fastmode = pedal;
     
 		float* p_mono = n1.clock();
@@ -510,9 +509,9 @@ void AZR3::run(uint32_t sampleFrames) {
 		
 		// smoothing of OD switch
 		if(odchanged && samplecount % 10 == 0) {
-			if(*static_cast<float*>(m_ports[n_mrvalve]) > 0.5) {
+			if(*p(n_mrvalve) > 0.5) {
 				odmix += 0.05f;
-				if (odmix >= *static_cast<float*>(m_ports[n_mix]))
+				if (odmix >= *p(n_mix))
 					odchanged = false;
 			}
 			else {
@@ -565,15 +564,14 @@ void AZR3::run(uint32_t sampleFrames) {
       effect, so we can switch warmth off and on without adding another 
       parameter.
 		*/
-		if (*static_cast<float*>(m_ports[n_mrvalve]) > 0.5 || 
-                             odchanged) {
+		if (*p(n_mrvalve) > 0.5 || odchanged) {
 			if (do_dist) {
 				body_filt.clock(mono);
 				postbody_filt.clock(atanf(body_filt.lp() * dist8) * 6);
 				fuzz = atanf(mono * dist4) * 0.25f + 
           postbody_filt.bp() + postbody_filt.hp();
         
-				if (_fabsf(mono) > *static_cast<float*>(m_ports[n_set]))
+				if (_fabsf(mono) > *p(n_set))
 					fuzz = atanf(fuzz * 10);
 				fuzz_filt.clock(fuzz);
 				mono = ((fuzz_filt.lp() * odmix * sin_dist + mono * (n2_odmix)) * 
@@ -612,7 +610,7 @@ void AZR3::run(uint32_t sampleFrames) {
       This should make it sound more realistic.
 		*/
 		
-		if (*static_cast<float*>(m_ports[n_speakers]) > 0.5) {
+		if (*p(n_speakers) > 0.5) {
 			if (samplecount % 100 == 0) {
         if (fastmode) {
 					if (lspeed < lfast)
@@ -638,8 +636,7 @@ void AZR3::run(uint32_t sampleFrames) {
 
 				//recalculate mic positions when "spread" has changed
 				if(!lfos_ok) {
-					float s = (*static_cast<float*>(m_ports[n_spread])
-                     + 0.5f) * 0.8f;
+					float s = (*p(n_spread) + 0.5f) * 0.8f;
 					spread = (s) * 2 + 1;
 					spread2 = (1 - spread) / 2;
           // this crackles - use offset_phase instead
@@ -720,7 +717,7 @@ void AZR3::run(uint32_t sampleFrames) {
 				}
 				
 				// additional delay lines in complex mode
-				if(*static_cast<float*>(m_ports[n_complex]) > 0.5f) {
+				if(*p(n_complex) > 0.5f) {
 					delay4.set_delay(llfo_d_out + 15);
 					delay3.set_delay(llfo_d_nout + 25);
 				}
@@ -768,7 +765,7 @@ void AZR3::run(uint32_t sampleFrames) {
 			
 
 			// We use two additional delay lines in "complex" mode
-			if(*static_cast<float*>(m_ports[n_complex]) > 0.5f) {
+			if (*p(n_complex) > 0.5f) {
 				right = right * 0.3f + 1.5f * er_r + 
           delay1.clock(right) + delay3.clock(er_r);
 				left = left * 0.3f + 1.5f * er_l + 
@@ -1107,7 +1104,7 @@ void AZR3::calc_click() {
 
 unsigned char* AZR3::event_clock(uint32_t offset) {
   
-  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[63]);
+  LV2_MIDI* midi = p<LV2_MIDI>(63);
   
   // Are there any events left in the buffer?
   if (midi_ptr - midi->data >= midi->size)

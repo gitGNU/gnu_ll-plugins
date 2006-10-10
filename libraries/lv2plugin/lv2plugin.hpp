@@ -114,6 +114,17 @@ public:
   
 protected:
   
+  /** Use this as a shorthand to access and cast port buffers. */
+  template <typename T> inline T* p(uint32_t port) {
+    return reinterpret_cast<T*>(m_ports[port]);
+  }
+  
+  /** This is needed because default template parameters aren't allowed for
+      template functions. */
+  inline float* p(uint32_t port) {
+    return reinterpret_cast<float*>(m_ports[port]);
+  }
+  
   /** This vector contains pointers to all port buffers. Use it to access
       the port buffers in your run() function. */
   std::vector<void*> m_ports;

@@ -82,42 +82,42 @@ void SineShaper::run(unsigned long sample_count) {
   
   // get all the port values and buffers
   
-  float tune = *(((float*)m_ports[TUN])) * pow(2.0f, *(((float*)m_ports[OCT])));
-  float subtune = *(((float*)m_ports[SUB_TUN])) * pow(2.0f, *(((float*)m_ports[SUB_OCT])));
-  float& osc_mix = *(((float*)m_ports[OSC_MIX]));
+  float tune = *p(TUN) * pow(2.0f, *p(OCT));
+  float subtune = *p(SUB_TUN) * pow(2.0f, *p(SUB_OCT));
+  float& osc_mix = *p(OSC_MIX);
 
-  float& porta_on = *(((float*)m_ports[PRT_ON]));
-  float& porta_time = *(((float*)m_ports[PRT_TIM]));
-  float& vib_freq = *(((float*)m_ports[VIB_FRQ]));
-  float& vib_depth = *(((float*)m_ports[VIB_DPT]));
-  float& trem_freq = *(((float*)m_ports[TRM_FRQ]));
-  float& trem_depth = *(((float*)m_ports[TRM_DPT]));
+  float& porta_on = *p(PRT_ON);
+  float& porta_time = *p(PRT_TIM);
+  float& vib_freq = *p(VIB_FRQ);
+  float& vib_depth = *p(VIB_DPT);
+  float& trem_freq = *p(TRM_FRQ);
+  float& trem_depth = *p(TRM_DPT);
   
-  float& shp_env = *(((float*)m_ports[SHP_ENV]));
-  float& shp_total = *(((float*)m_ports[SHP_TOT]));
-  float& shp_split = *(((float*)m_ports[SHP_SPL]));
-  float shp_shift = *(((float*)m_ports[SHP_SHF])) * M_PI / 2;
-  float& lfo_freq = *(((float*)m_ports[LFO_FRQ]));
-  float& lfo_depth = *(((float*)m_ports[LFO_DPT]));
+  float& shp_env = *p(SHP_ENV);
+  float& shp_total = *p(SHP_TOT);
+  float& shp_split = *p(SHP_SPL);
+  float shp_shift = *p(SHP_SHF) * M_PI / 2;
+  float& lfo_freq = *p(LFO_FRQ);
+  float& lfo_depth = *p(LFO_DPT);
   
-  float& att = *(((float*)m_ports[ATT]));
-  float& dec = *(((float*)m_ports[DEC]));
-  float& sus = *(((float*)m_ports[SUS]));
-  float& rel = *(((float*)m_ports[REL]));
+  float& att = *p(ATT);
+  float& dec = *p(DEC);
+  float& sus = *p(SUS);
+  float& rel = *p(REL);
 
-  float& amp_env = *(((float*)m_ports[AMP_ENV]));
-  float& drive = *(((float*)m_ports[DRIVE]));
-  float& gain = *(((float*)m_ports[GAIN]));
+  float& amp_env = *p(AMP_ENV);
+  float& drive = *p(DRIVE);
+  float& gain = *p(GAIN);
 
-  float& delay_time = *(((float*)m_ports[DEL_TIM]));
-  float& delay_feedback = *(((float*)m_ports[DEL_FB]));
-  float& delay_mix = *(((float*)m_ports[DEL_MIX]));
+  float& delay_time = *p(DEL_TIM);
+  float& delay_feedback = *p(DEL_FB);
+  float& delay_mix = *p(DEL_MIX);
   
-  bool tie_overlapping = (*(((float*)m_ports[PRT_TIE])) > 0.5);
+  bool tie_overlapping = (*p(PRT_TIE) > 0.5);
   
-  float* output = ((float*)m_ports[OUT]);
+  float* output = p(OUT);
 
-  LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[MIDI]);
+  LV2_MIDI* midi = p<LV2_MIDI>(MIDI);
   
   
   static const unsigned long param_slide_time = 60;
