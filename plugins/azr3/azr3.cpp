@@ -227,36 +227,36 @@ void AZR3::run(uint32_t sampleFrames) {
   
   // send slow port changes to the worker thread
   for (int i = 0; i < kNumParams; ++i) {
-    if (slow_controls[i] && *(float*)m_ports[i] != last_value[i]) {
-      PortChange pc(i, *(float*)m_ports[i]);
+    if (slow_controls[i] && *p(i) != last_value[i]) {
+      PortChange pc(i, *p(i));
       m_queue.write(&pc);
       sem_post(&m_qsem);
-      last_value[i] = *(float*)m_ports[i];
+      last_value[i] = *p(i);
     }
   }
   
   // vibrato handling
-  if (*(float*)m_ports[n_1_vibrato] != last_value[n_1_vibrato]) {
+  if (*p(n_1_vibrato) != last_value[n_1_vibrato]) {
     vibchanged1 = true;
-    last_value[n_1_vibrato] = *(float*)m_ports[n_1_vibrato];
+    last_value[n_1_vibrato] = *p(n_1_vibrato);
   }
-  if (*(float*)m_ports[n_2_vibrato] != last_value[n_2_vibrato]) {
+  if (*p(n_2_vibrato) != last_value[n_2_vibrato]) {
     vibchanged2 = true;
-    last_value[n_2_vibrato] = *(float*)m_ports[n_2_vibrato];
+    last_value[n_2_vibrato] = *p(n_2_vibrato);
   }
-  if (*(float*)m_ports[n_1_vmix] != last_value[n_1_vmix]) {
-    if (*(float*)m_ports[n_1_vibrato] == 1) {
-      vmix1 = *(float*)m_ports[n_1_vmix];
+  if (*p(n_1_vmix) != last_value[n_1_vmix]) {
+    if (*p(n_1_vibrato) == 1) {
+      vmix1 = *p(n_1_vmix);
       vibchanged1 = true;
     }
-    last_value[n_1_vmix] = *(float*)m_ports[n_1_vmix];
+    last_value[n_1_vmix] = *p(n_1_vmix);
   }
-  if (*(float*)m_ports[n_2_vmix] != last_value[n_2_vmix]) {
-    if (*(float*)m_ports[n_2_vibrato] == 1) {
-      vmix2 = *(float*)m_ports[n_2_vmix];
+  if (*p(n_2_vmix) != last_value[n_2_vmix]) {
+    if (*p(n_2_vibrato) == 1) {
+      vmix2 = *p(n_2_vmix);
       vibchanged2 = true;
     }
-    last_value[n_2_vmix] = *(float*)m_ports[n_2_vmix];
+    last_value[n_2_vmix] = *p(n_2_vmix);
   }
   
   // compute click
@@ -264,7 +264,7 @@ void AZR3::run(uint32_t sampleFrames) {
   
   // set percussion parameters
   {
-    int v = (int)(*(float*)m_ports[n_perc] * 10);
+    int v = (int)(*p(n_perc) * 10);
     float pmult;
     if(v < 1)
       pmult = 0;
@@ -286,8 +286,7 @@ void AZR3::run(uint32_t sampleFrames) {
       pmult = 12;
     else
       pmult = 16;
-    n1.set_percussion(1.5f * *(float*)m_ports[n_percvol], 
-                      pmult, *(float*)m_ports[n_percfade]);
+    n1.set_percussion(1.5f * *p(n_percvol), pmult, *p(n_percfade));
   }
   
   // set volumes
@@ -378,7 +377,7 @@ void AZR3::run(uint32_t sampleFrames) {
 			case evt_noteon: {
         unsigned char note = evt[1];
         bool percenable = false;
-        float sustain = *(float*)m_ports[n_sustain] + .0001f;
+        float sustain = *p(n_sustain) + .0001f;
 					
         // here we choose the correct wavetable according to the played note
 #define foldstart 80
@@ -407,21 +406,21 @@ void AZR3::run(uint32_t sampleFrames) {
           tbl = &wavetable[channel * WAVETABLESIZE * TABLES_PER_CHANNEL];
         
         if (channel == 0) {
-          if (*(float*)m_ports[n_1_perc] > 0)
+          if (*p(n_1_perc) > 0)
             percenable = true;
-          if (*(float*)m_ports[n_1_sustain] < 0.5f)
+          if (*p(n_1_sustain) < 0.5f)
             sustain = 0;
         }
         else if (channel == 1) {
-          if (*(float*)m_ports[n_2_perc] > 0)
+          if (*p(n_2_perc) > 0)
             percenable = true;
-          if (*(float*)m_ports[n_2_sustain] < 0.5f)
+          if (*p(n_2_sustain) < 0.5f)
             sustain = 0;
         }
         else if (channel == 2) {
-          if (*(float*)m_ports[n_3_perc] > 0)
+          if (*p(n_3_perc) > 0)
             percenable = true;
-          if (*(float*)m_ports[n_3_sustain] < 0.5f)
+          if (*p(n_3_sustain) < 0.5f)
             sustain = 0;
         }
 					
@@ -481,9 +480,9 @@ void AZR3::run(uint32_t sampleFrames) {
     
 		// smoothing of vibrato switch 1
 		if (vibchanged1 && samplecount % 10 == 0) {
-			if(*(float*)m_ports[n_1_vibrato] == 1) {
+			if(*p(n_1_vibrato) == 1) {
 				vmix1 += 0.01f;
-				if (vmix1 >= *(float*)m_ports[n_1_vmix])
+				if (vmix1 >= *p(n_1_vmix))
 					vibchanged1 = false;
 			}
 			else {
@@ -495,9 +494,9 @@ void AZR3::run(uint32_t sampleFrames) {
 		
 		// smoothing of vibrato switch 2
 		if(vibchanged2 && samplecount % 10 == 0) {
-			if(*(float*)m_ports[n_2_vibrato] == 1) {
+			if(*p(n_2_vibrato) == 1) {
 				vmix2 += 0.01f;
-				if (vmix2 >= *(float*)m_ports[n_2_vmix])
+				if (vmix2 >= *p(n_2_vmix))
 					vibchanged2 = false;
 			}
 			else {
@@ -529,21 +528,21 @@ void AZR3::run(uint32_t sampleFrames) {
 		bool lfo_calced = false;
 		
 		// Vibrato 1
-		if(*(float*)m_ports[n_1_vibrato] == 1 || vibchanged1) {
+		if(*p(n_1_vibrato) == 1 || vibchanged1) {
 			if(samplecount % 5 == 0) {
 				viblfo = vlfo.clock();
 				lfo_calced = true;
-				vdelay1.set_delay(viblfo * 2 * *(float*)m_ports[n_1_vstrength]);
+				vdelay1.set_delay(viblfo * 2 * *p(n_1_vstrength));
 			}
 			mono1 = (1 - vmix1) * mono1 + vmix1 * vdelay1.clock(mono1);
 		}
 		
 		// Vibrato 2
-		if(*(float*)m_ports[n_2_vibrato] == 1 || vibchanged2) {
+		if(*p(n_2_vibrato) == 1 || vibchanged2) {
 			if(samplecount % 5 == 0) {
 				if(!lfo_calced)
 					viblfo = vlfo.clock();
-				vdelay2.set_delay(viblfo * 2 * *(float*)m_ports[n_2_vstrength]);
+				vdelay2.set_delay(viblfo * 2 * *p(n_2_vstrength));
 			}
 			mono2 = (1 - vmix2) * mono2 + vmix2 * vdelay2.clock(mono2);
 		}
@@ -780,11 +779,11 @@ void AZR3::run(uint32_t sampleFrames) {
 			left *= 0.033f;
 			
 			// spread crossover (emulates mic positions)
-			last_out1 = (left + cross1 * right) * *(float*)(m_ports[n_master]);
-			last_out2 = (right + cross1 * left) * *(float*)(m_ports[n_master]);
+			last_out1 = (left + cross1 * right) * *p(n_master);
+      last_out2 = (right + cross1 * left) * *p(n_master);
 		}
 		else {
-			last_out1 = last_out2 = mono * *(float*)(m_ports[n_master]);
+			last_out1 = last_out2 = mono * *p(n_master);
 		}
 		if(mute) {
 			last_out1 = 0;
@@ -1086,19 +1085,19 @@ void AZR3::calc_click() {
     error". Improve it if you can, but PLEAZE tell me how you
     did it...
   */
-	click[0] = *(float*)m_ports[n_click] *
-    (*(float*)m_ports[n_1_db1] + *(float*)m_ports[n_1_db2] + *(float*)m_ports[n_1_db3] + *(float*)m_ports[n_1_db4] +
-     *(float*)m_ports[n_1_db5] + *(float*)m_ports[n_1_db6] + *(float*)m_ports[n_1_db7] + *(float*)m_ports[n_1_db8] +
-     *(float*)m_ports[n_1_db9]) / 9;
+	click[0] = *p(n_click) *
+    (*p(n_1_db1) + *p(n_1_db2) + *p(n_1_db3) + *p(n_1_db4) +
+     *p(n_1_db5) + *p(n_1_db6) + *p(n_1_db7) + *p(n_1_db8) +
+     *p(n_1_db9)) / 9;
 
-	click[1] = *(float*)m_ports[n_click] *
-	(*(float*)m_ports[n_2_db1] + *(float*)m_ports[n_2_db2] + *(float*)m_ports[n_2_db3] + *(float*)m_ports[n_2_db4] +
-   *(float*)m_ports[n_2_db5] + *(float*)m_ports[n_2_db6] + *(float*)m_ports[n_2_db7]+*(float*)m_ports[n_2_db8] +
-   *(float*)m_ports[n_2_db9]) / 9;
+	click[1] = *p(n_click) *
+    (*p(n_2_db1) + *p(n_2_db2) + *p(n_2_db3) + *p(n_2_db4) +
+     *p(n_2_db5) + *p(n_2_db6) + *p(n_2_db7)+*p(n_2_db8) +
+     *p(n_2_db9)) / 9;
 
-	click[2] = *(float*)m_ports[n_click] *
-	(*(float*)m_ports[n_3_db1] + *(float*)m_ports[n_3_db2] + *(float*)m_ports[n_3_db3] + *(float*)m_ports[n_3_db4] + 
-   *(float*)m_ports[n_1_db5]) / 22;
+	click[2] = *p(n_click) *
+    (*p(n_3_db1) + *p(n_3_db2) + *p(n_3_db3) + *p(n_3_db4) + 
+     *p(n_1_db5)) / 22;
 }
 
 
