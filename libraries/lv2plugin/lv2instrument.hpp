@@ -91,7 +91,8 @@ namespace LV2SupportFunctions {
   
   /* This template function creates an instance of a plugin. It is used as
      the instantiate() callback in the LV2 descriptor. You should not use
-     it directly. */
+     it directly. It will return 0 if the host does not provide the 
+     Instrument extension. */
   template <class T>
   LV2_Handle create_instrument_instance(const LV2_Descriptor* descriptor,
                                         uint32_t sample_rate,
@@ -111,6 +112,22 @@ namespace LV2SupportFunctions {
     T* t = new T(sample_rate, bundle_path, host_features);
     return reinterpret_cast<LV2_Handle>(t);
   }
+
+  
+  /* This template function creates an instance of a plugin. It is used as
+     the instantiate() callback in the LV2 descriptor. You should not use
+     it directly. This function will return a non-NULL handle even if the host
+     does not provide the Instrument extension. */
+  template <class T>
+  LV2_Handle create_optional_instrument_instance(const LV2_Descriptor* descriptor,
+                                        uint32_t sample_rate,
+                                        const char* bundle_path,
+                                        const LV2_Host_Feature** host_features) {
+    // create and return an instance of the plugin
+    T* t = new T(sample_rate, bundle_path, host_features);
+    return reinterpret_cast<LV2_Handle>(t);
+  }
+  
   
 }  
   
@@ -127,7 +144,7 @@ namespace LV2SupportFunctions {
     @param uri The unique LV2 URI for this plugin.
 */
 template <class T>
-size_t register_lv2_inst(const std::string& uri) {
+size_t register_lv2_inst(const std::string& uri, bool optional = false) {
   using namespace LV2SupportFunctions;
   
   LV2_Descriptor desc;
@@ -135,7 +152,10 @@ size_t register_lv2_inst(const std::string& uri) {
   char* c_uri = new char[uri.size() + 1];
   std::memcpy(c_uri, uri.c_str(), uri.size() + 1);
   desc.URI = c_uri;
-  desc.instantiate = &create_instrument_instance<T>;
+  if (!optional)
+    desc.instantiate = &create_instrument_instance<T>;
+  else
+    desc.instantiate = &create_optional_instrument_instance<T>;
   desc.connect_port = &connect_port;
   desc.activate = &activate;
   desc.run = &run;

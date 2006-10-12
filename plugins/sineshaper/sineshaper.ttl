@@ -8,6 +8,7 @@
   doap:name "Sineshaper";
   doap:licence <http://usefulinc.com/doap/licenses/gpl>;
   ll:standaloneGui <sineshaper_gtk>;
+  lv2:requiredHostFeature ll:instrument-ext;
   
   lv2:port [
     a lv2:ControlRateInputPort;
