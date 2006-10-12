@@ -8,7 +8,6 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <dlfcn.h>
 
 #include <turtleparser.hpp>
 #include <query.hpp>
@@ -61,6 +60,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   string library;
   string ttlfile;
   string plugindir;
+  bool isInstrument = false;
 
   vector<QueryResult> qr;
   
@@ -292,6 +292,15 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
       }
     }
     
+    // is the instrument extension used?
+    Variable extension_predicate;
+    qr = select(extension_predicate)
+      .where(uriref, extension_predicate, ll("instrument-ext"))
+      .run(data);
+    if (qr.size() > 0 && (qr[0][extension_predicate]->name == lv2("requiredHostFeature") ||
+                          qr[0][extension_predicate]->name == lv2("optionalHostFeature")))
+      isInstrument = true;
+    
     // standalone GUI path
     Variable gui_path;
     qr = select(gui_path)
@@ -303,23 +312,21 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     m_bundledir = plugindir;
   }
   
-  // if we got this far the data is OK. time to get the descriptor
+  // if we got this far the data is OK. time to load the library
   m_libhandle = dlopen(library.c_str(), RTLD_NOW);
   if (!m_libhandle) {
     cerr<<"Could not dlopen "<<library<<": "<<dlerror()<<endl;
     return;
   }
-  union {
-    LV2_Descriptor_Function f;
-    void* v;
-  } lv2_desc_func;
-  lv2_desc_func.v = dlsym(m_libhandle, "lv2_descriptor");
-  if (!lv2_desc_func.v) {
+  
+  // get the descriptor
+  LV2_Descriptor_Function dfunc = get_symbol<LV2_Descriptor_Function>("lv2_descriptor");
+  if (!dfunc) {
     cerr<<library<<" has no LV2 descriptor function"<<endl;
     dlclose(m_libhandle);
     return;
   }
-  for (unsigned long j = 0; m_desc = lv2_desc_func.f(j); ++j) {
+  for (unsigned long j = 0; m_desc = dfunc(j); ++j) {
     if (uri == m_desc->URI)
       break;
   }
@@ -329,24 +336,26 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     return;
   }
   
-  // instantiate the plugin
-  LV2_Host_Feature instrument_feature;
-  instrument_feature.URI = "<http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>";
-  union {
-    LV2_InstrumentFunctionCallback lifc;
-    void* v;
-  } u;
-  u.lifc = &LV2Host::instrument_descriptor_callback;
-  instrument_feature.data = u.v;
-  const LV2_Host_Feature* features[2];
-  features[0] = &instrument_feature;
-  features[1] = 0;
+  // get the instrument descriptor (if it is an instrument)
+  if (isInstrument) {
+    m_inst_desc = call_symbol<const LV2_InstrumentDescriptor*>("lv2_instrument_descriptor",
+                                                               m_desc->URI);
+    if (!m_inst_desc) {
+      cerr<<library<<" does not contain the instrument "<<uri<<endl;
+      return;
+    }
+  }
   
-  // nasty workaround for C callback
-  m_current_object = this;
-  m_handle = m_desc->instantiate(m_desc, frame_rate, 
-                                 plugindir.c_str(), features);
-  m_current_object = 0;
+  // instantiate the plugin
+  LV2_Host_Feature instrument_feature = {
+    "<http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>",
+    0
+  };
+  const LV2_Host_Feature* features[2];
+  memset(features, 0, 2 * sizeof(LV2_Host_Feature*));
+  if (isInstrument)
+    features[0] = &instrument_feature;
+  m_handle = m_desc->instantiate(m_desc, frame_rate, plugindir.c_str(), features);
   
   // list available programs
   bool default_program_set = false;
@@ -513,11 +522,6 @@ void LV2Host::select_program(unsigned long program) {
       }
     }
   }
-}
-
-
-void LV2Host::instrument_descriptor_callback(LV2_InstrumentFunction func){
-  m_current_object->m_inst_desc = func();
 }
 
 

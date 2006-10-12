@@ -4,8 +4,10 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include <pthread.h>
+#include <dlfcn.h>
 
 #include "lv2-instrument.h"
 #include "ringbuffer.hpp"
@@ -74,7 +76,28 @@ public:
   
 protected:
   
-  static void instrument_descriptor_callback(LV2_InstrumentFunction func);
+  template <typename T, typename S> T nasty_cast(S ptr) {
+    union {
+      S s;
+      T t;
+    } u;
+    u.s = ptr;
+    return u.t;
+  }
+  
+  template <typename T> T get_symbol(const std::string& name) {
+    return nasty_cast<T>(dlsym(m_libhandle, name.c_str()));
+  }
+  
+  template <typename R, typename A> R call_symbol(const std::string& name, A a) {
+    typedef R (*FuncType)(A);
+    FuncType func = get_symbol<FuncType>(name);
+    if (!func) {
+      std::cerr<<"Could not find symbol "<<name<<std::endl;
+      return R();
+    }
+    return func(a);
+  }
   
   static LV2Host* m_current_object;
   

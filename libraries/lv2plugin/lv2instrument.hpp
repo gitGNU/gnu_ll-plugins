@@ -86,7 +86,7 @@ namespace LV2SupportFunctions {
   
   void select_program(LV2_Handle instance, uint32_t program);
   
-  const LV2_InstrumentDescriptor* get_instrument_descriptor();
+  const LV2_InstrumentDescriptor* lv2_instrument_descriptor(const char* URI);
   
   
   /* This template function creates an instance of a plugin. It is used as
@@ -106,14 +106,6 @@ namespace LV2SupportFunctions {
     }
     if (!host_features[i])
       return 0;
-    
-    // set the access function for the LV2_InstrumentDescriptor - nasty!
-    union {
-      void* v;
-      LV2_InstrumentFunctionCallback lifc;
-    } u;
-    u.v = host_features[i]->data;
-    u.lifc(&get_instrument_descriptor);
     
     // create and return an instance of the plugin
     T* t = new T(sample_rate, bundle_path, host_features);
@@ -137,6 +129,7 @@ namespace LV2SupportFunctions {
 template <class T>
 size_t register_lv2_inst(const std::string& uri) {
   using namespace LV2SupportFunctions;
+  
   LV2_Descriptor desc;
   std::memset(&desc, 0, sizeof(LV2_Descriptor));
   char* c_uri = new char[uri.size() + 1];
@@ -149,8 +142,17 @@ size_t register_lv2_inst(const std::string& uri) {
   desc.deactivate = &deactivate;
   desc.cleanup = &delete_plugin_instance;
   get_lv2_descriptors().push_back(desc);
+  
   return get_lv2_descriptors().size() - 1;
 }
 
+
+extern "C" {
+
+  /* This function returns a generic instrument descriptor (the implementation is all
+     in the class). */
+  const LV2_InstrumentDescriptor* lv2_instrument_descriptor(const char* URI);
+  
+}
 
 #endif

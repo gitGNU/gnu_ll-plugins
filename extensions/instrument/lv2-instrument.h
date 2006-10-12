@@ -27,6 +27,10 @@
 
 #include <lv2.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 /* This header defines data structures and preprocessor macros used by
    LV2 hosts and plugins that support the LV2 Instrument extension with
@@ -44,10 +48,10 @@
      host to find out which files it needs to copy into a project directory 
      or session archive in order to restore the plugin correctly
      
-   Some terminology: a 'MIDI port' is an LV2 input port with the datatype 
-   <http://ll-plugins.nongnu.org/lv2/namespace#miditype>. An LV2 plugin may
-   also have output ports with this type but they do not have any special
-   meaning for this extension.
+   Some terminology: a 'MIDI port' is an LV2 control rate input port with the 
+   datatype <http://ll-plugins.nongnu.org/lv2/namespace#miditype>. An LV2 
+   plugin may also have output ports with this type but they do not have any 
+   special meaning for this extension.
    
    A plugin that supports this extension may have one 'default MIDI port',
    specified by the RDF triple
@@ -67,24 +71,23 @@
    anything with MIDI events.
    
    The data member in the LV2_Host_Feature struct for this extension, 
-   passed to the plugin's instantiate() function, should be a function pointer
-   of the type LV2_InstrumentFunctionCallback, specified below. It should
-   point to a function in the host that takes a LV2_InstrumentFunction (also
-   specified below) as argument. LV2_InstrumentFunction is a pointer to a 
-   function that takes no parameters and returns a pointer to a
-   LV2_InstrumentDescriptor. So the way the host accesses the plugin's 
-   LV2_InstrumentDescriptor is something like this:
+   passed to the plugin's instantiate() function, should be set to NULL.
+
+   A plugin that supports this extension must have a function in its shared 
+   object file called "lv2_instrument_descriptor" that takes a plugin URI as
+   parameter and returns a const pointer to a LV2_InstrumentDescriptor, 
+   defined below. So the way the host loads a plugin with this extension is
+   something like this:
    
-   1. Host loads plugin and retrieves a pointer to its LV2_Descriptor.
-   2. Host calls instantiate() in the plugin, passing the LV2_Host_Feature
-      {"<http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>",
-       &hostInstrumentFunctionCallback }.
-   3. In its instantiate() function, the plugin calls 
-      hostInstrumentFunctionCallback(&pluginInstrumentFunction);
-   4. In its hostInstrumentFunctionCallback() function, the host calls
-      pluginInstrumentFunction() and stores the return value as a pointer
-      to the LV2_InstrumentDescriptor for this plugin.
-   
+   1. Host loads shared object file and retrieves a pointer to its LV2_Descriptor
+      using the lv2_descriptor() function.
+   2. Host retrieves a pointer to the LV2_InstrumentDescriptor using the 
+      lv2_instrument_descriptor function.
+   3. Host calls instantiate() in the LV2_Descriptor, passing the LV2_Host_Feature
+      {"<http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>", NULL}.
+      
+   After this, the host can use the function pointers in the LV2_Descriptor and
+   the LV2_InstrumentDescriptor with the plugin instance as the first parameter.
 */
 
 
@@ -249,16 +252,28 @@ typedef struct {
 } LV2_InstrumentDescriptor;
 
 
-/** This is the type of the plugin's callback that returns a pointer to
-    its LV2_InstrumentDescriptor.
-*/
-typedef const LV2_InstrumentDescriptor* (*LV2_InstrumentFunction)();
+/** Accessing the instrument descriptor for a plugin:
+ * 
+ * Each plugin shared object file that contains plugins with the Instrument 
+ * extension must include a function called "lv2_instrument_descriptor" with 
+ * the following prototype. The function must have C-style linkage (e.g. if you 
+ * write your plugin in C++ you need to put the lv2_instrument_descriptor()
+ * function in an 'extern "C"' block). This function returns a pointer to the 
+ * LV2_InstrumentDescriptor for the plugin. This descriptor is not enough to
+ * use the plugin, it only specifies the Instrument extension part of the plugin.
+ * You still need to call lv2_descriptor() to get the ordinary LV2_Descriptor.
+ *
+ * The host may call the lv2_instrument_descriptor() function before or after it
+ * calls the lv2_descriptor() function for the same plugin. If the RDF file for
+ * the plugin lists the Instrument extension as an optional extension the host
+ * does not need to call the lv2_instrument_descriptor() function at all, and can
+ * use the plugin as a plain LV2 plugin without the extension.
+ */
+const LV2_InstrumentDescriptor* lv2_instrument_descriptor(const char* URI);
 
 
-/** This is the type of the host's callback that is passed as the data in
-    the host feature struct. 
-*/
-typedef void (*LV2_InstrumentFunctionCallback)(LV2_InstrumentFunction);
+/** Datatype corresponding to the lv2_instrument_descriptor() function. */
+typedef const LV2_InstrumentDescriptor* (*LV2_InstrumentDescriptor_Function)(const char*);
 
 
 /*
@@ -269,6 +284,11 @@ typedef void (*LV2_InstrumentFunctionCallback)(LV2_InstrumentFunction);
 #define LV2INST_PROGRAM(B, P)          (((B) << 7) + (P))
 #define LV2INST_MIDIBANK(L)            ((L) >> 7)
 #define LV2INST_MIDIPROGRAM(L)         ((L) & 0x7F)
+
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif

@@ -20,8 +20,6 @@
 
 ****************************************************************************/
 
-#include <cassert>
-
 #include "lv2instrument.hpp"
 
 
@@ -52,19 +50,21 @@ namespace LV2SupportFunctions {
   void select_program(LV2_Handle instance, uint32_t program) {
     reinterpret_cast<LV2Instrument*>(instance)->select_program(program);
   }
+  
+}
+  
 
+extern "C" {
 
-  const LV2_InstrumentDescriptor* get_instrument_descriptor() {
-    static LV2_InstrumentDescriptor desc = {
+  const LV2_InstrumentDescriptor* lv2_instrument_descriptor(const char* URI) {
+    using namespace LV2SupportFunctions;
+    static LV2_InstrumentDescriptor idesc = {
       &configure,
       &list_used_files,
       &get_program,
       &select_program,
     };
-    return &desc;
+    return &idesc;
   }
   
-  
 }
-  
-
