@@ -17,6 +17,8 @@ public:
   OSCController(LV2Host& host, bool& still_running);
   ~OSCController();
   
+  void send_configure(const std::string& key, const std::string& value);
+  
   void start();
   void stop();
   
@@ -55,6 +57,8 @@ protected:
     lo_address address;
     std::string path;
   };
+
+  void send_configure(const std::string& key, const std::string& value, ClientInfo* ci);
   
   bool& m_still_running;
   

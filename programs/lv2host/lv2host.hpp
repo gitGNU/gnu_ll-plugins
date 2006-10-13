@@ -1,10 +1,10 @@
 #ifndef LV2HOST_HPP
 #define LV2HOST_HPP
 
+#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
-#include <iostream>
 
 #include <pthread.h>
 #include <dlfcn.h>
@@ -74,6 +74,8 @@ public:
   
   void set_event_queue(EventQueue* q);
   
+  const std::map<std::string, std::string>& get_config() const;
+  
 protected:
   
   template <typename T, typename S> T nasty_cast(S ptr) {
@@ -122,7 +124,6 @@ protected:
   
   EventQueue m_to_jack;
   EventQueue* m_from_jack;
-  
 };
 
 

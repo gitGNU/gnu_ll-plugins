@@ -151,12 +151,14 @@ void save_program(LV2UIClient& lv2) {
     for (int i = 0; i < kNumParams; ++i) {
       cerr<<i<<endl;
       float value = lv2.get_adjustment(i)->get_value();
-      oss<<(i != 0 ? " " : "")<<value;
+      oss<<value<<" ";
       programs[int(adj.get_value())].p[i] = value;
     }
+    oss<<ent.get_text();
     lv2.send_configure(key, oss.str());
     cerr<<"sent /configure "<<key<<" "<<oss.str()<<endl;
     update_program_menu(lv2);
+    tbox->set_string(1, programs[current_program].name);
   }
 }
 
@@ -303,6 +305,27 @@ void program_changed(int program) {
     tbox->set_string(0, oss.str());
     tbox->set_string(1, programs[program].name);
     current_program = program;
+  }
+}
+
+
+void configure_received(const std::string& key, const std::string& value, 
+                        LV2UIClient& lv2) {
+  if (key.substr(0, 7) == "program") {
+    int program = atoi(key.substr(7).c_str());
+    if (program >= 0 && program < kNumPrograms) {
+      cerr<<"AZR-3 GUI editing program "<<program<<endl;
+      istringstream iss(value);
+      for (int i = 0; i < kNumParams; ++i)
+        iss>>programs[program].p[i];
+      iss.ignore(1);
+      string name;
+      iss>>name;
+      memset(programs[program].name, 0, 24);
+      strncpy(programs[program].name, name.c_str(), 23);
+    }
+    update_program_menu(lv2);
+    tbox->set_string(1, programs[current_program].name);
   }
 }
 
@@ -538,6 +561,7 @@ int main(int argc, char** argv) {
   lv2.hide_received.connect(mem_fun(window, &Gtk::Window::hide));
   lv2.quit_received.connect(&Main::quit);
   lv2.program_received.connect(&program_changed);
+  lv2.configure_received.connect(bind(&configure_received, ref(lv2)));
   window.signal_delete_event().connect(bind_return(hide(&Main::quit), true));
   
   lv2.send_update_request();

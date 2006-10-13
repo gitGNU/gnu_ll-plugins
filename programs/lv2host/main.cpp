@@ -23,6 +23,65 @@ jack_client_t* jack_client;
 lash_client_t* lash_client;
 
 
+string escape_space(const string& str) {
+  string str2 = str;
+  int pos = 0;
+  while ((pos = str2.find("\\", pos)) != string::npos) {
+    str2.replace(pos, 1, "\\b");
+    pos += 2;
+  }
+  pos = 0;
+  while ((pos = str2.find(" ", pos)) != string::npos) {
+    str2.replace(pos, 1, "\\s");
+    pos += 2;
+  }
+  pos = 0;
+  while ((pos = str2.find("\t", pos)) != string::npos) {
+    str2.replace(pos, 1, "\\t");
+    pos += 2;
+  }
+  pos = 0;
+  while ((pos = str2.find("\n", pos)) != string::npos) {
+    str2.replace(pos, 1, "\\n");
+    pos += 2;
+  }
+  pos = 0;
+  while ((pos = str2.find("\r", pos)) != string::npos) {
+    str2.replace(pos, 1, "\\r");
+    pos += 2;
+  }
+  return str2;
+}
+
+
+string unescape_space(const string& str) {
+  string str2 = str;
+  int pos = 0;
+  while ((pos = str2.find("\\b", pos)) != string::npos) {
+    str2.replace(pos, 2, "\\");
+    pos += 1;
+  }
+  while ((pos = str2.find("\\r", pos)) != string::npos) {
+    str2.replace(pos, 2, "\r");
+    pos += 1;
+  }
+  while ((pos = str2.find("\\n", pos)) != string::npos) {
+    str2.replace(pos, 2, "\n");
+    pos += 1;
+  }
+  while ((pos = str2.find("\\t", pos)) != string::npos) {
+    str2.replace(pos, 2, "\t");
+    pos += 1;
+  }
+  while ((pos = str2.find("\\s", pos)) != string::npos) {
+    str2.replace(pos, 2, " ");
+    pos += 1;
+  }
+  pos = 0;
+  return str2;
+}
+
+
 bool init_lash(int argc, char** argv) {
   cerr<<"Initialising LASH client"<<endl;
   lash_client = lash_init(lash_extract_args(&argc, &argv), "lv2host", 
@@ -306,9 +365,17 @@ int main(int argc, char** argv) {
         // save
         if (lash_event_get_type(event) == LASH_Save_File) {
           cerr<<"LASH SAVE"<<endl;
-          lv2h.queue_config_request(&conf_q);
           ofstream of((string(lash_event_get_string(event)) + 
                        "/lv2host").c_str());
+          
+          const map<string, string>& config = lv2h.get_config();
+          map<string, string>::const_iterator iter;
+          for (iter = config.begin(); iter != config.end(); ++iter) {
+            of<<"configure "<<escape_space(iter->first)<<" "<<escape_space(iter->second)
+              <<endl;
+          }
+          
+          lv2h.queue_config_request(&conf_q);
           EventQueue::Type t;
           do {
             while (!conf_q.wait() && still_running);
@@ -335,6 +402,15 @@ int main(int argc, char** argv) {
           while (ifs) {
             string word;
             ifs>>word;
+            if (word == "configure") {
+              string key, value;
+              ifs>>key>>value;
+              key = unescape_space(key);
+              value = unescape_space(value);
+              lv2h.configure(key.c_str(), value.c_str());
+              osc.send_configure(key, value);
+              cerr<<"HOST SENT CONFIGURE "<<key<<" "<<value<<endl;
+            }
             if (word == "program") {
               unsigned long program;
               ifs>>program;

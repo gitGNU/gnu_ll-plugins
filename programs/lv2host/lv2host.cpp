@@ -480,6 +480,7 @@ char* LV2Host::configure(const char* key, const char* value) {
       m_configuration[key] = value;
       m_program_is_valid;
     }
+    
     return result;
   }
   else
@@ -584,4 +585,11 @@ void LV2Host::set_event_queue(EventQueue* q) {
 }
 
 
+const std::map<std::string, std::string>& LV2Host::get_config() const {
+  return m_configuration;
+}
+
+
 LV2Host* LV2Host::m_current_object(0);
+
+

@@ -48,6 +48,7 @@ OSCController::~OSCController() {
   lo_server_thread_free(m_server);
   pthread_cancel(m_sender);
   pthread_join(m_sender, 0);
+  pthread_mutex_destroy(&m_clients_mutex);
   for (unsigned i = 0; i < m_clients.size(); ++i) {
     lo_address_free(m_clients[i]->address);
     delete m_clients[i];
@@ -62,6 +63,16 @@ void OSCController::start() {
 
 void OSCController::stop() {
   lo_server_thread_stop(m_server);
+}
+
+
+void OSCController::send_configure(const std::string& key, const std::string& value) {
+  pthread_mutex_lock(&m_clients_mutex);
+  for (size_t i = 0; i < m_clients.size(); ++i) {
+    lo_send(m_clients[i]->address, (m_clients[i]->path + "configure").c_str(), "ss",
+            key.c_str(), value.c_str());
+  }
+  pthread_mutex_unlock(&m_clients_mutex);
 }
 
 
@@ -85,6 +96,14 @@ int OSCController::update_handler(const char*, const char*, lo_arg** argv,
   pthread_mutex_lock(&data->me.m_clients_mutex);
   ClientInfo* ci = new ClientInfo(client, path);
   data->me.m_clients.push_back(ci);
+  pthread_mutex_unlock(&data->me.m_clients_mutex);
+  
+  const map<string, string>& config = data->host.get_config();
+  map<string, string>::const_iterator iter;
+  
+  pthread_mutex_lock(&data->me.m_clients_mutex);
+  for (iter = config.begin(); iter != config.end(); ++iter)
+    data->me.send_configure(iter->first, iter->second, ci);
   pthread_mutex_unlock(&data->me.m_clients_mutex);
 
   data->host.queue_config_request(&data->me.m_queue);
@@ -117,6 +136,13 @@ int OSCController::program_handler(const char*, const char*, lo_arg** argv,
                                    int argc, lo_message, void* cbdata) {
   unsigned long program = argv[0]->i;
   static_cast<CallbackData*>(cbdata)->host.queue_program(program);
+}
+
+
+void OSCController::send_configure(const std::string& key, const std::string& value, 
+                                   ClientInfo* ci) {
+  lo_send(ci->address, (ci->path + "configure").c_str(), "ss",
+          key.c_str(), value.c_str());
 }
 
 
