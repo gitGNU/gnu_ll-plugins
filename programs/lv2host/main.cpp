@@ -83,7 +83,7 @@ string unescape_space(const string& str) {
 
 
 bool init_lash(int argc, char** argv) {
-  cerr<<"Initialising LASH client"<<endl;
+  //cerr<<"Initialising LASH client"<<endl;
   lash_client = lash_init(lash_extract_args(&argc, &argv), "lv2host", 
                           LASH_Config_File, LASH_PROTOCOL(2, 0));
   
@@ -286,12 +286,14 @@ int main(int argc, char** argv) {
     }
     cerr<<endl;
     
-    cerr<<"Default MIDI port: "<<lv2h.get_default_midi_port()<<endl;
+    //cerr<<"Default MIDI port: "<<lv2h.get_default_midi_port()<<endl;
     
+    /*
     if (lv2h.get_gui_path().size())
       cerr<<"Standalone GUI: "<<lv2h.get_gui_path()<<endl;
     else
       cerr<<"No standalone GUI"<<endl;
+    */
     
     // initialise JACK client and plugin port buffers
     if (!(jack_client = jack_client_new("LV2Host"))) {
@@ -339,7 +341,7 @@ int main(int argc, char** argv) {
     bool still_running = true;
     OSCController osc(lv2h, still_running);
     osc.start();
-    cerr<<"Listening on URL "<<osc.get_url()<<endl;
+    //cerr<<"Listening on URL "<<osc.get_url()<<endl;
     
     // start the GUI
     string gui = lv2h.get_gui_path();
@@ -364,7 +366,7 @@ int main(int argc, char** argv) {
         
         // save
         if (lash_event_get_type(event) == LASH_Save_File) {
-          cerr<<"LASH SAVE"<<endl;
+          //cerr<<"LASH SAVE"<<endl;
           ofstream of((string(lash_event_get_string(event)) + 
                        "/lv2host").c_str());
           
@@ -396,7 +398,7 @@ int main(int argc, char** argv) {
         
         // restore
         else if (lash_event_get_type(event) == LASH_Restore_File) {
-          cerr<<"LASH RESTORE"<<endl;
+          //cerr<<"LASH RESTORE"<<endl;
           ifstream ifs((string(lash_event_get_string(event)) + 
                         "/lv2host").c_str());
           while (ifs) {
@@ -409,7 +411,6 @@ int main(int argc, char** argv) {
               value = unescape_space(value);
               lv2h.configure(key.c_str(), value.c_str());
               osc.send_configure(key, value);
-              cerr<<"HOST SENT CONFIGURE "<<key<<" "<<value<<endl;
             }
             if (word == "program") {
               unsigned long program;
@@ -430,7 +431,7 @@ int main(int argc, char** argv) {
         
         // quit
         else if (lash_event_get_type(event) == LASH_Quit) {
-          cerr<<"LASH QUIT"<<endl;
+          //cerr<<"LASH QUIT"<<endl;
           still_running = false;
         }
         

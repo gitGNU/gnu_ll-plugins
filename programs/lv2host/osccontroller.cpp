@@ -85,7 +85,7 @@ int OSCController::update_handler(const char*, const char*, lo_arg** argv,
                                   int argc, lo_message, void* cbdata) {
   
   CallbackData* data = static_cast<CallbackData*>(cbdata);
-  cerr<<"Got /update from "<<(&argv[0]->s)<<endl;
+  //cerr<<"Got /update from "<<(&argv[0]->s)<<endl;
   lo_address client = lo_address_new_from_url(&(argv[0]->s));
   char* path_c = lo_url_get_path(&(argv[0]->s));
   string path = path_c;

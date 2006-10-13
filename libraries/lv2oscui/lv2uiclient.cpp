@@ -47,10 +47,12 @@ LV2UIClient::LV2UIClient(int argc, char** argv, bool wait)
     return;
   }
   
+  /*
   cerr<<"Plugin OSC URL: "<<argv[1]<<endl
       <<"Plugin bundle: "<<argv[2]<<endl
       <<"Plugin URI: "<<argv[3]<<endl
       <<"Plugin identifier: "<<argv[4]<<endl;
+  */
   
   m_identifier = argv[4];
   m_bundle = argv[2];

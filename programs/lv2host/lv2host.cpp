@@ -358,6 +358,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   m_handle = m_desc->instantiate(m_desc, frame_rate, plugindir.c_str(), features);
   
   // list available programs
+  /*
   bool default_program_set = false;
   unsigned long default_program;
   const LV2_ProgramDescriptor* pdesc;
@@ -369,7 +370,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
       default_program_set = true;
     }
   }
-  
+  */
   
   if (!m_handle) {
     cerr<<"Could not instantiate plugin "<<uri<<endl;
