@@ -437,33 +437,12 @@ int main(int argc, char** argv) {
         lash_event_destroy(event);
       }
       
-      /*
-      string word;
-      cin>>word;
-      
-      if (word == "configure") {
-        string key, value;
-        cin>>key>>value;
-        lv2h.configure(key.c_str(), value.c_str());
-      }
-      
-      if (word == "program") {
-        unsigned long program;
-        cin>>program;
-        lv2h.queue_program(program);
-      }
-      
-      else {
-        cout<<"Unknown command \""<<word<<"\""<<endl;
-      }
-      */
-      
       usleep(100000);
     }
     
     // kill the GUI
     if (gui_pid) {
-      kill(gui_pid, SIGQUIT);
+      osc.send_quit();
       wait(gui_pid);
     }
     

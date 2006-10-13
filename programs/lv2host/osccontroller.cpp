@@ -146,6 +146,14 @@ void OSCController::send_configure(const std::string& key, const std::string& va
 }
 
 
+void OSCController::send_quit() {
+  pthread_mutex_lock(&m_clients_mutex);
+  for (size_t i = 0; i < m_clients.size(); ++i)
+    lo_send(m_clients[i]->address, (m_clients[i]->path + "quit").c_str(), "");
+  pthread_mutex_unlock(&m_clients_mutex);
+}
+
+
 void* OSCController::sender_thread(void* arg) {
 
   OSCController* me = static_cast<OSCController*>(arg);

@@ -18,6 +18,7 @@ public:
   ~OSCController();
   
   void send_configure(const std::string& key, const std::string& value);
+  void send_quit();
   
   void start();
   void stop();
