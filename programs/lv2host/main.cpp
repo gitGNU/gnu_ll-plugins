@@ -289,7 +289,7 @@ int main(int argc, char** argv) {
       if (!(gui_pid = fork())) {
         execl(gui.c_str(), gui.c_str(), osc.get_url().c_str(),
               lv2h.get_bundle_dir().c_str(), argv[1], 
-              "User friendly identifier!", 0);
+              "LV2Host, channel 0", 0);
         cerr<<"Could not execute "<<gui<<endl;
         exit(-1);
       }
