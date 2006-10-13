@@ -53,7 +53,8 @@ int splitkey = 0;
 Textbox* tbox;
 Switch* splitswitch;
 Adjustment* splitpoint_adj;
-
+Menu* program_menu;
+Color menu_fg;
 
 // -------- helper function
 string note2str(long note) {
@@ -102,6 +103,21 @@ string note2str(long note) {
 }
 
 
+void update_program_menu(LV2UIClient& lv2) {
+  program_menu->items().clear();
+  for (int i = 0; i < kNumPrograms; ++i) {
+    ostringstream oss;
+    oss<<setw(2)<<setfill('0')<<i<<' '<<programs[i].name;
+    MenuItem* item = manage(new MenuItem(oss.str()));
+    item->signal_activate().
+      connect(bind(mem_fun(lv2, &LV2UIClient::send_program), i));
+    program_menu->items().push_back(*item);
+    item->show();
+    item->get_child()->modify_fg(STATE_NORMAL, menu_fg);
+  }
+}
+
+
 void save_program(LV2UIClient& lv2) {
   Dialog dlg("Save program");
   dlg.add_button(Stock::CANCEL, RESPONSE_CANCEL);
@@ -140,45 +156,38 @@ void save_program(LV2UIClient& lv2) {
     }
     lv2.send_configure(key, oss.str());
     cerr<<"sent /configure "<<key<<" "<<oss.str()<<endl;
+    update_program_menu(lv2);
   }
 }
 
 
 Menu* create_menu(LV2UIClient& lv2) {
 
-  Color bg, fg;
+  Color bg;
   bg.set_rgb(16000, 16000, 16000);
-  fg.set_rgb(65535, 65535, 50000);
+  menu_fg.set_rgb(65535, 65535, 50000);
   Menu* menu = manage(new Menu);
   
-  Menu* program_menu = manage(new Menu);
-  for (int i = 0; i < kNumPrograms; ++i) {
-    ostringstream oss;
-    oss<<setw(2)<<setfill('0')<<i<<' '<<programs[i].name;
-    MenuItem* item = manage(new MenuItem(oss.str()));
-    item->signal_activate().
-      connect(bind(mem_fun(lv2, &LV2UIClient::send_program), i));
-    program_menu->items().push_back(*item);
-    item->show();
-    item->get_child()->modify_fg(STATE_NORMAL, fg);
-  }
+  program_menu = manage(new Menu);
+  update_program_menu(lv2);
+  
   MenuItem* program_item = manage(new MenuItem("Select program"));
   program_item->set_submenu(*program_menu);
   program_item->show();
-  program_item->get_child()->modify_fg(STATE_NORMAL, fg);
+  program_item->get_child()->modify_fg(STATE_NORMAL, menu_fg);
   
   MenuItem* save_item = manage(new MenuItem("Save program"));
   save_item->signal_activate().connect(bind(&save_program, ref(lv2)));
   save_item->show();
-  save_item->get_child()->modify_fg(STATE_NORMAL, fg);
+  save_item->get_child()->modify_fg(STATE_NORMAL, menu_fg);
 
   menu->items().push_back(*program_item);
   menu->items().push_back(*save_item);
   
   menu->modify_bg(STATE_NORMAL, bg);
-  menu->modify_fg(STATE_NORMAL, fg);
+  menu->modify_fg(STATE_NORMAL, menu_fg);
   program_menu->modify_bg(STATE_NORMAL, bg);
-  program_menu->modify_fg(STATE_NORMAL, fg);
+  program_menu->modify_fg(STATE_NORMAL, menu_fg);
   
   return menu;
 }
