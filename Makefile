@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.96
+PACKAGE_VERSION = 0.1.97
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.8.8 libglademm-2.4>=2.6.2
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
@@ -69,7 +69,9 @@ euphoria_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/
 euphoria_lv2_LDFLAGS = $(INSTRUMENTFLAGS)
 euphoria_lv2_PROGRAMS = euphoria_gtk
 euphoria_lv2_SOURCEDIR = plugins/euphoria
-euphoria_gtk_SOURCES = euphoria_gtk.cpp
+euphoria_gtk_SOURCES = euphoria_gtk.cpp \
+	euphoriawidget.cpp euphoriawidget.hpp \
+	vgknob.cpp vgknob.hpp
 euphoria_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Ilibraries/lv2oscui -I.
 euphoria_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo` libraries/lv2oscui/liblv2_oscui.a
 euphoria_gtk_SOURCEDIR = plugins/euphoria
