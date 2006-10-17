@@ -2,6 +2,7 @@
 #include "pdosc.hpp"
 #include "voicehandler.hpp"
 #include "frequencytable.hpp"
+#include "euphoria.peg"
 
 
 class EuphoriaVoice {
@@ -117,7 +118,7 @@ class Euphoria : public LV2Instrument {
 public:
   
   Euphoria(uint32_t rate, const char*, const LV2_Host_Feature**) 
-    : LV2Instrument(12),
+    : LV2Instrument(e_n_ports),
       m_handler(3, rate),
       m_trigger(0) {
     
@@ -132,6 +133,7 @@ public:
   
   void run(uint32_t nframes) {
     
+    /*
     LV2_MIDI* midi = p<LV2_MIDI>(0);
     int shape = int(*p<float>(1));
     int timbre = int(*p<float>(2));
@@ -165,7 +167,7 @@ public:
       right[i] += (1 - width) * left[i] + width * right[i];
 
     }
-      
+    */
   }
   
 

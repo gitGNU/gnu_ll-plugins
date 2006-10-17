@@ -13,7 +13,7 @@ public:
   
 protected:
   
-  Gtk::VBox* create_knob(const std::string& label, 
+  Gtk::VBox* create_knob(const std::string& label, int port,
                          float red = 0, float green = 0.3, float blue = 1);
   
   Gtk::TreeView m_program_view;

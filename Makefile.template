@@ -11,7 +11,7 @@ pkgdocdir = $(docdir)/$(PACKAGE_NAME)
 includedir = $(prefix)/include
 pkgincludedir = $(includedir)/$(PACKAGE_NAME)
 lv2plugindir = $(libdir)/lv2
-
+LV2PEG = programs/lv2peg/lv2peg
 
 # Don't modify any variables below this line
 
@@ -117,6 +117,7 @@ define LV2_PLUGIN_template
 $(2)_SRCPRF = $$(if $$($(2)_SOURCEDIR),$$($(2)_SOURCEDIR),.)
 $(2)_BLDPRF = $$(if $$($(2)_BUILDDIR),$$($(2)_BUILDDIR),$$($(2)_SRCPRF))
 $(2)_FULLSOURCES = $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_SOURCES))
+$(2)_FULLPEGFILES = $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_PEGFILES))
 $(2)_FULLDATA = $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_DATA))
 $(2)_CSOURCES = $$(filter %.c,$$($(2)_FULLSOURCES))
 $(2)_CXXSOURCES = $$(filter %.cpp,$$($(2)_FULLSOURCES))
@@ -126,13 +127,13 @@ $(2)_OBJECTS = $$($(2)_COBJECTS) $$($(2)_CXXOBJECTS)
 $(2)_LIBNAME = $$($(2)_SRCPRF)/$$(patsubst %.lv2,%.so,$(1))
 PROGRAMS += $$($(2)_PROGRAMS)
 ALL_OBJECTS += $$($(2)_OBJECTS) $$($(2)_LIBNAME)
-ALL_SOURCES += $$($(2)_FULLSOURCES)
+ALL_SOURCES += $$($(2)_FULLSOURCES) $$($(2)_FULLPEGFILES)
 ALL_DATA += $$($(2)_FULLDATA)
 LV2_PLUGINS_REAL += $$($(2)_BLDPRF)/$(1)
 $(2)_INSTDIR = $$(if $$($(2)_INSTALLDIR),$$($(2)_INSTALLDIR),$(lv2plugindir))
 
 # targets
-$$($(2)_COBJECTS): Makefile.config
+$$($(2)_COBJECTS): Makefile.config $$($(2)_FULLPEGFILES)
 	$(CC) -c -o $$@ -fPIC -DPIC $(CFLAGS) $$($(2)_CFLAGS) $$($$(patsubst %.o,%_c_CFLAGS,$$(notdir $$@))) $$(subst .o,.c,$$@)
 
 $$($(2)_CXXOBJECTS): Makefile.config
@@ -154,6 +155,11 @@ install-$(2): $$($(2)_BLDPRF)/$(1) $$(if $$($(2)_HEADERS),install-$(2)-headers)
 
 endef
 $(foreach lv2,$(LV2_PLUGINS),$(eval $(call LV2_PLUGIN_template,$(lv2),$(subst .,_,$(lv2)))))
+
+# PEG target
+%.peg: %.ttl $(LV2PEG)
+	$(LV2PEG) $*.ttl $@
+
 # END OF LV2 PLUGINS
 
 

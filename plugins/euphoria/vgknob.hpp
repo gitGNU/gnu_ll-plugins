@@ -21,6 +21,10 @@ protected:
   bool on_button_press_event(GdkEventButton* event);
   bool on_scroll_event(GdkEventScroll* event);
   
+  int draw_digit(Cairo::RefPtr<Cairo::Context>& cc, char digit);
+  void draw_string(Cairo::RefPtr<Cairo::Context>& cc, const std::string& str,
+                   float x, float y);
+  
   Gtk::Adjustment m_adj;
   int m_click_offset;
   float m_value_offset;

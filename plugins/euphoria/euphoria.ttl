@@ -9,7 +9,8 @@
   doap:licence <http://usefulinc.com/doap/licenses/gpl>;
   ll:standaloneGui <euphoria_gtk>;
   lv2:optionalHostFeature ll:instrument-ext;
-
+  ll:pegName "e";  
+  
   lv2:port [
     a lv2:ControlRateInputPort;
     lv2:datatype ll:miditype;
@@ -22,10 +23,10 @@
     a lv2:ControlRateInputPort;
     lv2:datatype lv2:float;
     lv2:index 1;
-    lv2:symbol "shape";
-    lv2:name "Shape";
+    lv2:symbol "phase_dist";
+    lv2:name "Phase distortion";
     lv2:minimum 0;
-    lv2:maximum 5;
+    lv2:maximum 1;
     lv2:default 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -37,14 +38,14 @@
     a lv2:ControlRateInputPort;
     lv2:datatype lv2:float;
     lv2:index 2;
-    lv2:symbol "timbre";
-    lv2:name "Timbre";
+    lv2:symbol "pd_vel_sens";
+    lv2:name "PD velocity sensitivity";
     lv2:minimum 0;
     lv2:maximum 1;
     lv2:default 0.5;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
-      ll:controllerNumber 2;
+      ll:controllerNumber 1;
     ];
   ],
 
@@ -52,14 +53,14 @@
     a lv2:ControlRateInputPort;
     lv2:datatype lv2:float;
     lv2:index 3;
-    lv2:symbol "spread";
-    lv2:name "Spread";
+    lv2:symbol "pd_env_sens";
+    lv2:name "PD envelope sensitivity";
     lv2:minimum 0;
-    lv2:maximum 0.1;
-    lv2:default 0.001;
+    lv2:maximum 1;
+    lv2:default 0.5;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
-      ll:controllerNumber 3;
+      ll:controllerNumber 1;
     ];
   ],
 
@@ -67,14 +68,14 @@
     a lv2:ControlRateInputPort;
     lv2:datatype lv2:float;
     lv2:index 4;
-    lv2:symbol "width";
-    lv2:name "Width";
-    lv2:minimum 0;
-    lv2:maximum 0.1;
-    lv2:default 0.001;
+    lv2:symbol "pd_attack";
+    lv2:name "PD attack";
+    lv2:minimum 0.001;
+    lv2:maximum 10;
+    lv2:default 0.005;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
-      ll:controllerNumber 4;
+      ll:controllerNumber 1;
     ];
   ],
 
@@ -82,14 +83,14 @@
     a lv2:ControlRateInputPort;
     lv2:datatype lv2:float;
     lv2:index 5;
-    lv2:symbol "gain_mod";
-    lv2:name "Gain modulation";
-    lv2:minimum -1;
-    lv2:maximum 1;
+    lv2:symbol "pd_decay";
+    lv2:name "PD decay";
+    lv2:minimum 0.001;
+    lv2:maximum 10;
     lv2:default 0.5;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
-      ll:controllerNumber 5;
+      ll:controllerNumber 1;
     ];
   ],
 
@@ -97,14 +98,14 @@
     a lv2:ControlRateInputPort;
     lv2:datatype lv2:float;
     lv2:index 6;
-    lv2:symbol "freq_mod";
-    lv2:name "Frequency modulation";
-    lv2:minimum -1;
-    lv2:maximum 10;
-    lv2:default 0;
+    lv2:symbol "pd_sustain";
+    lv2:name "PD sustain";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0.4;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
-      ll:controllerNumber 6;
+      ll:controllerNumber 1;
     ];
   ],
 
@@ -112,54 +113,666 @@
     a lv2:ControlRateInputPort;
     lv2:datatype lv2:float;
     lv2:index 7;
-    lv2:symbol "timbre_mod";
-    lv2:name "Timbre modulation";
-    lv2:minimum -1;
-    lv2:maximum 1;
-    lv2:default 1.0;
+    lv2:symbol "pd_release";
+    lv2:name "PD release";
+    lv2:minimum 0.001;
+    lv2:maximum 10;
+    lv2:default 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
-      ll:controllerNumber 7;
+      ll:controllerNumber 1;
     ];
   ],
-
 
   [
     a lv2:ControlRateInputPort;
     lv2:datatype lv2:float;
     lv2:index 8;
-    lv2:symbol "decay";
-    lv2:name "Decay";
-    lv2:minimum 0.999;
-    lv2:maximum 1.0;
-    lv2:default 0.99999;
+    lv2:symbol "shape";
+    lv2:name "Shape";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
-      ll:controllerNumber 8;
+      ll:controllerNumber 1;
     ];
   ],
-
 
   [
     a lv2:ControlRateInputPort;
     lv2:datatype lv2:float;
     lv2:index 9;
-    lv2:symbol "release";
-    lv2:name "Release";
-    lv2:minimum 0.01;
-    lv2:maximum 10;
+    lv2:symbol "shape_vel_sens";
+    lv2:name "Shape velocity sensitivity";
+    lv2:minimum 0;
+    lv2:maximum 1;
     lv2:default 0.5;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
-      ll:controllerNumber 9;
+      ll:controllerNumber 1;
     ];
   ],
 
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 10;
+    lv2:symbol "shape_env_sens";
+    lv2:name "Shape envelope sensitivity";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0.5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 11;
+    lv2:symbol "shape_attack";
+    lv2:name "Shape attack";
+    lv2:minimum 0.001;
+    lv2:maximum 10;
+    lv2:default 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 12;
+    lv2:symbol "shape_decay";
+    lv2:name "Shape decay";
+    lv2:minimum 0.001;
+    lv2:maximum 10;
+    lv2:default 9;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 13;
+    lv2:symbol "shape_sustain";
+    lv2:name "Shape sustain";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0.1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 14;
+    lv2:symbol "shape_release";
+    lv2:name "Shape release";
+    lv2:minimum 0.001;
+    lv2:maximum 10;
+    lv2:default 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 15;
+    lv2:symbol "vib_freq";
+    lv2:name "Vibrato frequency";
+    lv2:minimum 0;
+    lv2:maximum 10;
+    lv2:default 3;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 16;
+    lv2:symbol "vib_depth";
+    lv2:name "Vibrato depth";
+    lv2:minimum 0;
+    lv2:maximum 0.5;
+    lv2:default 0.01;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 17;
+    lv2:symbol "trem_freq";
+    lv2:name "Tremolo frequency";
+    lv2:minimum 0;
+    lv2:maximum 10;
+    lv2:default 3.5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 18;
+    lv2:symbol "trem_depth";
+    lv2:name "Tremolo depth";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0.3;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 19;
+    lv2:symbol "unison_layers";
+    lv2:name "Unison layers";
+    lv2:minimum 1;
+    lv2:maximum 4;
+    lv2:default 2;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 20;
+    lv2:symbol "unison_spread";
+    lv2:name "Unison spread";
+    lv2:minimum 0;
+    lv2:maximum 0.1;
+    lv2:default 0.001;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 21;
+    lv2:symbol "amp_env";
+    lv2:name "Amplitude envelope";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 22;
+    lv2:symbol "amp_vel_sens";
+    lv2:name "Amplitude velocity sensitivity";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0.8;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 23;
+    lv2:symbol "poly";
+    lv2:name "Polyphonic operation";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 24;
+    lv2:symbol "poly_voices";
+    lv2:name "Number of voices";
+    lv2:minimum 2;
+    lv2:maximum 10;
+    lv2:default 4;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 25;
+    lv2:symbol "tie";
+    lv2:name "Tie overlapping notes";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 26;
+    lv2:symbol "slide_speed";
+    lv2:name "Slide speed";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0.5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 27;
+    lv2:symbol "dist_switch";
+    lv2:name "Distortion";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 28;
+    lv2:symbol "dist_drive";
+    lv2:name "Distortion: Drive";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0.5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 29;
+    lv2:symbol "dist_set";
+    lv2:name "Distortion: Set";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0.5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 30;
+    lv2:symbol "dist_tone";
+    lv2:name "Distortion: Tone";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0.5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 31;
+    lv2:symbol "dist_mix";
+    lv2:name "Distortion: Mix";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0.5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 32;
+    lv2:symbol "chorus_switch";
+    lv2:name "Chorus";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 33;
+    lv2:symbol "chorus_freq";
+    lv2:name "Chorus: Frequency";
+    lv2:minimum 0;
+    lv2:maximum 10;
+    lv2:default 5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 34;
+    lv2:symbol "chorus_depth";
+    lv2:name "Chorus: Depth";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0.5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 35;
+    lv2:symbol "chorus_delay";
+    lv2:name "Chorus: Delay";
+    lv2:minimum 20;
+    lv2:maximum 30;
+    lv2:default 25;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 36;
+    lv2:symbol "chorus_mix";
+    lv2:name "Chorus: Mix";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0.5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 37;
+    lv2:symbol "echo_switch";
+    lv2:name "Echo";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 38;
+    lv2:symbol "echo_delay";
+    lv2:name "Echo: Delay";
+    lv2:minimum 0;
+    lv2:maximum 5;
+    lv2:default 0.5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 39;
+    lv2:symbol "echo_feedback";
+    lv2:name "Echo: Feedback";
+    lv2:minimum 0;
+    lv2:maximum 0.999;
+    lv2:default 0.5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 40;
+    lv2:symbol "echo_pan";
+    lv2:name "Echo: Pan";
+    lv2:minimum -1;
+    lv2:maximum 1;
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 41;
+    lv2:symbol "echo_mix";
+    lv2:name "Echo: Mix";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0.5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 42;
+    lv2:symbol "reverb_switch";
+    lv2:name "Reverb";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 43;
+    lv2:symbol "reverb_time";
+    lv2:name "Reverb: Time";
+    lv2:minimum 0;
+    lv2:maximum 3;
+    lv2:default 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 44;
+    lv2:symbol "reverb_room";
+    lv2:name "Reverb: Room size";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0.5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 45;
+    lv2:symbol "reverb_damping";
+    lv2:name "Reverb: Damping";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0.5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 46;
+    lv2:symbol "reverb_mix";
+    lv2:name "Reverb: Mix";
+    lv2:minimum 0;
+    lv2:maximum 1;
+    lv2:default 0.5;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 47;
+    lv2:symbol "gain";
+    lv2:name "Gain";
+    lv2:minimum 0;
+    lv2:maximum 2;
+    lv2:default 0.7;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 48;
+    lv2:symbol "octave";
+    lv2:name "Octave";
+    lv2:minimum -2;
+    lv2:maximum 2;
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 49;
+    lv2:symbol "tune";
+    lv2:name "Tune";
+    lv2:minimum 0.5;
+    lv2:maximum 2;
+    lv2:default 1;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
+
+  [
+    a lv2:ControlRateInputPort;
+    lv2:datatype lv2:float;
+    lv2:index 50;
+    lv2:symbol "pan";
+    lv2:name "pan";
+    lv2:minimum -1;
+    lv2:maximum 1;
+    lv2:default 0;
+    ll:defaultMidiController [
+      ll:controllerType ll:CC;
+      ll:controllerNumber 1;
+    ];
+  ],
 
   [
     a lv2:AudioRateOutputPort;
     lv2:datatype lv2:float;
-    lv2:index 10;
+    lv2:index 51;
     lv2:symbol "left";
     lv2:name "Left";
   ],
@@ -167,7 +780,7 @@
   [
     a lv2:AudioRateOutputPort;
     lv2:datatype lv2:float;
-    lv2:index 11;
+    lv2:index 52;
     lv2:symbol "right";
     lv2:name "Right";
   ].

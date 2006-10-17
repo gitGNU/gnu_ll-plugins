@@ -1,11 +1,16 @@
+#include <string>
+
 #include <cairomm/cairomm.h>
 
 #include "vgknob.hpp"
 
 
+using namespace std;
+
+
 VGKnob::VGKnob(float min, float max, float value, 
                float red, float green, float blue) 
-  : m_adj(value, min, max),
+  : m_adj(min, min, max),
     m_red(red),
     m_green(green),
     m_blue(blue) {
@@ -14,14 +19,21 @@ VGKnob::VGKnob(float min, float max, float value,
   add_events(Gdk::EXPOSURE_MASK | Gdk::BUTTON1_MOTION_MASK | 
              Gdk::BUTTON_PRESS_MASK | Gdk::SCROLL_MASK);
   m_adj.signal_value_changed().connect(mem_fun(*this, &VGKnob::queue_draw));
+  m_adj.set_value(value);
+}
+
+
+Gtk::Adjustment& VGKnob::get_adjustment() {
+  return m_adj;
 }
  
  
 bool VGKnob::on_expose_event(GdkEventExpose* event) {
+  
   Glib::RefPtr<Gdk::Window> win = get_window();
   Glib::RefPtr<Gdk::GC> gc = Gdk::GC::create(win);
   
-  double angle = M_PI * (0.75 + 1.5 * m_adj.get_value() / 
+  double angle = M_PI * (0.75 + 1.5 * (m_adj.get_value() - m_adj.get_lower()) / 
                          (m_adj.get_upper() - m_adj.get_lower()));
   
   Cairo::RefPtr<Cairo::Context> cc = win->create_cairo_context();
@@ -55,7 +67,39 @@ bool VGKnob::on_expose_event(GdkEventExpose* event) {
   cc->set_source_rgb(0.8, 0.8, 0.8);
   cc->stroke();
   
+  // digits
+  float v = m_adj.get_value();
+  string str;
+  float offset = 10.5;
+  if (v >= 10000 || v <= -1000) {
+    str = "****";
+  }
+  else {
+    if (v < 0) {
+      str += '-';
+      v *= -1;
+    }
+    if (v >= 1000)
+      str += (int(v) / 1000) + '0';
+    if (v >= 100)
+      str += ((int(v) % 1000) / 100) + '0';
+    if (v >= 10)
+      str += ((int(v) % 100) / 10) + '0';
+    if (v >= 1)
+      str += (int(v) % 10) + '0';
+    if (str.length() < 4) {
+      str += '.';
+      offset -= 1;
+      while (str.length() < 5) {
+        v *= 10;
+        str += (int(v) % 10) + '0';
+      }
+    }
+  }
+  draw_string(cc, str, offset, 15.5);
+  
   // circle
+  cc->clear_path();
   cc->arc(20, 20, 17, 0.75 * M_PI, angle);
   cc->arc_negative(21, 21, 12, angle, 0.75 * M_PI);
   cc->close_path();
@@ -68,6 +112,7 @@ bool VGKnob::on_expose_event(GdkEventExpose* event) {
   cc->set_source_rgb(m_red, m_green, m_blue);
   cc->fill_preserve();
   
+  // shadow and outline
   cc->clip();
   cc->clear_path();
   
@@ -100,16 +145,6 @@ bool VGKnob::on_expose_event(GdkEventExpose* event) {
   cc->set_source_rgb(0, 0, 0);
   cc->stroke();
   
-  // thing
-  /*
-  cc->arc(19, 19, 18, 0.25 * M_PI, 0.75 * M_PI);
-  cc->arc_negative(19, 19, 11, 0.75 * M_PI, 0.25 * M_PI);
-  cc->close_path();
-  cc->set_source_rgb(0.9, 0.9, 0.9);
-  cc->fill_preserve();
-  cc->set_source_rgb(0, 0, 0);
-  cc->stroke();
-  */
   return true;
 }
 
@@ -138,4 +173,140 @@ bool VGKnob::on_scroll_event(GdkEventScroll* event) {
   else if (event->direction == GDK_SCROLL_DOWN)
     m_adj.set_value(m_adj.get_value() - 
                     (m_adj.get_upper() - m_adj.get_lower()) / 30);
+}
+
+
+int VGKnob::draw_digit(Cairo::RefPtr<Cairo::Context>& cc, char digit) {
+  cc->save();
+  cc->set_source_rgb(0.7, 0.9, 1.0);
+  cc->set_line_width(1);
+  
+  int width = 0;
+  
+  switch (digit) {
+  case '0':
+    cc->rel_line_to(3, 0);
+    cc->rel_line_to(0, 6);
+    cc->rel_line_to(-3, 0);
+    cc->rel_line_to(0, -6);
+    width = 5;
+    break;
+    
+  case '1':
+    cc->rel_move_to(3, 0);
+    cc->rel_line_to(0, 6);
+    width = 5;
+    break;
+    
+  case '2':
+    cc->rel_line_to(3, 0);
+    cc->rel_line_to(0, 3);
+    cc->rel_line_to(-3, 0);
+    cc->rel_line_to(0, 3);
+    cc->rel_line_to(3, 0);
+    width = 5;
+    break;
+    
+  case '3':
+    cc->rel_line_to(3, 0);
+    cc->rel_line_to(0, 6);
+    cc->rel_line_to(-3, 0);
+    cc->rel_move_to(0, -3);
+    cc->rel_line_to(3, 0);
+    width = 5;
+    break;
+    
+  case '4':
+    cc->rel_line_to(0, 3);
+    cc->rel_line_to(3, 0);
+    cc->rel_move_to(0, -3);
+    cc->rel_line_to(0, 6);
+    width = 5;
+    break;
+    
+  case '5':
+    cc->rel_move_to(3, 0);
+    cc->rel_line_to(-3, 0);
+    cc->rel_line_to(0, 3);
+    cc->rel_line_to(3, 0);
+    cc->rel_line_to(0, 3);
+    cc->rel_line_to(-3, 0);
+    width = 5;
+    break;
+    
+  case '6':
+    cc->rel_move_to(3, 0);
+    cc->rel_line_to(-3, 0);
+    cc->rel_line_to(0, 6);
+    cc->rel_line_to(3, 0);
+    cc->rel_line_to(0, -3);
+    cc->rel_line_to(-3, 0);
+    width = 5;
+    break;
+    
+  case '7':
+    cc->rel_line_to(3, 0);
+    cc->rel_line_to(0, 6);
+    width = 5;
+    break;
+    
+  case '8':
+    cc->rel_line_to(3, 0);
+    cc->rel_line_to(0, 6);
+    cc->rel_line_to(-3, 0);
+    cc->rel_line_to(0, -6);
+    cc->rel_move_to(0, 3);
+    cc->rel_line_to(3, 0);
+    width = 5;
+    break;
+    
+  case '9':
+    cc->rel_move_to(0, 6);
+    cc->rel_line_to(3, 0);
+    cc->rel_line_to(0, -6);
+    cc->rel_line_to(-3, 0);
+    cc->rel_line_to(0, 3);
+    cc->rel_line_to(3, 0);
+    width = 5;
+    break;
+    
+  case '.':
+    cc->rel_move_to(0, 6);
+    cc->rel_line_to(0, -1);
+    width = 2;
+    break;
+    
+  case '*':
+    cc->rel_move_to(0, 1);
+    cc->rel_line_to(3, 4);
+    cc->rel_move_to(-3, 0);
+    cc->rel_line_to(3, -4);
+    cc->rel_move_to(-3, 2);
+    cc->rel_line_to(3, 0);
+    width = 5;
+    break;
+    
+  case '-':
+    cc->rel_move_to(0, 3);
+    cc->rel_line_to(3, 0);
+    width = 5;
+    break;
+    
+  }
+  
+  cc->stroke();
+  cc->restore();
+  
+  return width;
+}
+
+
+void VGKnob::draw_string(Cairo::RefPtr<Cairo::Context>& cc, 
+                         const std::string& str, float x, float y) {
+  cc->move_to(x, y);
+  int xoffset = 0;
+  for (int i = 0; i < str.length(); ++i) {
+    xoffset += draw_digit(cc, str[i]);
+    cc->move_to(x + xoffset, y);
+  }
 }
