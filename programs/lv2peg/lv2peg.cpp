@@ -21,13 +21,15 @@ struct PortInfo {
       max(FLT_MAX), 
       default_value(min),
       toggled(false),
-      integer(false) { }
+      integer(false),
+      logarithmic(false) { }
   string name;
   float min;
   float max;
   float default_value;
   bool toggled;
   bool integer;
+  bool logarithmic;
 };
 
 
@@ -138,6 +140,8 @@ int main(int argc, char** argv) {
         ports[atoi(qr[i][index]->name.c_str())].toggled = true;
       if (qr[i][hint]->name == lv2("integer"))
         ports[atoi(qr[i][index]->name.c_str())].integer = true;
+      if (qr[i][hint]->name == lv2("logarithmic"))
+        ports[atoi(qr[i][index]->name.c_str())].logarithmic = true;
     }
     
     info[plug_iter->first] = ports;
@@ -164,6 +168,7 @@ int main(int argc, char** argv) {
       <<"  float default_value;"<<endl
       <<"  char toggled;"<<endl
       <<"  char integer;"<<endl
+      <<"  char logarithmic;"<<endl
       <<"} peg_data_t;"<<endl
       <<"#endif"<<endl<<endl;
     
@@ -188,7 +193,8 @@ int main(int argc, char** argv) {
           <<iter->second.max<<", "
           <<iter->second.default_value<<", "
           <<(iter->second.toggled ? "1" : "0")<<", "
-          <<(iter->second.integer ? "1" : "0")<<" }, "<<endl;
+          <<(iter->second.integer ? "1" : "0")<<", "
+          <<(iter->second.logarithmic ? "1" : "0")<<" }, "<<endl;
     }
     fout<<"};"<<endl<<endl<<endl;
     

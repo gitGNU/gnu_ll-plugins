@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 
 #include <cairomm/cairomm.h>
@@ -9,21 +10,24 @@ using namespace std;
 
 
 VGKnob::VGKnob(float min, float max, float value, 
-               float red, float green, float blue, bool integer) 
+               float red, float green, float blue, bool integer, 
+               bool logarithmic) 
   : m_adj(min, min, max),
     m_red(red),
     m_green(green),
     m_blue(blue),
-    m_integer(integer) {
+    m_integer(integer),
+    m_logarithmic(logarithmic),
+    m_step(0) {
   
   set_size_request(37, 33);
   add_events(Gdk::EXPOSURE_MASK | Gdk::BUTTON1_MOTION_MASK | 
              Gdk::BUTTON_PRESS_MASK | Gdk::SCROLL_MASK);
   m_adj.signal_value_changed().connect(mem_fun(*this, &VGKnob::queue_draw));
   if (m_integer)
-    m_adj.set_step_increment(1);
+    m_step = 1.0 / (max - min);
   else
-    m_adj.set_step_increment((m_adj.get_upper() - m_adj.get_lower()) / 30);
+    m_step = 1.0 / 30;
   m_adj.set_value(value);
 }
 
@@ -103,9 +107,8 @@ bool VGKnob::on_expose_event(GdkEventExpose* event) {
     }
   }
   draw_string(cc, str, offset, 15.5);
-
-  double angle = M_PI * (0.75 + 1.5 * (value - m_adj.get_lower()) / 
-                         (m_adj.get_upper() - m_adj.get_lower()));
+  
+  double angle = M_PI * (0.75 + 1.5 * map_to_knob(value));
   
   // circle
   cc->clear_path();
@@ -161,28 +164,30 @@ bool VGKnob::on_expose_event(GdkEventExpose* event) {
 bool VGKnob::on_motion_notify_event(GdkEventMotion* event) {
   float scale = 200;
   if (event->state & GDK_SHIFT_MASK)
-    scale *= 1000;
-  float value = m_value_offset + ((m_click_offset - event->y) / scale) * 
-    (m_adj.get_upper() - m_adj.get_lower());
-  value = value < m_adj.get_lower() ? m_adj.get_lower() : value;
-  value = value > m_adj.get_upper() ? m_adj.get_upper() : value;
-  m_adj.set_value(value);
+    scale *= 200;
+  float value = m_value_offset + ((m_click_offset - event->y) / scale);
+  value = value < 0 ? 0 : value;
+  value = value > 1 ? 1 : value;
+  m_adj.set_value(map_to_adj(value));
   return true;
 }
 
 
 bool VGKnob::on_button_press_event(GdkEventButton* event) {
   m_click_offset = (int)event->y;
-  m_value_offset = m_adj.get_value();
+  m_value_offset = map_to_knob(m_adj.get_value());
   return true;
 }
 
 
 bool VGKnob::on_scroll_event(GdkEventScroll* event) {
+  double step = m_step;
+  if (event->state & GDK_SHIFT_MASK && !m_integer)
+    step *= 0.01;
   if (event->direction == GDK_SCROLL_UP)
-    m_adj.set_value(m_adj.get_value() + m_adj.get_step_increment());
+    m_adj.set_value(map_to_adj(map_to_knob(m_adj.get_value()) + step));
   else if (event->direction == GDK_SCROLL_DOWN)
-    m_adj.set_value(m_adj.get_value() - m_adj.get_step_increment());
+    m_adj.set_value(map_to_adj(map_to_knob(m_adj.get_value()) - step));
 }
 
 
@@ -319,4 +324,28 @@ void VGKnob::draw_string(Cairo::RefPtr<Cairo::Context>& cc,
     xoffset += draw_digit(cc, str[i]);
     cc->move_to(x + xoffset, y);
   }
+}
+
+
+double VGKnob::map_to_adj(double knob) {
+  double a = m_adj.get_lower();
+  double b = m_adj.get_upper();
+  knob = knob < 0 ? 0 : knob;
+  knob = knob > 1 ? 1 : knob;
+  if (m_logarithmic)
+    return a * pow(b / a, knob);
+  else
+    return a + knob * (b - a);
+}
+
+
+double VGKnob::map_to_knob(double adj) {
+  double a = m_adj.get_lower();
+  double b = m_adj.get_upper();
+  adj = adj < a ? a : adj;
+  adj = adj > b ? b : adj;
+  if (m_logarithmic)
+    return log(adj / a) / log(b / a);
+  else
+    return (adj - a) / (b - a);
 }

@@ -8,7 +8,7 @@ class VGKnob : public Gtk::DrawingArea {
 public:
   
   VGKnob(float min, float max, float value, 
-         float red, float green, float blue, bool integer);
+         float red, float green, float blue, bool integer, bool logarithmic);
   
   void set_value(float value);
   
@@ -24,12 +24,16 @@ protected:
   int draw_digit(Cairo::RefPtr<Cairo::Context>& cc, char digit);
   void draw_string(Cairo::RefPtr<Cairo::Context>& cc, const std::string& str,
                    float x, float y);
+  double map_to_adj(double knob);
+  double map_to_knob(double adj);
   
   Gtk::Adjustment m_adj;
   int m_click_offset;
   float m_value_offset;
   float m_red, m_green, m_blue;
   bool m_integer;
+  bool m_logarithmic;
+  float m_step;
 };
 
 

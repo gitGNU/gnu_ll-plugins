@@ -73,6 +73,7 @@
     lv2:minimum 0.001;
     lv2:maximum 10;
     lv2:default 0.005;
+    lv2:portHint lv2:logarithmic;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -88,6 +89,7 @@
     lv2:minimum 0.001;
     lv2:maximum 10;
     lv2:default 0.5;
+    lv2:portHint lv2:logarithmic;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -118,6 +120,7 @@
     lv2:minimum 0.001;
     lv2:maximum 10;
     lv2:default 1;
+    lv2:portHint lv2:logarithmic;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -178,6 +181,7 @@
     lv2:minimum 0.001;
     lv2:maximum 10;
     lv2:default 1;
+    lv2:portHint lv2:logarithmic;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -193,6 +197,7 @@
     lv2:minimum 0.001;
     lv2:maximum 10;
     lv2:default 9;
+    lv2:portHint lv2:logarithmic;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -223,6 +228,7 @@
     lv2:minimum 0.001;
     lv2:maximum 10;
     lv2:default 1;
+    lv2:portHint lv2:logarithmic;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -311,9 +317,10 @@
     lv2:index 20;
     lv2:symbol "unison_spread";
     lv2:name "Unison spread";
-    lv2:minimum 0;
+    lv2:minimum 0.001;
     lv2:maximum 0.1;
     lv2:default 0.001;
+    lv2:portHint lv2:logarithmic;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -588,9 +595,10 @@
     lv2:index 38;
     lv2:symbol "echo_delay";
     lv2:name "Echo: Delay";
-    lv2:minimum 0;
+    lv2:minimum 0.01;
     lv2:maximum 5;
     lv2:default 0.5;
+    lv2:portHint lv2:logarithmic;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -664,9 +672,10 @@
     lv2:index 43;
     lv2:symbol "reverb_time";
     lv2:name "Reverb: Time";
-    lv2:minimum 0;
+    lv2:minimum 0.01;
     lv2:maximum 3;
     lv2:default 1;
+    lv2:portHint lv2:logarithmic;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -679,9 +688,10 @@
     lv2:index 44;
     lv2:symbol "reverb_room";
     lv2:name "Reverb: Room size";
-    lv2:minimum 0;
+    lv2:minimum 0.01;
     lv2:maximum 1;
     lv2:default 0.5;
+    lv2:portHint lv2:logarithmic;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -758,6 +768,7 @@
     lv2:minimum 0.5;
     lv2:maximum 2;
     lv2:default 1;
+    lv2:portHint lv2:logarithmic;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;

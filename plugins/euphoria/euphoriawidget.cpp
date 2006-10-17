@@ -262,7 +262,8 @@ VBox* EuphoriaWidget::create_knob(const string& label, int port,
   VBox* box = manage(new VBox(false, 1));
   VGKnob* knob = manage(new VGKnob(e_ports[port].min, e_ports[port].max,
                                    e_ports[port].default_value, 
-                                   red, green, blue, e_ports[port].integer));
+                                   red, green, blue, e_ports[port].integer,
+                                   e_ports[port].logarithmic));
   box->pack_start(*knob);
   Label* text = manage(new Label(string("<small>") + label + "</small>"));
   text->set_use_markup(true);
