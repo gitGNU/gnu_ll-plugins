@@ -16,11 +16,18 @@ using namespace PAQ;
 
 
 struct PortInfo {
-  PortInfo() : min(-FLT_MAX), max(FLT_MAX), default_value(min) { }
+  PortInfo() 
+    : min(-FLT_MAX), 
+      max(FLT_MAX), 
+      default_value(min),
+      toggled(false),
+      integer(false) { }
   string name;
   float min;
   float max;
   float default_value;
+  bool toggled;
+  bool integer;
 };
 
 
@@ -119,6 +126,20 @@ int main(int argc, char** argv) {
       ports[atoi(qr[i][index]->name.c_str())].default_value = 
         atof(qr[i][value]->name.c_str());
     
+    // get port hints
+    Variable hint;
+    qr = select(index, hint)
+      .where(plug_iter->first, lv2("port"), port)
+      .where(port, lv2("index"), index)
+      .where(port, lv2("portHint"), hint)
+      .run(data);
+    for (int i = 0; i < qr.size(); ++i) {
+      if (qr[i][hint]->name == lv2("toggled"))
+        ports[atoi(qr[i][index]->name.c_str())].toggled = true;
+      if (qr[i][hint]->name == lv2("integer"))
+        ports[atoi(qr[i][index]->name.c_str())].integer = true;
+    }
+    
     info[plug_iter->first] = ports;
     
   }
@@ -134,35 +155,43 @@ int main(int argc, char** argv) {
   fout<<"#ifndef "<<header_guard<<endl
       <<"#define "<<header_guard<<endl<<endl<<endl;
   
+  // define data structure
+  fout<<"#ifndef PEG_STRUCT"<<endl
+      <<"#define PEG_STRUCT"<<endl
+      <<"typedef struct {"<<endl
+      <<"  float min;"<<endl
+      <<"  float max;"<<endl
+      <<"  float default_value;"<<endl
+      <<"  char toggled;"<<endl
+      <<"  char integer;"<<endl
+      <<"} peg_data_t;"<<endl
+      <<"#endif"<<endl<<endl;
+    
   map<string, map<int, PortInfo> >::const_iterator piter;
   for (piter = info.begin(); piter != info.end(); ++piter) {
     fout<<"/* "<<piter->first<<" */"<<endl<<endl;
     
     // write port labels
-    fout<<"enum "<<plugins[piter->first]<<"_ports {"<<endl;
+    fout<<"enum "<<plugins[piter->first]<<"_port_enum {"<<endl;
     map<int, PortInfo>::const_iterator iter;
     for (iter = piter->second.begin(); iter != piter->second.end(); ++iter)
       fout<<"  "<<plugins[piter->first]<<"_"<<iter->second.name<<","<<endl;
     fout<<"  "<<plugins[piter->first]<<"_n_ports"<<endl
         <<"};"<<endl<<endl;
     
-    // write minimum values
-    fout<<"static const float "<<plugins[piter->first]<<"_min[] = {"<<endl;
-    for (iter = piter->second.begin(); iter != piter->second.end(); ++iter)
-      fout<<"  "<<iter->second.min<<","<<endl;
-    fout<<"};"<<endl<<endl;
-
-    // write maximum values
-    fout<<"static const float "<<plugins[piter->first]<<"_max[] = {"<<endl;
-    for (iter = piter->second.begin(); iter != piter->second.end(); ++iter)
-      fout<<"  "<<iter->second.max<<","<<endl;
+    // write port info
+    fout<<"static const peg_data_t "
+        <<plugins[piter->first]<<"_ports[] = {"<<endl;
+    for (iter = piter->second.begin(); iter != piter->second.end(); ++iter) {
+      fout<<"  { "
+          <<iter->second.min<<", "
+          <<iter->second.max<<", "
+          <<iter->second.default_value<<", "
+          <<(iter->second.toggled ? "1" : "0")<<", "
+          <<(iter->second.integer ? "1" : "0")<<" }, "<<endl;
+    }
     fout<<"};"<<endl<<endl<<endl;
-
-    // write default values
-    fout<<"static const float "<<plugins[piter->first]<<"_default[] = {"<<endl;
-    for (iter = piter->second.begin(); iter != piter->second.end(); ++iter)
-      fout<<"  "<<iter->second.default_value<<","<<endl;
-    fout<<"};"<<endl<<endl<<endl;
+    
   }
   
   fout<<"#endif /* "<<header_guard<<" */"<<endl;

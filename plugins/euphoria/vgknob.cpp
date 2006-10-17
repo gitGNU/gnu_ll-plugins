@@ -9,16 +9,21 @@ using namespace std;
 
 
 VGKnob::VGKnob(float min, float max, float value, 
-               float red, float green, float blue) 
+               float red, float green, float blue, bool integer) 
   : m_adj(min, min, max),
     m_red(red),
     m_green(green),
-    m_blue(blue) {
+    m_blue(blue),
+    m_integer(integer) {
   
   set_size_request(37, 33);
   add_events(Gdk::EXPOSURE_MASK | Gdk::BUTTON1_MOTION_MASK | 
              Gdk::BUTTON_PRESS_MASK | Gdk::SCROLL_MASK);
   m_adj.signal_value_changed().connect(mem_fun(*this, &VGKnob::queue_draw));
+  if (m_integer)
+    m_adj.set_step_increment(1);
+  else
+    m_adj.set_step_increment((m_adj.get_upper() - m_adj.get_lower()) / 30);
   m_adj.set_value(value);
 }
 
@@ -32,10 +37,6 @@ bool VGKnob::on_expose_event(GdkEventExpose* event) {
   
   Glib::RefPtr<Gdk::Window> win = get_window();
   Glib::RefPtr<Gdk::GC> gc = Gdk::GC::create(win);
-  
-  double angle = M_PI * (0.75 + 1.5 * (m_adj.get_value() - m_adj.get_lower()) / 
-                         (m_adj.get_upper() - m_adj.get_lower()));
-  
   Cairo::RefPtr<Cairo::Context> cc = win->create_cairo_context();
   cc->set_line_join(Cairo::LINE_JOIN_ROUND);
   
@@ -68,9 +69,12 @@ bool VGKnob::on_expose_event(GdkEventExpose* event) {
   cc->stroke();
   
   // digits
-  float v = m_adj.get_value();
+  float value = m_adj.get_value();
+  if (m_integer)
+    value = floor(value + 0.5);
   string str;
   float offset = 10.5;
+  float v = value;
   if (v >= 10000 || v <= -1000) {
     str = "****";
   }
@@ -85,9 +89,11 @@ bool VGKnob::on_expose_event(GdkEventExpose* event) {
       str += ((int(v) % 1000) / 100) + '0';
     if (v >= 10)
       str += ((int(v) % 100) / 10) + '0';
-    if (v >= 1)
+    if (v >= 1 || m_integer)
       str += (int(v) % 10) + '0';
-    if (str.length() < 4) {
+    if (m_integer)
+      offset += (5 * (4 - str.length())) / 2;
+    else if (str.length() < 4) {
       str += '.';
       offset -= 1;
       while (str.length() < 5) {
@@ -97,6 +103,9 @@ bool VGKnob::on_expose_event(GdkEventExpose* event) {
     }
   }
   draw_string(cc, str, offset, 15.5);
+
+  double angle = M_PI * (0.75 + 1.5 * (value - m_adj.get_lower()) / 
+                         (m_adj.get_upper() - m_adj.get_lower()));
   
   // circle
   cc->clear_path();
@@ -168,11 +177,9 @@ bool VGKnob::on_button_press_event(GdkEventButton* event) {
 
 bool VGKnob::on_scroll_event(GdkEventScroll* event) {
   if (event->direction == GDK_SCROLL_UP)
-    m_adj.set_value(m_adj.get_value() + 
-                    (m_adj.get_upper() - m_adj.get_lower()) / 30);
+    m_adj.set_value(m_adj.get_value() + m_adj.get_step_increment());
   else if (event->direction == GDK_SCROLL_DOWN)
-    m_adj.set_value(m_adj.get_value() - 
-                    (m_adj.get_upper() - m_adj.get_lower()) / 30);
+    m_adj.set_value(m_adj.get_value() - m_adj.get_step_increment());
 }
 
 

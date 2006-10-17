@@ -298,6 +298,7 @@
     lv2:minimum 1;
     lv2:maximum 4;
     lv2:default 2;
+    lv2:portHint lv2:integer;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -328,6 +329,7 @@
     lv2:minimum 0;
     lv2:maximum 1;
     lv2:default 1;
+    lv2:portHint lv2:integer;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -358,6 +360,7 @@
     lv2:minimum 0;
     lv2:maximum 1;
     lv2:default 1;
+    lv2:portHint lv2:toggled;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -373,6 +376,7 @@
     lv2:minimum 2;
     lv2:maximum 10;
     lv2:default 4;
+    lv2:portHint lv2:integer;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -388,6 +392,7 @@
     lv2:minimum 0;
     lv2:maximum 1;
     lv2:default 1;
+    lv2:portHint lv2:toggled;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -418,6 +423,7 @@
     lv2:minimum 0;
     lv2:maximum 1;
     lv2:default 0;
+    lv2:portHint lv2:toggled;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -493,6 +499,7 @@
     lv2:minimum 0;
     lv2:maximum 1;
     lv2:default 0;
+    lv2:portHint lv2:toggled;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -568,6 +575,7 @@
     lv2:minimum 0;
     lv2:maximum 1;
     lv2:default 0;
+    lv2:portHint lv2:toggled;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -643,6 +651,7 @@
     lv2:minimum 0;
     lv2:maximum 1;
     lv2:default 0;
+    lv2:portHint lv2:toggled;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;
@@ -733,6 +742,7 @@
     lv2:minimum -2;
     lv2:maximum 2;
     lv2:default 0;
+    lv2:portHint lv2:integer;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
       ll:controllerNumber 1;

@@ -8,7 +8,7 @@ class VGKnob : public Gtk::DrawingArea {
 public:
   
   VGKnob(float min, float max, float value, 
-         float red, float green, float blue);
+         float red, float green, float blue, bool integer);
   
   void set_value(float value);
   
@@ -29,6 +29,7 @@ protected:
   int m_click_offset;
   float m_value_offset;
   float m_red, m_green, m_blue;
+  bool m_integer;
 };
 
 
