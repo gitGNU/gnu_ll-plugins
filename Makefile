@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.102
+PACKAGE_VERSION = 0.1.103
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.8.8 libglademm-2.4>=2.6.2
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
@@ -26,7 +26,7 @@ liblv2_oscui_a_SOURCEDIR = libraries/lv2oscui
 PROGRAMS = lv2peg lv2host paqtest
 
 lv2peg_SOURCES = lv2peg.cpp
-lv2peg_CFLAGS = -Ilibraries/paq
+lv2peg_CFLAGS = -Ilibraries/paq -DVERSION=\"$(PACKAGE_VERSION)\"
 lv2peg_LDFLAGS = libraries/paq/libpaq.a
 lv2peg_SOURCEDIR = programs/lv2peg
 

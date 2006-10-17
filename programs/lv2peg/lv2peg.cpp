@@ -1,3 +1,29 @@
+/****************************************************************************
+    
+    LV2PEG - LV2 Port Enum Generator
+
+    This program reads an RDF file (in the Turtle syntax) describing
+    an LV2 plugin and generates a C header file with data structures
+    that contain information about the plugin.
+    
+    Copyright (C) 2006  Lars Luthman <lars.luthman@gmail.com>
+    
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+    
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 01222-1307  USA
+
+****************************************************************************/
+
 #include <cfloat>
 #include <cstdlib>
 #include <fstream>
@@ -9,6 +35,10 @@
 #include "turtleparser.hpp"
 #include "query.hpp"
 #include "namespaces.hpp"
+
+#ifndef VERSION
+#define VERSION "UNKNOWNVERSION"
+#endif
 
 
 using namespace std;
@@ -34,6 +64,14 @@ struct PortInfo {
 
 
 int main(int argc, char** argv) {
+  
+  for (int i = 1; i < argc; ++i) {
+    if (string(argv[i]) == "-V" || string(argv[i]) == "--version") {
+      cout<<"lv2peg "<<VERSION<<" by Lars Luthman <lars.luthman@gmail.com>"
+          <<endl;
+      return 0;
+    }
+  }
   
   if (argc < 3) {
     cerr<<"Use like this: lv2peg <input file> <output file> "<<endl;
