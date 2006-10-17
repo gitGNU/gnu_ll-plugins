@@ -46,6 +46,10 @@ int main(int argc, char** argv) {
   string text;
   string line;
   ifstream fin(argv[1]);
+  if (!fin.good()) {
+    cerr<<"Could not open "<<argv[1]<<"."<<endl;
+    return -1;
+  }
   while (getline(fin, line))
     text += line + "\n";
   if (!tp.parse_ttl(text, data)) {
