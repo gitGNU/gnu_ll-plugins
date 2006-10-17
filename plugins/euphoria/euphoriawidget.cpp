@@ -1,6 +1,7 @@
 #include "euphoriawidget.hpp"
 #include "vgknob.hpp"
 #include "euphoria.peg"
+#include "envelopeeditor.hpp"
 
 
 using namespace Gtk;
@@ -62,9 +63,16 @@ EuphoriaWidget::EuphoriaWidget()
                   0, 1, 1, 2, AttachOptions(0));
   phaseT1->attach(*create_knob("Vel", e_pd_vel_sens)
                   , 1, 2, 0, 1, AttachOptions(0));
-  Button* phaseEnvelope = manage(new Button("Phase envelope"));
-  phaseEnvelope->set_size_request(200, 100);
-  voiceTable->attach(*phaseEnvelope, 2, 3, 0, 1, 
+  EnvelopeEditor* phaseEnvelope = manage(new EnvelopeEditor());
+  VBox* phaseEnvBox = manage(new VBox(false, 0));
+  ScrolledWindow* phaseScrw = manage(new ScrolledWindow());
+  HScrollbar* phaseBar = manage(new HScrollbar());
+  phaseEnvBox->pack_start(*phaseScrw);
+  phaseEnvBox->pack_start(*phaseBar);
+  phaseScrw->set_shadow_type(SHADOW_IN);
+  phaseScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  phaseScrw->add(*phaseEnvelope);
+  voiceTable->attach(*phaseEnvBox, 2, 3, 0, 1, 
                      FILL|EXPAND, AttachOptions(0));
   Table* phaseT2 = manage(new Table(2, 2));
   voiceTable->attach(*phaseT2, 3, 4, 0, 1, AttachOptions(0), AttachOptions(0));
@@ -91,9 +99,16 @@ EuphoriaWidget::EuphoriaWidget()
                   0, 1, 1, 2, AttachOptions(0));
   shapeT1->attach(*create_knob("Vel", e_shape_vel_sens),
                   1, 2, 0, 1, AttachOptions(0));
-  Button* shapeEnvelope = manage(new Button("Shape envelope"));
-  shapeEnvelope->set_size_request(200, 100);
-  voiceTable->attach(*shapeEnvelope, 2, 3, 1, 2, 
+  EnvelopeEditor* shapeEnvelope = manage(new EnvelopeEditor());
+  VBox* shapeEnvBox = manage(new VBox(false, 0));
+  ScrolledWindow* shapeScrw = manage(new ScrolledWindow());
+  HScrollbar* shapeBar = manage(new HScrollbar());
+  shapeEnvBox->pack_start(*shapeScrw);
+  shapeEnvBox->pack_start(*shapeBar);
+  shapeScrw->set_shadow_type(SHADOW_IN);
+  shapeScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  shapeScrw->add(*shapeEnvelope);
+  voiceTable->attach(*shapeEnvBox, 2, 3, 1, 2, 
                      FILL|EXPAND, AttachOptions(0));
   Table* shapeT2 = manage(new Table(2, 2));
   voiceTable->attach(*shapeT2, 3, 4, 1, 2, AttachOptions(0), AttachOptions(0));

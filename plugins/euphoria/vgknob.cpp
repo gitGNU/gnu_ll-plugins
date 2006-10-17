@@ -188,6 +188,7 @@ bool VGKnob::on_scroll_event(GdkEventScroll* event) {
     m_adj.set_value(map_to_adj(map_to_knob(m_adj.get_value()) + step));
   else if (event->direction == GDK_SCROLL_DOWN)
     m_adj.set_value(map_to_adj(map_to_knob(m_adj.get_value()) - step));
+  return true;
 }
 
 
