@@ -159,7 +159,10 @@ bool VGKnob::on_expose_event(GdkEventExpose* event) {
 
 
 bool VGKnob::on_motion_notify_event(GdkEventMotion* event) {
-  float value = m_value_offset + ((m_click_offset - event->y) / 200.0) * 
+  float scale = 200;
+  if (event->state & GDK_SHIFT_MASK)
+    scale *= 1000;
+  float value = m_value_offset + ((m_click_offset - event->y) / scale) * 
     (m_adj.get_upper() - m_adj.get_lower());
   value = value < m_adj.get_lower() ? m_adj.get_lower() : value;
   value = value > m_adj.get_upper() ? m_adj.get_upper() : value;
