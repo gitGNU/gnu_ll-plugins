@@ -80,12 +80,10 @@ EuphoriaWidget::EuphoriaWidget()
   phaseT1->attach(*create_knob("Vel", e_pd_vel_sens)
                   , 1, 2, 0, 1, AttachOptions(0));
   EnvelopeEditor* phaseEnvelope = manage(new EnvelopeEditor());
-  Gdk::Color bg;
-  bg.set_rgb(20000, 10000, 10000);
-  phaseEnvelope->modify_bg(STATE_NORMAL, bg);
   VBox* phaseEnvBox = manage(new VBox(false, 0));
   ScrolledWindow* phaseScrw = manage(new ScrolledWindow());
-  HScrollbar* phaseBar = manage(new HScrollbar());
+  HScrollbar* phaseBar = 
+    manage(new HScrollbar(phaseEnvelope->get_adjustment()));
   for (int i = 0; i < 4; ++i) {
     ToggleButton* phaseBtn = manage(new ToggleButton);
     phaseBar->signal_size_allocate().connect(bind(&moo, phaseBtn));
@@ -136,7 +134,8 @@ EuphoriaWidget::EuphoriaWidget()
   EnvelopeEditor* shapeEnvelope = manage(new EnvelopeEditor());
   VBox* shapeEnvBox = manage(new VBox(false, 0));
   ScrolledWindow* shapeScrw = manage(new ScrolledWindow());
-  HScrollbar* shapeBar = manage(new HScrollbar());
+  HScrollbar* shapeBar = 
+    manage(new HScrollbar(shapeEnvelope->get_adjustment()));
   for (int i = 0; i < 4; ++i) {
     ToggleButton* shapeBtn = manage(new ToggleButton);
     shapeBar->signal_size_allocate().connect(bind(&moo, shapeBtn));
