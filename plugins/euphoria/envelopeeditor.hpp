@@ -19,8 +19,18 @@ protected:
 
   bool on_expose_event(GdkEventExpose* event);
   bool on_motion_notify_event(GdkEventMotion* event);
+  bool on_button_release_event(GdkEventButton* event);
   bool on_button_press_event(GdkEventButton* event);
   bool on_scroll_event(GdkEventScroll* event);
+  
+  void new_segment();
+  void delete_segment();
+  
+  int x2p(double x);
+  int y2p(double y);
+  double p2x(int p);
+  double p2y(int p);
+  
   
   enum SegmentType {
     Constant,
@@ -61,8 +71,16 @@ protected:
   
   std::vector<Segment> m_segments;
   
+  double m_margin;
   double m_ruler_height;
   double m_xscale;
+  double m_click_x, m_click_y;
+  int m_active_segment;
+  bool m_dragging;
+  int m_pix_drag_x, m_pix_drag_y;
+  double m_drag_length, m_drag_y;
+  
+  Gtk::Menu m_menu;
 };
 
 

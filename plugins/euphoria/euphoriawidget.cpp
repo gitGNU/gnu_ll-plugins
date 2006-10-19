@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "euphoriawidget.hpp"
 #include "vgknob.hpp"
 #include "euphoria.peg"
@@ -6,6 +8,11 @@
 
 using namespace Gtk;
 using namespace std;
+
+
+void moo(Allocation& a, Widget* w) {
+  w->set_size_request(-1, a.get_height());
+}
 
 
 EuphoriaWidget::EuphoriaWidget()
@@ -50,9 +57,18 @@ EuphoriaWidget::EuphoriaWidget()
   voiceVBox->pack_start(*voiceTable);
   voiceTable->set_spacings(6);
   
+  VBox* phaseEBox = manage(new VBox);
   Button* phaseEditor = manage(new Button("Phase"));
-  phaseEditor->set_size_request(100, 100);
-  voiceTable->attach(*phaseEditor, 0, 1, 0, 1, 
+  ScrolledWindow* phaseEScrw = manage(new ScrolledWindow);
+  phaseEScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  phaseEScrw->set_shadow_type(SHADOW_IN);
+  phaseEScrw->add(*phaseEditor);
+  phaseEBox->pack_start(*phaseEScrw);
+  phaseEditor->set_size_request(90, 90);
+  phaseEBox->pack_start(*phaseEScrw, false, false);
+  HBox* phaseEHBox = manage(new HBox(true));
+  phaseEBox->pack_start(*phaseEHBox, false, false);
+  voiceTable->attach(*phaseEBox, 0, 1, 0, 1, 
                      AttachOptions(0), AttachOptions(0));
   Table* phaseT1 = manage(new Table(2, 2));
   voiceTable->attach(*phaseT1, 1, 2, 0, 1, AttachOptions(0), AttachOptions(0));
@@ -64,9 +80,18 @@ EuphoriaWidget::EuphoriaWidget()
   phaseT1->attach(*create_knob("Vel", e_pd_vel_sens)
                   , 1, 2, 0, 1, AttachOptions(0));
   EnvelopeEditor* phaseEnvelope = manage(new EnvelopeEditor());
+  Gdk::Color bg;
+  bg.set_rgb(20000, 10000, 10000);
+  phaseEnvelope->modify_bg(STATE_NORMAL, bg);
   VBox* phaseEnvBox = manage(new VBox(false, 0));
   ScrolledWindow* phaseScrw = manage(new ScrolledWindow());
   HScrollbar* phaseBar = manage(new HScrollbar());
+  for (int i = 0; i < 4; ++i) {
+    ToggleButton* phaseBtn = manage(new ToggleButton);
+    phaseBar->signal_size_allocate().connect(bind(&moo, phaseBtn));
+    phaseEHBox->pack_start(*phaseBtn);
+  }
+  
   phaseEnvBox->pack_start(*phaseScrw);
   phaseEnvBox->pack_start(*phaseBar);
   phaseScrw->set_shadow_type(SHADOW_IN);
@@ -86,10 +111,19 @@ EuphoriaWidget::EuphoriaWidget()
   phaseT2->attach(*create_knob("Rel", e_pd_release), 
                   1, 2, 1, 2, AttachOptions(0));
   
+  VBox* shapeEBox = manage(new VBox);
   Button* shapeEditor = manage(new Button("Shape"));
-  shapeEditor->set_size_request(100, 100);
-  voiceTable->attach(*shapeEditor, 0, 1, 1, 2, 
-                     AttachOptions(0),AttachOptions(0));
+  ScrolledWindow* shapeEScrw = manage(new ScrolledWindow);
+  shapeEScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  shapeEScrw->set_shadow_type(SHADOW_IN);
+  shapeEScrw->add(*shapeEditor);
+  shapeEBox->pack_start(*shapeEScrw);
+  shapeEditor->set_size_request(90, 90);
+  shapeEBox->pack_start(*shapeEScrw, false, false);
+  HBox* shapeEHBox = manage(new HBox(true));
+  shapeEBox->pack_start(*shapeEHBox, false, false);
+  voiceTable->attach(*shapeEBox, 0, 1, 1, 2, 
+                     AttachOptions(0), AttachOptions(0));
   Table* shapeT1 = manage(new Table(2, 2));
   voiceTable->attach(*shapeT1, 1, 2, 1, 2, AttachOptions(0), AttachOptions(0));
   shapeT1->set_spacings(3);
@@ -103,6 +137,12 @@ EuphoriaWidget::EuphoriaWidget()
   VBox* shapeEnvBox = manage(new VBox(false, 0));
   ScrolledWindow* shapeScrw = manage(new ScrolledWindow());
   HScrollbar* shapeBar = manage(new HScrollbar());
+  for (int i = 0; i < 4; ++i) {
+    ToggleButton* shapeBtn = manage(new ToggleButton);
+    shapeBar->signal_size_allocate().connect(bind(&moo, shapeBtn));
+    shapeEHBox->pack_start(*shapeBtn);
+  }
+
   shapeEnvBox->pack_start(*shapeScrw);
   shapeEnvBox->pack_start(*shapeBar);
   shapeScrw->set_shadow_type(SHADOW_IN);
