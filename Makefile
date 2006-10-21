@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.108
+PACKAGE_VERSION = 0.1.109
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
@@ -74,6 +74,7 @@ euphoria_gtk_SOURCES = \
 	euphoria_gtk.cpp \
 	envelopeeditor.cpp envelopeeditor.hpp \
 	euphoriawidget.cpp euphoriawidget.hpp \
+	pdeditor.cpp pdeditor.hpp \
 	shapereditor.cpp shapereditor.hpp \
 	vgknob.cpp vgknob.hpp
 euphoria_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Ilibraries/lv2oscui -I.

@@ -1,5 +1,5 @@
-#ifndef SHAPEREDITOR_HPP
-#define SHAPEREDITOR_HPP
+#ifndef PDEDITOR_HPP
+#define PDEDITOR_HPP
 
 #include <string>
 #include <vector>
@@ -7,24 +7,28 @@
 #include <gtkmm.h>
 
 
-class ShaperEditor : public Gtk::DrawingArea {
+class PDEditor : public Gtk::DrawingArea {
 public:
   
-  ShaperEditor();
+  PDEditor();
   
   bool set_string(const std::string& str);
   std::string get_string() const;
   
 protected:
-
+  
   struct Point {
     
-    Point(double _x = 0, double _y = 1)
-      : x(_x),
-        y(_y) {
+    Point(double _ox = 0, double _oy = 1)
+      : ox(_ox),
+        oy(_oy),
+        x(_ox),
+        y(_oy) {
 
     }
     
+    double ox;
+    double oy;
     double x;
     double y;
   };
@@ -46,15 +50,13 @@ protected:
   double p2x(int p);
   double p2y(int p);
   
-  double shape(double y);
-
-  
   std::vector<Point> m_points;
   
   double m_margin;
   double m_click_x, m_click_y;
   int m_active_point;
   bool m_dragging;
+  bool m_odragging;
   int m_pix_drag_x, m_pix_drag_y;
   double m_drag_x, m_drag_y;
   

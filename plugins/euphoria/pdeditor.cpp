@@ -1,28 +1,32 @@
 #include <iostream>
 #include <valarray>
 
-#include "shapereditor.hpp"
+#include "pdeditor.hpp"
 
 
 using namespace Gtk;
 using namespace std;
 
 
-ShaperEditor::ShaperEditor()
+PDEditor::PDEditor()
   : m_margin(4),
     m_active_point(-1),
     m_dragging(false),
+    m_odragging(false),
     m_wave(false),
     m_dirty(false) {
   
   set_size_request(91, 91);
   
   m_points.push_back(Point(-1, -1));
+  Point p(0, 0);
+  p.x = -0.8;
+  m_points.push_back(p);
   m_points.push_back(Point(1, 1));
   
   add_events(Gdk::EXPOSURE_MASK | Gdk::BUTTON1_MOTION_MASK | 
-             Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK |
-             Gdk::SCROLL_MASK);
+             Gdk::BUTTON2_MOTION_MASK | Gdk::BUTTON_PRESS_MASK | 
+             Gdk::BUTTON_RELEASE_MASK | Gdk::SCROLL_MASK);
   
   Gdk::Color bg;
   bg.set_rgb(10000, 10000, 15000);
@@ -33,27 +37,27 @@ ShaperEditor::ShaperEditor()
   
   m_menu.items().
     push_back(MenuElem("New point", 
-                       mem_fun(*this, &ShaperEditor::new_point)));
+                       mem_fun(*this, &PDEditor::new_point)));
   m_menu.items().
     push_back(MenuElem("Delete point", 
-                       mem_fun(*this, &ShaperEditor::delete_point)));
+                       mem_fun(*this, &PDEditor::delete_point)));
   m_menu.items().push_back(SeparatorElem());
   m_menu.items().
-    push_back(MenuElem("Apply", mem_fun(*this, &ShaperEditor::apply)));
+    push_back(MenuElem("Apply", mem_fun(*this, &PDEditor::apply)));
 }
  
 
-bool ShaperEditor::set_string(const std::string& str) {
+bool PDEditor::set_string(const std::string& str) {
   return false;
 }
 
 
-std::string ShaperEditor::get_string() const {
+std::string PDEditor::get_string() const {
   return "";
 }
 
 
-bool ShaperEditor::on_expose_event(GdkEventExpose* event) {
+bool PDEditor::on_expose_event(GdkEventExpose* event) {
   
   Glib::RefPtr<Gdk::Window> win = get_window();
   Glib::RefPtr<Gdk::GC> gc = Gdk::GC::create(win);
@@ -96,20 +100,56 @@ bool ShaperEditor::on_expose_event(GdkEventExpose* event) {
       if (t == 9)
         cc->set_line_width(2);
       cc->set_source_rgba(1, t / 9.0, (9 - t) / 9.0, (t + 1) / 10.0);
-      cc->move_to(x2p(-1), y2p(shape(0)));
-      for (int j = 0; j < 200; ++j) {
-        cc->line_to(x2p(-1 + 2 * (j + 1) / 200.0), 
-                    y2p(shape(sin(M_PI * (-1 + 2 * (j + 1) / 200.0)) * t / 9.0)));
+      for (int i = 0; i < m_points.size() - 1; ++i) {
+        double a = m_points[i].ox * (1 - t / 9.0) + m_points[i].x * t / 9.0;
+        double b = m_points[i + 1].ox * (1 - t / 9.0) +
+          m_points[i + 1].x * t / 9.0;
+        double c = m_points[i].oy * (1 - t / 9.0) + m_points[i].y * t / 9.0;
+        double d = m_points[i + 1].oy * (1 - t / 9.0) +
+          m_points[i + 1].y * t / 9.0;
+        for (int j = 0; j < 100; ++j) {
+          cc->move_to(x2p(a + j * (b - a) / 100), 
+                      y2p(cos(M_PI * (c + j * (d - c) / 100))));
+          cc->line_to(x2p(a + (j + 1) * (b - a) / 100), 
+                      y2p(cos(M_PI * (c + (j + 1) * (d - c) / 100))));
+        }
       }
       cc->stroke();
     }
   }
-  
+
   else {
+    
+    // original curve
+    cc->set_line_width(1);
+    cc->save();
+    valarray<double> dashes(1);
+    dashes[0] = 5;
+    cc->set_dash(dashes, 0);
+    cc->move_to(x2p(-1), y2p(-1));
+    cc->line_to(x2p(1), y2p(1));
+    cc->set_source_rgb(1, 0.5, 0);
+    cc->stroke();
+    for (int i = 0; i < m_points.size() - 1; ++i) {
+      cc->move_to(x2p(m_points[i].ox), y2p(m_points[i].oy));
+      cc->line_to(x2p(m_points[i].x), y2p(m_points[i].y));
+      cc->set_source_rgb(0, 0.7, 0);
+      cc->stroke();
+    }
+    cc->restore();
+    
+    // original points
+    for (int i = 0; i < m_points.size(); ++i) {
+      cc->arc(x2p(m_points[i].ox), y2p(m_points[i].oy), 3, 0, 2 * M_PI);
+      cc->set_source_rgb(0.30, 0.3, 0.6);
+      cc->fill_preserve();
+      cc->set_source_rgb(1, 0.5, 0);
+      cc->stroke();
+    }
     
     // curve
     cc->set_line_width(2);
-      for (int i = 0; i < m_points.size() - 1; ++i) {
+    for (int i = 0; i < m_points.size() - 1; ++i) {
       cc->move_to(x2p(m_points[i].x), y2p(m_points[i].y));
       cc->line_to(x2p(m_points[i + 1].x), y2p(m_points[i + 1].y));
       cc->set_source_rgb(1, 1, 1);
@@ -125,50 +165,74 @@ bool ShaperEditor::on_expose_event(GdkEventExpose* event) {
       cc->set_source_rgb(1, 1, 1);
       cc->stroke();
     }
-
   }
-  
+
   return true;
 }
 
 
-bool ShaperEditor::on_motion_notify_event(GdkEventMotion* event) {
+bool PDEditor::on_motion_notify_event(GdkEventMotion* event) {
   
   if (m_dragging) {
-    
     if (m_active_point > 0 && m_active_point < m_points.size() - 1) {
       double xdiff = (event->x - m_pix_drag_x) / (get_width() / 2.0- m_margin);
       m_points[m_active_point].x = m_drag_x + xdiff;
+      if (m_points[m_active_point].x < m_points[m_active_point - 1].ox)
+        m_points[m_active_point].x = m_points[m_active_point - 1].ox;
       if (m_points[m_active_point].x < m_points[m_active_point - 1].x)
         m_points[m_active_point].x = m_points[m_active_point - 1].x;
+      if (m_points[m_active_point].x > m_points[m_active_point + 1].ox)
+        m_points[m_active_point].x = m_points[m_active_point + 1].ox;
       if (m_points[m_active_point].x > m_points[m_active_point + 1].x)
         m_points[m_active_point].x = m_points[m_active_point + 1].x;
+      double ydiff = (m_pix_drag_y - event->y) / (get_height()/2.0 - m_margin);
+      m_points[m_active_point].y = m_drag_y + ydiff;
+      if (m_points[m_active_point].y > 1)
+        m_points[m_active_point].y = 1;
+      if (m_points[m_active_point].y < -1)
+        m_points[m_active_point].y = -1;
+      
+      set_dirty();
+      queue_draw();
     }
-    
-    double ydiff = (m_pix_drag_y - event->y) / (get_height()/2.0 - m_margin);
-    m_points[m_active_point].y = m_drag_y + ydiff;
-    if (m_points[m_active_point].y > 1)
-      m_points[m_active_point].y = 1;
-    if (m_points[m_active_point].y < -1)
-      m_points[m_active_point].y = -1;
-    
-    set_dirty();
-    queue_draw();
   }
+
+  else if (m_odragging) {
+    if (m_active_point > 0 && m_active_point < m_points.size() - 1) {
+      double diff = (event->x - m_pix_drag_x) / (get_width() / 2.0- m_margin);
+      m_points[m_active_point].ox = m_drag_x + diff;
+      if (m_points[m_active_point].ox < m_points[m_active_point - 1].ox)
+        m_points[m_active_point].ox = m_points[m_active_point - 1].ox;
+      if (m_points[m_active_point].ox < m_points[m_active_point - 1].x)
+        m_points[m_active_point].ox = m_points[m_active_point - 1].x;
+      if (m_points[m_active_point].ox > m_points[m_active_point + 1].ox)
+        m_points[m_active_point].ox = m_points[m_active_point + 1].ox;
+      if (m_points[m_active_point].ox > m_points[m_active_point + 1].x)
+        m_points[m_active_point].ox = m_points[m_active_point + 1].x;
+      m_points[m_active_point].oy = m_points[m_active_point].ox;
+      
+      set_dirty();
+      queue_draw();
+    }
+  }
+
   return true;
 }
 
 
-bool ShaperEditor::on_button_release_event(GdkEventButton* event) {
+bool PDEditor::on_button_release_event(GdkEventButton* event) {
   if (event->button == 1)
     m_dragging = false;
+  else if (event->button == 2)
+    m_odragging = false;
   m_wave = false;
+  
   queue_draw();
 }
 
 
-bool ShaperEditor::on_button_press_event(GdkEventButton* event) {
-
+bool PDEditor::on_button_press_event(GdkEventButton* event) {
+  
   // show waveform
   if (event->button == 1 && event->state & GDK_SHIFT_MASK) {
     m_wave = true;
@@ -176,25 +240,50 @@ bool ShaperEditor::on_button_press_event(GdkEventButton* event) {
     return true;
   }
   
-  int point;
-  for (point = 0; point < m_points.size(); ++point) {
-    if (pow(event->x - x2p(m_points[point].x), 2) + 
-        pow(event->y - y2p(m_points[point].y), 2) < 25)
-      break;
+  // button 1 moves the point
+  else if (event->button == 1) {
+    int point;
+    for (point = 0; point < m_points.size(); ++point) {
+      if (pow(event->x - x2p(m_points[point].x), 2) + 
+          pow(event->y - y2p(m_points[point].y), 2) < 25) {
+        m_active_point = point;
+        m_odragging = false;
+        m_dragging = true;
+        m_pix_drag_x = int(event->x);
+        m_pix_drag_y = int(event->y);
+        m_drag_x = m_points[point].x;
+        m_drag_y = m_points[point].y;
+        break;
+      }
+    }
   }
   
-  // button 1 moves the point
-  if (event->button == 1 && point < m_points.size()) {
-    m_active_point = point;
-    m_dragging = true;
-    m_pix_drag_x = int(event->x);
-    m_pix_drag_y = int(event->y);
-    m_drag_x = m_points[point].x;
-    m_drag_y = m_points[point].y;
+  // button 2 moves the o-point
+  else if (event->button == 2) {
+    int point;
+    for (point = 0; point < m_points.size(); ++point) {
+      if (pow(event->x - x2p(m_points[point].ox), 2) + 
+          pow(event->y - y2p(m_points[point].oy), 2) < 25) {
+        m_active_point = point;
+        m_dragging = false;
+        m_odragging = true;
+        m_pix_drag_x = int(event->x);
+        m_pix_drag_y = int(event->y);
+        m_drag_x = m_points[point].ox;
+        m_drag_y = m_points[point].oy;
+        break;
+      }
+    }
   }
   
   // button 3 brings up the menu
   else if (event->button == 3) {
+    int point;
+    for (point = 0; point < m_points.size(); ++point) {
+      if (pow(event->x - x2p(m_points[point].ox), 2) + 
+          pow(event->y - y2p(m_points[point].oy), 2) < 25)
+        break;
+    }
     m_click_x = p2x(int(event->x));
     m_click_y = p2y(int(event->y));
     m_active_point = point;
@@ -205,7 +294,7 @@ bool ShaperEditor::on_button_press_event(GdkEventButton* event) {
 }
 
 
-bool ShaperEditor::on_scroll_event(GdkEventScroll* event) {
+bool PDEditor::on_scroll_event(GdkEventScroll* event) {
   
   /*
   double event->x = event->x + m_adj.get_value();
@@ -281,14 +370,17 @@ bool ShaperEditor::on_scroll_event(GdkEventScroll* event) {
 }
 
 
-void ShaperEditor::new_point() {
+void PDEditor::new_point() {
   if (m_click_x < -1) m_click_x = -1;
   if (m_click_x > 1) m_click_x = 1;
   if (m_click_y < -1) m_click_y = -1;
   if (m_click_y > 1) m_click_y = 1;
   for (int i = 0; i < m_points.size() - 1; ++i) {
     if (m_click_x <= m_points[i + 1].x) {
-      Point s(m_click_x, m_click_y);
+      double t = (m_click_x + m_click_y) / 2;
+      Point s(t, t);
+      s.x = m_click_x;
+      s.y = m_click_y;
       m_points.insert(m_points.begin() + i + 1, s);
       break;
     }
@@ -298,7 +390,7 @@ void ShaperEditor::new_point() {
 }
 
 
-void ShaperEditor::delete_point() {
+void PDEditor::delete_point() {
   if (m_active_point > 0 && m_active_point < m_points.size() - 1) {
     m_points.erase(m_points.begin() + m_active_point);
     set_dirty();
@@ -307,40 +399,27 @@ void ShaperEditor::delete_point() {
 }
  
 
-double ShaperEditor::x2p(double x) {
+double PDEditor::x2p(double x) {
   return get_width() / 2.0 + (get_width() / 2.0  - m_margin) * x;
 }
 
 
-double ShaperEditor::y2p(double y) {
+double PDEditor::y2p(double y) {
   return m_margin + (1 - y) * (get_height() / 2.0 - m_margin);
 }
 
 
-double ShaperEditor::p2x(int p) {
+double PDEditor::p2x(int p) {
   return (p - get_width() / 2.0) / (get_width() / 2.0 - m_margin);
 }
 
 
-double ShaperEditor::p2y(int p) {
+double PDEditor::p2y(int p) {
   return 1 - (p - m_margin) / (get_height() / 2.0 - m_margin);
 }
 
 
-double ShaperEditor::shape(double y) {
-  if (y == -1)
-    return m_points[0].y;
-  for (int i = 1; i < m_points.size(); ++i) {
-    if (y <= m_points[i].x) {
-      return m_points[i - 1].y + (y - m_points[i - 1].x) * 
-        (m_points[i].y - m_points[i - 1].y) / (m_points[i].x - m_points[i - 1].x);
-    }
-  }
-  return 0;
-}
-
-
-void ShaperEditor::set_dirty() {
+void PDEditor::set_dirty() {
   if (!m_dirty) {
     m_dirty = true;
     Gdk::Color bg;
@@ -350,7 +429,7 @@ void ShaperEditor::set_dirty() {
 }
 
 
-void ShaperEditor::apply() {
+void PDEditor::apply() {
   m_dirty = false;
   Gdk::Color bg;
   bg.set_rgb(10000, 10000, 15000);

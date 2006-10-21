@@ -20,6 +20,7 @@ VGKnob::VGKnob(float min, float max, float value,
     m_logarithmic(logarithmic),
     m_step(0) {
   
+  //set_size_request(37 * 3, 33 * 3);
   set_size_request(37, 33);
   add_events(Gdk::EXPOSURE_MASK | Gdk::BUTTON1_MOTION_MASK | 
              Gdk::BUTTON_PRESS_MASK | Gdk::SCROLL_MASK);
@@ -43,6 +44,7 @@ bool VGKnob::on_expose_event(GdkEventExpose* event) {
   Glib::RefPtr<Gdk::GC> gc = Gdk::GC::create(win);
   Cairo::RefPtr<Cairo::Context> cc = win->create_cairo_context();
   cc->set_line_join(Cairo::LINE_JOIN_ROUND);
+  //cc->scale(3, 3);
   
   // disc
   cc->arc(19, 19, 16, 0.7 * M_PI, 2.3 * M_PI);

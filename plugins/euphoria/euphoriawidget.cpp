@@ -4,6 +4,7 @@
 #include "vgknob.hpp"
 #include "euphoria.peg"
 #include "envelopeeditor.hpp"
+#include "pdeditor.hpp"
 #include "shapereditor.hpp"
 
 
@@ -59,13 +60,14 @@ EuphoriaWidget::EuphoriaWidget()
   voiceTable->set_spacings(6);
   
   VBox* phaseEBox = manage(new VBox);
-  Button* phaseEditor = manage(new Button("Phase"));
+  //Button* phaseEditor = manage(new Button("Phase"));
+  PDEditor* phaseEditor = manage(new PDEditor);
   ScrolledWindow* phaseEScrw = manage(new ScrolledWindow);
   phaseEScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
   phaseEScrw->set_shadow_type(SHADOW_IN);
   phaseEScrw->add(*phaseEditor);
   phaseEBox->pack_start(*phaseEScrw);
-  phaseEditor->set_size_request(91, 91);
+  //phaseEditor->set_size_request(91, 91);
   phaseEBox->pack_start(*phaseEScrw, false, false);
   HBox* phaseEHBox = manage(new HBox(true));
   phaseEBox->pack_start(*phaseEHBox, false, false);
