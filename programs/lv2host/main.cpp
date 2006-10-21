@@ -188,10 +188,12 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
     }
     
     // or a program change
+    /*
     else if ((input_event.size == 2) && 
              ((input_event.buffer[0] & 0xF0) == 0xC0)) {
       host.select_program(128 * bank + input_event.buffer[1]);
     }
+    */
     
     else {
       // write LV2 MIDI event
@@ -412,11 +414,13 @@ int main(int argc, char** argv) {
               lv2h.configure(key.c_str(), value.c_str());
               osc.send_configure(key, value);
             }
+            /*
             if (word == "program") {
               unsigned long program;
               ifs>>program;
               lv2h.queue_program(program);
             }
+            */
             if (word == "control") {
               unsigned long port;
               float value;

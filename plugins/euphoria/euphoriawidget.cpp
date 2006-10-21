@@ -4,6 +4,7 @@
 #include "vgknob.hpp"
 #include "euphoria.peg"
 #include "envelopeeditor.hpp"
+#include "shapereditor.hpp"
 
 
 using namespace Gtk;
@@ -64,7 +65,7 @@ EuphoriaWidget::EuphoriaWidget()
   phaseEScrw->set_shadow_type(SHADOW_IN);
   phaseEScrw->add(*phaseEditor);
   phaseEBox->pack_start(*phaseEScrw);
-  phaseEditor->set_size_request(90, 90);
+  phaseEditor->set_size_request(91, 91);
   phaseEBox->pack_start(*phaseEScrw, false, false);
   HBox* phaseEHBox = manage(new HBox(true));
   phaseEBox->pack_start(*phaseEHBox, false, false);
@@ -110,13 +111,14 @@ EuphoriaWidget::EuphoriaWidget()
                   1, 2, 1, 2, AttachOptions(0));
   
   VBox* shapeEBox = manage(new VBox);
-  Button* shapeEditor = manage(new Button("Shape"));
+  //Button* shapeEditor = manage(new Button("Shape"));
+  ShaperEditor* shapeEditor = manage(new ShaperEditor);
+  shapeEditor->set_size_request(91, 91);
   ScrolledWindow* shapeEScrw = manage(new ScrolledWindow);
   shapeEScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
   shapeEScrw->set_shadow_type(SHADOW_IN);
   shapeEScrw->add(*shapeEditor);
   shapeEBox->pack_start(*shapeEScrw);
-  shapeEditor->set_size_request(90, 90);
   shapeEBox->pack_start(*shapeEScrw, false, false);
   HBox* shapeEHBox = manage(new HBox(true));
   shapeEBox->pack_start(*shapeEHBox, false, false);

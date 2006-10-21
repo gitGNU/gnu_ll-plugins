@@ -427,9 +427,9 @@ void LV2Host::run(unsigned long nframes) {
   while ((t = m_to_jack.read_event()) != EventQueue::None) {
     switch (t) {
       
-    case EventQueue::Program: 
-      select_program(e.program.program);
-      break;
+      //case EventQueue::Program: 
+      //select_program(e.program.program);
+      //break;
       
     case EventQueue::Control: {
       const unsigned long& port = e.control.port;
@@ -499,6 +499,7 @@ unsigned int LV2Host::list_used_files(char*** keys, char*** filepaths) {
 }
 
 
+/*
 const LV2_ProgramDescriptor* LV2Host::get_program(unsigned long index) {
   if (m_inst_desc && m_inst_desc->get_program)
     return m_inst_desc->get_program(m_handle, index);
@@ -525,6 +526,7 @@ void LV2Host::select_program(unsigned long program) {
     }
   }
 }
+*/
 
 
 const std::vector<int>& LV2Host::get_midi_map() const {
@@ -541,7 +543,7 @@ const std::string& LV2Host::get_bundle_dir() const {
   return m_bundledir;
 }
 
-
+/*
 void LV2Host::queue_program(unsigned long program, bool to_jack) {
   if (to_jack) {
     pthread_mutex_lock(&m_mutex);
@@ -551,7 +553,7 @@ void LV2Host::queue_program(unsigned long program, bool to_jack) {
   else if (m_from_jack)
     m_from_jack->write_program(program);
 }
-
+*/
 
 void LV2Host::queue_control(unsigned long port, float value, bool to_jack) {
   if (port < m_ports.size()) {

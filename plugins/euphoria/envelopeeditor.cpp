@@ -12,14 +12,14 @@ EnvelopeEditor::EnvelopeEditor()
   : m_loop_start(-1),
     m_loop_end(-1),
     m_margin(4),
-    m_ruler_height(8.5),
+    m_ruler_height(9.5),
     m_xscale(50),
     m_active_segment(-1),
     m_dragging(false),
     m_dirty(false),
     m_adj(0, 0, 200, 1, 10, 20) {
   
-  set_size_request(200, 90);
+  set_size_request(200, 91);
   
   m_segments.push_back(Segment(0, 1, 0, Attack));
   m_segments.push_back(Segment(1, 1, 0, Decay, Exponential));
@@ -325,6 +325,8 @@ bool EnvelopeEditor::on_button_press_event(GdkEventButton* event) {
       break;
   }
   
+  // button 1 or 2 moves the point (2 without changing the length of the next
+  // segment)
   if (event->button == 1 || event->button == 2) {
     if (event->state & GDK_SHIFT_MASK && segment < m_segments.size()) {
       m_segments[segment].type = 
@@ -358,6 +360,7 @@ bool EnvelopeEditor::on_button_press_event(GdkEventButton* event) {
     }
   }
   
+  // button 3 brings up the menu
   else if (event->button == 3 && segment < m_segments.size()) {
     m_click_x = (eventx - xoffset) / m_xscale + m_segments[segment].length;
     m_click_y = 1 - (event->y - m_margin) / 
@@ -373,7 +376,8 @@ bool EnvelopeEditor::on_button_press_event(GdkEventButton* event) {
 bool EnvelopeEditor::on_scroll_event(GdkEventScroll* event) {
   
   double eventx = event->x + m_adj.get_value();
-
+  
+  // shift is not pressed, zoom
   if (!(event->state & GDK_SHIFT_MASK)) {
     double x = p2x(int(eventx));
     if (event->direction == GDK_SCROLL_UP) {
@@ -396,6 +400,7 @@ bool EnvelopeEditor::on_scroll_event(GdkEventScroll* event) {
     return true;
   }
   
+  // find the active segment
   int segment;
   double xoffset = 0;
   for (segment = 0; segment < m_segments.size(); ++segment) {
@@ -403,10 +408,10 @@ bool EnvelopeEditor::on_scroll_event(GdkEventScroll* event) {
     if (eventx < xoffset)
       break;
   }
-  
   if (segment >= m_segments.size() || segment == 0)
     return true;
   
+  // shift is pressed, change the sustain level sensitivity
   if (event->direction == GDK_SCROLL_UP && event->state & GDK_SHIFT_MASK) {
     m_segments[segment].sustain_sens += 0.03;
     if (m_segments[segment].sustain_sens > 1)
@@ -419,7 +424,8 @@ bool EnvelopeEditor::on_scroll_event(GdkEventScroll* event) {
     if (m_segments[segment].sustain_sens < 0)
       m_segments[segment].sustain_sens = 0;
   }
-
+  
+  // sync the loop boundaries
   if (segment == m_loop_start && m_loop_start < m_loop_end) {
     if (m_loop_end < m_segments.size())
       m_segments[m_loop_end].sustain_sens = m_segments[segment].sustain_sens;

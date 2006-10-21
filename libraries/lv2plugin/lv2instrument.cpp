@@ -41,16 +41,6 @@ namespace LV2SupportFunctions {
   }
   
   
-  const LV2_ProgramDescriptor* get_program(LV2_Handle instance, 
-                                           uint32_t index) {
-    return reinterpret_cast<LV2Instrument*>(instance)->get_program(index);
-  }
-  
-  
-  void select_program(LV2_Handle instance, uint32_t program) {
-    reinterpret_cast<LV2Instrument*>(instance)->select_program(program);
-  }
-  
 }
   
 
@@ -61,8 +51,6 @@ extern "C" {
     static LV2_InstrumentDescriptor idesc = {
       &configure,
       &list_used_files,
-      &get_program,
-      &select_program,
     };
     return &idesc;
   }

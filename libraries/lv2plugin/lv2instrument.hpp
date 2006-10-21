@@ -55,14 +55,6 @@ public:
     return 0; 
   }
   
-  /** List the available program at a given index. */
-  virtual const LV2_ProgramDescriptor* get_program(uint32_t index) { 
-    return 0; 
-  }
-  
-  /** Select a program. Should be RT safe if the plugin is. */
-  virtual void select_program(uint32_t program) { }
-  
 protected:
   
 };
@@ -80,11 +72,6 @@ namespace LV2SupportFunctions {
   
   unsigned int list_used_files(LV2_Handle instance, 
                                char*** keys, char*** filepaths);
-  
-  const LV2_ProgramDescriptor* get_program(LV2_Handle instance, 
-                                           uint32_t index);
-  
-  void select_program(LV2_Handle instance, uint32_t program);
   
   const LV2_InstrumentDescriptor* lv2_instrument_descriptor(const char* URI);
   

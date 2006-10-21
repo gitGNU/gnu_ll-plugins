@@ -1,6 +1,6 @@
 /************************************************************************
 
-   This file is based on dssi.h from DSSI 0.9, which is
+   This file is partly based on dssi.h from DSSI 0.9, which is
    Copyright (C) 2004 Chris Cannam, Steve Harris and Sean Bolton
 
    Modifications made by Lars Luthman in 2006
@@ -32,84 +32,31 @@ extern "C" {
 #endif
 
 
-/* This header defines data structures and preprocessor macros used by
-   LV2 hosts and plugins that support the LV2 Instrument extension with
-   URI <http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>.
+/* This header defines data structures used by LV2 hosts and plugins that
+   support the LV2 Instrument extension with URI 
+   <http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>.
    
    This extension adds two things to LV2 plugins:
-   
-   * "Programs", named presets that can be listed and selected by the host
    
    * A configure() callback that can be used by the host to pass arbitrary
      keys and values to the plugin, that the plugin can use to e.g. load
      sample files, edit programs,  or do anything else that is hard to do
      with control rate input ports or that require some non-RT safe 
-     computations, and a list_used_files() callback that can be used by the
-     host to find out which files it needs to copy into a project directory 
-     or session archive in order to restore the plugin correctly
+     computations
+   * A list_used_files() callback that can be used by the host to find 
+     out which files it needs to copy into a project directory or session
+     archive in order to restore the plugin correctly
      
-   Some terminology: a 'MIDI port' is an LV2 control rate input port with the 
-   datatype <http://ll-plugins.nongnu.org/lv2/namespace#miditype>. An LV2 
-   plugin may also have output ports with this type but they do not have any 
-   special meaning for this extension.
-   
-   A plugin that supports this extension may have one 'default MIDI port',
-   specified by the RDF triple
-   
-   PLUGIN <http://ll-plugins.nongnu.org/lv2/namespace#defaultMidiPort> INDEX
-   
-   where PLUGIN is the URI for the plugin and INDEX is an integer literal 
-   specifying the index for a MIDI port. If the plugin has no MIDI ports
-   it will not have a default MIDI port either, and if it has MIDI ports
-   but no specified default MIDI port the MIDI port with the lowest index
-   will be assumed to be the default one. MIDI events sent to the default
-   MIDI port may be subject to filtering by the host as specified in the 
-   comments for select_program() below.
-   
-   Plugins that support this extension do not _have_ to have MIDI ports - 
-   program selection may be useful even if the plugin itself doesn't do 
-   anything with MIDI events.
-   
    The data member in the LV2_Host_Feature struct for this extension, 
    passed to the plugin's instantiate() function, should be set to NULL.
 
-   A plugin that supports this extension must have a function in its shared 
-   object file called "lv2_instrument_descriptor" that takes a plugin URI as
-   parameter and returns a const pointer to a LV2_InstrumentDescriptor, 
-   defined below. So the way the host loads a plugin with this extension is
-   something like this:
-   
-   1. Host loads shared object file and retrieves a pointer to its LV2_Descriptor
-      using the lv2_descriptor() function.
-   2. Host retrieves a pointer to the LV2_InstrumentDescriptor using the 
-      lv2_instrument_descriptor function.
-   3. Host calls instantiate() in the LV2_Descriptor, passing the LV2_Host_Feature
-      {"<http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>", NULL}.
-      
-   After this, the host can use the function pointers in the LV2_Descriptor and
-   the LV2_InstrumentDescriptor with the plugin instance as the first parameter.
+   A plugin that supports this extension must have a non-NULL extension_data()
+   function pointer in its descriptor, that returns a pointer to an 
+   LV2_InstrumentDescriptor, defined below, when called with the URI 
+   "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext". This 
+   LV2_InstrumentDescriptor object contains function pointers that 
+   implement the "instrument" part of the plugin.
 */
-
-
-/** A struct that contains information about a single program. Used in the
-    return value of the get_program() callback. 
-*/
-typedef struct {
-
-  /** Number of this program. Should not exceed 2097151, since that is the
-      largest number that can be obtained using MIDI Bank Select MSB/LSB and
-      Program Change messages, and many hosts will probably want to map MIDI
-      program changes to LV2 program changes. Hosts that use MIDI to select
-      programs should use the macros at the end of this header file to
-      transform MIDI bank and program numbers to plain program numbers.
-  */
-  uint32_t number;
-  
-  /** Name of the program. 
-   */
-  const char* name;
-  
-} LV2_ProgramDescriptor;
 
 
 /** This struct contains all callbacks used in this extension. */
@@ -136,14 +83,9 @@ typedef struct {
       given plugin instance, and should call configure() with the
       correct value for each key the next time it instantiates the
       "same" plugin instance, for example on reloading a project in
-      which the plugin was used before.
-      
-      Calling configure() completely invalidates all program information 
-      obtained from the plugin. If the host wants to keep the list of 
-      available programs for the plugin up to date, it needs to retrieve
-      it again after each configure() call, and if it wants a particular
-      program to be selected it needs to call select_program() again after
-      each configure() call.
+      which the plugin was used before. If multiple keys are used, 
+      the order in which their values are set should not matter to the
+      plugin.
       
       This function does not need to be realtime safe.
   */
@@ -153,12 +95,12 @@ typedef struct {
 
 
   /** This member is a function pointer that the host can use to get
-      a list of the data files currently used by the plugins and the
+      a list of the data files currently used by the plugin and the
       configuration keys they are associated with. The host may need
       this information if it wants to save the state of the plugin into
       some kind of project or session archive (e.g. if it wants to make
       a project archive that should be transferrable to another computer
-      it would have to copy the used data files into that archive).
+      it would have to copy all used data files into that archive).
       
       If the plugin is using any datafiles it should allocate two arrays
       of char* elements and change the pointers *keys and *filepaths to
@@ -189,101 +131,7 @@ typedef struct {
                                   char*** keys,
                                   char*** filepaths);  
   
-  
-  /** This member is a function pointer that provides a description
-      of a program (named preset) available on this synth.  A
-      plugin that does not support programs at all should set this
-      member to NULL.
-      
-      The index argument is an index into the plugin's list of
-      programs, not a program number as represented by the number
-      field of the LV2_ProgramDescriptor (this distinction is
-      needed to support synths that use non-contiguous program
-      numbers). The host should attach no meaning at all to the index.
-      
-      This function returns a LV2_ProgramDescriptor pointer that is
-      guaranteed to be valid only until the next call to get_program(),
-      deactivate(), or configure(), on the same plugin instance. This
-      function must return NULL if passed an index argument out of
-      range, so that the host can use it to query the number of
-      programs as well as their properties.
-      
-      This function does not need to be realtime safe.
-  */
-  const LV2_ProgramDescriptor *(*get_program)(LV2_Handle instance, 
-                                              uint32_t index);
-  
-  
-  /** This member is a function pointer that selects a new program
-      for this synth. The program change should take effect
-      immediately at the start of the next run() call. (This means 
-      that a host providing the capability of changing programs
-      between any two notes on a track must vary the block size so as
-      to place the program change at the right place. A host that
-      wanted to avoid this would probably just instantiate a plugin
-      for each program.)
-      
-      A plugin that does not support programs at all should set this
-      member to NULL. Plugins should ignore a select_program() call
-      with an invalid program.
-      
-      A plugin is not required to select any particular default
-      program on activate(), it's the host's duty to set a program
-      explicitly. The current program is invalidated by any call to
-      configure() or deactivate().
-      
-      A plugin is permitted to re-write the values of its input
-      control ports when select_program() is called. The host should
-      re-read the input control port values and update its own
-      records appropriately (this is the only circumstance in which 
-      a LV2 plugin with this extension is allowed to modify its own 
-      input ports).
-      
-      Regardless of whether this callback is NULL or not, a host
-      should never deliver MIDI Program Change or Bank Select (MSB or LSB)
-      messages to the default MIDI port.
-      
-      If the plugin supports the hardRtCapable property, this function
-      needs to be realtime safe.
-  */
-  void (*select_program)(LV2_Handle instance, uint32_t program);
-  
-  
 } LV2_InstrumentDescriptor;
-
-
-/** Accessing the instrument descriptor for a plugin:
- * 
- * Each plugin shared object file that contains plugins with the Instrument 
- * extension must include a function called "lv2_instrument_descriptor" with 
- * the following prototype. The function must have C-style linkage (e.g. if you 
- * write your plugin in C++ you need to put the lv2_instrument_descriptor()
- * function in an 'extern "C"' block). This function returns a pointer to the 
- * LV2_InstrumentDescriptor for the plugin. This descriptor is not enough to
- * use the plugin, it only specifies the Instrument extension part of the plugin.
- * You still need to call lv2_descriptor() to get the ordinary LV2_Descriptor.
- *
- * The host may call the lv2_instrument_descriptor() function before or after it
- * calls the lv2_descriptor() function for the same plugin. If the RDF file for
- * the plugin lists the Instrument extension as an optional extension the host
- * does not need to call the lv2_instrument_descriptor() function at all, and can
- * use the plugin as a plain LV2 plugin without the extension.
- */
-const LV2_InstrumentDescriptor* lv2_instrument_descriptor(const char* URI);
-
-
-/** Datatype corresponding to the lv2_instrument_descriptor() function. */
-typedef const LV2_InstrumentDescriptor* (*LV2_InstrumentDescriptor_Function)(const char*);
-
-
-/*
-  Macros to create LV2_Instrument program numbers from MIDI bank and 
-  program numbers, and the other way around. 
-*/
-
-#define LV2INST_PROGRAM(B, P)          (((B) << 7) + (P))
-#define LV2INST_MIDIBANK(L)            ((L) >> 7)
-#define LV2INST_MIDIPROGRAM(L)         ((L) & 0x7F)
 
 
 #ifdef __cplusplus

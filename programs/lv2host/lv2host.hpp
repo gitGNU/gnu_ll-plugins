@@ -58,15 +58,15 @@ public:
   
   char* configure(const char* key, const char* value);
   unsigned int list_used_files(char*** keys, char*** filepaths);
-  const LV2_ProgramDescriptor* get_program(unsigned long index);
-  void select_program(unsigned long program);
+  //const LV2_ProgramDescriptor* get_program(unsigned long index);
+  //void select_program(unsigned long program);
   
   const std::vector<int>& get_midi_map() const;
   
   const std::string& get_gui_path() const;
   const std::string& get_bundle_dir() const;
   
-  void queue_program(unsigned long program, bool to_jack = true);
+  //void queue_program(unsigned long program, bool to_jack = true);
   void queue_control(unsigned long port, float value, bool to_jack = true);
   void queue_midi(unsigned long port, const unsigned char* midi);
   void queue_config_request(EventQueue* sender);
