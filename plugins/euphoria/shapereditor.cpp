@@ -16,7 +16,7 @@ ShaperEditor::ShaperEditor()
   
   set_size_request(91, 91);
   
-  m_points.push_back(Point(0, 0));
+  m_points.push_back(Point(-1, -1));
   m_points.push_back(Point(1, 1));
   
   add_events(Gdk::EXPOSURE_MASK | Gdk::BUTTON1_MOTION_MASK | 
@@ -119,7 +119,7 @@ bool ShaperEditor::on_motion_notify_event(GdkEventMotion* event) {
   if (m_dragging) {
     
     if (m_active_point > 0 && m_active_point < m_points.size() - 1) {
-      double xdiff = (event->x - m_pix_drag_x) / (get_width() - 2 * m_margin);
+      double xdiff = (event->x - m_pix_drag_x) / (get_width() / 2.0- m_margin);
       m_points[m_active_point].x = m_drag_x + xdiff;
       if (m_points[m_active_point].x < m_points[m_active_point - 1].x)
         m_points[m_active_point].x = m_points[m_active_point - 1].x;
@@ -127,12 +127,12 @@ bool ShaperEditor::on_motion_notify_event(GdkEventMotion* event) {
         m_points[m_active_point].x = m_points[m_active_point + 1].x;
     }
     
-    double ydiff = (m_pix_drag_y - event->y) / (get_height() - 2 * m_margin);
+    double ydiff = (m_pix_drag_y - event->y) / (get_height()/2.0 - m_margin);
     m_points[m_active_point].y = m_drag_y + ydiff;
     if (m_points[m_active_point].y > 1)
       m_points[m_active_point].y = 1;
-    if (m_points[m_active_point].y < 0)
-      m_points[m_active_point].y = 0;
+    if (m_points[m_active_point].y < -1)
+      m_points[m_active_point].y = -1;
     
     set_dirty();
     queue_draw();
@@ -255,9 +255,9 @@ bool ShaperEditor::on_scroll_event(GdkEventScroll* event) {
 
 
 void ShaperEditor::new_point() {
-  if (m_click_x < 0) m_click_x = 0;
+  if (m_click_x < -1) m_click_x = -1;
   if (m_click_x > 1) m_click_x = 1;
-  if (m_click_y < 0) m_click_y = 0;
+  if (m_click_y < -1) m_click_y = -1;
   if (m_click_y > 1) m_click_y = 1;
   for (int i = 0; i < m_points.size() - 1; ++i) {
     if (m_click_x <= m_points[i + 1].x) {
@@ -281,22 +281,22 @@ void ShaperEditor::delete_point() {
  
 
 int ShaperEditor::x2p(double x) {
-  return int(m_margin + (get_width() - 2 * m_margin) * x);
+  return int(get_width() / 2.0 + (get_width() / 2.0  - m_margin) * x);
 }
 
 
 int ShaperEditor::y2p(double y) {
-  return int(m_margin + (1 - y) * (get_height() - 2 * m_margin));
+  return int(m_margin + (1 - y) * (get_height() / 2.0 - m_margin));
 }
 
 
 double ShaperEditor::p2x(int p) {
-  return (p - m_margin) / (get_width() - 2 * m_margin);
+  return (p - get_width() / 2.0) / (get_width() / 2.0 - m_margin);
 }
 
 
 double ShaperEditor::p2y(int p) {
-  return 1 - (p - m_margin) / (get_height() - 2 * m_margin);
+  return 1 - (p - m_margin) / (get_height() / 2.0 - m_margin);
 }
 
 
