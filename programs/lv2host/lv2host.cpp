@@ -14,6 +14,7 @@
 #include <namespaces.hpp>
 
 #include "lv2host.hpp"
+#include "lv2-midifunctions.h"
 
 
 using namespace std;
@@ -459,6 +460,15 @@ void LV2Host::run(unsigned long nframes) {
         m_from_jack->write_passthrough(e.passthrough.msg, e.passthrough.ptr);
       break;
       
+    case EventQueue::Midi: {
+      LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[e.midi.port].buffer);
+      LV2_MIDIState state = { midi, nframes, 0 };
+      // XXX DANGER! Can't set the timestamp to 0 since other events may
+      // have been written to the buffer already!
+      lv2midi_put_event(&state, 0, e.midi.size, e.midi.data);
+      break;
+    }
+
     default:
       break;
     }
@@ -568,8 +578,19 @@ void LV2Host::queue_control(unsigned long port, float value, bool to_jack) {
 }
 
 
-void LV2Host::queue_midi(unsigned long port, const unsigned char* midi) {
-  cerr<<__PRETTY_FUNCTION__<<" is not implemented yet!"<<endl;
+void LV2Host::queue_midi(uint32_t port, uint32_t size, 
+                         const unsigned char* midi) {
+  if (port < m_ports.size() && m_ports[port].midi) {
+    if (size <= 4) {
+      pthread_mutex_lock(&m_mutex);
+      m_to_jack.write_midi(port, size, midi);
+      pthread_mutex_unlock(&m_mutex);
+    }
+    else
+      cerr<<"Can only write MIDI events smaller than 5 bytes"<<endl;
+  }
+  else
+    cerr<<"Trying to write MIDI to invalid port "<<port<<endl;
 }
 
 

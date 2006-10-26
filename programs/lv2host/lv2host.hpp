@@ -68,7 +68,7 @@ public:
   
   //void queue_program(unsigned long program, bool to_jack = true);
   void queue_control(unsigned long port, float value, bool to_jack = true);
-  void queue_midi(unsigned long port, const unsigned char* midi);
+  void queue_midi(uint32_t port, uint32_t size, const unsigned char* midi);
   void queue_config_request(EventQueue* sender);
   void queue_passthrough(const char* msg, void* ptr);
   

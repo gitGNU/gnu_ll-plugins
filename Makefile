@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.109
+PACKAGE_VERSION = 0.1.110
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
@@ -43,7 +43,7 @@ paqtest_SOURCES = main.cpp
 paqtest_LDFLAGS = libraries/paq/libpaq.a
 paqtest_SOURCEDIR = libraries/paq
 
-LV2_PLUGINS = control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 phase-distortion-osc.lv2 euphoria.lv2
+LV2_PLUGINS = control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 phase-distortion-osc.lv2 euphoria.lv2 klaviatur.lv2
 
 PLUGINFLAGS = -Wl,-whole-archive libraries/lv2plugin/liblv2_plugin.a -Wl,-no-whole-archive
 INSTRUMENTFLAGS = -Wl,-whole-archive libraries/lv2plugin/liblv2_plugin.a -Wl,-no-whole-archive
@@ -61,6 +61,19 @@ phase-distortion-osc_lv2_DATA = manifest.ttl phase-distortion-osc.ttl
 phase-distortion-osc_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components -I.
 phase-distortion-osc_lv2_LDFLAGS = $(PLUGINFLAGS)
 phase-distortion-osc_lv2_SOURCEDIR = plugins/phase-distortion-osc
+
+# Klaviatur
+klaviatur_lv2_SOURCES = klaviatur.cpp
+klaviatur_lv2_DATA = manifest.ttl klaviatur.ttl
+klaviatur_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype -Ilibraries/components -I.
+klaviatur_lv2_LDFLAGS = $(PLUGINFLAGS)
+klaviatur_lv2_PEGFILES = klaviatur.peg
+klaviatur_lv2_SOURCEDIR = plugins/klaviatur
+klaviatur_lv2_PROGRAMS = klaviatur_gtk
+klaviatur_gtk_SOURCES = klaviatur_gtk.cpp keyboard.cpp keyboard.hpp
+klaviatur_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Ilibraries/lv2oscui -I.
+klaviatur_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo` libraries/lv2oscui/liblv2_oscui.a
+klaviatur_gtk_SOURCEDIR = plugins/klaviatur
 
 # Euphoria
 euphoria_lv2_SOURCES = euphoria.cpp

@@ -44,7 +44,15 @@ EventQueue::Type EventQueue::read_event() {
     m_queue.read(reinterpret_cast<unsigned char*>(&m_event.passthrough),
                  sizeof(PassthroughEvent));
     return Passthrough;
+
+  case Midi:
+    if (m_queue.available() < sizeof(MidiEvent))
+      return None;
+    m_queue.read(reinterpret_cast<unsigned char*>(&m_event.midi),
+                 sizeof(MidiEvent));
+    return Midi;
   }
+  
   
   return None;
 }
@@ -99,6 +107,20 @@ bool EventQueue::write_passthrough(const char* msg, void* ptr) {
   pe.ptr = ptr;
   m_queue.write(reinterpret_cast<unsigned char*>(&pe), 
                 sizeof(PassthroughEvent));
+  sem_post(&m_sem);
+  return true;
+}
+
+
+bool EventQueue::write_midi(uint32_t port, uint32_t size, 
+                            const unsigned char* data){
+  Type t = Midi;
+  m_queue.write(reinterpret_cast<unsigned char*>(&t), sizeof(Type));
+  MidiEvent me;
+  me.port = port;
+  me.size = size;
+  std::memcpy(me.data, data, size);
+  m_queue.write(reinterpret_cast<unsigned char*>(&me), sizeof(MidiEvent));
   sem_post(&m_sem);
   return true;
 }

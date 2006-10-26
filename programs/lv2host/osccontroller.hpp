@@ -35,6 +35,8 @@ protected:
                              int argc, lo_message, void* cbdata);
   static int program_handler(const char*, const char*, lo_arg** argv, 
                              int argc, lo_message, void* cbdata);
+  static int midi_handler(const char*, const char*, lo_arg** argv,
+                          int argc, lo_message, void* cbdata);
   static int exiting_handler(const char*, const char*, lo_arg** argv, 
                              int argc, lo_message, void* cbdata);
   

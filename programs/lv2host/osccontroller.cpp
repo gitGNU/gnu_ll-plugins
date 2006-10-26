@@ -32,6 +32,8 @@ OSCController::OSCController(LV2Host& host, bool& still_running)
                               &OSCController::configure_handler, &m_cbdata);
   lo_server_thread_add_method(m_server, "/lv2/program", "i", 
                               &OSCController::program_handler, &m_cbdata);
+  lo_server_thread_add_method(m_server, "/lv2/midi", "iis", 
+                              &OSCController::midi_handler, &m_cbdata);
   
   cout<<"OSC server listening on "<<m_url<<endl;
   
@@ -136,6 +138,14 @@ int OSCController::program_handler(const char*, const char*, lo_arg** argv,
                                    int argc, lo_message, void* cbdata) {
   unsigned long program = argv[0]->i;
   //static_cast<CallbackData*>(cbdata)->host.queue_program(program);
+}
+
+
+int OSCController::midi_handler(const char*, const char*, lo_arg** argv, 
+                                   int argc, lo_message, void* cbdata) {
+  static_cast<CallbackData*>(cbdata)->
+    host.queue_midi(argv[0]->i, argv[1]->i, 
+                    (unsigned char*)(&argv[2]->s));
 }
 
 

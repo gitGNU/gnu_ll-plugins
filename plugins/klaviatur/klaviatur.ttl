@@ -1,0 +1,27 @@
+@prefix lv2:  <http://lv2plug.in/ontology#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix doap: <http://usefulinc.com/ns/doap#>.
+@prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
+
+<http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0>
+  a lv2:Plugin;
+  doap:name "Klaviatur";
+  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  ll:standaloneGui <klaviatur_gtk>;
+  ll:pegName "k";  
+  
+  lv2:port [
+    a lv2:ControlRateInputPort;
+    lv2:datatype ll:miditype;
+    lv2:index 0;
+    lv2:symbol "midi_input";
+    lv2:name "MIDI input";
+  ],
+
+  [
+    a lv2:ControlRateOutputPort;
+    lv2:datatype ll:miditype;
+    lv2:index 1;
+    lv2:symbol "midi_output";
+    lv2:name "MIDI output";
+  ].

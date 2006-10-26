@@ -14,7 +14,8 @@ public:
     Control,
     Program,
     ConfigRequest,
-    Passthrough
+    Passthrough,
+    Midi
   };
   
   struct ControlEvent {
@@ -35,11 +36,18 @@ public:
     void* ptr;
   };
   
+  struct MidiEvent {
+    uint32_t port;
+    uint32_t size;
+    unsigned char data[4];
+  };
+  
   union Event {
     ControlEvent control;
     ProgramEvent program;
     ConfigRequestEvent config;
     PassthroughEvent passthrough;
+    MidiEvent midi;
   };
   
   EventQueue() : m_read_event_type(false) { 
@@ -57,6 +65,7 @@ public:
   bool write_program(unsigned long program);
   bool write_config_request(EventQueue* sender);
   bool write_passthrough(const char* msg, void* ptr = 0);
+  bool write_midi(uint32_t port, uint32_t size, const unsigned char* data);
   
   bool wait();
   

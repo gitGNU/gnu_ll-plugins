@@ -96,7 +96,7 @@ public:
   void send_configure(const string& key, const string& value);
   /** Send a MIDI event to the plugin. The effect will be exactly the same
       as if it had been sent by the plugin host. */
-  void send_midi(const char event[4]);
+  void send_midi(int port, int size, const unsigned char* event);
   /** Tell the plugin host that the GUI is about to quit (you shouldn't have
       to call this explicitly, it is called when this LV2UIClient object
       is destroyed. */

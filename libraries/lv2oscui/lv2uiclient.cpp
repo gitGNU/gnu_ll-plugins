@@ -220,9 +220,10 @@ void LV2UIClient::send_configure(const string& key, const string& value) {
 }
 
 
-void LV2UIClient::send_midi(const char event[4]) {
+void LV2UIClient::send_midi(int port, int size, const unsigned char* event) {
   if (m_valid) {
-    lo_send(m_plugin_address, (m_plugin_path + "/midi").c_str(), "s", event);
+    lo_send(m_plugin_address, (m_plugin_path + "/midi").c_str(), "iis", 
+            port, size, event);
   }
 }
 

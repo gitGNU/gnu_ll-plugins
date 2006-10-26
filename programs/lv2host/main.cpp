@@ -6,7 +6,7 @@
 
 #include <jack/jack.h>
 #include <jack/midiport.h>
-#include <lash/lash.h>
+//#include <lash/lash.h>
 
 #include "lv2host.hpp"
 #include "lv2-miditype.h"
@@ -20,7 +20,7 @@ using namespace std;
 
 vector<jack_port_t*> jack_ports;
 jack_client_t* jack_client;
-lash_client_t* lash_client;
+//lash_client_t* lash_client;
 
 
 string escape_space(const string& str) {
@@ -82,6 +82,7 @@ string unescape_space(const string& str) {
 }
 
 
+/*
 bool init_lash(int argc, char** argv) {
   //cerr<<"Initialising LASH client"<<endl;
   lash_client = lash_init(lash_extract_args(&argc, &argv), "lv2host", 
@@ -98,6 +99,7 @@ bool init_lash(int argc, char** argv) {
   
   return (lash_client != 0);
 }
+*/
 
 
 /** Translate from an LV2 MIDI buffer to a JACK MIDI buffer. */
@@ -273,11 +275,13 @@ int main(int argc, char** argv) {
   
   if (lv2h.is_valid()) {
     
+    /*
     if (!init_lash(argc, argv)) {
       cerr<<"Could not initialise LASH"<<endl;
       return -1;
     }
-    
+    */
+
     cerr<<"MIDI map:"<<endl;
     for (unsigned i = 0; i < 127; ++i) {
       long port = lv2h.get_midi_map()[i];
@@ -363,6 +367,7 @@ int main(int argc, char** argv) {
     
     // wait until we are killed
     while (still_running) {
+      /*
       lash_event_t* event;
       while ((event = lash_get_event(lash_client))) {
         
@@ -414,13 +419,6 @@ int main(int argc, char** argv) {
               lv2h.configure(key.c_str(), value.c_str());
               osc.send_configure(key, value);
             }
-            /*
-            if (word == "program") {
-              unsigned long program;
-              ifs>>program;
-              lv2h.queue_program(program);
-            }
-            */
             if (word == "control") {
               unsigned long port;
               float value;
@@ -441,7 +439,7 @@ int main(int argc, char** argv) {
         
         lash_event_destroy(event);
       }
-      
+      */
       usleep(100000);
     }
     
