@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.111
+PACKAGE_VERSION = 0.1.112
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
@@ -112,7 +112,7 @@ sineshaper_gtk_SOURCEDIR = plugins/sineshaper
 # MIDIIdentity
 midi_identity_lv2_SOURCES = midi_identity.cpp
 midi_identity_lv2_DATA = manifest.ttl midi_identity.ttl
-midi_identity_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype -I.
+midi_identity_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype -Ilibraries/components -I.
 midi_identity_lv2_LDFLAGS = $(PLUGINFLAGS)
 midi_identity_lv2_SOURCEDIR = plugins/midi_identity
 

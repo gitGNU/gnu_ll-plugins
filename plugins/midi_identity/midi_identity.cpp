@@ -1,7 +1,7 @@
 #include <cstring>
 
 #include "lv2plugin.hpp"
-#include "lv2-miditype.h"
+#include "lv2-midifunctions.h"
 
 
 /** This is the class that contains all the code and data for the MIDI 
@@ -15,19 +15,21 @@ public:
   }
   
   
-  void run(unsigned long sample_count) {
+  void run(unsigned long nframes) {
     
-    LV2_MIDI* input = static_cast<LV2_MIDI*>(m_ports[0]);
-    LV2_MIDI* output = static_cast<LV2_MIDI*>(m_ports[1]);
+    LV2_MIDIState in = { static_cast<LV2_MIDI*>(m_ports[0]), nframes, 0 };
+    LV2_MIDIState out = { static_cast<LV2_MIDI*>(m_ports[1]), nframes, 0 };
     
-    if (input->size <= output->capacity) {
-      output->event_count = input->event_count;
-      output->size = input->size;
-      std::memcpy(output->data, input->data, input->size);
-    }
-    else {
-      output->event_count = 0;
-      output->size = 0;
+    out.midi->size = 0;
+    out.midi->event_count = 0;
+    
+    double event_time;
+    uint32_t event_size;
+    unsigned char* event;
+
+    while (lv2midi_get_event(&in, &event_time, &event_size, &event) < nframes){
+      lv2midi_put_event(&out, event_time, event_size, event);
+      lv2midi_step(&in);
     }
     
   }
