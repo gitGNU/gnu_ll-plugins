@@ -383,7 +383,8 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   
 LV2Host::~LV2Host() {
   if (m_handle) {
-    m_desc->cleanup(m_handle);
+    if (m_desc->cleanup)
+      m_desc->cleanup(m_handle);
     dlclose(m_libhandle);
   }
 }
@@ -413,7 +414,8 @@ long LV2Host::get_default_midi_port() const {
 
 void LV2Host::activate() {
   assert(m_handle);
-  m_desc->activate(m_handle);
+  if (m_desc->activate)
+    m_desc->activate(m_handle);
 }
 
 
@@ -480,7 +482,8 @@ void LV2Host::run(unsigned long nframes) {
 
 void LV2Host::deactivate() {
   assert(m_handle);
-  m_desc->deactivate(m_handle);
+  if (m_desc->deactivate)
+    m_desc->deactivate(m_handle);
 }
 
 

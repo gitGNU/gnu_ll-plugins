@@ -302,7 +302,7 @@ int main(int argc, char** argv) {
     */
     
     // initialise JACK client and plugin port buffers
-    if (!(jack_client = jack_client_new("LV2Host"))) {
+    if (!(jack_client = jack_client_open("LV2Host", jack_options_t(0), 0))) {
       cerr<<"jackd isn't running!"<<endl;
       return -1;
     }
