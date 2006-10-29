@@ -151,6 +151,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     Variable symbol, index, portclass, porttype, port;
     Namespace lv2("<http://lv2plug.in/ontology#>");
     Namespace ll("<http://ll-plugins.nongnu.org/lv2/namespace#>");
+    Namespace llext("<http://ll-plugins.nongnu.org/lv2/ext/>");
     
     qr = select(index, symbol, portclass, porttype)
       .where(uriref, lv2("port"), port)
@@ -193,7 +194,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
       string type = qr[j][porttype]->name;
       if (type == lv2("float"))
         m_ports[p].midi = false;
-      else if (type == ll("miditype"))
+      else if (type == llext("miditype"))
         m_ports[p].midi = true;
       else
         return;

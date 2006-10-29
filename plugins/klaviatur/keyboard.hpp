@@ -40,8 +40,8 @@ public:
       @param keyheight The height in pixels of the white keys
       @param bkeyheight The height in pixels of the black keys */
   Keyboard(unsigned int octaves = 3, unsigned int keywidth = 21, 
-           unsigned int bkeywidth = 14, unsigned int keyheight = 120, 
-           unsigned int bkeyheight = 80, ClickBehaviour cb = CLICK_ON);
+           unsigned int bkeywidth = 14, unsigned int keyheight = 80, 
+           unsigned int bkeyheight = 50, ClickBehaviour cb = CLICK_ON);
   
   /** Turn a key on. If the key is already on nothing happens. */
   void key_on(unsigned char key);

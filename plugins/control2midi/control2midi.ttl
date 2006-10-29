@@ -45,7 +45,7 @@
 
   [
     a lv2:ControlRateOutputPort;
-    lv2:datatype <http://ll-plugins.nongnu.org/lv2/namespace#miditype>;
+    lv2:datatype <http://ll-plugins.nongnu.org/lv2/ext/miditype>;
     lv2:index 4;
     lv2:symbol "output";
     lv2:name "Output";

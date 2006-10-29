@@ -2,6 +2,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix doap: <http://usefulinc.com/ns/doap#>.
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
+@prefix llext: <http://ll-plugins.nongnu.org/lv2/ext/>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0>
   a lv2:Plugin;
@@ -440,7 +441,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype <http://ll-plugins.nongnu.org/lv2/namespace#miditype>;
+    lv2:datatype <http://ll-plugins.nongnu.org/lv2/ext/miditype>;
     lv2:index 29;
     lv2:symbol "midi";
     lv2:name "MIDI input";

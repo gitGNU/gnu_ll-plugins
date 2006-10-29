@@ -12,7 +12,7 @@
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    GNU Lesser General Public License for more details.
     
     You should have received a copy of the GNU Lesser General Public License
     along with this program; if not, write to the Free Software
@@ -58,7 +58,7 @@ static double lv2midi_get_event(LV2_MIDIState* state,
 
 static double lv2midi_step(LV2_MIDIState* state) {
 
-  if (state->position >= state->midi->size) {
+  if (state->position + sizeof(double) + sizeof(size_t) >= state->midi->size) {
     state->position = state->midi->size;
     return state->frame_count;
   }
@@ -67,6 +67,10 @@ static double lv2midi_step(LV2_MIDIState* state) {
   size_t size = *(size_t*)(state->midi->data + state->position);
   state->position += sizeof(size_t);
   state->position += size;
+  
+  if (state->position >= state->midi->size)
+    return state->frame_count;
+  
   return *(double*)(state->midi->data + state->position);
 }
 
