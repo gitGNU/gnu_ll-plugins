@@ -113,7 +113,7 @@ bool VGKnob::on_expose_event(GdkEventExpose* event) {
   double angle = M_PI * (0.75 + 1.5 * map_to_knob(value));
   
   // circle
-  cc->clear_path();
+  cc->begin_new_path();
   cc->arc(20, 20, 17, 0.75 * M_PI, angle);
   cc->arc_negative(21, 21, 12, angle, 0.75 * M_PI);
   cc->close_path();
@@ -128,7 +128,7 @@ bool VGKnob::on_expose_event(GdkEventExpose* event) {
   
   // shadow and outline
   cc->clip();
-  cc->clear_path();
+  cc->begin_new_path();
   
   cc->arc(19, 19, 14, 0, 2 * M_PI);
   cc->set_source_rgba(0, 0, 0, 0.2);
@@ -144,7 +144,7 @@ bool VGKnob::on_expose_event(GdkEventExpose* event) {
   cc->arc_negative(17.5, 17.5, 25, 2 * M_PI, 0);
   cc->fill();
 
-  cc->clear_path();
+  cc->begin_new_path();
   cc->arc(20.5, 20.5, 12, 0, 2 * M_PI);
   cc->set_source_rgba(1, 1, 1, 0.5);
   cc->fill();

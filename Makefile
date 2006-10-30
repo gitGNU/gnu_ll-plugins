@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.117
+PACKAGE_VERSION = 0.1.118
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
