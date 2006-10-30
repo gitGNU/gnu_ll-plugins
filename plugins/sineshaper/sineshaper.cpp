@@ -37,7 +37,7 @@ void initialise() __attribute__((constructor));
 
 SineShaper::SineShaper(uint32_t frame_rate, const char* bundle_path,
                        const LV2_Host_Feature** host_features) 
-  : LV2Instrument(SINESHAPER_PORT_COUNT),
+  : LV2Plugin(SINESHAPER_PORT_COUNT),
     m_vibrato_lfo(frame_rate),
     m_tremolo_lfo(frame_rate),
     m_shaper_lfo(frame_rate),
@@ -313,6 +313,6 @@ void SineShaper::run(uint32_t sample_count) {
 
 
 void initialise() {
-  register_lv2_inst<SineShaper>("http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0");
+  register_lv2<SineShaper>("http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0");
 }
 

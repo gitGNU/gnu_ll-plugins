@@ -23,7 +23,7 @@
 #ifndef SINESHAPER_HPP
 #define SINESHAPER_HPP
 
-#include "lv2instrument.hpp"
+#include "lv2plugin.hpp"
 #include "sineoscillator.hpp"
 #include "adsr.hpp"
 #include "frequencytable.hpp"
@@ -35,7 +35,7 @@
 
 /** This is the class that contains all the code and data for the Sineshaper
     synth plugin. */
-class SineShaper : public LV2Instrument {
+class SineShaper : public LV2Plugin {
 public:
   
   SineShaper(uint32_t frame_rate, const char* bundle_path, 

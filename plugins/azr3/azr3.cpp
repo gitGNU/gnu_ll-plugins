@@ -28,7 +28,6 @@
 
 #include "azr3.hpp"
 #include "lv2-miditype.h"
-#include "lv2instrument.hpp"
 #include "voice_classes.h"
 
 
@@ -37,7 +36,7 @@ using namespace std;
 
 AZR3::AZR3(uint32_t rate, const char* bundle_path, 
            const LV2_Host_Feature**)
-  : LV2Instrument(kNumParams + 3),
+  : LV2Plugin(kNumParams + 3),
     n1(NUMOFVOICES),
     samplerate(rate),
     vdelay1(441,true),
@@ -1188,7 +1187,7 @@ void* AZR3::worker_function(void* arg) {
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  register_lv2_inst<AZR3>("http://ll-plugins.nongnu.org/lv2/dev/azr3/0.0.0");
+  register_lv2<AZR3>("http://ll-plugins.nongnu.org/lv2/dev/azr3/0.0.0");
 }
 
 

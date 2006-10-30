@@ -177,7 +177,7 @@ void* OSCController::sender_thread(void* arg) {
       switch (t) {
       
       case EventQueue::Control:
-        cerr<<__PRETTY_FUNCTION__<<" "<<event.control.port<<" "<<event.control.value<<endl;
+        //cerr<<__PRETTY_FUNCTION__<<" "<<event.control.port<<" "<<event.control.value<<endl;
         pthread_mutex_lock(&me->m_clients_mutex);
         for (size_t i = 0; i < me->m_clients.size(); ++i) {
           lo_send(me->m_clients[i]->address, 

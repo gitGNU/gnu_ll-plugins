@@ -609,7 +609,7 @@ const std::string& LV2Host::get_bundle_dir() const {
 
 void LV2Host::queue_program(unsigned long program, bool to_jack) {
   if (to_jack) {
-    cerr<<__PRETTY_FUNCTION__<<endl;
+    //cerr<<__PRETTY_FUNCTION__<<endl;
     pthread_mutex_lock(&m_mutex);
     m_to_jack.write_program(program);
     pthread_mutex_unlock(&m_mutex);

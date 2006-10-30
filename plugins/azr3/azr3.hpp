@@ -28,11 +28,10 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-#include "lv2instrument.hpp"
+#include "lv2plugin.hpp"
 #include "voice_classes.h"
 #include "Globals.h"
 #include "ringbuffer.hpp"
-//#include "programlist.hpp"
 
 
 enum
@@ -56,7 +55,7 @@ struct PortChange {
 };
 
 
-class AZR3 : public LV2Instrument {
+class AZR3 : public LV2Plugin {
 public:
   
   AZR3(uint32_t rate, const char* bundle_path, const LV2_Host_Feature**);
