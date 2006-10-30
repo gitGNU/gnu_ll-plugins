@@ -9,6 +9,7 @@
   doap:name "AZR3";
   doap:licence <http://usefulinc.com/doap/licenses/gpl>;
   ll:standaloneGui <azr3_gtk>;
+  ll:defaultPresets <presets.ttl>;
   lv2:requiredHostFeature ll:instrument-ext;
       
   lv2:port [

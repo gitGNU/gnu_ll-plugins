@@ -32,7 +32,7 @@
 #include "voice_classes.h"
 #include "Globals.h"
 #include "ringbuffer.hpp"
-#include "programlist.hpp"
+//#include "programlist.hpp"
 
 
 enum
@@ -67,13 +67,7 @@ public:
   
   void deactivate();
   
-  const LV2_ProgramDescriptor* get_program(uint32_t index);
-  
-  void select_program(uint32_t number);
-  
   void run(uint32_t nframes);
-  
-  char* configure(const char* key, const char* value);
   
 protected:  
   
@@ -99,7 +93,7 @@ protected:
   bool slow_controls[kNumParams];
 	float	last_value[kNumParams];
   
-	Program	programs[kNumPrograms];
+	//Program	programs[kNumPrograms];
 
 	float tonewheel[WAVETABLESIZE];	// master waveform
 
@@ -152,7 +146,7 @@ protected:
   
   unsigned char* midi_ptr;
   
-  LV2_ProgramDescriptor pdesc;
+  //LV2_ProgramDescriptor pdesc;
   
   pthread_mutex_t m_notemaster_lock;
   Ringbuffer<PortChange, 1024> m_queue;

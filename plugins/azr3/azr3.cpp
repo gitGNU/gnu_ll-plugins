@@ -123,7 +123,7 @@ AZR3::AZR3(uint32_t rate, const char* bundle_path,
 	body_filt.setparam(190, 1.5f, samplerate);
 	postbody_filt.setparam(1100, 1.5f, samplerate);
 
-	setFactorySounds(programs);
+	//setFactorySounds(programs);
 
 	//make_waveforms(W_SINE);
 }
@@ -164,16 +164,7 @@ void AZR3::deactivate() {
 }
 
 
-const LV2_ProgramDescriptor* AZR3::get_program(uint32_t index) {
-  if (index < kNumPrograms) {
-    pdesc.name = programs[index].name;
-    pdesc.number = index;
-    return &pdesc;
-  }
-  return NULL;
-}
-
-
+/*
 void AZR3::select_program(uint32_t program) {
   
   if (program >= kNumPrograms)
@@ -195,6 +186,7 @@ void AZR3::select_program(uint32_t program) {
     }
   }
 }
+*/
 
 
 void AZR3::run(uint32_t sampleFrames) {
@@ -795,23 +787,6 @@ void AZR3::run(uint32_t sampleFrames) {
 	}
   
   pthread_mutex_unlock(&m_notemaster_lock);
-}
-
-
-char* AZR3::configure(const char* key, const char* value) {
-  // XXX This is NOT threadsafe!
-  if (!strncmp(key, "program", 7)) {
-    int program = atoi(key + 7);
-    if (program >= 0 && program < kNumPrograms) {
-      
-      cerr<<"AZR-3 editing program "<<program<<endl;
-      
-      istringstream iss(value);
-      for (int i = 0; i < kNumParams; ++i)
-        iss>>programs[program].p[i];
-    }
-  }
-  return 0;
 }
 
 

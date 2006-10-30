@@ -34,7 +34,7 @@
 #include "knob.hpp"
 #include "switch.hpp"
 #include "Globals.h"
-#include "programlist.hpp"
+//#include "programlist.hpp"
 #include "textbox.hpp"
 
 
@@ -47,7 +47,8 @@ using namespace std;
 bool showing_fx_controls = true;
 vector<Widget*> fx_widgets;
 vector<Widget*> voice_widgets;
-vector<Program> programs(32);
+//vector<Program> programs(32);
+map<int, string> programs;
 int current_program = 0;
 int splitkey = 0;
 Textbox* tbox;
@@ -105,15 +106,39 @@ string note2str(long note) {
 
 void update_program_menu(LV2UIClient& lv2) {
   program_menu->items().clear();
-  for (int i = 0; i < kNumPrograms; ++i) {
+  map<int, string>::const_iterator iter;
+  for (iter = programs.begin(); iter != programs.end(); ++iter) {
     ostringstream oss;
-    oss<<setw(2)<<setfill('0')<<i<<' '<<programs[i].name;
+    oss<<setw(2)<<setfill('0')<<iter->first<<' '<<iter->second.substr(0, 23);
     MenuItem* item = manage(new MenuItem(oss.str()));
     item->signal_activate().
-      connect(bind(mem_fun(lv2, &LV2UIClient::send_program), i));
+      connect(bind(mem_fun(lv2, &LV2UIClient::send_program), iter->first));
     program_menu->items().push_back(*item);
     item->show();
     item->get_child()->modify_fg(STATE_NORMAL, menu_fg);
+  }
+}
+
+
+void add_program(int number, const string& name, LV2UIClient& lv2) {
+  programs[number] = name;
+  update_program_menu(lv2);
+}
+
+
+void remove_program(int number, LV2UIClient& lv2) {
+  map<int, string>::iterator iter = programs.find(number);
+  if (iter != programs.end()) {
+    programs.erase(iter);
+    update_program_menu(lv2);
+  }
+}
+
+
+void clear_programs(LV2UIClient& lv2) {
+  if (programs.size() > 0) {
+    programs.clear();
+    update_program_menu(lv2);
   }
 }
 
@@ -142,6 +167,8 @@ void save_program(LV2UIClient& lv2) {
   dlg.get_vbox()->pack_start(tbl);
   dlg.show_all();
   if (dlg.run() == RESPONSE_OK) {
+    cerr<<"Saving programs is not implemented yet"<<endl;
+    /*
     ostringstream oss;
     oss<<"program"<<int(adj.get_value());
     string key = oss.str();
@@ -159,6 +186,7 @@ void save_program(LV2UIClient& lv2) {
     cerr<<"sent /configure "<<key<<" "<<oss.str()<<endl;
     update_program_menu(lv2);
     tbox->set_string(1, programs[current_program].name);
+    */
   }
 }
 
@@ -299,34 +327,13 @@ bool change_mode(bool fx_mode, Fixed& fbox) {
 
 
 void program_changed(int program) {
-  if (program < programs.size() && program >= 0) {
-    ostringstream oss;
-    oss<<"AZR-3 LV2 P"<<setw(2)<<setfill('0')<<program;
-    tbox->set_string(0, oss.str());
-    tbox->set_string(1, programs[program].name);
-    current_program = program;
-  }
-}
-
-
-void configure_received(const std::string& key, const std::string& value, 
-                        LV2UIClient& lv2) {
-  if (key.substr(0, 7) == "program") {
-    int program = atoi(key.substr(7).c_str());
-    if (program >= 0 && program < kNumPrograms) {
-      cerr<<"AZR-3 GUI editing program "<<program<<endl;
-      istringstream iss(value);
-      for (int i = 0; i < kNumParams; ++i)
-        iss>>programs[program].p[i];
-      iss.ignore(1);
-      string name;
-      iss>>name;
-      memset(programs[program].name, 0, 24);
-      strncpy(programs[program].name, name.c_str(), 23);
-    }
-    update_program_menu(lv2);
-    tbox->set_string(1, programs[current_program].name);
-  }
+  map<int, string>::const_iterator iter = programs.find(program);
+  ostringstream oss;
+  oss<<"AZR-3 LV2 P"<<setw(2)<<setfill('0')<<program;
+  tbox->set_string(0, oss.str());
+  if (iter != programs.end())
+    tbox->set_string(1, iter->second.substr(0, 23));
+  current_program = program;
 }
 
 
@@ -347,10 +354,23 @@ void splitpoint_changed(Adjustment* adj) {
 
 void display_scroll(int line, GdkEventScroll* e, LV2UIClient& lv2) {
   if (line < 2) {
-    if (e->direction == GDK_SCROLL_UP)
-      lv2.send_program((current_program + 1) % programs.size());
-    else if (e->direction == GDK_SCROLL_DOWN)
-      lv2.send_program((current_program - 1) % programs.size());
+    map<int, string>::const_iterator iter = programs.find(current_program);
+    if (iter == programs.end())
+      iter = programs.begin();
+    if (iter != programs.end()) {
+      if (e->direction == GDK_SCROLL_UP) {
+        ++iter;
+        iter = (iter == programs.end() ? programs.begin() : iter);
+        lv2.send_program(iter->first);
+      }
+      else if (e->direction == GDK_SCROLL_DOWN) {
+        if (iter == programs.begin())
+          for (int i = 0; i < programs.size() - 1; ++i, ++iter);
+        else
+          --iter;
+        lv2.send_program(iter->first);
+      }
+    }
   }
   else {
     int oldsplitkey = splitkey;
@@ -377,8 +397,6 @@ void splitbox_clicked(LV2UIClient& lv2) {
 
 
 int main(int argc, char** argv) {
-  
-  setFactorySounds(&programs[0]);
   
   LV2UIClient lv2(argc, argv, true);
   if (!lv2.is_valid()) {
@@ -561,7 +579,9 @@ int main(int argc, char** argv) {
   lv2.hide_received.connect(mem_fun(window, &Gtk::Window::hide));
   lv2.quit_received.connect(&Main::quit);
   lv2.program_received.connect(&program_changed);
-  lv2.configure_received.connect(bind(&configure_received, ref(lv2)));
+  lv2.add_program_received.connect(bind(&add_program, ref(lv2)));
+  lv2.remove_program_received.connect(bind(&remove_program, ref(lv2)));
+  lv2.clear_programs_received.connect(bind(&clear_programs, ref(lv2)));
   window.signal_delete_event().connect(bind_return(hide(&Main::quit), true));
   
   lv2.send_update_request();

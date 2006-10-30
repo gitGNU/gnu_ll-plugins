@@ -38,14 +38,14 @@ using namespace Glib;
 
 void handle_keypress(unsigned char key, LV2UIClient& lv2) {
   //cerr<<"key on: "<<int(key)<<endl;
-  unsigned char data[3] = { 0x90, key, 64 };
+  unsigned char data[3] = { 0x90, key + 36, 64 };
   lv2.send_midi(k_midi_input, 3, data);
 }
 
 
 void handle_keyrelease(unsigned char key, LV2UIClient& lv2) {
   //cerr<<"key off: "<<int(key)<<endl;
-  unsigned char data[3] = { 0x80, key, 64 };
+  unsigned char data[3] = { 0x80, key + 36, 64 };
   lv2.send_midi(k_midi_input, 3, data);
 }
 

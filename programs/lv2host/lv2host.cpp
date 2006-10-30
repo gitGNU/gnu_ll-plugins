@@ -359,7 +359,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
             for (int k = 0; k < qr3.size(); ++k) {
               int p = atoi(qr3[k][port]->name.c_str());
               float v = atof(qr3[k][value]->name.c_str());
-              cerr<<p<<": "<<v<<endl;
+              //cerr<<p<<": "<<v<<endl;
               m_presets[pnum].values[p] = v;
             }
           }
