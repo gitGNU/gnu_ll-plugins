@@ -35,7 +35,7 @@ using namespace std;
 void initialise() __attribute__((constructor));
 
 
-SineShaper::SineShaper(unsigned long frame_rate, const char* bundle_path,
+SineShaper::SineShaper(uint32_t frame_rate, const char* bundle_path,
                        const LV2_Host_Feature** host_features) 
   : LV2Instrument(SINESHAPER_PORT_COUNT),
     m_vibrato_lfo(frame_rate),
@@ -74,7 +74,7 @@ SineShaper::SineShaper(unsigned long frame_rate, const char* bundle_path,
 }
 
 
-void SineShaper::run(unsigned long sample_count) {
+void SineShaper::run(uint32_t sample_count) {
   
   float freq;
   float vel;

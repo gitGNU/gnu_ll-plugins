@@ -500,8 +500,8 @@ void LV2Host::run(unsigned long nframes) {
       
     case EventQueue::ConfigRequest:
       if (m_from_jack) {
-        if (m_program_is_valid)
-          e.config.sender->write_program(m_program);
+        //if (m_program_is_valid)
+        //  e.config.sender->write_program(m_program);
         for (unsigned long p = 0; p < m_ports.size(); ++p) {
           if (!m_ports[p].midi && m_ports[p].rate == ControlRate &&
               m_ports[p].direction == InputPort) {

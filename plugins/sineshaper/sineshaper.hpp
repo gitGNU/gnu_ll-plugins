@@ -38,10 +38,10 @@
 class SineShaper : public LV2Instrument {
 public:
   
-  SineShaper(unsigned long frame_rate, const char* bundle_path, 
+  SineShaper(uint32_t frame_rate, const char* bundle_path, 
              const LV2_Host_Feature** host_features);
   
-  void run(unsigned long sample_count);
+  void run(uint32_t sample_count);
   
 protected:
   

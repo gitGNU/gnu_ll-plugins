@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.114
+PACKAGE_VERSION = 0.1.115
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
@@ -43,7 +43,7 @@ paqtest_SOURCES = main.cpp
 paqtest_LDFLAGS = libraries/paq/libpaq.a
 paqtest_SOURCEDIR = libraries/paq
 
-LV2_PLUGINS = control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 phase-distortion-osc.lv2 euphoria.lv2 sineshaper.lv2 klaviatur.lv2
+LV2_PLUGINS = control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 phase-distortion-osc.lv2 euphoria.lv2 sineshaper.lv2 klaviatur.lv2 audio_identity.lv2
 
 PLUGINFLAGS = -Wl,-whole-archive libraries/lv2plugin/liblv2_plugin.a -Wl,-no-whole-archive
 INSTRUMENTFLAGS = -Wl,-whole-archive libraries/lv2plugin/liblv2_plugin.a -Wl,-no-whole-archive
@@ -115,6 +115,13 @@ midi_identity_lv2_DATA = manifest.ttl midi_identity.ttl
 midi_identity_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype -Ilibraries/components -I.
 midi_identity_lv2_LDFLAGS = $(PLUGINFLAGS)
 midi_identity_lv2_SOURCEDIR = plugins/midi_identity
+
+# AudioIdentity
+audio_identity_lv2_SOURCES = audio_identity.cpp
+audio_identity_lv2_DATA = manifest.ttl audio_identity.ttl
+audio_identity_lv2_CFLAGS = -Ilibraries/lv2plugin -I.
+audio_identity_lv2_LDFLAGS = $(PLUGINFLAGS)
+audio_identity_lv2_SOURCEDIR = plugins/audio_identity
 
 # Arpeggiator
 arpeggiator_lv2_SOURCES = arpeggiator.cpp
