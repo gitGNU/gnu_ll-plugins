@@ -17,8 +17,9 @@ void moo(Allocation& a, Widget* w) {
 }
 
 
-EuphoriaWidget::EuphoriaWidget()
-  : VBox(false, 6) {
+EuphoriaWidget::EuphoriaWidget(LV2UIClient& lv2)
+  : VBox(false, 6),
+    m_program_store(ListStore::create(m_program_columns)) {
   
   set_border_width(6);
   
@@ -76,11 +77,11 @@ EuphoriaWidget::EuphoriaWidget()
   Table* phaseT1 = manage(new Table(2, 2));
   voiceTable->attach(*phaseT1, 1, 2, 0, 1, AttachOptions(0), AttachOptions(0));
   phaseT1->set_spacings(3);
-  phaseT1->attach(*create_knob("P.Dist", e_phase_dist), 
+  phaseT1->attach(*create_knob(lv2, "P.Dist", e_phase_dist), 
                   0, 1, 0, 1, AttachOptions(0));
-  phaseT1->attach(*create_knob("Env", e_pd_env_sens),
+  phaseT1->attach(*create_knob(lv2, "Env", e_pd_env_sens),
                   0, 1, 1, 2, AttachOptions(0));
-  phaseT1->attach(*create_knob("Vel", e_pd_vel_sens)
+  phaseT1->attach(*create_knob(lv2, "Vel", e_pd_vel_sens)
                   , 1, 2, 0, 1, AttachOptions(0));
   EnvelopeEditor* phaseEnvelope = manage(new EnvelopeEditor());
   VBox* phaseEnvBox = manage(new VBox(false, 0));
@@ -103,13 +104,13 @@ EuphoriaWidget::EuphoriaWidget()
   Table* phaseT2 = manage(new Table(2, 2));
   voiceTable->attach(*phaseT2, 3, 4, 0, 1, AttachOptions(0), AttachOptions(0));
   phaseT2->set_spacings(3);
-  phaseT2->attach(*create_knob("Att", e_pd_attack, 1, 0, 0), 
+  phaseT2->attach(*create_knob(lv2, "Att", e_pd_attack, 1, 0, 0), 
                   0, 1, 0, 1, AttachOptions(0));
-  phaseT2->attach(*create_knob("Dec", e_pd_decay, 1, 1, 0), 
+  phaseT2->attach(*create_knob(lv2, "Dec", e_pd_decay, 1, 1, 0), 
                   1, 2, 0, 1, AttachOptions(0));
-  phaseT2->attach(*create_knob("Sus", e_pd_sustain, 0.3, 1, 0.3), 
+  phaseT2->attach(*create_knob(lv2, "Sus", e_pd_sustain, 0.3, 1, 0.3), 
                   0, 1, 1, 2, AttachOptions(0));
-  phaseT2->attach(*create_knob("Rel", e_pd_release), 
+  phaseT2->attach(*create_knob(lv2, "Rel", e_pd_release), 
                   1, 2, 1, 2, AttachOptions(0));
   
   VBox* shapeEBox = manage(new VBox);
@@ -129,11 +130,11 @@ EuphoriaWidget::EuphoriaWidget()
   Table* shapeT1 = manage(new Table(2, 2));
   voiceTable->attach(*shapeT1, 1, 2, 1, 2, AttachOptions(0), AttachOptions(0));
   shapeT1->set_spacings(3);
-  shapeT1->attach(*create_knob("Shape", e_shape), 
+  shapeT1->attach(*create_knob(lv2, "Shape", e_shape), 
                   0, 1, 0, 1, AttachOptions(0));
-  shapeT1->attach(*create_knob("Env", e_shape_env_sens),
+  shapeT1->attach(*create_knob(lv2, "Env", e_shape_env_sens),
                   0, 1, 1, 2, AttachOptions(0));
-  shapeT1->attach(*create_knob("Vel", e_shape_vel_sens),
+  shapeT1->attach(*create_knob(lv2, "Vel", e_shape_vel_sens),
                   1, 2, 0, 1, AttachOptions(0));
   EnvelopeEditor* shapeEnvelope = manage(new EnvelopeEditor());
   VBox* shapeEnvBox = manage(new VBox(false, 0));
@@ -156,13 +157,13 @@ EuphoriaWidget::EuphoriaWidget()
   Table* shapeT2 = manage(new Table(2, 2));
   voiceTable->attach(*shapeT2, 3, 4, 1, 2, AttachOptions(0), AttachOptions(0));
   shapeT2->set_spacings(3);
-  shapeT2->attach(*create_knob("Att", e_shape_attack, 1, 0, 0), 
+  shapeT2->attach(*create_knob(lv2, "Att", e_shape_attack, 1, 0, 0), 
                   0, 1, 0, 1, AttachOptions(0));
-  shapeT2->attach(*create_knob("Dec", e_shape_decay, 1, 1, 0),
+  shapeT2->attach(*create_knob(lv2, "Dec", e_shape_decay, 1, 1, 0),
                   1, 2, 0, 1, AttachOptions(0));
-  shapeT2->attach(*create_knob("Sus", e_shape_sustain, 0.3, 1, 0.3),
+  shapeT2->attach(*create_knob(lv2, "Sus", e_shape_sustain, 0.3, 1, 0.3),
                   0, 1, 1, 2, AttachOptions(0));
-  shapeT2->attach(*create_knob("Rel", e_shape_release),
+  shapeT2->attach(*create_knob(lv2, "Rel", e_shape_release),
                   1, 2, 1, 2, AttachOptions(0));
   
   voiceVBox->pack_start(*manage(new HSeparator));
@@ -179,25 +180,25 @@ EuphoriaWidget::EuphoriaWidget()
   voiceKnobTable->attach(*vibratoLabel, 0, 1, 0, 1, AttachOptions(0));
   HBox* vibratoHBox = manage(new HBox(false, 3));
   voiceKnobTable->attach(*vibratoHBox, 0, 1, 1, 2, AttachOptions(0));
-  vibratoHBox->pack_start(*create_knob("Freq", e_vib_freq, 1.0, 0.5, 0));
-  vibratoHBox->pack_start(*create_knob("Depth", e_vib_depth, 1.0, 0.5, 0));
+  vibratoHBox->pack_start(*create_knob(lv2, "Freq", e_vib_freq, 1.0, 0.5, 0));
+  vibratoHBox->pack_start(*create_knob(lv2, "Depth", e_vib_depth, 1.0, 0.5, 0));
   
   Label* tremoloLabel = manage(new Label("<small>Tremolo</small>"));
   tremoloLabel->set_use_markup(true);
   voiceKnobTable->attach(*tremoloLabel, 1, 2, 0, 1, AttachOptions(0));
   HBox* tremoloHBox = manage(new HBox(false, 3));
   voiceKnobTable->attach(*tremoloHBox, 1, 2, 1, 2, AttachOptions(0));
-  tremoloHBox->pack_start(*create_knob("Freq", e_trem_freq, 1, 0, 1));
-  tremoloHBox->pack_start(*create_knob("Depth", e_trem_depth, 1, 0, 1));
+  tremoloHBox->pack_start(*create_knob(lv2, "Freq", e_trem_freq, 1, 0, 1));
+  tremoloHBox->pack_start(*create_knob(lv2, "Depth", e_trem_depth, 1, 0, 1));
 
   Label* unisonLabel = manage(new Label("<small>Unison</small>"));
   unisonLabel->set_use_markup(true);
   voiceKnobTable->attach(*unisonLabel, 2, 3, 0, 1, AttachOptions(0));
   HBox* unisonHBox = manage(new HBox(false, 3));
   voiceKnobTable->attach(*unisonHBox, 2, 3, 1, 2, AttachOptions(0));
-  unisonHBox->pack_start(*create_knob("Layers", e_unison_layers, 
+  unisonHBox->pack_start(*create_knob(lv2, "Layers", e_unison_layers, 
                                       0.4, 0.4, 0.4));
-  unisonHBox->pack_start(*create_knob("Spread", e_unison_spread, 
+  unisonHBox->pack_start(*create_knob(lv2, "Spread", e_unison_spread, 
                                       0.4, 0.4, 0.4));
 
   Label* ampLabel = manage(new Label("<small>Amp</small>"));
@@ -205,8 +206,8 @@ EuphoriaWidget::EuphoriaWidget()
   voiceKnobTable->attach(*ampLabel, 3, 4, 0, 1, AttachOptions(0));
   HBox* ampHBox = manage(new HBox(false, 3));
   voiceKnobTable->attach(*ampHBox, 3, 4, 1, 2, AttachOptions(0));
-  ampHBox->pack_start(*create_knob("Env", e_amp_env, 0, 1, 1));
-  ampHBox->pack_start(*create_knob("Vel", e_amp_vel_sens, 0, 1, 1));
+  ampHBox->pack_start(*create_knob(lv2, "Env", e_amp_env, 0, 1, 1));
+  ampHBox->pack_start(*create_knob(lv2, "Vel", e_amp_vel_sens, 0, 1, 1));
   
   Table* noteTable = manage(new Table(2, 3));
   noteTable->set_spacings(3);
@@ -245,13 +246,13 @@ EuphoriaWidget::EuphoriaWidget()
   effectHBox->pack_start(*distTable);
   distTable->set_spacings(3);
   distTable->attach(*manage(new ToggleButton("Distortion")), 0, 2, 0, 1);
-  distTable->attach(*create_knob("Drive", e_dist_drive, 1, 0, 0),
+  distTable->attach(*create_knob(lv2, "Drive", e_dist_drive, 1, 0, 0),
                     0, 1, 1, 2, EXPAND);
-  distTable->attach(*create_knob("Set", e_dist_set, 1, 0, 0),
+  distTable->attach(*create_knob(lv2, "Set", e_dist_set, 1, 0, 0),
                     1, 2, 1, 2, EXPAND);
-  distTable->attach(*create_knob("Tone", e_dist_tone, 1, 0, 0), 
+  distTable->attach(*create_knob(lv2, "Tone", e_dist_tone, 1, 0, 0), 
                     0, 1, 2, 3, EXPAND);
-  distTable->attach(*create_knob("Mix", e_dist_mix, 1, 0, 0), 
+  distTable->attach(*create_knob(lv2, "Mix", e_dist_mix, 1, 0, 0), 
                     1, 2, 2, 3, EXPAND);
   
   // chorus
@@ -259,13 +260,13 @@ EuphoriaWidget::EuphoriaWidget()
   effectHBox->pack_start(*chorusTable);
   chorusTable->set_spacings(3);
   chorusTable->attach(*manage(new ToggleButton("Chorus")), 0, 2, 0, 1);
-  chorusTable->attach(*create_knob("Freq", e_chorus_freq, 0.75, 0.1, 0.25),
+  chorusTable->attach(*create_knob(lv2, "Freq", e_chorus_freq, 0.75, 0.1, 0.25),
                       0, 1, 1, 2, EXPAND);
-  chorusTable->attach(*create_knob("Depth", e_chorus_depth, 0.75, 0.1, 0.25),
+  chorusTable->attach(*create_knob(lv2, "Depth", e_chorus_depth, 0.75, 0.1, 0.25),
                       1, 2, 1, 2, EXPAND);
-  chorusTable->attach(*create_knob("Delay", e_chorus_delay, 0.75, 0.1, 0.25),
+  chorusTable->attach(*create_knob(lv2, "Delay", e_chorus_delay, 0.75, 0.1, 0.25),
                       0, 1, 2, 3, EXPAND);
-  chorusTable->attach(*create_knob("Mix", e_chorus_mix, 0.75, 0.1, 0.25),
+  chorusTable->attach(*create_knob(lv2, "Mix", e_chorus_mix, 0.75, 0.1, 0.25),
                       1, 2, 2, 3, EXPAND);
   
   // echo
@@ -273,13 +274,13 @@ EuphoriaWidget::EuphoriaWidget()
   effectHBox->pack_start(*echoTable);
   echoTable->set_spacings(3);
   echoTable->attach(*manage(new ToggleButton("Echo")), 0, 2, 0, 1);
-  echoTable->attach(*create_knob("Delay", e_echo_delay, 0.25, 0.2, 0.75),
+  echoTable->attach(*create_knob(lv2, "Delay", e_echo_delay, 0.25, 0.2, 0.75),
                     0, 1, 1, 2, EXPAND);
-  echoTable->attach(*create_knob("Fdback", e_echo_feedback, 0.25, 0.2, 0.75),
+  echoTable->attach(*create_knob(lv2, "Fdback", e_echo_feedback, 0.25, 0.2, 0.75),
                     1, 2, 1, 2, EXPAND);
-  echoTable->attach(*create_knob("Pan", e_echo_pan, 0.25, 0.2, 0.75),
+  echoTable->attach(*create_knob(lv2, "Pan", e_echo_pan, 0.25, 0.2, 0.75),
                     0, 1, 2, 3, EXPAND);
-  echoTable->attach(*create_knob("Mix", e_echo_mix, 0.25, 0.2, 0.75),
+  echoTable->attach(*create_knob(lv2, "Mix", e_echo_mix, 0.25, 0.2, 0.75),
                     1, 2, 2, 3, EXPAND);
   
   // reverb
@@ -287,17 +288,17 @@ EuphoriaWidget::EuphoriaWidget()
   effectHBox->pack_start(*reverbTable);
   reverbTable->set_spacings(3);
   reverbTable->attach(*manage(new ToggleButton("Reverb")), 0, 2, 0, 1);
-  reverbTable->attach(*create_knob("Time", e_reverb_time), 0, 1, 1, 2, EXPAND);
-  reverbTable->attach(*create_knob("Room", e_reverb_room), 1, 2, 1, 2, EXPAND);
-  reverbTable->attach(*create_knob("Damp", e_reverb_damping),
+  reverbTable->attach(*create_knob(lv2, "Time", e_reverb_time), 0, 1, 1, 2, EXPAND);
+  reverbTable->attach(*create_knob(lv2, "Room", e_reverb_room), 1, 2, 1, 2, EXPAND);
+  reverbTable->attach(*create_knob(lv2, "Damp", e_reverb_damping),
                       0, 1, 2, 3, EXPAND);
-  reverbTable->attach(*create_knob("Mix", e_reverb_mix), 1, 2, 2, 3, EXPAND);
+  reverbTable->attach(*create_knob(lv2, "Mix", e_reverb_mix), 1, 2, 2, 3, EXPAND);
   
   // global controls
-  globalControlsBox->pack_start(*create_knob("Gain", e_gain), true, false);
-  globalControlsBox->pack_start(*create_knob("Octave", e_octave), true, false);
-  globalControlsBox->pack_start(*create_knob("Tune", e_tune), true, false);
-  globalControlsBox->pack_start(*create_knob("Pan", e_pan), true, false);
+  globalControlsBox->pack_start(*create_knob(lv2, "Gain", e_gain), true, false);
+  globalControlsBox->pack_start(*create_knob(lv2, "Octave", e_octave), true, false);
+  globalControlsBox->pack_start(*create_knob(lv2, "Tune", e_tune), true, false);
+  globalControlsBox->pack_start(*create_knob(lv2, "Pan", e_pan), true, false);
   
   // bottom buttons
   Button* saveProgButton = manage(new Button("Save program"));
@@ -311,17 +312,61 @@ EuphoriaWidget::EuphoriaWidget()
   aboutButton->set_image(*aboutImage);
   bottomBox->pack_end(*aboutButton, false, false);
   
+  // program list
+  m_program_view.set_model(m_program_store);
+  m_program_view.append_column("Number", m_program_columns.number);
+  m_program_view.append_column("Name", m_program_columns.name);
+  m_program_view.set_reorderable(false);
+  m_program_view.set_headers_visible(false);
+  m_program_view.set_rules_hint(true);
+  m_program_view.get_selection()->signal_changed().
+    connect(mem_fun(*this, &EuphoriaWidget::program_selection_changed));
+  
   show_all();
 }
 
 
-VBox* EuphoriaWidget::create_knob(const string& label, int port,
+void EuphoriaWidget::add_program(int number, const string& name) {
+  ListStore::iterator iter = m_program_store->children().begin();
+  for ( ; iter != m_program_store->children().end(); ++iter) {
+    if ((*iter)[m_program_columns.number] == number) {
+      (*iter)[m_program_columns.name] = name;
+      return;
+    }
+    if ((*iter)[m_program_columns.number] > number)
+      break;
+  }
+  ListStore::iterator witer = m_program_store->insert(iter);
+  (*witer)[m_program_columns.number] = number;
+  (*witer)[m_program_columns.name] = name;
+}
+
+
+void EuphoriaWidget::remove_program(int number) {
+  ListStore::iterator iter = m_program_store->children().begin();
+  for ( ; iter != m_program_store->children().end(); ++iter) {
+    if ((*iter)[m_program_columns.number] == number) {
+      m_program_store->erase(iter);
+      break;
+    }
+  }
+}
+
+
+void EuphoriaWidget::clear_programs() {
+  m_program_store->clear();
+}
+
+
+VBox* EuphoriaWidget::create_knob(LV2UIClient& lv2, const string& label, 
+                                  int port,
                                   float red, float green, float blue) {
   VBox* box = manage(new VBox(false, 1));
   VGKnob* knob = manage(new VGKnob(e_ports[port].min, e_ports[port].max,
                                    e_ports[port].default_value, 
                                    red, green, blue, e_ports[port].integer,
                                    e_ports[port].logarithmic));
+  lv2.connect_adjustment(&knob->get_adjustment(), port);
   box->pack_start(*knob);
   Label* text = manage(new Label(string("<small>") + label + "</small>"));
   text->set_use_markup(true);
@@ -329,3 +374,10 @@ VBox* EuphoriaWidget::create_knob(const string& label, int port,
   return box;
 }
 
+
+void EuphoriaWidget::program_selection_changed() {
+  TreeModel::iterator iter = m_program_view.get_selection()->get_selected();
+  if (iter == m_program_store->children().end())
+    signal_program_selected(-1);
+  signal_program_selected((*iter)[m_program_columns.number]);
+}

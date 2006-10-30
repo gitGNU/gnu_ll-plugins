@@ -66,6 +66,10 @@ LV2UIClient::LV2UIClient(int argc, char** argv, bool wait)
     connect(mem_fun(*this, &LV2UIClient::program_receiver));
   m_configure_dispatcher.
     connect(mem_fun(*this, &LV2UIClient::configure_receiver));
+  m_add_program_dispatcher.
+    connect(mem_fun(*this, &LV2UIClient::add_program_receiver));
+  m_remove_program_dispatcher.
+    connect(mem_fun(*this, &LV2UIClient::remove_program_receiver));
   
   control_received.connect(mem_fun(*this, &LV2UIClient::update_adjustments));
 
@@ -79,6 +83,12 @@ LV2UIClient::LV2UIClient(int argc, char** argv, bool wait)
                               &LV2UIClient::control_handler, this);
   lo_server_thread_add_method(m_server_thread, "/lv2plugin/program", "i", 
                               &LV2UIClient::program_handler, this);
+  lo_server_thread_add_method(m_server_thread, "/lv2plugin/add_program", "is", 
+                              &LV2UIClient::add_program_handler, this);
+  lo_server_thread_add_method(m_server_thread, "/lv2plugin/remove_program", "i",
+                              &LV2UIClient::remove_program_handler, this);
+  lo_server_thread_add_method(m_server_thread, "/lv2plugin/clear_programs", "",
+                              &LV2UIClient::clear_programs_handler, this);
   lo_server_thread_add_method(m_server_thread, "/lv2plugin/configure", "ss", 
                               &LV2UIClient::configure_handler, this);
   lo_server_thread_add_method(m_server_thread, "/lv2plugin/show", "", 
@@ -277,6 +287,35 @@ int LV2UIClient::program_handler(const char *path, const char *types,
   LV2UIClient* me = static_cast<LV2UIClient*>(user_data);
   me->m_program_queue.push(argv[0]->i);
   me->m_program_dispatcher();
+  return 0;
+}
+
+
+int LV2UIClient::add_program_handler(const char *path, const char *types,
+                                     lo_arg **argv, int argc, 
+                                     void *data, void *user_data) {
+  LV2UIClient* me = static_cast<LV2UIClient*>(user_data);
+  me->m_add_program_queue.push(make_pair(argv[0]->i, string(&argv[1]->s)));
+  me->m_add_program_dispatcher();
+  return 0;
+}
+
+
+int LV2UIClient::remove_program_handler(const char *path, const char *types,
+                                        lo_arg **argv, int argc, 
+                                        void *data, void *user_data) {
+  LV2UIClient* me = static_cast<LV2UIClient*>(user_data);
+  me->m_remove_program_queue.push(argv[0]->i);
+  me->m_remove_program_dispatcher();
+  return 0;
+}
+
+
+int LV2UIClient::clear_programs_handler(const char *path, const char *types,
+                                        lo_arg **argv, int argc, 
+                                        void *data, void *user_data) {
+  LV2UIClient* me = static_cast<LV2UIClient*>(user_data);
+  me->clear_programs_received();
   return 0;
 }
 

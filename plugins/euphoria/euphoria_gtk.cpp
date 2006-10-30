@@ -35,6 +35,11 @@ using namespace Gtk;
 using namespace Glib;
 
 
+void set_program(int program) {
+  cerr<<"Program "<<program<<" selected!"<<endl;
+}
+
+
 int main(int argc, char** argv) {
   
   // create the objects
@@ -46,17 +51,21 @@ int main(int argc, char** argv) {
     return 1;
   }
   
-  cerr<<"Running, "<<lv2.get_identifier()<<endl;
-  
   Main kit(argc, argv);
   Window main_win;
-  EuphoriaWidget euph;
+  EuphoriaWidget euph(lv2);
   main_win.set_title(string("Euphoria: ") + lv2.get_identifier());
   main_win.add(euph);
   
   lv2.show_received.connect(mem_fun(main_win, &Window::show_all));
   lv2.hide_received.connect(mem_fun(main_win, &Window::hide));
   lv2.quit_received.connect(&Main::quit);
+  lv2.add_program_received.connect(mem_fun(euph, &EuphoriaWidget::add_program));
+  lv2.remove_program_received.
+    connect(mem_fun(euph, &EuphoriaWidget::remove_program));
+  lv2.clear_programs_received.
+    connect(mem_fun(euph, &EuphoriaWidget::clear_programs));
+  euph.signal_program_selected.connect(mem_fun(lv2,&LV2UIClient::send_program));
   main_win.signal_delete_event().connect(bind_return(hide(&Main::quit), true));
   
   // start

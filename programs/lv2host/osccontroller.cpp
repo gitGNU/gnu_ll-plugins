@@ -136,8 +136,9 @@ int OSCController::configure_handler(const char*, const char*, lo_arg** argv,
 
 int OSCController::program_handler(const char*, const char*, lo_arg** argv, 
                                    int argc, lo_message, void* cbdata) {
+  cerr<<__PRETTY_FUNCTION__<<endl;
   unsigned long program = argv[0]->i;
-  //static_cast<CallbackData*>(cbdata)->host.queue_program(program);
+  static_cast<CallbackData*>(cbdata)->host.queue_program(program);
 }
 
 
@@ -176,6 +177,7 @@ void* OSCController::sender_thread(void* arg) {
       switch (t) {
       
       case EventQueue::Control:
+        cerr<<__PRETTY_FUNCTION__<<" "<<event.control.port<<" "<<event.control.value<<endl;
         pthread_mutex_lock(&me->m_clients_mutex);
         for (size_t i = 0; i < me->m_clients.size(); ++i) {
           lo_send(me->m_clients[i]->address, 
@@ -198,6 +200,12 @@ void* OSCController::sender_thread(void* arg) {
       case EventQueue::Passthrough:
         if (!std::strcmp(event.passthrough.msg, "show")) {
           ClientInfo* ci = static_cast<ClientInfo*>(event.passthrough.ptr);
+          map<uint32_t, LV2Preset>::const_iterator iter;
+          for (iter = me->m_host.get_presets().begin(); 
+               iter != me->m_host.get_presets().end(); ++iter) {
+            lo_send(ci->address, (ci->path + "add_program").c_str(), "is",
+                    iter->first, iter->second.name.c_str());
+          }
           lo_send(ci->address, (ci->path + "show").c_str(), "");
         }
         break;

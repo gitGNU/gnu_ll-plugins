@@ -81,46 +81,73 @@ public:
   /** Get active program. */
   bool get_active_program(unsigned long& program);
   
+  
   // C++ wrappers for OSC methods specified in the LV2 RFC:
+  
   // UI to host
+  
   /** Sends the control value @c value to input port number @c port in the 
       plugin. */
   void send_control(int port, float value);
+  
   /** Change the plugin's program. */
   void send_program(int program);
+  
   /** Tell the host that we want an update of all the controls, program and
       configuration values for the plugin. This is called automatically
       when this LV2UIClient object is created. */
   void send_update_request();
+  
   /** Send a configuration value to the plugin. */
   void send_configure(const string& key, const string& value);
+  
   /** Send a MIDI event to the plugin. The effect will be exactly the same
       as if it had been sent by the plugin host. */
   void send_midi(int port, int size, const unsigned char* event);
+  
   /** Tell the plugin host that the GUI is about to quit (you shouldn't have
       to call this explicitly, it is called when this LV2UIClient object
       is destroyed. */
   void send_exiting();
   
+  /** Tell the plugin host to save the plugin's current setting as a program
+      with the given name and number. */
+  void send_save_program(int number, const string& name);
+  
   // Host to UI
+  
   /** This signal is emitted when the host sends a new control value.
       The parameters are the control port number and the new control value. */
   signal<void, int, float> control_received;
-  /** Emitted when the host sends a program change. The parameters are the 
-      bank and program numbers. */
+  
+  /** Emitted when the host sends a program change. The parameter is the 
+      program number. */
   signal<void, int> program_received;
+  
   /** Emitted when the host sends a configuration value. The parameters are
       the configuration key and the configuration value. */
   signal<void, const string, const string> configure_received;
+  
   /** Emitted when the host wants the UI to be visible. A LV2 GUI should not
       show any windows until this signal is emitted. */
   Dispatcher show_received;
+  
   /** Emitted when the host wants to hide the UI. */
   Dispatcher hide_received;
+  
   /** Emitted when the host wants the UI to exit. This LV2UIClient object
       will not send or receive any OSC messages after it has received this
       message, but you still have to quit the program yourself. */
   Dispatcher quit_received;
+  
+  /** Emitted when the host tells the GUI that a program has been added. */
+  signal<void, int, string> add_program_received;
+  
+  /** Emitted when the host tells the GUI that a program has been removed. */
+  signal<void, int> remove_program_received;
+  
+  /** Emitted when the host tells the GUI to clear the program list. */
+  Dispatcher clear_programs_received;
   
   /** This function allocates a segment of shared memory and tells the plugin
       about it using a configure() call. The plugin should use lv2_shm_attach()
@@ -152,23 +179,32 @@ private:
   
   // Static callbacks for OSC method calls (liblo is not C++)
   static int control_handler(const char *path, const char *types,
-			     lo_arg **argv, int argc, 
-			     void *data, void *user_data);
+                             lo_arg **argv, int argc, 
+                             void *data, void *user_data);
   static int program_handler(const char *path, const char *types,
-			     lo_arg **argv, int argc, 
-			     void *data, void *user_data);
+                             lo_arg **argv, int argc, 
+                             void *data, void *user_data);
   static int configure_handler(const char *path, const char *types,
-			       lo_arg **argv, int argc, 
-			       void *data, void *user_data);
+                               lo_arg **argv, int argc, 
+                               void *data, void *user_data);
   static int show_handler(const char *path, const char *types,
-			  lo_arg **argv, int argc, 
-			  void *data, void *user_data);
+                          lo_arg **argv, int argc, 
+                          void *data, void *user_data);
   static int hide_handler(const char *path, const char *types,
-			  lo_arg **argv, int argc, 
-			  void *data, void *user_data);
+                          lo_arg **argv, int argc, 
+                          void *data, void *user_data);
+  static int add_program_handler(const char *path, const char *types,
+                                 lo_arg **argv, int argc, 
+                                 void *data, void *user_data);
+  static int remove_program_handler(const char *path, const char *types,
+                                    lo_arg **argv, int argc, 
+                                    void *data, void *user_data);
+  static int clear_programs_handler(const char *path, const char *types,
+                                    lo_arg **argv, int argc, 
+                                    void *data, void *user_data);
   static int quit_handler(const char *path, const char *types,
-			  lo_arg **argv, int argc, 
-			  void *data, void *user_data);
+                          lo_arg **argv, int argc, 
+                          void *data, void *user_data);
   
   // Dispatchers that get the signals from the OSC thread to the GUI thread
   // (the queues and receiver functions are needed for passing data since 
@@ -205,6 +241,23 @@ private:
     string value = m_configure_queue.front().second;
     m_configure_queue.pop();
     configure_received(key, value);
+  }
+  
+  Dispatcher m_add_program_dispatcher;
+  queue<pair<int, string> > m_add_program_queue;
+  void add_program_receiver() {
+    int number = m_add_program_queue.front().first;
+    string name = m_add_program_queue.front().second;
+    m_add_program_queue.pop();
+    add_program_received(number, name);
+  }
+  
+  Dispatcher m_remove_program_dispatcher;
+  queue<int> m_remove_program_queue;
+  void remove_program_receiver() {
+    int number = m_remove_program_queue.front();
+    m_remove_program_queue.pop();
+    remove_program_received(number);
   }
   
   bool check_shared_memory();

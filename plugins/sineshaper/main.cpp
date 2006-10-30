@@ -69,6 +69,12 @@ int main(int argc, char** argv) {
   lv2.show_received.connect(mem_fun(*main_win, &SineShaperGUI::show_all));
   lv2.hide_received.connect(mem_fun(*main_win, &SineShaperGUI::hide));
   lv2.quit_received.connect(&Main::quit);
+  lv2.add_program_received.
+    connect(mem_fun(*main_win, &SineShaperGUI::add_program));
+  lv2.remove_program_received.
+    connect(mem_fun(*main_win, &SineShaperGUI::remove_program));
+  lv2.clear_programs_received.
+    connect(mem_fun(*main_win, &SineShaperGUI::clear_programs));
   main_win->signal_delete_event().connect(bind_return(hide(&Main::quit), true));
   
   // start

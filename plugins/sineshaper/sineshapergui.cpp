@@ -46,8 +46,6 @@ SineShaperGUI::SineShaperGUI(BaseObjectType* cobject,
 
 void SineShaperGUI::init() {
   
-  m_pm.load_programs(m_bundle + "/presets");
-  
  /* XXX This is all horrible and should be replaced by some code-fu in 
      LV2UIClient and by inheriting SkinDial from Gtk::Range */
 
@@ -169,13 +167,6 @@ void SineShaperGUI::init() {
   m_factory_preset_list->append_column("Name", m_preset_columns.col_name);
   m_factory_preset_list->get_selection()->signal_changed().
     connect(mem_fun(*this, &SineShaperGUI::factory_preset_selected));
-  LV2_ProgramDescriptor pdesc;
-  for (uint32_t i = 0; m_pm.get_program_at_index(i, &pdesc); ++i) {
-    ListStore::iterator iter = m_factory_preset_model->append();
-    (*iter)[m_preset_columns.col_number] = pdesc.number;
-    (*iter)[m_preset_columns.col_index] = i;
-    (*iter)[m_preset_columns.col_name] = pdesc.name;
-  }
   
   // the save button and dialogs
   Button* save_button = w<Button>("save_button");
@@ -211,8 +202,6 @@ void SineShaperGUI::connect_all(LV2UIClient& dssi) {
   dssi.control_received.connect(mem_fun(*this, &SineShaperGUI::control_slot));
   for (unsigned i = 0; i < m_adjs.size(); ++i) {
     dssi.connect_adjustment(m_adjs[i], i);
-    m_adjs[i]->signal_value_changed().
-      connect(mem_fun(*this, &SineShaperGUI::knob_changed));
   }
 }
 
@@ -225,13 +214,6 @@ void SineShaperGUI::program_selected(int program) {
   for ( ; iter != m_factory_preset_model->children().end(); ++iter) {
     if ((*iter)[m_preset_columns.col_number] == (uint32_t)program) {
       m_factory_preset_list->get_selection()->select(iter);
-      int index = (*iter)[m_preset_columns.col_index];
-      const std::map<uint32_t, float>* values = m_pm.get_values(program);
-      std::map<uint32_t, float>::const_iterator viter;
-      for (viter = values->begin(); viter != values->end(); ++viter) {
-        if (viter->first < INPUT_PORTS)
-          m_adjs[viter->first]->set_value(viter->second);
-      }
       break;
     }
   }
@@ -346,9 +328,35 @@ void SineShaperGUI::factory_preset_selected() {
 }
 
 
-void SineShaperGUI::knob_changed() {
-  // knob changed, we are no longer using a preset
-  if (!m_setting_program) {
-    m_factory_preset_list->get_selection()->unselect_all();
+void SineShaperGUI::add_program(int number, const string& name) {
+  ListStore::iterator iter = m_factory_preset_model->children().begin();
+  for ( ; iter != m_factory_preset_model->children().end(); ++iter) {
+    if ((*iter)[m_preset_columns.col_number] == number) {
+      (*iter)[m_preset_columns.col_name] = name;
+      return;
+    }
+    if ((*iter)[m_preset_columns.col_number] > number)
+      break;
+  }
+  ListStore::iterator witer = m_factory_preset_model->insert(iter);
+  (*witer)[m_preset_columns.col_number] = number;
+  (*witer)[m_preset_columns.col_name] = name;
+  
+}
+
+
+void SineShaperGUI::remove_program(int number) {
+  ListStore::iterator iter = m_factory_preset_model->children().begin();
+  for ( ; iter != m_factory_preset_model->children().end(); ++iter) {
+    if ((*iter)[m_preset_columns.col_number] == number) {
+      m_factory_preset_model->erase(iter);
+      break;
+    }
   }
 }
+
+
+void SineShaperGUI::clear_programs() {
+  m_factory_preset_model->clear();
+}
+

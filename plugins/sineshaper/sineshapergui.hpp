@@ -27,7 +27,6 @@
 #include <libglademm.h>
 #include <gtkmm.h>
 
-#include "programmanager.hpp"
 #include "lv2uiclient.hpp"
 #include "skindial_gtkmm.hpp"
 
@@ -58,6 +57,10 @@ public:
   /** This should get called when the LV2 host has changed the program. */
   void program_selected(int program);
   
+  void add_program(int number, const string& name);
+  void remove_program(int number);
+  void clear_programs();
+  
   /** This signal is emitted when the user selects a program in the GUI. */
   signal<void, unsigned long> signal_select_program;
   
@@ -86,8 +89,6 @@ protected:
   /** This is called when the user selects a preset from the list of 
       factory presets. */
   void factory_preset_selected();
-  /** This is called when the value of a knob changes. */
-  void knob_changed();
   
   /** Return a casted widget from the Glade tree. */
   template <class T> T* w(const string& name) {
@@ -137,18 +138,14 @@ protected:
   public:
     PresetColumns(){ 
       add(col_number);
-      add(col_index);
       add(col_name); 
     }
     TreeModelColumn<unsigned long> col_number;
-    TreeModelColumn<unsigned long> col_index;
     TreeModelColumn<string> col_name;
   } m_preset_columns;
 
   RefPtr<ListStore> m_factory_preset_model;
   TreeView* m_factory_preset_list;
-  
-  ProgramManager m_pm;
   
   Tooltips m_tips;
   

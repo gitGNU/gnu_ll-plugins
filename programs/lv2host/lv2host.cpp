@@ -312,6 +312,61 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
       m_standalonegui = absolutise(qr[0][gui_path]->name, plugindir);
     
     m_bundledir = plugindir;
+    
+    // default preset path
+    Variable preset_path;
+    qr = select(preset_path)
+      .where(uriref, ll("defaultPresets"), preset_path)
+      .run(data);
+    if (qr.size() > 0) {
+      string presetfile = absolutise(qr[0][preset_path]->name, plugindir);
+      cerr<<"Loading presets from "<<presetfile<<endl;
+      ifstream ifs(presetfile.c_str());
+      string text, line;
+      while (getline(ifs, line))
+        text += line + "\n";
+      TurtleParser tp;
+      RDFData data;
+      if (!tp.parse_ttl(text, data)) {
+        cerr<<"Could not parse presets from "<<presetfile<<endl;
+      }
+      else {
+        Variable bank;
+        qr = select(bank).where(uriref, ll("hasBank"), bank).run(data);
+        if (qr.size() > 0) {
+          string bankuri = qr[0][bank]->name;
+          cerr<<"Found preset bank "<<bankuri<<endl;
+          Variable preset, name, program;
+          vector<QueryResult> qr2 = select(preset, name, program)
+            .where(uriref, ll("hasSetting"), preset)
+            .where(preset, doap("name"), name)
+            .where(preset, ll("midiProgram"), program)
+            .where(preset, ll("inBank"), bankuri)
+            .run(data);
+          for (int j = 0; j < qr2.size(); ++j) {
+            string preseturi = qr2[j][preset]->name;
+            cerr<<"Found the preset \""<<qr2[j][name]->name<<"\" "
+                <<" with MIDI program number "<<qr2[j][program]->name<<endl;
+            int pnum = atoi(qr2[j][program]->name.c_str());
+            m_presets[pnum].name = qr2[j][name]->name;
+            m_presets[pnum].values.clear();
+            Variable pv, port, value;
+            vector<QueryResult> qr3 = select(port, value)
+              .where(preseturi, ll("hasPortValue"), pv)
+              .where(pv, ll("forPort"), port)
+              .where(pv, rdf("value"), value)
+              .run(data);
+            for (int k = 0; k < qr3.size(); ++k) {
+              int p = atoi(qr3[k][port]->name.c_str());
+              float v = atof(qr3[k][value]->name.c_str());
+              cerr<<p<<": "<<v<<endl;
+              m_presets[pnum].values[p] = v;
+            }
+          }
+        }
+      }
+    }
+
   }
   
   // if we got this far the data is OK. time to load the library
@@ -431,9 +486,9 @@ void LV2Host::run(unsigned long nframes) {
   while ((t = m_to_jack.read_event()) != EventQueue::None) {
     switch (t) {
       
-      //case EventQueue::Program: 
-      //select_program(e.program.program);
-      //break;
+    case EventQueue::Program: 
+      select_program(e.program.program);
+      break;
       
     case EventQueue::Control: {
       const unsigned long& port = e.control.port;
@@ -521,26 +576,20 @@ const LV2_ProgramDescriptor* LV2Host::get_program(unsigned long index) {
     cerr<<"This plugin has no get_program() callback"<<endl;
   return 0;
 }
+*/
 
 
 void LV2Host::select_program(unsigned long program) {
-  if (m_inst_desc && m_inst_desc->select_program) {
-    m_inst_desc->select_program(m_handle, program);
-    m_program = program;
-    m_program_is_valid = true;
-    if (m_from_jack) {
-      m_from_jack->write_program(program);
-      for (unsigned long p = 0; p < m_ports.size(); ++p) {
-        if (!m_ports[p].midi && m_ports[p].rate == ControlRate &&
-            m_ports[p].direction == InputPort) {
-          m_from_jack->
-            write_control(p, *static_cast<float*>(m_ports[p].buffer));
-        }
-      }
+  map<uint32_t, LV2Preset>::const_iterator iter = m_presets.find(program);
+  if (iter != m_presets.end()) {
+    map<uint32_t, float>::const_iterator piter;
+    for (piter = iter->second.values.begin(); 
+           piter != iter->second.values.end(); ++piter) {
+      *(float*)m_ports[piter->first].buffer = piter->second;
+      queue_control(piter->first, piter->second, false);
     }
   }
 }
-*/
 
 
 const std::vector<int>& LV2Host::get_midi_map() const {
@@ -557,9 +606,10 @@ const std::string& LV2Host::get_bundle_dir() const {
   return m_bundledir;
 }
 
-/*
+
 void LV2Host::queue_program(unsigned long program, bool to_jack) {
   if (to_jack) {
+    cerr<<__PRETTY_FUNCTION__<<endl;
     pthread_mutex_lock(&m_mutex);
     m_to_jack.write_program(program);
     pthread_mutex_unlock(&m_mutex);
@@ -567,7 +617,7 @@ void LV2Host::queue_program(unsigned long program, bool to_jack) {
   else if (m_from_jack)
     m_from_jack->write_program(program);
 }
-*/
+
 
 void LV2Host::queue_control(unsigned long port, float value, bool to_jack) {
   if (port < m_ports.size()) {
@@ -608,6 +658,19 @@ void LV2Host::queue_passthrough(const char* msg, void* ptr) {
 }
 
 
+void LV2Host::set_program(uint32_t program) {
+  map<uint32_t, LV2Preset>::const_iterator iter = m_presets.find(program);
+  if (iter == m_presets.end()) {
+    cerr<<"Could not find program "<<program<<endl;
+  }
+  else {
+    map<uint32_t, float>::const_iterator piter = iter->second.values.begin();
+    for ( ; piter != iter->second.values.end(); ++iter)
+      queue_control(piter->first, piter->second, true);
+  }
+}
+
+
 void LV2Host::set_event_queue(EventQueue* q) {
   m_from_jack = q;
 }
@@ -616,6 +679,12 @@ void LV2Host::set_event_queue(EventQueue* q) {
 const std::map<std::string, std::string>& LV2Host::get_config() const {
   return m_configuration;
 }
+
+
+const std::map<uint32_t, LV2Preset>& LV2Host::get_presets() const {
+  return m_presets;
+}
+
 
 
 LV2Host* LV2Host::m_current_object(0);

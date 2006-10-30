@@ -39,6 +39,12 @@ struct LV2Port {
 };
 
 
+struct LV2Preset {
+  std::string name;
+  std::map<uint32_t, float> values;
+};
+
+
 /** A class that loads a single LV2 plugin. */
 class LV2Host {
 public:
@@ -59,22 +65,25 @@ public:
   char* configure(const char* key, const char* value);
   unsigned int list_used_files(char*** keys, char*** filepaths);
   //const LV2_ProgramDescriptor* get_program(unsigned long index);
-  //void select_program(unsigned long program);
+  void select_program(unsigned long program);
   
   const std::vector<int>& get_midi_map() const;
   
   const std::string& get_gui_path() const;
   const std::string& get_bundle_dir() const;
   
-  //void queue_program(unsigned long program, bool to_jack = true);
+  void queue_program(unsigned long program, bool to_jack = true);
   void queue_control(unsigned long port, float value, bool to_jack = true);
   void queue_midi(uint32_t port, uint32_t size, const unsigned char* midi);
   void queue_config_request(EventQueue* sender);
   void queue_passthrough(const char* msg, void* ptr);
+  void set_program(uint32_t program);
   
   void set_event_queue(EventQueue* q);
   
   const std::map<std::string, std::string>& get_config() const;
+  
+  const std::map<uint32_t, LV2Preset>& get_presets() const;
   
 protected:
   
@@ -124,6 +133,8 @@ protected:
   
   EventQueue m_to_jack;
   EventQueue* m_from_jack;
+  
+  std::map<uint32_t, LV2Preset> m_presets;
 };
 
 

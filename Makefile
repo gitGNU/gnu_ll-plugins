@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.113
+PACKAGE_VERSION = 0.1.114
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
@@ -43,7 +43,7 @@ paqtest_SOURCES = main.cpp
 paqtest_LDFLAGS = libraries/paq/libpaq.a
 paqtest_SOURCEDIR = libraries/paq
 
-LV2_PLUGINS = control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 phase-distortion-osc.lv2 euphoria.lv2 klaviatur.lv2
+LV2_PLUGINS = control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 phase-distortion-osc.lv2 euphoria.lv2 sineshaper.lv2 klaviatur.lv2
 
 PLUGINFLAGS = -Wl,-whole-archive libraries/lv2plugin/liblv2_plugin.a -Wl,-no-whole-archive
 INSTRUMENTFLAGS = -Wl,-whole-archive libraries/lv2plugin/liblv2_plugin.a -Wl,-no-whole-archive
@@ -77,7 +77,7 @@ klaviatur_gtk_SOURCEDIR = plugins/klaviatur
 
 # Euphoria
 euphoria_lv2_SOURCES = euphoria.cpp
-euphoria_lv2_DATA = manifest.ttl euphoria.ttl
+euphoria_lv2_DATA = manifest.ttl euphoria.ttl presets.ttl
 euphoria_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/instrument -Iextensions/miditype -I.
 euphoria_lv2_LDFLAGS = $(INSTRUMENTFLAGS)
 euphoria_lv2_PEGFILES = euphoria.peg
@@ -99,7 +99,7 @@ sineshaper_lv2_SOURCES = \
 	sineshaper.hpp sineshaper.cpp \
 	sineshaperports.hpp \
 	midiiterator.hpp
-sineshaper_lv2_DATA = manifest.ttl sineshaper.ttl sineshaper.glade dial.png sineshaper.png presets
+sineshaper_lv2_DATA = manifest.ttl sineshaper.ttl sineshaper.glade dial.png sineshaper.png presets.ttl
 sineshaper_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/miditype -Iextensions/instrument -I.
 sineshaper_lv2_LDFLAGS = $(INSTRUMENTFLAGS)
 sineshaper_lv2_SOURCEDIR = plugins/sineshaper

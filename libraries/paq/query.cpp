@@ -383,6 +383,8 @@ namespace PAQ {
   RDFTerm* Query::add_term(const std::string& str) {
     if (str.size() > 0 && str[0] == '<')
       return data.add_uriref(str);
+    if (str.substr(0, 3) == "__:")
+      return data.add_bnode(str);
     return data.add_literal(str);
   }
 

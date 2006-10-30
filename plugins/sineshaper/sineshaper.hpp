@@ -31,7 +31,6 @@
 #include "slide.hpp"
 #include "dcblocker.hpp"
 #include "delay.hpp"
-#include "programmanager.hpp"
 
 
 /** This is the class that contains all the code and data for the Sineshaper
@@ -44,13 +43,7 @@ public:
   
   void run(unsigned long sample_count);
   
-  const LV2_ProgramDescriptor *get_program(unsigned long index);
-  void select_program(unsigned long program);
-
 protected:
-  
-  ProgramManager m_pm;
-  LV2_ProgramDescriptor m_pdesc;
   
   SineOscillator m_vibrato_lfo;
   SineOscillator m_tremolo_lfo;
