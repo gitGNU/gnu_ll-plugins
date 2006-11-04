@@ -15,6 +15,8 @@ public:
   bool set_string(const std::string& str);
   std::string get_string() const;
   
+  sigc::signal<void> signal_apply;
+  
 protected:
 
   struct Point {

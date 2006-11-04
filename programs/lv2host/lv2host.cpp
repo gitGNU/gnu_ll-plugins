@@ -189,6 +189,10 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
         m_ports[p].direction = OutputPort;
         m_ports[p].rate = AudioRate;
       }
+      else {
+        cerr<<"Unknown port class: "<<pclass<<endl;
+        return;
+      }
       
       // type
       string type = qr[j][porttype]->name;
@@ -196,8 +200,10 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
         m_ports[p].midi = false;
       else if (type == llext("miditype"))
         m_ports[p].midi = true;
-      else
+      else {
+        cerr<<"Unknown datatype: "<<type<<endl;
         return;
+      }
       
       m_ports[p].default_value = 0;
       m_ports[p].min_value = 0;

@@ -9,7 +9,7 @@
   doap:name "Euphoria";
   doap:licence <http://usefulinc.com/doap/licenses/gpl>;
   ll:standaloneGui <euphoria_gtk>;
-  lv2:optionalHostFeature ll:instrument-ext;
+  lv2:requiredHostFeature ll:instrument-ext;
   ll:pegName "e";  
   ll:defaultPresets <presets.ttl>;
     

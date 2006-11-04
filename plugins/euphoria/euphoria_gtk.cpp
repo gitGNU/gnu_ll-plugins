@@ -66,6 +66,8 @@ int main(int argc, char** argv) {
   lv2.clear_programs_received.
     connect(mem_fun(euph, &EuphoriaWidget::clear_programs));
   euph.signal_program_selected.connect(mem_fun(lv2,&LV2UIClient::send_program));
+  euph.signal_shape_changed.
+    connect(bind<0>(mem_fun(lv2, &LV2UIClient::send_configure), "shape"));
   main_win.signal_delete_event().connect(bind_return(hide(&Main::quit), true));
   
   // start

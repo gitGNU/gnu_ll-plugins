@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <valarray>
 
 #include "shapereditor.hpp"
@@ -44,12 +45,36 @@ ShaperEditor::ShaperEditor()
  
 
 bool ShaperEditor::set_string(const std::string& str) {
+
+  istringstream iss(str);
+  vector<Point> new_points;
+  
+  while (iss.good()) {
+    double x, y;
+    iss>>x>>y>>ws;
+    new_points.push_back(Point(x, y));
+  }
+  
+  if (new_points.size() > 1 && new_points[0].x == -1 && 
+      new_points[new_points.size() - 1].x == 1) {
+    m_points = new_points;
+    queue_draw();
+    return true;
+  }
+  
   return false;
 }
 
 
 std::string ShaperEditor::get_string() const {
-  return "";
+  ostringstream oss;
+  for (int i = 0; i < m_points.size(); ++i) {
+    if (i > 0)
+      oss<<" ";
+    oss<<m_points[i].x<<" "<<m_points[i].y;
+  }
+  
+  return oss.str();
 }
 
 
@@ -355,5 +380,6 @@ void ShaperEditor::apply() {
   Gdk::Color bg;
   bg.set_rgb(10000, 10000, 15000);
   modify_bg(STATE_NORMAL, bg);
+  signal_apply();
   queue_draw();
 }

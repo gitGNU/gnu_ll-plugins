@@ -18,6 +18,7 @@ public:
   void clear_programs();
   
   sigc::signal<void, int> signal_program_selected;
+  sigc::signal<void, string> signal_shape_changed;
   
 protected:
   

@@ -322,6 +322,10 @@ EuphoriaWidget::EuphoriaWidget(LV2UIClient& lv2)
   m_program_view.get_selection()->signal_changed().
     connect(mem_fun(*this, &EuphoriaWidget::program_selection_changed));
   
+  shapeEditor->signal_apply.
+    connect(compose(signal_shape_changed, 
+                    mem_fun(*shapeEditor, &ShaperEditor::get_string)));
+  
   show_all();
 }
 
