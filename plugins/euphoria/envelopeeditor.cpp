@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <valarray>
 
 #include "envelopeeditor.hpp"
@@ -88,12 +89,64 @@ EnvelopeEditor::EnvelopeEditor()
  
 
 bool EnvelopeEditor::set_string(const std::string& str) {
-  return false;
+  istringstream iss(str);
+  vector<Segment> new_segments;
+  while (iss.good()) {
+    Segment s;
+    iss>>s.start>>s.length>>s.sustain_sens;
+    string tmp;
+    iss>>tmp;
+    if (tmp == "c")
+      s.type = Constant;
+    else if (tmp == "a")
+      s.type = Attack;
+    else if (tmp == "d")
+      s.type = Decay;
+    else if (tmp == "r")
+      s.type = Release;
+    iss>>tmp;
+    if (tmp == "l")
+      s.curve = Linear;
+    else if (tmp == "e")
+      s.curve = Exponential;
+    else if (tmp == "e2")
+      s.curve = Exponential2;
+    new_segments.push_back(s);
+  }
+  
+  if (new_segments.size() == 0 || new_segments[0].start != 0)
+    return false;
+  
+  m_segments = new_segments;
+  queue_draw();
+  
+  return true;
 }
 
 
 std::string EnvelopeEditor::get_string() const {
-  return "";
+  ostringstream oss;
+  for (int i = 0; i < m_segments.size(); ++i) {
+    const Segment& s = m_segments[i];
+    oss<<s.start<<" "<<s.length<<" "<<s.sustain_sens<<" ";
+    if (s.type == Constant)
+      oss<<"c ";
+    else if (s.type == Attack)
+      oss<<"a ";
+    else if (s.type == Decay)
+      oss<<"d ";
+    else if (s.type == Release)
+      oss<<"r ";
+    if (s.curve == Linear)
+      oss<<"l";
+    else if (s.curve == Exponential)
+      oss<<"e";
+    else if (s.curve == Exponential2)
+      oss<<"e2";
+    if (i < m_segments.size() - 1)
+      oss<<" ";
+  }
+  return oss.str();
 }
 
 
@@ -580,5 +633,6 @@ void EnvelopeEditor::apply() {
   Gdk::Color bg;
   bg.set_rgb(10000, 10000, 15000);
   modify_bg(STATE_NORMAL, bg);
+  signal_apply();
   queue_draw();
 }

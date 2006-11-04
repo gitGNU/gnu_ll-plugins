@@ -6,6 +6,7 @@
 #include "frequencytable.hpp"
 #include "euphoria.peg"
 #include "shaper.hpp"
+#include "envelope.hpp"
 
 
 class EuphoriaVoice {
@@ -18,6 +19,7 @@ public:
   
   EuphoriaVoice(uint32_t rate)
     : m_shaper(rate),
+      m_shape_env(rate),
       m_state(OFF),
       m_inv_rate(1.0 / rate) {
 
@@ -34,14 +36,17 @@ public:
   void on(unsigned char key, unsigned char velocity) {
     m_state = ON;
     m_freq = 0.5 * m_table[key];
+    m_shape_env.on();
   }
   
   void off(unsigned char velocity) {
     m_state = OFF;
+    m_shape_env.off();
   }
 
   void fast_off() {
     m_state = OFF;
+    m_shape_env.fast_off();
   }
 
   void bend(int value) {
@@ -49,19 +54,20 @@ public:
   }
 
   
-  void run(float& left, float& right, int shape) {
+  void run(float& left, float& right, float& shape, 
+           float& attack, float& decay, float& release) {
     
-    if (m_state != OFF) {
-      left += 0.25 * m_shaper.run(sin(m_phase), m_freq);
-      right = left;
-      m_phase += m_freq * 2 * M_PI * m_inv_rate;
-    }
+    float shape_env = m_shape_env.run(attack, decay, 0.5, release);
+    left += 0.25 * m_shaper.run(shape * shape_env * sin(m_phase), m_freq);
+    right = left;
+    m_phase += m_freq * 2 * M_PI * m_inv_rate;
     
   }
   
   //protected:
   
   Shaper m_shaper;
+  Envelope m_shape_env;
   State m_state;
   float m_inv_rate;
   float m_freq;
@@ -94,9 +100,12 @@ public:
   void run(uint32_t nframes) {
     
     LV2_MIDI* midi = p<LV2_MIDI>(e_midi_input);
-    int shape = int(*p<float>(e_shape));
-    float* left = p<float>(e_left);
-    float* right = p<float>(e_right);
+    float& shape = *p(e_shape);
+    float& attack = *p(e_shape_attack);
+    float& decay = *p(e_shape_decay);
+    float& release = *p(e_shape_release);
+    float* left = p(e_left);
+    float* right = p(e_right);
     
     m_handler.set_midi_port(midi);
     for (uint32_t i = 0; i < nframes; ++i) {
@@ -105,7 +114,7 @@ public:
       right[i] = 0;
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j) {
         m_handler.get_voices()[j].voice->
-          run(left[i], right[i], shape);
+          run(left[i], right[i], shape, attack, decay, release);
       }
 
     }
@@ -116,6 +125,12 @@ public:
     if (!strcmp(key, "shape"))
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
         m_handler.get_voices()[j].voice->m_shaper.set_string(value);
+    else if (!strcmp(key, "shape_env"))
+      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
+        m_handler.get_voices()[j].voice->m_shape_env.set_string(value);
+    else
+      return strdup("Unknown configure key");
+    return 0;
   }
   
 

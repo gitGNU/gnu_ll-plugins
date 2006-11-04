@@ -550,6 +550,7 @@ void LV2Host::deactivate() {
 
 
 char* LV2Host::configure(const char* key, const char* value) {
+  cerr<<"Calling configure(\""<<key<<"\", \""<<value<<"\")"<<endl;
   if (m_inst_desc && m_inst_desc->configure) {
     char* result = m_inst_desc->configure(m_handle, key, value);
     if (!result) {

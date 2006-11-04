@@ -17,6 +17,8 @@ public:
   
   Gtk::Adjustment& get_adjustment();
   
+  sigc::signal<void> signal_apply;
+  
 protected:
 
   enum SegmentType {

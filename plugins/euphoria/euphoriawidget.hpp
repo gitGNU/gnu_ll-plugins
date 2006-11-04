@@ -6,6 +6,8 @@
 #include <gtkmm.h>
 
 #include "lv2uiclient.hpp"
+#include "shapereditor.hpp"
+#include "envelopeeditor.hpp"
 
 
 class EuphoriaWidget : public Gtk::VBox {
@@ -17,8 +19,11 @@ public:
   void remove_program(int number);
   void clear_programs();
   
+  void configure(const std::string& key, const std::string& value);
+  
   sigc::signal<void, int> signal_program_selected;
   sigc::signal<void, string> signal_shape_changed;
+  sigc::signal<void, string> signal_shape_envelope_changed;
   
 protected:
   
@@ -37,6 +42,9 @@ protected:
   } m_program_columns;
   
   Glib::RefPtr<Gtk::ListStore> m_program_store;
+  
+  ShaperEditor m_shaper;
+  EnvelopeEditor m_shape_env;
 };
 
 

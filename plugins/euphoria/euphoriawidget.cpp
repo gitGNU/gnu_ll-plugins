@@ -3,9 +3,7 @@
 #include "euphoriawidget.hpp"
 #include "vgknob.hpp"
 #include "euphoria.peg"
-#include "envelopeeditor.hpp"
 #include "pdeditor.hpp"
-#include "shapereditor.hpp"
 
 
 using namespace Gtk;
@@ -114,13 +112,11 @@ EuphoriaWidget::EuphoriaWidget(LV2UIClient& lv2)
                   1, 2, 1, 2, AttachOptions(0));
   
   VBox* shapeEBox = manage(new VBox);
-  //Button* shapeEditor = manage(new Button("Shape"));
-  ShaperEditor* shapeEditor = manage(new ShaperEditor);
-  shapeEditor->set_size_request(91, 91);
+  m_shaper.set_size_request(91, 91);
   ScrolledWindow* shapeEScrw = manage(new ScrolledWindow);
   shapeEScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
   shapeEScrw->set_shadow_type(SHADOW_IN);
-  shapeEScrw->add(*shapeEditor);
+  shapeEScrw->add(m_shaper);
   shapeEBox->pack_start(*shapeEScrw);
   shapeEBox->pack_start(*shapeEScrw, false, false);
   HBox* shapeEHBox = manage(new HBox(true));
@@ -136,11 +132,9 @@ EuphoriaWidget::EuphoriaWidget(LV2UIClient& lv2)
                   0, 1, 1, 2, AttachOptions(0));
   shapeT1->attach(*create_knob(lv2, "Vel", e_shape_vel_sens),
                   1, 2, 0, 1, AttachOptions(0));
-  EnvelopeEditor* shapeEnvelope = manage(new EnvelopeEditor());
   VBox* shapeEnvBox = manage(new VBox(false, 0));
   ScrolledWindow* shapeScrw = manage(new ScrolledWindow());
-  HScrollbar* shapeBar = 
-    manage(new HScrollbar(shapeEnvelope->get_adjustment()));
+  HScrollbar* shapeBar = manage(new HScrollbar(m_shape_env.get_adjustment()));
   for (int i = 0; i < 4; ++i) {
     ToggleButton* shapeBtn = manage(new ToggleButton);
     shapeBar->signal_size_allocate().connect(bind(&moo, shapeBtn));
@@ -151,7 +145,7 @@ EuphoriaWidget::EuphoriaWidget(LV2UIClient& lv2)
   shapeEnvBox->pack_start(*shapeBar);
   shapeScrw->set_shadow_type(SHADOW_IN);
   shapeScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
-  shapeScrw->add(*shapeEnvelope);
+  shapeScrw->add(m_shape_env);
   voiceTable->attach(*shapeEnvBox, 2, 3, 1, 2, 
                      FILL|EXPAND, AttachOptions(0));
   Table* shapeT2 = manage(new Table(2, 2));
@@ -322,9 +316,12 @@ EuphoriaWidget::EuphoriaWidget(LV2UIClient& lv2)
   m_program_view.get_selection()->signal_changed().
     connect(mem_fun(*this, &EuphoriaWidget::program_selection_changed));
   
-  shapeEditor->signal_apply.
+  m_shaper.signal_apply.
     connect(compose(signal_shape_changed, 
-                    mem_fun(*shapeEditor, &ShaperEditor::get_string)));
+                    mem_fun(m_shaper, &ShaperEditor::get_string)));
+  m_shape_env.signal_apply.
+    connect(compose(signal_shape_envelope_changed,
+                    mem_fun(m_shape_env, &EnvelopeEditor::get_string)));
   
   show_all();
 }
@@ -359,6 +356,15 @@ void EuphoriaWidget::remove_program(int number) {
 
 void EuphoriaWidget::clear_programs() {
   m_program_store->clear();
+}
+
+
+void EuphoriaWidget::configure(const std::string& key, 
+                               const std::string& value) {
+  if (key == "shape")
+    m_shaper.set_string(value);
+  if (key == "shape_env")
+    m_shape_env.set_string(value);
 }
 
 

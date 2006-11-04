@@ -6,7 +6,7 @@
 
 #include <jack/jack.h>
 #include <jack/midiport.h>
-//#include <lash/lash.h>
+#include <lash/lash.h>
 
 #include "lv2host.hpp"
 #include "lv2-miditype.h"
@@ -20,7 +20,7 @@ using namespace std;
 
 vector<jack_port_t*> jack_ports;
 jack_client_t* jack_client;
-//lash_client_t* lash_client;
+lash_client_t* lash_client;
 
 
 string escape_space(const string& str) {
@@ -82,7 +82,6 @@ string unescape_space(const string& str) {
 }
 
 
-/*
 bool init_lash(int argc, char** argv) {
   //cerr<<"Initialising LASH client"<<endl;
   lash_client = lash_init(lash_extract_args(&argc, &argv), "lv2host", 
@@ -99,7 +98,6 @@ bool init_lash(int argc, char** argv) {
   
   return (lash_client != 0);
 }
-*/
 
 
 /** Translate from an LV2 MIDI buffer to a JACK MIDI buffer. */
@@ -158,10 +156,10 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
       break;
     
     /*
-    cerr<<"Incoming event with size "<<input_event.size<<": ";
-    for (int b = 0; b < input_event.size; ++b)
+      cerr<<"Incoming event with size "<<input_event.size<<": ";
+      for (int b = 0; b < input_event.size; ++b)
       cerr<<hex<<int(((unsigned char*)input_event.buffer)[b])<<' ';
-    cerr<<endl;
+      cerr<<endl;
     */
     
     // check if it's a bank select MSB
@@ -191,10 +189,10 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
     
     // or a program change
     /*
-    else if ((input_event.size == 2) && 
-             ((input_event.buffer[0] & 0xF0) == 0xC0)) {
+      else if ((input_event.size == 2) && 
+      ((input_event.buffer[0] & 0xF0) == 0xC0)) {
       host.select_program(128 * bank + input_event.buffer[1]);
-    }
+      }
     */
     
     else {
@@ -275,12 +273,10 @@ int main(int argc, char** argv) {
   
   if (lv2h.is_valid()) {
     
-    /*
     if (!init_lash(argc, argv)) {
       cerr<<"Could not initialise LASH"<<endl;
       return -1;
     }
-    */
 
     cerr<<"MIDI map:"<<endl;
     for (unsigned i = 0; i < 127; ++i) {
@@ -295,9 +291,9 @@ int main(int argc, char** argv) {
     //cerr<<"Default MIDI port: "<<lv2h.get_default_midi_port()<<endl;
     
     /*
-    if (lv2h.get_gui_path().size())
+      if (lv2h.get_gui_path().size())
       cerr<<"Standalone GUI: "<<lv2h.get_gui_path()<<endl;
-    else
+      else
       cerr<<"No standalone GUI"<<endl;
     */
     
@@ -367,7 +363,6 @@ int main(int argc, char** argv) {
     
     // wait until we are killed
     while (still_running) {
-      /*
       lash_event_t* event;
       while ((event = lash_get_event(lash_client))) {
         
@@ -380,8 +375,8 @@ int main(int argc, char** argv) {
           const map<string, string>& config = lv2h.get_config();
           map<string, string>::const_iterator iter;
           for (iter = config.begin(); iter != config.end(); ++iter) {
-            of<<"configure "<<escape_space(iter->first)<<" "<<escape_space(iter->second)
-              <<endl;
+            of<<"configure "<<escape_space(iter->first)<<" "
+              <<escape_space(iter->second)<<endl;
           }
           
           lv2h.queue_config_request(&conf_q);
@@ -439,7 +434,7 @@ int main(int argc, char** argv) {
         
         lash_event_destroy(event);
       }
-      */
+
       usleep(100000);
     }
     

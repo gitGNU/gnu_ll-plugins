@@ -71,8 +71,8 @@ void OSCController::stop() {
 void OSCController::send_configure(const std::string& key, const std::string& value) {
   pthread_mutex_lock(&m_clients_mutex);
   for (size_t i = 0; i < m_clients.size(); ++i) {
-    lo_send(m_clients[i]->address, (m_clients[i]->path + "configure").c_str(), "ss",
-            key.c_str(), value.c_str());
+    lo_send(m_clients[i]->address, (m_clients[i]->path + "configure").c_str(),
+            "ss", key.c_str(), value.c_str());
   }
   pthread_mutex_unlock(&m_clients_mutex);
 }
