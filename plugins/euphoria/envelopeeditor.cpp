@@ -90,6 +90,10 @@ EnvelopeEditor::EnvelopeEditor()
 
 bool EnvelopeEditor::set_string(const std::string& str) {
   istringstream iss(str);
+  
+  int loop_start, loop_end;
+  iss>>loop_start>>loop_end;
+  
   vector<Segment> new_segments;
   while (iss.good()) {
     Segment s;
@@ -114,10 +118,14 @@ bool EnvelopeEditor::set_string(const std::string& str) {
     new_segments.push_back(s);
   }
   
-  if (new_segments.size() == 0 || new_segments[0].start != 0)
+  if (new_segments.size() == 0 || new_segments[0].start != 0 ||
+      (loop_start != -1 && loop_start >= new_segments.size()) ||
+      (loop_end != -1 && loop_end > new_segments.size()))
     return false;
   
   m_segments = new_segments;
+  m_loop_start = loop_start;
+  m_loop_end = loop_end;
   queue_draw();
   
   return true;
@@ -126,6 +134,12 @@ bool EnvelopeEditor::set_string(const std::string& str) {
 
 std::string EnvelopeEditor::get_string() const {
   ostringstream oss;
+  
+  if (m_loop_start < m_loop_end && m_loop_start != -1)
+    oss<<m_loop_start<<" "<<m_loop_end<<" ";
+  else
+    oss<<"-1 -1 ";
+  
   for (int i = 0; i < m_segments.size(); ++i) {
     const Segment& s = m_segments[i];
     oss<<s.start<<" "<<s.length<<" "<<s.sustain_sens<<" ";
