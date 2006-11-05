@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.121
+PACKAGE_VERSION = 0.1.122
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2 gsl>=1.8
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
@@ -76,7 +76,7 @@ klaviatur_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo` librarie
 klaviatur_gtk_SOURCEDIR = plugins/klaviatur
 
 # Euphoria
-euphoria_lv2_SOURCES = euphoria.cpp shaper.hpp shaper.cpp
+euphoria_lv2_SOURCES = euphoria.cpp shaper.hpp shaper.cpp envelope.hpp
 euphoria_lv2_DATA = manifest.ttl euphoria.ttl presets.ttl
 euphoria_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/instrument -Iextensions/miditype -I. `pkg-config --cflags gsl`
 euphoria_lv2_LDFLAGS = $(INSTRUMENTFLAGS) `pkg-config --libs gsl`
@@ -172,6 +172,7 @@ EXTRA_DIST = \
 	libraries/components/envelopegenerator.hpp \
 	libraries/components/frequencytable.hpp \
 	libraries/components/ladspawrapper.hpp \
+	libraries/components/lv2-midifunctions.h \
 	libraries/components/monophonicmidinote.hpp \
 	libraries/components/mooglpf.hpp \
 	libraries/components/pdosc.hpp \
