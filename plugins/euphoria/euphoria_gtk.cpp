@@ -33,6 +33,7 @@
 using namespace std;
 using namespace Gtk;
 using namespace Glib;
+using namespace sigc;
 
 
 void set_program(int program) {

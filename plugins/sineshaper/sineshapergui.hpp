@@ -31,19 +31,13 @@
 #include "skindial_gtkmm.hpp"
 
 
-using namespace std;
-using namespace Gdk;
-using namespace Gtk;
-using namespace Gnome::Glade;
-using namespace Glib;
-
-
 class SineShaperGUI : public Gtk::Window {
 public:
   
   /** This constructor is needed so we can 'take over' the window built
       in Glade. */
-  SineShaperGUI(BaseObjectType* cobject, const RefPtr<Xml>& refGlade);
+  SineShaperGUI(BaseObjectType* cobject, 
+                const Glib::RefPtr<Gnome::Glade::Xml>& refGlade);
   
   void init();
   
@@ -95,15 +89,15 @@ protected:
     return dynamic_cast<T*>(m_xml->get_widget(name));
   }
   
-  RefPtr<Xml> m_xml;
+  Glib::RefPtr<Gnome::Glade::Xml> m_xml;
   
   SkinDial* m_tune_knob;
-  SpinButton* m_oct_spin;
+  Gtk::SpinButton* m_oct_spin;
   SkinDial* m_sub_tune_knob;
-  SpinButton* m_sub_oct_spin;
+  Gtk::SpinButton* m_sub_oct_spin;
   SkinDial* m_osc_mix_knob;
   
-  CheckButton* m_porta_check;
+  Gtk::CheckButton* m_porta_check;
   SkinDial* m_porta_time_knob;
   SkinDial* m_vibra_freq_knob;
   SkinDial* m_vibra_depth_knob;
@@ -129,30 +123,30 @@ protected:
   SkinDial* m_delay_fb_knob;
   SkinDial* m_delay_mix_knob;
 
-  CheckButton* m_tie_check;
+  Gtk::CheckButton* m_tie_check;
   
-  vector<Adjustment*> m_adjs;
+  std::vector<Gtk::Adjustment*> m_adjs;
   
   /** TreeModel column record for the preset lists. */
-  class PresetColumns : public TreeModel::ColumnRecord {
+  class PresetColumns : public Gtk::TreeModel::ColumnRecord {
   public:
     PresetColumns(){ 
       add(col_number);
       add(col_name); 
     }
-    TreeModelColumn<unsigned long> col_number;
-    TreeModelColumn<string> col_name;
+    Gtk::TreeModelColumn<unsigned long> col_number;
+    Gtk::TreeModelColumn<string> col_name;
   } m_preset_columns;
 
-  RefPtr<ListStore> m_factory_preset_model;
-  TreeView* m_factory_preset_list;
+  Glib::RefPtr<Gtk::ListStore> m_factory_preset_model;
+  Gtk::TreeView* m_factory_preset_list;
   
-  Tooltips m_tips;
+  Gtk::Tooltips m_tips;
   
-  Dialog* m_save_dlg;
-  Dialog* m_save_warning_dlg;
-  Entry* m_save_name;
-  SpinButton* m_save_number;
+  Gtk::Dialog* m_save_dlg;
+  Gtk::Dialog* m_save_warning_dlg;
+  Gtk::Entry* m_save_name;
+  Gtk::SpinButton* m_save_number;
   
   bool m_setting_program;
   

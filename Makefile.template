@@ -14,6 +14,7 @@ lv2plugindir = $(libdir)/lv2
 LV2PEG = programs/lv2peg/lv2peg
 
 # Don't modify any variables below this line
+UNAME = $(shell,uname)
 
 
 all: really-all
@@ -70,6 +71,14 @@ $(foreach arc,$(ARCHIVES),$(eval $(call ARCHIVE_template,$(arc),$(subst .,_,$(ar
 
 
 # SHARED LIBRARIES
+ifeq ($(UNAME),Darwin)
+SHARED_LIBRARY_LDFLAGS = -dynamiclib
+SHARED_LIBRARY_CFLAGS = -fno-common
+else
+SHARED_LIBRARY_LDFLAGS = -shared -fPIC
+SHARED_LIBRARY_CFLAGS = -fPIC -DPIC
+endif
+
 define LIBRARY_template
 
 # variables
@@ -87,13 +96,13 @@ $(2)_INSTDIR = $$(if $$($(2)_INSTALLDIR),$$($(2)_INSTALLDIR),$(libdir))
 
 # targets
 $$($(2)_COBJECTS): Makefile.config
-	$(CC) -c -o $$@ -fPIC -DPIC $(CFLAGS) $$($(2)_CFLAGS) $$(subst .o,.c,$$@)
+	$(CC) -c -o $$@ $(SHARED_LIBRARY_CFLAGS) $(CFLAGS) $$($(2)_CFLAGS) $$(subst .o,.c,$$@)
 
 $$($(2)_CXXOBJECTS): Makefile.config
-	$(CXX) -c -o $$@ -fPIC -DPIC $(CFLAGS) $(CXXFLAGS) $$($(2)_CFLAGS) $$(subst .o,.cpp,$$@)
+	$(CXX) -c -o $$@ $(SHARED_LIBRARY_CFLAGS) $(CFLAGS) $(CXXFLAGS) $$($(2)_CFLAGS) $$(subst .o,.cpp,$$@)
 
 $(1): $$($(2)_OBJECTS) $(ARCHIVES_REAL)
-	$(CXX) -shared -fPIC $$^ $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
+	$(CXX) $(SHARED_LIBRARY_LDFLAGS) $$^ $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
 
 install-$(2)-headers: $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS))
 	mkdir -p $(pkgincludedir)
@@ -111,6 +120,14 @@ $(foreach lib,$(LIBRARIES),$(eval $(call LIBRARY_template,$(lib),$(subst .,_,$(l
 
 
 # LV2 PLUGINS
+ifeq ($(UNAME),Darwin)
+LV2PLUGIN_LDFLAGS = -bundle
+LV2PLUGIN_CFLAGS = -fno-common
+else
+LV2PLUGIN_LDFLAGS = -shared -fPIC
+LV2PLUGIN_CFLAGS = -fPIC -DPIC
+endif
+
 define LV2_PLUGIN_template
 
 # variables
@@ -134,13 +151,13 @@ $(2)_INSTDIR = $$(if $$($(2)_INSTALLDIR),$$($(2)_INSTALLDIR),$(lv2plugindir))
 
 # targets
 $$($(2)_COBJECTS): Makefile.config $$($(2)_FULLPEGFILES)
-	$(CC) -c -o $$@ -fPIC -DPIC $(CFLAGS) $$($(2)_CFLAGS) $$($$(patsubst %.o,%_c_CFLAGS,$$(notdir $$@))) $$(subst .o,.c,$$@)
+	$(CC) -c -o $$@ $(LV2PLUGIN_CFLAGS) $(CFLAGS) $$($(2)_CFLAGS) $$($$(patsubst %.o,%_c_CFLAGS,$$(notdir $$@))) $$(subst .o,.c,$$@)
 
 $$($(2)_CXXOBJECTS): Makefile.config
-	$(CXX) -c -o $$@ -fPIC -DPIC $(CFLAGS) $(CXXFLAGS) $$($(2)_CFLAGS) $$($$(patsubst %.o,%_cpp_CFLAGS,$$(notdir $$@))) $$(subst .o,.cpp,$$@)
+	$(CXX) -c -o $$@ $(LV2PLUGIN_CFLAGS) $(CFLAGS) $(CXXFLAGS) $$($(2)_CFLAGS) $$($$(patsubst %.o,%_cpp_CFLAGS,$$(notdir $$@))) $$(subst .o,.cpp,$$@)
 
 $$($(2)_LIBNAME): $$($(2)_OBJECTS) $(LIBRARIES) $(ARCHIVES_REAL)
-	$(CXX) -shared -fPIC $$($(2)_OBJECTS)  $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
+	$(CXX) $(LV2PLUGIN_LDFLAGS) $$($(2)_OBJECTS)  $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
 
 $$($(2)_BLDPRF)/$(1): $$($(2)_LIBNAME) $$($(2)_FULLDATA) $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_PROGRAMS))
 	rm -rf $$($(2)_BLDPRF)/$(1)
@@ -201,6 +218,14 @@ $(foreach prog,$(PROGRAMS),$(eval $(call PROGRAM_template,$(prog))))
 
 
 # RUNTIME LOADABLE MODULES
+ifeq ($(UNAME),Darwin)
+MODULE_LDFLAGS = -bundle
+MODULE_CFLAGS = -fno-common
+else
+MODULE_LDFLAGS = -shared -fPIC
+MODULE_CFLAGS = -fPIC -DPIC
+endif
+
 define MODULE_template
 
 # variables
@@ -217,13 +242,13 @@ $(2)_INSTDIR = $$(if $$($(2)_INSTALLDIR),$$($(2)_INSTALLDIR),$(pkglibdir))
 
 # targets
 $$($(2)_COBJECTS): Makefile.config
-	$(CC) -c -o $$@ -fPIC -DPIC $(CFLAGS) $$($(2)_CFLAGS) $$($$(patsubst %.o,%_c_CFLAGS,$$(notdir $$@))) $$(subst .o,.c,$$@)
+	$(CC) -c -o $$@ $(MODULE_CFLAGS) $(CFLAGS) $$($(2)_CFLAGS) $$($$(patsubst %.o,%_c_CFLAGS,$$(notdir $$@))) $$(subst .o,.c,$$@)
 
 $$($(2)_CXXOBJECTS): Makefile.config
-	$(CXX) -c -o $$@ -fPIC -DPIC $(CFLAGS) $(CXXFLAGS) $$($(2)_CFLAGS) $$($$(patsubst %.o,%_cpp_CFLAGS,$$(notdir $$@))) $$(subst .o,.cpp,$$@)
+	$(CXX) -c -o $$@ $(MODULE_CFLAGS) $(CFLAGS) $(CXXFLAGS) $$($(2)_CFLAGS) $$($$(patsubst %.o,%_cpp_CFLAGS,$$(notdir $$@))) $$(subst .o,.cpp,$$@)
 
 $(1): $$($(2)_OBJECTS) $(LIBRARIES) $(ARCHIVES_REAL)
-	$(CXX) -shared -fPIC $$($(2)_OBJECTS)  $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
+	$(CXX) $(MODULE_LDFLAGS) $$($(2)_OBJECTS)  $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
 
 install-$(2)-headers: $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS))
 	mkdir -p $(pkgincludedir)

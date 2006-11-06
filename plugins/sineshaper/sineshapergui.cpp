@@ -29,7 +29,11 @@
 #include "sineshapergui.hpp"
 #include "sineshaperports.hpp"
 
+
 using namespace std;
+using namespace Glib;
+using namespace Gtk;
+using namespace Gnome::Glade;
 
 
 SineShaperGUI::SineShaperGUI(BaseObjectType* cobject, 

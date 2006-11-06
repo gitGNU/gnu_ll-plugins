@@ -22,8 +22,8 @@ public:
   void configure(const std::string& key, const std::string& value);
   
   sigc::signal<void, int> signal_program_selected;
-  sigc::signal<void, string> signal_shape_changed;
-  sigc::signal<void, string> signal_shape_envelope_changed;
+  sigc::signal<void, std::string> signal_shape_changed;
+  sigc::signal<void, std::string> signal_shape_envelope_changed;
   
 protected:
   

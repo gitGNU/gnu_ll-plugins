@@ -35,12 +35,6 @@
 #include <sigc++/sigc++.h>
 
 
-using namespace Glib;
-using namespace Gtk;
-using namespace sigc;
-using namespace std;
-
-
 /** This class can be used by a LV2 plugin UI to communicate with the plugin
     host. It has public functions for all the messages that the UI can send
     to the host, and public signals for all the messages that the host can send
@@ -67,13 +61,13 @@ public:
   bool is_valid() const;
   
   /** Returns the identifier string given by the plugin host. */
-  const string& get_identifier() const;
+  const std::string& get_identifier() const;
   
   /** Returns the bundle path. */
-  const string& get_bundle_path() const;
+  const std::string& get_bundle_path() const;
   
   /** Connects a Gtk::Adjustment to a LV2 port. */
-  void connect_adjustment(Adjustment* adj, int port);
+  void connect_adjustment(Gtk::Adjustment* adj, int port);
   
   Gtk::Adjustment* get_adjustment(int port);
   
@@ -101,7 +95,7 @@ public:
   void send_update_request();
   
   /** Send a configuration value to the plugin. */
-  void send_configure(const string& key, const string& value);
+  void send_configure(const std::string& key, const std::string& value);
   
   /** Send a MIDI event to the plugin. The effect will be exactly the same
       as if it had been sent by the plugin host. */
@@ -114,7 +108,7 @@ public:
   
   /** Tell the plugin host to save the plugin's current setting as a program
       with the given name and number. */
-  void send_save_program(int number, const string& name);
+  void send_save_program(int number, const std::string& name);
   
   // Host to UI
   
@@ -128,28 +122,28 @@ public:
   
   /** Emitted when the host sends a configuration value. The parameters are
       the configuration key and the configuration value. */
-  sigc::signal<void, const string, const string> configure_received;
+  sigc::signal<void, const std::string, const std::string> configure_received;
   
   /** Emitted when the host wants the UI to be visible. A LV2 GUI should not
       show any windows until this signal is emitted. */
-  Dispatcher show_received;
+  Glib::Dispatcher show_received;
   
   /** Emitted when the host wants to hide the UI. */
-  Dispatcher hide_received;
+  Glib::Dispatcher hide_received;
   
   /** Emitted when the host wants the UI to exit. This LV2UIClient object
       will not send or receive any OSC messages after it has received this
       message, but you still have to quit the program yourself. */
-  Dispatcher quit_received;
+  Glib::Dispatcher quit_received;
   
   /** Emitted when the host tells the GUI that a program has been added. */
-  sigc::signal<void, int, string> add_program_received;
+  sigc::signal<void, int, std::string> add_program_received;
   
   /** Emitted when the host tells the GUI that a program has been removed. */
   sigc::signal<void, int> remove_program_received;
   
   /** Emitted when the host tells the GUI to clear the program list. */
-  Dispatcher clear_programs_received;
+  Glib::Dispatcher clear_programs_received;
   
 private:
   
@@ -188,8 +182,8 @@ private:
   // Dispatchers that get the signals from the OSC thread to the GUI thread
   // (the queues and receiver functions are needed for passing data since 
   // Dispatchers don't take parameters)
-  Dispatcher m_control_dispatcher;
-  queue<pair<int, float> > m_control_queue;
+  Glib::Dispatcher m_control_dispatcher;
+  std::queue<std::pair<int, float> > m_control_queue;
   void control_receiver() {
     int port = m_control_queue.front().first;
     float value = m_control_queue.front().second;
@@ -198,8 +192,8 @@ private:
       m_adjustments[port]->set_value(value);
     control_received(port, value);
   }
-  Dispatcher m_program_dispatcher;
-  queue<int> m_program_queue;
+  Glib::Dispatcher m_program_dispatcher;
+  std::queue<int> m_program_queue;
   void program_receiver() {
     int program = m_program_queue.front();
     m_program_queue.pop();
@@ -207,26 +201,26 @@ private:
     m_active_program = program;
     program_received(program);
   }
-  Dispatcher m_configure_dispatcher;
-  queue<pair<string, string> > m_configure_queue;
+  Glib::Dispatcher m_configure_dispatcher;
+  std::queue<std::pair<std::string, std::string> > m_configure_queue;
   void configure_receiver() {
-    string key = m_configure_queue.front().first;
-    string value = m_configure_queue.front().second;
+    std::string key = m_configure_queue.front().first;
+    std::string value = m_configure_queue.front().second;
     m_configure_queue.pop();
     configure_received(key, value);
   }
   
-  Dispatcher m_add_program_dispatcher;
-  queue<pair<int, string> > m_add_program_queue;
+  Glib::Dispatcher m_add_program_dispatcher;
+  std::queue<std::pair<int, std::string> > m_add_program_queue;
   void add_program_receiver() {
     int number = m_add_program_queue.front().first;
-    string name = m_add_program_queue.front().second;
+    std::string name = m_add_program_queue.front().second;
     m_add_program_queue.pop();
     add_program_received(number, name);
   }
   
-  Dispatcher m_remove_program_dispatcher;
-  queue<int> m_remove_program_queue;
+  Glib::Dispatcher m_remove_program_dispatcher;
+  std::queue<int> m_remove_program_queue;
   void remove_program_receiver() {
     int number = m_remove_program_queue.front();
     m_remove_program_queue.pop();
@@ -234,14 +228,14 @@ private:
   }
   
   lo_address m_plugin_address;
-  string m_plugin_path;
+  std::string m_plugin_path;
   lo_server_thread m_server_thread;
   
   bool m_valid;
-  string m_identifier;
-  string m_bundle;
+  std::string m_identifier;
+  std::string m_bundle;
   
-  vector<Adjustment*> m_adjustments;
+  std::vector<Gtk::Adjustment*> m_adjustments;
   bool m_blocking;
   
   bool m_program_is_set;

@@ -42,6 +42,7 @@ using namespace Gtk;
 using namespace Gdk;
 using namespace Glib;
 using namespace std;
+using namespace sigc;
 
 
 bool showing_fx_controls = true;

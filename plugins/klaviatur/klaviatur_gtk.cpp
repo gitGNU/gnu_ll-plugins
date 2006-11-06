@@ -34,6 +34,7 @@
 using namespace std;
 using namespace Gtk;
 using namespace Glib;
+using namespace sigc;
 
 
 void handle_keypress(unsigned char key, LV2UIClient& lv2) {

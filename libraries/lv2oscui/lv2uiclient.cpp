@@ -29,8 +29,11 @@
 #include "lv2uiclient.hpp"
 
 
-using namespace Glib;
+using namespace Gtk;
 using namespace sigc;
+using namespace std;
+using namespace Glib;
+
 
 
 LV2UIClient::LV2UIClient(int argc, char** argv, bool wait) 

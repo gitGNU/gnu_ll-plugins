@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.124
+PACKAGE_VERSION = 0.1.125
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2 gsl>=1.8
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
@@ -71,7 +71,7 @@ klaviatur_lv2_PEGFILES = klaviatur.peg
 klaviatur_lv2_SOURCEDIR = plugins/klaviatur
 klaviatur_lv2_PROGRAMS = klaviatur_gtk
 klaviatur_gtk_SOURCES = klaviatur_gtk.cpp keyboard.cpp keyboard.hpp
-klaviatur_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Ilibraries/lv2oscui -I.
+klaviatur_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo` -Ilibraries/lv2oscui -I.
 klaviatur_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo` libraries/lv2oscui/liblv2_oscui.a
 klaviatur_gtk_SOURCEDIR = plugins/klaviatur
 
@@ -90,7 +90,7 @@ euphoria_gtk_SOURCES = \
 	pdeditor.cpp pdeditor.hpp \
 	shapereditor.cpp shapereditor.hpp \
 	vgknob.cpp vgknob.hpp
-euphoria_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Ilibraries/lv2oscui -I.
+euphoria_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo` -Ilibraries/lv2oscui -I.
 euphoria_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo` libraries/lv2oscui/liblv2_oscui.a
 euphoria_gtk_SOURCEDIR = plugins/euphoria
 
@@ -105,7 +105,7 @@ sineshaper_lv2_LDFLAGS = $(INSTRUMENTFLAGS)
 sineshaper_lv2_SOURCEDIR = plugins/sineshaper
 sineshaper_lv2_PROGRAMS = sineshaper_gtk
 sineshaper_gtk_SOURCES = sineshapergui.cpp sineshapergui.hpp main.cpp skindial_gtkmm.hpp skindial_gtkmm.cpp
-sineshaper_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 libglademm-2.4` -Ilibraries/lv2oscui -Ilibraries/components -Iextensions/instrument -I.
+sineshaper_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 libglademm-2.4 liblo` -Ilibraries/lv2oscui -Ilibraries/components -Iextensions/instrument -I.
 sineshaper_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo libglademm-2.4` libraries/lv2oscui/liblv2_oscui.a
 sineshaper_gtk_SOURCEDIR = plugins/sineshaper
 
@@ -157,7 +157,7 @@ azr3_lv2_LDFLAGS = $(INSTRUMENTFLAGS)
 azr3_lv2_SOURCEDIR = plugins/azr3
 azr3_lv2_PROGRAMS = azr3_gtk
 azr3_gtk_SOURCES = azr3_gtk.cpp knob.hpp knob.cpp switch.hpp switch.cpp drawbar.hpp drawbar.cpp textbox.hpp textbox.cpp
-azr3_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Ilibraries/lv2oscui
+azr3_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo` -Ilibraries/lv2oscui
 azr3_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo` libraries/lv2oscui/liblv2_oscui.a
 azr3_gtk_SOURCEDIR = plugins/azr3
 
