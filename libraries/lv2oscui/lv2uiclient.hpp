@@ -120,15 +120,15 @@ public:
   
   /** This signal is emitted when the host sends a new control value.
       The parameters are the control port number and the new control value. */
-  signal<void, int, float> control_received;
+  sigc::signal<void, int, float> control_received;
   
   /** Emitted when the host sends a program change. The parameter is the 
       program number. */
-  signal<void, int> program_received;
+  sigc::signal<void, int> program_received;
   
   /** Emitted when the host sends a configuration value. The parameters are
       the configuration key and the configuration value. */
-  signal<void, const string, const string> configure_received;
+  sigc::signal<void, const string, const string> configure_received;
   
   /** Emitted when the host wants the UI to be visible. A LV2 GUI should not
       show any windows until this signal is emitted. */
@@ -143,10 +143,10 @@ public:
   Dispatcher quit_received;
   
   /** Emitted when the host tells the GUI that a program has been added. */
-  signal<void, int, string> add_program_received;
+  sigc::signal<void, int, string> add_program_received;
   
   /** Emitted when the host tells the GUI that a program has been removed. */
-  signal<void, int> remove_program_received;
+  sigc::signal<void, int> remove_program_received;
   
   /** Emitted when the host tells the GUI to clear the program list. */
   Dispatcher clear_programs_received;

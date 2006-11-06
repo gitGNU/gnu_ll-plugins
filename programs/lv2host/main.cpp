@@ -4,6 +4,8 @@
 #include <vector>
 #include <unistd.h>
 
+#include <sys/wait.h>
+
 #include <jack/jack.h>
 #include <jack/midiport.h>
 #include <lash/lash.h>
@@ -441,7 +443,7 @@ int main(int argc, char** argv) {
     // kill the GUI
     if (gui_pid) {
       osc.send_quit();
-      wait(gui_pid);
+      waitpid(gui_pid, 0, 0);
     }
     
     osc.stop();
