@@ -73,7 +73,7 @@ namespace LV2SupportFunctions {
   unsigned int list_used_files(LV2_Handle instance, 
                                char*** keys, char*** filepaths);
   
-  const LV2_InstrumentDescriptor* lv2_instrument_descriptor(const char* URI);
+  void* lv2_instrument_descriptor(const char* URI);
   
   
   /* This template function creates an instance of a plugin. It is used as
@@ -148,18 +148,11 @@ size_t register_lv2_inst(const std::string& uri, bool optional = false) {
   desc.run = &run;
   desc.deactivate = &deactivate;
   desc.cleanup = &delete_plugin_instance;
+  desc.extension_data = &lv2_instrument_descriptor;
   get_lv2_descriptors().push_back(desc);
   
   return get_lv2_descriptors().size() - 1;
 }
 
-
-extern "C" {
-
-  /* This function returns a generic instrument descriptor (the implementation is all
-     in the class). */
-  const LV2_InstrumentDescriptor* lv2_instrument_descriptor(const char* URI);
-  
-}
 
 #endif

@@ -401,8 +401,9 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   
   // get the instrument descriptor (if it is an instrument)
   if (isInstrument) {
-    m_inst_desc = call_symbol<const LV2_InstrumentDescriptor*>("lv2_instrument_descriptor",
-                                                               m_desc->URI);
+    m_inst_desc = 0;
+    if (m_desc->extension_data)
+      m_inst_desc = (LV2_InstrumentDescriptor*)(m_desc->extension_data("<http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>"));
     if (!m_inst_desc) {
       cerr<<library<<" does not contain the instrument "<<uri<<endl;
       return;

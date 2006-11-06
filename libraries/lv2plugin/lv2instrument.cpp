@@ -40,19 +40,19 @@ namespace LV2SupportFunctions {
       list_used_files(keys, filepaths);
   }
   
-  
-}
-  
-
-extern "C" {
-
-  const LV2_InstrumentDescriptor* lv2_instrument_descriptor(const char* URI) {
-    using namespace LV2SupportFunctions;
-    static LV2_InstrumentDescriptor idesc = {
-      &configure,
-      &list_used_files,
-    };
-    return &idesc;
+  void* lv2_instrument_descriptor(const char* URI) {
+    if (!std::strcmp(URI, "<http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>")) {
+      using namespace LV2SupportFunctions;
+      static LV2_InstrumentDescriptor idesc = {
+        &configure,
+        &list_used_files,
+      };
+      return &idesc;
+    }
+    
+    return 0;
   }
   
 }
+  
+
