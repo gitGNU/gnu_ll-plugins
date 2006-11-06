@@ -14,7 +14,7 @@ lv2plugindir = $(libdir)/lv2
 LV2PEG = programs/lv2peg/lv2peg
 
 # Don't modify any variables below this line
-UNAME = $(shell,uname)
+UNAME = $(shell uname)
 
 
 all: really-all
