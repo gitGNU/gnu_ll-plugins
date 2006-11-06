@@ -132,6 +132,8 @@ EuphoriaWidget::EuphoriaWidget(LV2UIClient& lv2)
                   0, 1, 1, 2, AttachOptions(0));
   shapeT1->attach(*create_knob(lv2, "Vel", e_shape_vel_sens),
                   1, 2, 0, 1, AttachOptions(0));
+  shapeT1->attach(*create_knob(lv2, "Smooth", e_shape_smoothness),
+                  1, 2, 1, 2, AttachOptions(0));
   VBox* shapeEnvBox = manage(new VBox(false, 0));
   ScrolledWindow* shapeScrw = manage(new ScrolledWindow());
   HScrollbar* shapeBar = manage(new HScrollbar(m_shape_env.get_adjustment()));

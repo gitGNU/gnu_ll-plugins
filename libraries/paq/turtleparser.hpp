@@ -1,3 +1,25 @@
+/****************************************************************************
+    
+    turtleparser.hpp - A RDF/Turtle parser
+    
+    Copyright (C) 2006  Lars Luthman <lars.luthman@gmail.com>
+    
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+    
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 01222-1307  USA
+
+****************************************************************************/
+
 #ifndef TURTLEPARSER_HPP
 #define TURTLEPARSER_HPP
 
@@ -24,15 +46,19 @@ namespace PAQ {
   using namespace boost::spirit;
   
   
+  /** This class parses RDF data in the Turtle syntax. */
   class TurtleParser {
   public:
     
     TurtleParser();
     
-    bool parse_ttl(const std::string&, RDFData& data);
+    /** Parse the string @c str as a Turtle document and put the resulting 
+        graph in @c data. */
+    bool parse_ttl(const std::string& str, RDFData& data);
     
   protected:
     
+    // Typedefs to make the rest of the code more readable
     typedef const char* iterator_t;
     typedef tree_match<iterator_t> parse_tree_match_t;
     typedef parse_tree_match_t::const_tree_iterator iter_t;
@@ -42,6 +68,7 @@ namespace PAQ {
     typedef scanner<iterator_t, scanner_policy_t> scanner_t;
     typedef rule<scanner_t> rule_t;
     
+    // These functions are called when the parser finds a matching rule
     void do_directive(iter_t iter);  
     void do_statement(iter_t iter);
     void do_triples(iter_t iter);
@@ -68,10 +95,12 @@ namespace PAQ {
     RDFTerm* do_boolean(iter_t iter);
     RDFTerm* do_datatypeString(iter_t iter);
     
+    // Utility functions
     string node_to_string(iter_t node);  
     void ucharacter_escape(string& str);
     void scharacter_escape(string& str);
     
+    // All the grammar rules
     rule_t turtleDoc,
       statement,
       directive,

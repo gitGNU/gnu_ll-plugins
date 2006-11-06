@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.122
+PACKAGE_VERSION = 0.1.123
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2 gsl>=1.8
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
@@ -18,7 +18,7 @@ libpaq_a_SOURCES = \
 	query.hpp query.cpp
 libpaq_a_SOURCEDIR = libraries/paq
 
-liblv2_oscui_a_SOURCES = lv2uiclient.hpp lv2uiclient.cpp lv2_shm.h lv2_shm.c
+liblv2_oscui_a_SOURCES = lv2uiclient.hpp lv2uiclient.cpp
 liblv2_oscui_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo`
 liblv2_oscui_a_SOURCEDIR = libraries/lv2oscui
 

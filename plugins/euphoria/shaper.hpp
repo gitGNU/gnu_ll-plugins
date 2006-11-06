@@ -9,6 +9,7 @@ class Shaper {
 public:
   
   Shaper(unsigned int rate);
+  ~Shaper();
   
   float run(float input, float max_freq);
   
@@ -20,7 +21,8 @@ protected:
   
   static double function(double x, void* params);
   
-  float* m_tables[10];
+  typedef float *float_ptr;
+  float_ptr m_tables[10];
   unsigned m_rate;
   
 };

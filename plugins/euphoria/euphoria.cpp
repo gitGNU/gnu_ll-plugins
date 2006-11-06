@@ -21,7 +21,9 @@ public:
     : m_shaper(rate),
       m_shape_env(rate),
       m_state(OFF),
-      m_inv_rate(1.0 / rate) {
+      m_inv_rate(1.0 / rate),
+      m_freq(0),
+      m_phase(0) {
 
     m_shaper.set_string("-1 -1 0 1 0.5 -1 1 1");
     
@@ -30,12 +32,13 @@ public:
   
   void reset() {
     m_state = OFF;
+    m_phase = 0;
   }
   
 
   void on(unsigned char key, unsigned char velocity) {
     m_state = ON;
-    m_freq = 0.5 * m_table[key];
+    m_freq = 0.125 * m_table[key];
     m_shape_env.on();
   }
   
@@ -54,14 +57,15 @@ public:
   }
 
   
-  void run(float& left, float& right, float& shape, 
+  void run(float& left, float& right, float& shape, float& smoothness,
            float& attack, float& decay, float& release) {
     
     float shape_env = m_shape_env.run(attack, decay, 0.5, release);
-    left += 0.25 * m_shaper.run(shape * shape_env * sin(m_phase), m_freq);
+    left += 0.25 * m_shaper.run(shape * shape_env * sin(m_phase), 
+                                m_freq + smoothness * 7000);
     right = left;
     m_phase += m_freq * 2 * M_PI * m_inv_rate;
-    
+    m_phase = (m_phase > 1 ? m_phase - 1 : m_phase);
   }
   
   //protected:
@@ -101,6 +105,7 @@ public:
     
     LV2_MIDI* midi = p<LV2_MIDI>(e_midi_input);
     float& shape = *p(e_shape);
+    float& shape_smoothness = *p(e_shape_smoothness);
     float& attack = *p(e_shape_attack);
     float& decay = *p(e_shape_decay);
     float& release = *p(e_shape_release);
@@ -114,7 +119,8 @@ public:
       right[i] = 0;
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j) {
         m_handler.get_voices()[j].voice->
-          run(left[i], right[i], shape, attack, decay, release);
+          run(left[i], right[i], shape, shape_smoothness, 
+              attack, decay, release);
       }
 
     }

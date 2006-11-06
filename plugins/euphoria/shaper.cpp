@@ -14,11 +14,23 @@ Shaper::Shaper(unsigned int rate)
   for (int i = 0; i < 10; ++i)
     m_tables[i] = new float[WAVETABLE_SIZE];
 }
+
+
+Shaper::~Shaper() {
+  for (int i = 0; i < 10; ++i)
+    delete [] m_tables[i];
+}
   
 
 float Shaper::run(float input, float max_freq) {
-  float ratio = m_rate / 2 * max_freq;
-  float table = log2(ratio) - 0.5;
+  float table;
+  if (max_freq > 0) {
+    float ratio = m_rate / (2 * max_freq);
+    table = log2(ratio) - 0.5;
+    //cerr<<m_rate<<" "<<max_freq<<" "<<ratio<<" "<<table<<endl;
+  }
+  else
+    table = 9;
   if (table < 0)
     return 0;
   int itable = int(table);

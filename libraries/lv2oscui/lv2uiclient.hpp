@@ -2,7 +2,7 @@
     
     lv2uiclient.hpp - a class that makes writing LV2 GUIs easier
     
-    Copyright (C) 2005  Lars Luthman <larsl@users.sourceforge.net>
+    Copyright (C) 2006  Lars Luthman <lars.luthman@gmail.com>
     
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -47,9 +47,7 @@ using namespace std;
     to the UI, which will be emitted when a message is received. It also handles
     all the required communication with the host, such as sending the first
     /update request and sending an /exiting message when the LV2UIClient
-    object is destroyed. It also has a function that will handle all the
-    nastyness involved in setting up a shared memory segment that the plugin
-    and the UI can use to communicate messages that are not specified by LV2.
+    object is destroyed. 
 */
 class LV2UIClient {
 public:
@@ -58,6 +56,7 @@ public:
       request to the plugin host. The parameters should be the @c argc and
       @c argv from the main() function. */
   LV2UIClient(int argc, char** argv, bool wait = false);
+
   /** This destructor will mark any allocated shared memory for destruction,
       send an /exiting message to the plugin host, and stop and deallocate
       the OSC receiver thread. */
@@ -66,18 +65,21 @@ public:
   /** Returns @c true if the initialisation went OK and we haven't received
       a /quit message yet. */
   bool is_valid() const;
+  
   /** Returns the identifier string given by the plugin host. */
   const string& get_identifier() const;
+  
   /** Returns the bundle path. */
   const string& get_bundle_path() const;
-  /** Searches the given Glade XML tree for LV2 control widgets and 
-      connects those widgets to the corresponding LV2 controls. */
-  //void connect_gui(RefPtr<Xml> xml);
+  
   /** Connects a Gtk::Adjustment to a LV2 port. */
   void connect_adjustment(Adjustment* adj, int port);
+  
   Gtk::Adjustment* get_adjustment(int port);
+  
   /** Returns the value of a connected adjustment. */
   float get_adjustment_value(int port);
+  
   /** Get active program. */
   bool get_active_program(unsigned long& program);
   
@@ -149,29 +151,6 @@ public:
   /** Emitted when the host tells the GUI to clear the program list. */
   Dispatcher clear_programs_received;
   
-  /** This function allocates a segment of shared memory and tells the plugin
-      about it using a configure() call. The plugin should use lv2_shm_attach()
-      to attach to the shared memory segment - this function handles all the 
-      nasty problems that can arise if the host decides to save the configure()
-      message and send it again later, or send it to another instance of the
-      plugin. This function can only be used once during the lifetime of this
-      LV2UIClient object, if you try to use it a second time it will simply
-      return NULL. If you need to allocate more memory segments after the first
-      one you can use the normal shm functions (see the man page for 
-      shm_get(2)) and send the segment IDs directly to the plugin using a 
-      ringbuffer in the initial shared segment (for example).
-      The memory segment allocated using this function will be marked for
-      deallocation when this LV2UIClient object is destroyed. The segment won't
-      actually be deallocated until the plugin detaches from it.
-  */
-  void* allocate_shared_memory(int bytes);
-  
-  /** Emitted when the plugin has attached to the shared memory segment. */
-  signal<void> plugin_attached;
-  
-  /** Returns true if the plugin has attached to the shared memory segment. */
-  bool plugin_has_attached();
-  
 private:
   
   // Adjustment connection handling (for host->UI messages)
@@ -222,17 +201,11 @@ private:
   Dispatcher m_program_dispatcher;
   queue<int> m_program_queue;
   void program_receiver() {
-    /* The plugin should update all it's control widgets when it receives
-       a program change, but it should NOT send all those control changes
-       back to the host. We block all /control and /program messages
-       while the UI is handling the program change. */
-    m_blocking = true;
     int program = m_program_queue.front();
     m_program_queue.pop();
     m_program_is_set = true;
     m_active_program = program;
     program_received(program);
-    m_blocking = false;
   }
   Dispatcher m_configure_dispatcher;
   queue<pair<string, string> > m_configure_queue;
@@ -260,13 +233,9 @@ private:
     remove_program_received(number);
   }
   
-  bool check_shared_memory();
-  
   lo_address m_plugin_address;
   string m_plugin_path;
   lo_server_thread m_server_thread;
-  string m_shm_key;
-  char* m_plugin_flag;
   
   bool m_valid;
   string m_identifier;

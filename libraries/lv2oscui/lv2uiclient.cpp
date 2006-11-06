@@ -21,17 +21,11 @@
 
 ****************************************************************************/
 
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <sys/stat.h>
-
 #include <iostream>
 #include <sstream>
 
 #include <glibmm.h>
 
-#include "lv2_shm.h"
 #include "lv2uiclient.hpp"
 
 
@@ -40,7 +34,7 @@ using namespace sigc;
 
 
 LV2UIClient::LV2UIClient(int argc, char** argv, bool wait) 
-  : m_plugin_flag(NULL), m_valid(false), m_blocking(false) {
+  : m_valid(false), m_blocking(false) {
   
   if (argc < 5) {
     cerr<<"Not enough arguments passed to the LV2UIClient constructor! "<<endl;
@@ -109,12 +103,6 @@ LV2UIClient::LV2UIClient(int argc, char** argv, bool wait)
 
 
 LV2UIClient::~LV2UIClient() {
-  if (m_shm_key.size() > 0) {
-    lv2_shm_free(m_shm_key.c_str());
-    if (m_valid)
-      send_configure("shm_detach", m_shm_key.c_str());
-    m_shm_key = "";
-  }
   if (m_valid) {
     send_exiting();
     lo_server_thread_stop(m_server_thread);
@@ -131,30 +119,6 @@ const string& LV2UIClient::get_identifier() const {
 const string& LV2UIClient::get_bundle_path() const {
   return m_bundle;
 }
-
-
-/*
-void LV2UIClient::connect_gui(RefPtr<Xml> xml) {
-  // XXX Find a smarter way to do this!
-  for (int i = 0; i < 100; ++i) {
-  ostringstream oss;
-  oss<<"lv2_"<<i<<"_linear";
-  Widget* w = xml->get_widget(oss.str());
-    if (w) {
-      cerr<<"Yes, found "<<oss.str()<<endl;
-      // check standard gtkmm widgets
-      if (dynamic_cast<Range*>(w))
-	connect_adjustment(dynamic_cast<Range*>(w)->get_adjustment(), i);
-      else if (dynamic_cast<SpinButton*>(w))
-	connect_adjustment(dynamic_cast<SpinButton*>(w)->get_adjustment(), i);
-      // XXX check registered custom widgets
-      else {
-	
-      }
-    }
-  }
-}
-*/
 
 
 void LV2UIClient::connect_adjustment(Adjustment* adj, int port) {
@@ -242,27 +206,6 @@ void LV2UIClient::send_exiting() {
   if (m_valid) {
     lo_send(m_plugin_address, (m_plugin_path + "/exiting").c_str(), NULL);
   }
-}
-
-
-void* LV2UIClient::allocate_shared_memory(int bytes) {
-  if (m_valid && m_shm_key.size() == 0) {
-    char* key_str;
-    m_plugin_flag = NULL;
-    void* ptr = lv2_shm_allocate(bytes, &key_str, &m_plugin_flag);
-    m_shm_key = key_str;
-    free(key_str);
-    signal_timeout().connect(mem_fun(*this, &LV2UIClient::check_shared_memory),
-                             10);
-    send_configure("shm_attach", m_shm_key);
-    return ptr;
-  }
-  return NULL;
-}
-
-
-bool LV2UIClient::plugin_has_attached() {
-  return (m_plugin_flag != NULL && *m_plugin_flag != 0);
 }
 
 
@@ -358,15 +301,6 @@ int LV2UIClient::quit_handler(const char *path, const char *types,
   me->quit_received();
   lo_server_thread_stop(me->m_server_thread);
   return 0;
-}
-
-
-bool LV2UIClient::check_shared_memory() {
-  if (m_plugin_flag != NULL && *m_plugin_flag != 0) {
-    plugin_attached();
-    return false;
-  }
-  return true;
 }
 
 

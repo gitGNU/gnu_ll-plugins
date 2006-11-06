@@ -2,7 +2,7 @@
     
     skindial_gtkmm.hpp - A skinnable knob widget for gtkmm
     
-    Copyright (C) 2005  Lars Luthman <larsl@users.sourceforge.net>
+    Copyright (C) 2006  Lars Luthman <lars.luthman@gmail.com>
     Based on the Qt SkinDial widget by Benno Senoner <sbenno@gardena.net>
     
     This program is free software; you can redistribute it and/or modify

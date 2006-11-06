@@ -2,7 +2,7 @@
     
     lv2plugin.hpp - support file for writing LV2 plugins in C++
     
-    Copyright (C) 2006  Lars Luthman <larsl@users.sourceforge.net>
+    Copyright (C) 2006  Lars Luthman <lars.luthman@gmail.com>
     
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,9 +35,9 @@
 
 /** This is a base class for LV2 plugins. It has default implementations for
     all functions, so you only have to implement the functions that you need
-    (for example run()). Any subclass must have a constructor that takes
+    (for example run()). All subclasses must have a constructor that takes
     a single <code>uint32_t</code> as parameter, otherwise it will 
-    not work with the template function register_ladspa(). The host will use 
+    not work with the template function register_lv2(). The host will use 
     this parameter to pass the sample rate when it creates a new instance of
     the plugin. 
 
@@ -93,7 +93,7 @@ public:
   virtual ~LV2Plugin() { }
   
   /** Connects the ports. You shouldn't have to override this, just use
-      m_ports[port] to access the port buffers. */
+      p(port) to access the port buffers. */
   virtual void connect_port(uint32_t port, void* data_location) {
     m_ports[port] = data_location;
   }
@@ -125,15 +125,16 @@ protected:
     return reinterpret_cast<float*>(m_ports[port]);
   }
   
-  /** This vector contains pointers to all port buffers. Use it to access
-      the port buffers in your run() function. */
+  /** This vector contains pointers to all port buffers. You don't need to
+      access it directly, use the p() function instead. */
   std::vector<void*> m_ports;
   
 };
 
 
 /* These functions are C wrappers for the C++ member functions. You should not
-   use them directly. */
+   use them directly. That's why they are intentionally documented without the
+   Doxygen comment syntax. */
 namespace LV2SupportFunctions {
   
   typedef std::vector<LV2_Descriptor> DescList;
@@ -169,12 +170,12 @@ namespace LV2SupportFunctions {
   
 /** This is the function you should use to register your LV2 plugin class.
     It should be called when the library is loaded, so you can write an
-    initialisation function with the constructor attribute and put it there. 
+    initialisation function with the @c constructor attribute and put it there. 
     Since this is a template function but the template type isn't one of 
-    the parameters, you need to give it explicitly like this:
+    the parameters, you need to give it explicitly, like this:
     
     @code
-    register_lv2<MyPluginClass>("http://ll-plugins.sf.net/MyPlugin", 4);
+    register_lv2<MyPluginClass>("http://ll-plugins.sf.net/MyPlugin");
     @endcode
     
     @param uri The unique LV2 URI for this plugin.
