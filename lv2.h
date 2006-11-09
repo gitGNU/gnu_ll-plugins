@@ -69,6 +69,34 @@ extern "C" {
  * as 'plugin instances') that can be connected together to perform tasks.
  *
  * This API contains very limited error-handling.
+ *
+ * Threading rules:
+ *
+ * Certain hosts may need to call the functions provided by a plugin from
+ * multiple threads. For this to be safe, the plugin must be written so that
+ * those functions can be executed simultaneously without problems.
+ * To facilitate this, the functions provided by a plugin are divided into
+ * classes:
+ *
+ * Audio class:           run(), connect_port()
+ * Instantiation class:   instantiate(), cleanup(), 
+ *                        activate(), deactivate()
+ *
+ * Extensions to this specification which add new functions MUST declare in
+ * which of these classes the functions belong, or define new classes for them.
+ * The rules that hosts must follow are these:
+ * 
+ *  - When a function from the Instantiation class is running for a plugin 
+ *    instance, no other functions for that instance may run.
+ *  - When a function is running for a plugin instance, no other 
+ *    function in the same class may run for that instance.
+ *
+ * Any simultaneous calls that are not explicitly forbidden by these rules
+ * are allowed. For example, a host may call run() for two different plugin 
+ * instances simultaneously.
+ *
+ * The extension_data() function and the lv2_descriptor() function are never 
+ * associated with any plugin instances and may be called at any time.
  */
 
 
@@ -146,13 +174,15 @@ typedef struct _LV2_Descriptor {
    * found. This function must return NULL if instantiation fails.
    *
    * BundlePath is a string of the path to the plugin's .lv2 bundle
-   * directory, it MUST not include the trailing /.
+   * directory, it MUST NOT include the trailing /.
    *
    * HostFeatures is a NULL terminated array of the URIs of the LV2
    * features that the host supports. Plugins may refuse to instantiate
    * if required features are not found here (however hosts SHOULD NOT use
    * this as a discovery mechanism, instead reading the data file before
-   * attempting to instantiate the plugin).
+   * attempting to instantiate the plugin).  This array must always exist;
+   * if a host has no features, it MUST pass a single element array
+   * containing NULL (to simplify plugins).
    *
    * Note that instance initialisation should generally occur in
    * activate() rather than here.  If a host calls instantiate, it MUST
