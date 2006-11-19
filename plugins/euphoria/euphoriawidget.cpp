@@ -59,14 +59,11 @@ EuphoriaWidget::EuphoriaWidget(LV2UIClient& lv2)
   voiceTable->set_spacings(6);
   
   VBox* phaseEBox = manage(new VBox);
-  //Button* phaseEditor = manage(new Button("Phase"));
-  PDEditor* phaseEditor = manage(new PDEditor);
   ScrolledWindow* phaseEScrw = manage(new ScrolledWindow);
   phaseEScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
   phaseEScrw->set_shadow_type(SHADOW_IN);
-  phaseEScrw->add(*phaseEditor);
+  phaseEScrw->add(m_phase);
   phaseEBox->pack_start(*phaseEScrw);
-  //phaseEditor->set_size_request(91, 91);
   phaseEBox->pack_start(*phaseEScrw, false, false);
   HBox* phaseEHBox = manage(new HBox(true));
   phaseEBox->pack_start(*phaseEHBox, false, false);
@@ -81,11 +78,10 @@ EuphoriaWidget::EuphoriaWidget(LV2UIClient& lv2)
                   0, 1, 1, 2, AttachOptions(0));
   phaseT1->attach(*create_knob(lv2, "Vel", e_pd_vel_sens)
                   , 1, 2, 0, 1, AttachOptions(0));
-  EnvelopeEditor* phaseEnvelope = manage(new EnvelopeEditor());
   VBox* phaseEnvBox = manage(new VBox(false, 0));
   ScrolledWindow* phaseScrw = manage(new ScrolledWindow());
   HScrollbar* phaseBar = 
-    manage(new HScrollbar(phaseEnvelope->get_adjustment()));
+    manage(new HScrollbar(m_phase_env.get_adjustment()));
   for (int i = 0; i < 4; ++i) {
     ToggleButton* phaseBtn = manage(new ToggleButton);
     phaseBar->signal_size_allocate().connect(bind(&moo, phaseBtn));
@@ -96,7 +92,7 @@ EuphoriaWidget::EuphoriaWidget(LV2UIClient& lv2)
   phaseEnvBox->pack_start(*phaseBar);
   phaseScrw->set_shadow_type(SHADOW_IN);
   phaseScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
-  phaseScrw->add(*phaseEnvelope);
+  phaseScrw->add(m_phase_env);
   voiceTable->attach(*phaseEnvBox, 2, 3, 0, 1, 
                      FILL|EXPAND, AttachOptions(0));
   Table* phaseT2 = manage(new Table(2, 2));
@@ -324,6 +320,12 @@ EuphoriaWidget::EuphoriaWidget(LV2UIClient& lv2)
   m_shape_env.signal_apply.
     connect(compose(signal_shape_envelope_changed,
                     mem_fun(m_shape_env, &EnvelopeEditor::get_string)));
+  m_phase.signal_apply.
+    connect(compose(signal_phase_changed, 
+                    mem_fun(m_phase, &PDEditor::get_string)));
+  m_phase_env.signal_apply.
+    connect(compose(signal_phase_envelope_changed,
+                    mem_fun(m_phase_env, &EnvelopeEditor::get_string)));
   
   show_all();
 }

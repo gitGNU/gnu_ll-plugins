@@ -558,6 +558,10 @@ char* LV2Host::configure(const char* key, const char* value) {
       m_configuration[key] = value;
       m_program_is_valid;
     }
+    else {
+      cerr<<"ERROR CONFIGURING PLUGIN: "<<result<<endl;
+      free(result);
+    }
     
     return result;
   }

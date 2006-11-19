@@ -67,11 +67,17 @@ int main(int argc, char** argv) {
   lv2.clear_programs_received.
     connect(mem_fun(euph, &EuphoriaWidget::clear_programs));
   lv2.configure_received.connect(mem_fun(euph, &EuphoriaWidget::configure));
+
   euph.signal_program_selected.connect(mem_fun(lv2,&LV2UIClient::send_program));
   euph.signal_shape_changed.
     connect(bind<0>(mem_fun(lv2, &LV2UIClient::send_configure), "shape"));
   euph.signal_shape_envelope_changed.
     connect(bind<0>(mem_fun(lv2, &LV2UIClient::send_configure), "shape_env"));
+  euph.signal_phase_changed.
+    connect(bind<0>(mem_fun(lv2, &LV2UIClient::send_configure), "phase"));
+  euph.signal_phase_envelope_changed.
+    connect(bind<0>(mem_fun(lv2, &LV2UIClient::send_configure), "phase_env"));
+  
   main_win.signal_delete_event().connect(bind_return(hide(&Main::quit), true));
   
   // start

@@ -435,4 +435,5 @@ void PDEditor::apply() {
   bg.set_rgb(10000, 10000, 15000);
   modify_bg(STATE_NORMAL, bg);
   queue_draw();
+  signal_apply();
 }

@@ -7,6 +7,7 @@
 
 #include "lv2uiclient.hpp"
 #include "shapereditor.hpp"
+#include "pdeditor.hpp"
 #include "envelopeeditor.hpp"
 
 
@@ -24,6 +25,8 @@ public:
   sigc::signal<void, int> signal_program_selected;
   sigc::signal<void, std::string> signal_shape_changed;
   sigc::signal<void, std::string> signal_shape_envelope_changed;
+  sigc::signal<void, std::string> signal_phase_changed;
+  sigc::signal<void, std::string> signal_phase_envelope_changed;
   
 protected:
   
@@ -43,6 +46,8 @@ protected:
   
   Glib::RefPtr<Gtk::ListStore> m_program_store;
   
+  PDEditor m_phase;
+  EnvelopeEditor m_phase_env;
   ShaperEditor m_shaper;
   EnvelopeEditor m_shape_env;
 };
