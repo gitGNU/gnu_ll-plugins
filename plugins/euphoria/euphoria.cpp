@@ -7,6 +7,7 @@
 #include "euphoria.peg"
 #include "shaper.hpp"
 #include "envelope.hpp"
+#include "pdoscillator.hpp"
 
 
 class EuphoriaVoice {
@@ -90,7 +91,8 @@ public:
   Euphoria(uint32_t rate, const char*, const LV2_Host_Feature**) 
     : LV2Instrument(e_n_ports),
       m_handler(3, rate),
-      m_trigger(0) {
+      m_trigger(0),
+      pdosc(rate) {
     
   }
   
@@ -102,6 +104,8 @@ public:
 
   
   void run(uint32_t nframes) {
+    
+    static float phase = 0;
     
     LV2_MIDI* midi = p<LV2_MIDI>(e_midi_input);
     float& shape = *p(e_shape);
@@ -122,7 +126,11 @@ public:
           run(left[i], right[i], shape, shape_smoothness, 
               attack, decay, release);
       }
-
+      
+      left[i] = right[i] = pdosc.run(110, phase);
+      phase += 0.5 / 48000;
+      if (phase > 1)
+        phase -= 1;
     }
   }
   
@@ -134,6 +142,8 @@ public:
     else if (!strcmp(key, "shape_env"))
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
         m_handler.get_voices()[j].voice->m_shape_env.set_string(value);
+    else if (!strcmp(key, "phase"))
+      pdosc.set_string(value);
     else
       return strdup("Unknown configure key");
     return 0;
@@ -144,6 +154,7 @@ protected:
   
   VoiceHandler<EuphoriaVoice> m_handler;
   int m_trigger;
+  PDOscillator pdosc;
   
 };
 

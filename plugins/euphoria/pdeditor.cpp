@@ -1,3 +1,4 @@
+#include <sstream>
 #include <iostream>
 #include <valarray>
 
@@ -18,11 +19,11 @@ PDEditor::PDEditor()
   
   set_size_request(91, 91);
   
-  m_points.push_back(Point(-1, -1));
-  Point p(0, 0);
-  p.x = -0.8;
+  m_points.push_back(Point(0));
+  Point p(0.5);
+  p.x = 0.1;
   m_points.push_back(p);
-  m_points.push_back(Point(1, 1));
+  m_points.push_back(Point(1));
   
   add_events(Gdk::EXPOSURE_MASK | Gdk::BUTTON1_MOTION_MASK | 
              Gdk::BUTTON2_MOTION_MASK | Gdk::BUTTON_PRESS_MASK | 
@@ -48,12 +49,39 @@ PDEditor::PDEditor()
  
 
 bool PDEditor::set_string(const std::string& str) {
+  istringstream iss(str);
+  vector<Point> new_points;
+  
+  while (iss.good()) {
+    double o, x, y;
+    iss>>o>>x>>y>>ws;
+    new_points.push_back(Point(o));
+    new_points[new_points.size() - 1].x = x;
+    new_points[new_points.size() - 1].y = y;
+  }
+  
+  if (new_points.size() > 1 && new_points[0].o == 0 && 
+      new_points[0].x == 0 && new_points[0].y == 0 && 
+      new_points[new_points.size() - 1].o == 1 && 
+      new_points[new_points.size() - 1].x == 1 && 
+      new_points[new_points.size() - 1].y == 1) {
+    m_points = new_points;
+    queue_draw();
+    return true;
+  }
+  
   return false;
 }
 
 
 std::string PDEditor::get_string() const {
-  return "";
+  ostringstream oss;
+  for (int i = 0; i < m_points.size(); ++i) {
+    if (i > 0)
+      oss<<" ";
+    oss<<m_points[i].o<<" "<<m_points[i].x<<" "<<m_points[i].y;
+  }
+  return oss.str();
 }
 
 
@@ -101,17 +129,18 @@ bool PDEditor::on_expose_event(GdkEventExpose* event) {
         cc->set_line_width(2);
       cc->set_source_rgba(1, t / 9.0, (9 - t) / 9.0, (t + 1) / 10.0);
       for (int i = 0; i < m_points.size() - 1; ++i) {
-        double a = m_points[i].ox * (1 - t / 9.0) + m_points[i].x * t / 9.0;
-        double b = m_points[i + 1].ox * (1 - t / 9.0) +
+        double a = m_points[i].o * (1 - t / 9.0) + m_points[i].x * t / 9.0;
+        double b = m_points[i + 1].o * (1 - t / 9.0) +
           m_points[i + 1].x * t / 9.0;
-        double c = m_points[i].oy * (1 - t / 9.0) + m_points[i].y * t / 9.0;
-        double d = m_points[i + 1].oy * (1 - t / 9.0) +
+        double c = m_points[i].o * (1 - t / 9.0) + m_points[i].y * t / 9.0;
+        double d = m_points[i + 1].o * (1 - t / 9.0) +
           m_points[i + 1].y * t / 9.0;
         for (int j = 0; j < 100; ++j) {
           cc->move_to(x2p(a + j * (b - a) / 100), 
-                      y2p(cos(M_PI * (c + j * (d - c) / 100))));
+                      y2p(0.5 - 0.5 * cos(2 * M_PI * (c + j * (d - c) / 100))));
           cc->line_to(x2p(a + (j + 1) * (b - a) / 100), 
-                      y2p(cos(M_PI * (c + (j + 1) * (d - c) / 100))));
+                      y2p(0.5 - 0.5 * cos(2 * M_PI * (c + (j + 1) * 
+                                                      (d - c) / 100))));
         }
       }
       cc->stroke();
@@ -131,7 +160,7 @@ bool PDEditor::on_expose_event(GdkEventExpose* event) {
     cc->set_source_rgb(1, 0.5, 0);
     cc->stroke();
     for (int i = 0; i < m_points.size() - 1; ++i) {
-      cc->move_to(x2p(m_points[i].ox), y2p(m_points[i].oy));
+      cc->move_to(x2p(m_points[i].o), y2p(m_points[i].o));
       cc->line_to(x2p(m_points[i].x), y2p(m_points[i].y));
       cc->set_source_rgb(0, 0.7, 0);
       cc->stroke();
@@ -140,7 +169,7 @@ bool PDEditor::on_expose_event(GdkEventExpose* event) {
     
     // original points
     for (int i = 0; i < m_points.size(); ++i) {
-      cc->arc(x2p(m_points[i].ox), y2p(m_points[i].oy), 3, 0, 2 * M_PI);
+      cc->arc(x2p(m_points[i].o), y2p(m_points[i].o), 3, 0, 2 * M_PI);
       cc->set_source_rgb(0.30, 0.3, 0.6);
       cc->fill_preserve();
       cc->set_source_rgb(1, 0.5, 0);
@@ -175,22 +204,22 @@ bool PDEditor::on_motion_notify_event(GdkEventMotion* event) {
   
   if (m_dragging) {
     if (m_active_point > 0 && m_active_point < m_points.size() - 1) {
-      double xdiff = (event->x - m_pix_drag_x) / (get_width() / 2.0- m_margin);
+      double xdiff = (event->x - m_pix_drag_x) / (get_width() - 2.0 * m_margin);
       m_points[m_active_point].x = m_drag_x + xdiff;
-      if (m_points[m_active_point].x < m_points[m_active_point - 1].ox)
-        m_points[m_active_point].x = m_points[m_active_point - 1].ox;
+      if (m_points[m_active_point].x < m_points[m_active_point - 1].o)
+        m_points[m_active_point].x = m_points[m_active_point - 1].o;
       if (m_points[m_active_point].x < m_points[m_active_point - 1].x)
         m_points[m_active_point].x = m_points[m_active_point - 1].x;
-      if (m_points[m_active_point].x > m_points[m_active_point + 1].ox)
-        m_points[m_active_point].x = m_points[m_active_point + 1].ox;
+      if (m_points[m_active_point].x > m_points[m_active_point + 1].o)
+        m_points[m_active_point].x = m_points[m_active_point + 1].o;
       if (m_points[m_active_point].x > m_points[m_active_point + 1].x)
         m_points[m_active_point].x = m_points[m_active_point + 1].x;
-      double ydiff = (m_pix_drag_y - event->y) / (get_height()/2.0 - m_margin);
+      double ydiff = (m_pix_drag_y - event->y) / (get_height() - 2.0 *m_margin);
       m_points[m_active_point].y = m_drag_y + ydiff;
       if (m_points[m_active_point].y > 1)
         m_points[m_active_point].y = 1;
-      if (m_points[m_active_point].y < -1)
-        m_points[m_active_point].y = -1;
+      if (m_points[m_active_point].y < 0)
+        m_points[m_active_point].y = 0;
       
       set_dirty();
       queue_draw();
@@ -199,17 +228,17 @@ bool PDEditor::on_motion_notify_event(GdkEventMotion* event) {
 
   else if (m_odragging) {
     if (m_active_point > 0 && m_active_point < m_points.size() - 1) {
-      double diff = (event->x - m_pix_drag_x) / (get_width() / 2.0- m_margin);
-      m_points[m_active_point].ox = m_drag_x + diff;
-      if (m_points[m_active_point].ox < m_points[m_active_point - 1].ox)
-        m_points[m_active_point].ox = m_points[m_active_point - 1].ox;
-      if (m_points[m_active_point].ox < m_points[m_active_point - 1].x)
-        m_points[m_active_point].ox = m_points[m_active_point - 1].x;
-      if (m_points[m_active_point].ox > m_points[m_active_point + 1].ox)
-        m_points[m_active_point].ox = m_points[m_active_point + 1].ox;
-      if (m_points[m_active_point].ox > m_points[m_active_point + 1].x)
-        m_points[m_active_point].ox = m_points[m_active_point + 1].x;
-      m_points[m_active_point].oy = m_points[m_active_point].ox;
+      double diff = (event->x - m_pix_drag_x) / (get_width() - 2.0 * m_margin);
+      m_points[m_active_point].o = m_drag_x + diff;
+      if (m_points[m_active_point].o < m_points[m_active_point - 1].o)
+        m_points[m_active_point].o = m_points[m_active_point - 1].o;
+      if (m_points[m_active_point].o < m_points[m_active_point - 1].x)
+        m_points[m_active_point].o = m_points[m_active_point - 1].x;
+      if (m_points[m_active_point].o > m_points[m_active_point + 1].o)
+        m_points[m_active_point].o = m_points[m_active_point + 1].o;
+      if (m_points[m_active_point].o > m_points[m_active_point + 1].x)
+        m_points[m_active_point].o = m_points[m_active_point + 1].x;
+      m_points[m_active_point].o = m_points[m_active_point].o;
       
       set_dirty();
       queue_draw();
@@ -262,15 +291,15 @@ bool PDEditor::on_button_press_event(GdkEventButton* event) {
   else if (event->button == 2) {
     int point;
     for (point = 0; point < m_points.size(); ++point) {
-      if (pow(event->x - x2p(m_points[point].ox), 2) + 
-          pow(event->y - y2p(m_points[point].oy), 2) < 25) {
+      if (pow(event->x - x2p(m_points[point].o), 2) + 
+          pow(event->y - y2p(m_points[point].o), 2) < 25) {
         m_active_point = point;
         m_dragging = false;
         m_odragging = true;
         m_pix_drag_x = int(event->x);
         m_pix_drag_y = int(event->y);
-        m_drag_x = m_points[point].ox;
-        m_drag_y = m_points[point].oy;
+        m_drag_x = m_points[point].o;
+        m_drag_y = m_points[point].o;
         break;
       }
     }
@@ -280,8 +309,8 @@ bool PDEditor::on_button_press_event(GdkEventButton* event) {
   else if (event->button == 3) {
     int point;
     for (point = 0; point < m_points.size(); ++point) {
-      if (pow(event->x - x2p(m_points[point].ox), 2) + 
-          pow(event->y - y2p(m_points[point].oy), 2) < 25)
+      if (pow(event->x - x2p(m_points[point].o), 2) + 
+          pow(event->y - y2p(m_points[point].o), 2) < 25)
         break;
     }
     m_click_x = p2x(int(event->x));
@@ -378,7 +407,7 @@ void PDEditor::new_point() {
   for (int i = 0; i < m_points.size() - 1; ++i) {
     if (m_click_x <= m_points[i + 1].x) {
       double t = (m_click_x + m_click_y) / 2;
-      Point s(t, t);
+      Point s(t);
       s.x = m_click_x;
       s.y = m_click_y;
       m_points.insert(m_points.begin() + i + 1, s);
@@ -400,22 +429,22 @@ void PDEditor::delete_point() {
  
 
 double PDEditor::x2p(double x) {
-  return get_width() / 2.0 + (get_width() / 2.0  - m_margin) * x;
+  return m_margin + (get_width() - 2.0 * m_margin) * x;
 }
 
 
 double PDEditor::y2p(double y) {
-  return m_margin + (1 - y) * (get_height() / 2.0 - m_margin);
+  return m_margin + (1 - y) * (get_height() - 2.0 * m_margin);
 }
 
 
 double PDEditor::p2x(int p) {
-  return (p - get_width() / 2.0) / (get_width() / 2.0 - m_margin);
+  return (p - m_margin) / (get_width() - 2.0 * m_margin);
 }
 
 
 double PDEditor::p2y(int p) {
-  return 1 - (p - m_margin) / (get_height() / 2.0 - m_margin);
+  return 1 - (p - m_margin) / (get_height() - 2.0 * m_margin);
 }
 
 

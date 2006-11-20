@@ -21,16 +21,14 @@ protected:
   
   struct Point {
     
-    Point(double _ox = 0, double _oy = 1)
-      : ox(_ox),
-        oy(_oy),
-        x(_ox),
-        y(_oy) {
+    Point(double _o = 0)
+      : o(_o),
+        x(_o),
+        y(_o) {
 
     }
     
-    double ox;
-    double oy;
+    double o;
     double x;
     double y;
   };
