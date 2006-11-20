@@ -21,6 +21,8 @@ public:
   EuphoriaVoice(uint32_t rate)
     : m_shaper(rate),
       m_shape_env(rate),
+      m_pdosc(rate),
+      m_phase_env(rate),
       m_state(OFF),
       m_inv_rate(1.0 / rate),
       m_freq(0),
@@ -41,15 +43,18 @@ public:
     m_state = ON;
     m_freq = 0.125 * m_table[key];
     m_shape_env.on();
+    m_phase_env.on();
   }
   
   void off(unsigned char velocity) {
     m_state = OFF;
     m_shape_env.off();
+    m_phase_env.off();
   }
 
   void fast_off() {
     m_state = OFF;
+    m_shape_env.fast_off();
     m_shape_env.fast_off();
   }
 
@@ -62,8 +67,11 @@ public:
            float& attack, float& decay, float& release) {
     
     float shape_env = m_shape_env.run(attack, decay, 0.5, release);
+    float phase_env = m_phase_env.run(attack, decay, 0.5, release);
     left += 0.25 * m_shaper.run(shape * shape_env * sin(m_phase), 
                                 m_freq + smoothness * 7000);
+    //left = 0.5 * m_pdosc.run(m_freq, phase_env) * phase_env;
+    left = 0.25 * m_pdosc.run(m_freq * 4, phase_env) * phase_env;
     right = left;
     m_phase += m_freq * 2 * M_PI * m_inv_rate;
     m_phase = (m_phase > 1 ? m_phase - 1 : m_phase);
@@ -73,6 +81,9 @@ public:
   
   Shaper m_shaper;
   Envelope m_shape_env;
+  PDOscillator m_pdosc;
+  Envelope m_phase_env;
+  
   State m_state;
   float m_inv_rate;
   float m_freq;
@@ -91,8 +102,7 @@ public:
   Euphoria(uint32_t rate, const char*, const LV2_Host_Feature**) 
     : LV2Instrument(e_n_ports),
       m_handler(3, rate),
-      m_trigger(0),
-      pdosc(rate) {
+      m_trigger(0) {
     
   }
   
@@ -104,8 +114,6 @@ public:
 
   
   void run(uint32_t nframes) {
-    
-    static float phase = 0;
     
     LV2_MIDI* midi = p<LV2_MIDI>(e_midi_input);
     float& shape = *p(e_shape);
@@ -127,10 +135,6 @@ public:
               attack, decay, release);
       }
       
-      left[i] = right[i] = pdosc.run(110, phase);
-      phase += 0.5 / 48000;
-      if (phase > 1)
-        phase -= 1;
     }
   }
   
@@ -143,7 +147,11 @@ public:
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
         m_handler.get_voices()[j].voice->m_shape_env.set_string(value);
     else if (!strcmp(key, "phase"))
-      pdosc.set_string(value);
+      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
+        m_handler.get_voices()[j].voice->m_pdosc.set_string(value);
+    else if (!strcmp(key, "phase_env"))
+      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
+        m_handler.get_voices()[j].voice->m_phase_env.set_string(value);
     else
       return strdup("Unknown configure key");
     return 0;
@@ -154,7 +162,6 @@ protected:
   
   VoiceHandler<EuphoriaVoice> m_handler;
   int m_trigger;
-  PDOscillator pdosc;
   
 };
 

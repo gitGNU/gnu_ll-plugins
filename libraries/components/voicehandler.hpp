@@ -86,8 +86,10 @@ template <typename V> void VoiceHandler<V>::run(uint32_t frame) {
         
         // note off
         if (status == 0x80) {
+          std::cerr<<"NOTE OFF: "<<int(data[1])<<std::endl;
           for (unsigned i = 0; i < m_voices.size(); ++i) {
             if (m_voices[i].key == data[1]) {
+              std::cerr<<"Turning voice "<<i<<" off"<<std::endl;
               m_voices[i].on = false;
               m_voices[i].key = NO_KEY;
               m_voices[i].voice->off(data[2]);
@@ -99,15 +101,21 @@ template <typename V> void VoiceHandler<V>::run(uint32_t frame) {
         // note on
         if (status == 0x90) {
           unsigned i;
+          std::cerr<<"NOTE ON: "<<int(data[1])<<" "<<int(data[2])<<std::endl;
           for (i = 0; i < m_voices.size(); ++i) {
             if (!m_voices[i].on) {
+              std::cerr<<"Turning voice "<<i<<" on"<<std::endl;
               m_voices[i].on = true;
               m_voices[i].key = data[1];
               m_voices[i].voice->on(data[1], data[2]);
               break;
             }
+            else {
+              std::cerr<<"Voice "<<i<<" is busy playing key "<<m_voices[i].key<<std::endl;
+            }
           }
           if (i == m_voices.size()) {
+            std::cerr<<"Taking over voice 0"<<std::endl;
             m_voices[0].voice->off(64);
             m_voices[0].key = data[1];
             m_voices[0].voice->on(data[1], data[2]);
@@ -126,6 +134,7 @@ template <typename V> void VoiceHandler<V>::run(uint32_t frame) {
           
           // all notes off
           if (data[1] == 0x7B) {
+            std::cerr<<"ALL NOTES OFF"<<std::endl;
             for (unsigned i = 0; i < m_voices.size(); ++i) {
               if (m_voices[i].on) {
                 m_voices[i].on = false;
@@ -137,6 +146,7 @@ template <typename V> void VoiceHandler<V>::run(uint32_t frame) {
 
           // all sound off
           if (data[1] == 0x78) {
+            std::cerr<<"ALL SOUND OFF"<<std::endl;
             for (unsigned i = 0; i < m_voices.size(); ++i) {
               if (m_voices[i].on) {
                 m_voices[i].on = false;
