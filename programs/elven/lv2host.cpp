@@ -571,32 +571,12 @@ char* LV2Host::configure(const char* key, const char* value) {
 }
 
 
-unsigned int LV2Host::list_used_files(char*** keys, char*** filepaths) {
-  if (m_inst_desc && m_inst_desc->list_used_files)
-    return m_inst_desc->list_used_files(m_handle, keys, filepaths);
-  else
-    cerr<<"This plugin has no list_used_files() callback"<<endl;
-  return 0;
-}
-
-
-/*
-const LV2_ProgramDescriptor* LV2Host::get_program(unsigned long index) {
-  if (m_inst_desc && m_inst_desc->get_program)
-    return m_inst_desc->get_program(m_handle, index);
-  else
-    cerr<<"This plugin has no get_program() callback"<<endl;
-  return 0;
-}
-*/
-
-
 void LV2Host::select_program(unsigned long program) {
   map<uint32_t, LV2Preset>::const_iterator iter = m_presets.find(program);
   if (iter != m_presets.end()) {
     map<uint32_t, float>::const_iterator piter;
     for (piter = iter->second.values.begin(); 
-           piter != iter->second.values.end(); ++piter) {
+         piter != iter->second.values.end(); ++piter) {
       *(float*)m_ports[piter->first].buffer = piter->second;
       queue_control(piter->first, piter->second, false);
     }

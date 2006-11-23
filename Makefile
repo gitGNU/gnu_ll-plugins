@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.132
+PACKAGE_VERSION = 0.1.133
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2 gsl>=1.8
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
@@ -23,21 +23,21 @@ liblv2_oscui_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo`
 liblv2_oscui_a_SOURCEDIR = libraries/lv2oscui
 
 
-PROGRAMS = lv2peg lv2host paqtest
+PROGRAMS = lv2peg elven paqtest
 
 lv2peg_SOURCES = lv2peg.cpp
 lv2peg_CFLAGS = -Ilibraries/paq -DVERSION=\"$(PACKAGE_VERSION)\"
 lv2peg_LDFLAGS = libraries/paq/libpaq.a
 lv2peg_SOURCEDIR = programs/lv2peg
 
-lv2host_SOURCES = \
+elven_SOURCES = \
 	lv2host.hpp lv2host.cpp \
 	osccontroller.hpp osccontroller.cpp \
 	eventqueue.hpp eventqueue.cpp \
 	main.cpp
-lv2host_CFLAGS = `pkg-config --cflags jack liblo lash-1.0` -Iextensions/miditype -Iextensions/instrument -Ilibraries/paq -Ilibraries/components -I.
-lv2host_LDFLAGS = `pkg-config --libs jack liblo lash-1.0` libraries/paq/libpaq.a -lpthread
-lv2host_SOURCEDIR = programs/lv2host
+elven_CFLAGS = `pkg-config --cflags jack liblo lash-1.0` -Iextensions/miditype -Iextensions/instrument -Ilibraries/paq -Ilibraries/components -I.
+elven_LDFLAGS = `pkg-config --libs jack liblo lash-1.0` libraries/paq/libpaq.a -lpthread
+elven_SOURCEDIR = programs/elven
 
 paqtest_SOURCES = main.cpp
 paqtest_LDFLAGS = libraries/paq/libpaq.a

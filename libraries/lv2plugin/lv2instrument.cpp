@@ -33,19 +33,16 @@ namespace LV2SupportFunctions {
     return reinterpret_cast<LV2Instrument*>(instance)->configure(key, value);
   }
   
-  
-  unsigned int list_used_files(LV2_Handle instance, 
-                               char*** keys, char*** filepaths) {
-    return reinterpret_cast<LV2Instrument*>(instance)->
-      list_used_files(keys, filepaths);
+  char* set_file(LV2_Handle instance, const char* key, const char* filename) {
+    return reinterpret_cast<LV2Instrument*>(instance)->set_file(key, filename);
   }
-  
+
   void* lv2_instrument_descriptor(const char* URI) {
     if (!std::strcmp(URI, "<http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>")) {
       using namespace LV2SupportFunctions;
       static LV2_InstrumentDescriptor idesc = {
         &configure,
-        &list_used_files,
+        &set_file,
       };
       return &idesc;
     }

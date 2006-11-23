@@ -3,7 +3,7 @@
    This file is partly based on dssi.h from DSSI 0.9, which is
    Copyright (C) 2004 Chris Cannam, Steve Harris and Sean Bolton
 
-   Modifications made by Lars Luthman in 2006
+   Modifications (C) 2006 Lars Luthman <lars.luthman@gmail.com>
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public License
@@ -39,13 +39,12 @@ extern "C" {
    This extension adds two things to LV2 plugins:
    
    * A configure() callback that can be used by the host to pass arbitrary
-     keys and values to the plugin, that the plugin can use to e.g. load
-     sample files, edit programs,  or do anything else that is hard to do
-     with control rate input ports or that require some non-RT safe 
-     computations
-   * A list_used_files() callback that can be used by the host to find 
-     out which files it needs to copy into a project directory or session
-     archive in order to restore the plugin correctly
+     keys and values to the plugin, that the plugin can use to do anything
+     that is hard to do with control rate input ports or that require some 
+     non-realtime safe computations
+     
+   * A set_file() callback that can be used by the host to pass filenames
+     associated with keys to the plugin
      
    The data member in the LV2_Host_Feature struct for this extension, 
    passed to the plugin's instantiate() function, should be set to NULL.
@@ -57,6 +56,7 @@ extern "C" {
    LV2_InstrumentDescriptor object contains function pointers that 
    implement the "instrument" part of the plugin.
 */
+
 
 
 /** This struct contains all callbacks used in this extension. */
@@ -71,11 +71,14 @@ typedef struct {
       to NULL.
       
       This call is intended to set some session-scoped aspect of a
-      plugin's behaviour, for example to tell the plugin to load
-      sample data from a particular file.  The plugin should act
-      immediately on the request.  The call should return NULL on
-      success, or an error string that may be shown to the user.  The
-      host will free the returned value after use if it is non-NULL.
+      plugin's behaviour that can not be done conveniently by changing
+      port values, or requires non-realtime safe computations when set.
+      The plugin should act immediately on the request. The call should
+      return NULL on success, or an error string that may be shown to 
+      the user.  The host will free the returned value after use if it 
+      is non-NULL. If the plugin encounters an error and returns a non-NULL
+      value it should not change its behaviour (e.g. by continuing 
+      to use any previous value associated to that key).
       
       Calls to configure() are not automated as timed events.
       Instead, a host should remember the last value associated with
@@ -85,52 +88,64 @@ typedef struct {
       "same" plugin instance, for example on reloading a project in
       which the plugin was used before. If multiple keys are used, 
       the order in which their values are set should not matter to the
-      plugin.
+      plugin. Only successful calls to configure() (i.e. ones returning
+      NULL) should be remembered by the host.
       
-      This function does not need to be realtime safe.
+      This mechanism should NOT be used for loading external resources from
+      files, such as samples or patches. If a plugin needs to load external
+      data it should use the set_file() member.
+      
+      The plugin may be told to stop using a value associated with a key
+      by calling this function with that key and an empty string as the
+      value parameter. The host may then forget about that key altogether.
+      
+      This function does not need to be realtime safe. All parameters must
+      be non-NULL.
   */
   char* (*configure)(LV2_Handle instance, 
                      const char* key, 
                      const char* value);
-
-
-  /** This member is a function pointer that the host can use to get
-      a list of the data files currently used by the plugin and the
-      configuration keys they are associated with. The host may need
-      this information if it wants to save the state of the plugin into
-      some kind of project or session archive (e.g. if it wants to make
-      a project archive that should be transferrable to another computer
-      it would have to copy all used data files into that archive).
-      
-      If the plugin is using any datafiles it should allocate two arrays
-      of char* elements and change the pointers *keys and *filepaths to
-      point to those arrays. The array pointed to by *filepaths
-      should contain the paths to the used data files, and the array
-      pointed to by *keys should contain the corresponding keys that the
-      host should use with configure() when it restores the current state
-      of the plugin. Any previous values for the keys in the key list
-      should be forgotten by the host. The elements of the *filepaths array
-      may also be NULL, in which case the host should forget about the 
-      corresponding configuration key altogether.
-      
-      The function should return the sizes of the two arrays pointed to by
-      the keys and filepaths parameters, which should be equal. If the return
-      value is larger than 0, the host is responsible for deallocating the 
-      memory used by the two arrays pointed to by keys and filepaths as well 
-      as all key strings and all non-NULL filepaths. The plugin must allocate
-      the arrays in such a way that it is possible to deallocate them using 
-      free() (i.e. C++ plugins should use malloc() instead of the 'new' 
-      operator).
-      
-      A plugin that does not use data files may set this member to
-      NULL.
-
-      This function does not need to be realtime safe.
-  */
-  unsigned int (*list_used_files)(LV2_Handle instance,
-                                  char*** keys,
-                                  char*** filepaths);  
   
+  
+  /** This member is a function pointer that sends a filename to the plugin.
+      The key parameter specifies what the file should be used for (using some
+      protocol defined by the plugin author) and the filename parameter is
+      the name of the file. A plugin that does not need to load external data
+      files may set this member to NULL.
+      
+      The filename parameter should be the name of a file that can be opened
+      in read-only mode using the standard C library function fopen(), for
+      example 'fopen(filename, "rb")'. The plugin is NOT allowed to write to
+      the file or even open it for writing.
+      
+      A call to this function should return NULL on success, or an error 
+      string that may be shown to the user. The host will free the returned 
+      value after use if it is non-NULL. If the plugin encounters an error 
+      and returns a non-NULL value it should not change its behaviour (e.g. 
+      by continuing to use any previous file associated to that key).
+      
+      Calls to set_file() are not automated as timed events. Instead, a
+      host should remember the last filename associated with each key 
+      passed to set_file() during a given session for a given plugin 
+      instance, and should call set_file() with the correct filename for 
+      each key the next time it instantiates the "same" plugin instance, 
+      for example on reloading a project in which the plugin was used 
+      before. If multiple keys are used, the order in which their filenames 
+      are set should not matter to the plugin. Only successful calls to 
+      set_file() (i.e. ones returning NULL) should be remembered by the host.
+      
+      A plugin can be told to stop using a file associated to a key by
+      calling this function with that key and an empty string as the filename
+      parameter. The host may then forget about that key altogether.
+      
+      This function does not need to be realtime safe. All parameters must 
+      be non-NULL.
+  */
+  char* (*set_file)(LV2_Handle instance,
+                    const char* key,
+                    const char* filename);
+
+
 } LV2_InstrumentDescriptor;
 
 

@@ -63,8 +63,6 @@ public:
   void deactivate();
   
   char* configure(const char* key, const char* value);
-  unsigned int list_used_files(char*** keys, char*** filepaths);
-  //const LV2_ProgramDescriptor* get_program(unsigned long index);
   void select_program(unsigned long program);
   
   const std::vector<int>& get_midi_map() const;

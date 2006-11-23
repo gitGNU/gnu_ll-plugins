@@ -48,12 +48,8 @@ public:
   /** Arbitrary configuration function without RT constraints. */
   virtual char* configure(const char* key, const char* value) { return 0; }
   
-  /** Function for listing any data files used by the plugin with corresponding
-      configuration keys (needed to restore the plugin properly in a portable
-      way). */
-  virtual unsigned int list_used_files(char*** keys, char*** filepaths) { 
-    return 0; 
-  }
+  /** Function for loading data from external files. */
+  virtual char* set_file(const char* key, const char* filename) { return 0; }
   
 protected:
   

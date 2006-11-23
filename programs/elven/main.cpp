@@ -142,7 +142,7 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
   jack_midi_event_t input_event;
   jack_nframes_t input_event_index = 0;
   jack_nframes_t input_event_count = 
-    jack_midi_port_get_info(input_buf, nframes)->event_count;
+    jack_midi_get_event_count(input_buf, nframes);
   jack_nframes_t timestamp;
   LV2_MIDI* output_buf = static_cast<LV2_MIDI*>(port.buffer);
   output_buf->event_count = 0;
@@ -261,13 +261,29 @@ int process(jack_nframes_t nframes, void* arg) {
 }
 
 
+void print_usage(const char* argv0) {
+  cerr<<"usage: "<<argv0<<" PLUGIN_URI"<<endl
+      <<"example: "<<argv0
+      <<" 'http://ll-plugins.nongnu.org/lv2/euphoria/0.0.0'"<<endl;
+}
+
+
 int main(int argc, char** argv) {
   
   if (argc < 2) {
-    cerr<<"usage: "<<argv[0]<<" PLUGIN_URI"<<endl
-        <<"example: "<<argv[0]
-        <<" 'http://ll-plugins.nongnu.org/lv2/sineshaper/0.0.0'"<<endl;
+    print_usage(argv[0]);
     return 1;
+  }
+  
+  for (int i = 0; i < argc; ++i) {
+    if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
+      cerr<<"Elven is an (E)xperimental (LV)2 (E)xecution e(N)vironment.\n\n"
+          <<"(C) 2006 Lars Luthman <lars.luthman@gmail.com>\n"
+          <<"Released under the GNU General Public License, version 2 or later."
+          <<endl<<endl;
+      print_usage(argv[0]);
+      return 0;
+    }
   }
   
   // load plugin
