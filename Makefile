@@ -1,8 +1,8 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.135
+PACKAGE_VERSION = 0.1.136
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2 gsl>=1.8
 
-ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a libkeyboard.a libvgknob.a libenvelopeeditor.a libshapereditor.a
+ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a libkeyboard.a libvgknob.a libenvelopeeditor.a libshapereditor.a libpdeditor.a
 
 liblv2_plugin_a_SOURCES = \
 	lv2plugin.hpp lv2plugin.cpp \
@@ -38,8 +38,12 @@ libshapereditor_a_SOURCES = shapereditor.hpp shapereditor.cpp
 libshapereditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
 libshapereditor_a_SOURCEDIR = libraries/widgets
 
+libpdeditor_a_SOURCES = pdeditor.hpp pdeditor.cpp
+libpdeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
+libpdeditor_a_SOURCEDIR = libraries/widgets
 
-PROGRAMS = lv2peg elven paqtest guitest
+
+PROGRAMS = lv2peg elven elven_guiloader paqtest
 
 lv2peg_SOURCES = lv2peg.cpp
 lv2peg_CFLAGS = -Ilibraries/paq -DVERSION=\"$(PACKAGE_VERSION)\"
@@ -55,30 +59,14 @@ elven_CFLAGS = `pkg-config --cflags jack liblo lash-1.0` -Iextensions/miditype -
 elven_LDFLAGS = `pkg-config --libs jack liblo lash-1.0` libraries/paq/libpaq.a -lpthread
 elven_SOURCEDIR = programs/elven
 
+elven_guiloader_SOURCES = elven_guiloader.cpp
+elven_guiloader_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -I.
+elven_guiloader_LDFLAGS = `pkg-config --libs gtkmm-2.4`
+elven_guiloader_SOURCEDIR = programs/elven
+
 paqtest_SOURCES = main.cpp
 paqtest_LDFLAGS = libraries/paq/libpaq.a
 paqtest_SOURCEDIR = libraries/paq
-
-guitest_SOURCES = guitest.cpp
-guitest_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -I.
-guitest_LDFLAGS = `pkg-config --libs gtkmm-2.4`
-guitest_SOURCEDIR = programs/guitest
-
-
-MODULES = guiplugin.so euphoriaguiplugin.so
-
-guiplugin_so_SOURCES = guiplugin.cpp
-guiplugin_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/widgets -I.
-guiplugin_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` libraries/widgets/libkeyboard.a
-guiplugin_so_SOURCEDIR = programs/guitest
-
-euphoriaguiplugin_so_SOURCES = \
-	euphoriaguiplugin.cpp \
-	euphoriawidget.cpp euphoriawidget.hpp \
-	pdeditor.cpp pdeditor.hpp
-euphoriaguiplugin_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/widgets -I.
-euphoriaguiplugin_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` libraries/widgets/libvgknob.a libraries/widgets/libenvelopeeditor.a libraries/widgets/libshapereditor.a
-euphoriaguiplugin_so_SOURCEDIR = plugins/euphoria
 
 
 LV2_PLUGINS = control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 phase-distortion-osc.lv2 euphoria.lv2 sineshaper.lv2 klaviatur.lv2 audio_identity.lv2 azr3.lv2
@@ -119,16 +107,14 @@ euphoria_lv2_DATA = manifest.ttl euphoria.ttl presets.ttl
 euphoria_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/instrument -Iextensions/miditype -I. `pkg-config --cflags gsl`
 euphoria_lv2_LDFLAGS = $(INSTRUMENTFLAGS) `pkg-config --libs gsl`
 euphoria_lv2_PEGFILES = euphoria.peg
-#euphoria_lv2_PROGRAMS = euphoria_gtk
 euphoria_lv2_SOURCEDIR = plugins/euphoria
-euphoria_gtk_SOURCES = \
-	euphoria_gtk.cpp \
-	euphoriawidget.cpp euphoriawidget.hpp \
-	pdeditor.cpp pdeditor.hpp \
-	shapereditor.cpp shapereditor.hpp
-euphoria_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo` -Ilibraries/lv2oscui -I.
-euphoria_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo` libraries/lv2oscui/liblv2_oscui.a
-euphoria_gtk_SOURCEDIR = plugins/euphoria
+euphoria_lv2_MODULES = euphoriaguiplugin.so
+euphoriaguiplugin_so_SOURCES = \
+	euphoriaguiplugin.cpp \
+	euphoriawidget.cpp euphoriawidget.hpp
+euphoriaguiplugin_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/widgets -I.
+euphoriaguiplugin_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` libraries/widgets/libvgknob.a libraries/widgets/libenvelopeeditor.a libraries/widgets/libshapereditor.a libraries/widgets/libpdeditor.a
+euphoriaguiplugin_so_SOURCEDIR = plugins/euphoria
 
 # Sineshaper
 sineshaper_lv2_SOURCES = \

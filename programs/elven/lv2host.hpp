@@ -161,7 +161,7 @@ protected:
   std::vector<LV2Port> m_ports;
   std::vector<int> m_midimap;
   long m_default_midi_port;
-  std::string m_standalonegui;
+  std::string m_plugingui;
   std::string m_bundledir;
   
   std::map<std::string, std::string> m_configuration;
