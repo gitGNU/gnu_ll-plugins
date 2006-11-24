@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.136
+PACKAGE_VERSION = 0.1.137
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2 gsl>=1.8
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a libkeyboard.a libvgknob.a libenvelopeeditor.a libshapereditor.a libpdeditor.a
@@ -210,8 +210,8 @@ EXTRA_DIST = \
 	extensions/miditype/lv2-miditype.h \
 	extensions/midimap/lv2-midimap.rdfs \
 	extensions/instrument/lv2-instrument.h \
-	extensions/transporttype/lv2-transport.h
-
+	extensions/transporttype/lv2-transport.h \
+	extensions/gtkgui/lv2-gtk2gui.h
 
 
 # Do the magic
