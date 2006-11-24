@@ -18,6 +18,7 @@ public:
   ~OSCController();
   
   void send_configure(const std::string& key, const std::string& value);
+  void send_filename(const std::string& key, const std::string& filename);
   void send_quit();
   
   void start();
@@ -33,6 +34,8 @@ protected:
                              int argc, lo_message, void* cbdata);
   static int configure_handler(const char*, const char*, lo_arg** argv, 
                              int argc, lo_message, void* cbdata);
+  static int set_file_handler(const char*, const char*, lo_arg** argv, 
+                              int argc, lo_message, void* cbdata);
   static int program_handler(const char*, const char*, lo_arg** argv, 
                              int argc, lo_message, void* cbdata);
   static int midi_handler(const char*, const char*, lo_arg** argv,

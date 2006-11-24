@@ -390,10 +390,18 @@ int main(int argc, char** argv) {
           ofstream of((string(lash_event_get_string(event)) + 
                        "/lv2host").c_str());
           
+          // configuration
           const map<string, string>& config = lv2h.get_config();
           map<string, string>::const_iterator iter;
           for (iter = config.begin(); iter != config.end(); ++iter) {
             of<<"configure "<<escape_space(iter->first)<<" "
+              <<escape_space(iter->second)<<endl;
+          }
+          
+          // data files
+          const map<string, string>& filenames = lv2h.get_filenames();
+          for (iter = filenames.begin(); iter != filenames.end(); ++iter) {
+            of<<"set_file "<<escape_space(iter->first)<<" "
               <<escape_space(iter->second)<<endl;
           }
           
@@ -424,6 +432,7 @@ int main(int argc, char** argv) {
           while (ifs) {
             string word;
             ifs>>word;
+
             if (word == "configure") {
               string key, value;
               ifs>>key>>value;
@@ -432,6 +441,16 @@ int main(int argc, char** argv) {
               lv2h.configure(key.c_str(), value.c_str());
               osc.send_configure(key, value);
             }
+
+            if (word == "set_file") {
+              string key, filename;
+              ifs>>key>>filename;
+              key = unescape_space(key);
+              filename = unescape_space(filename);
+              lv2h.set_file(key.c_str(), filename.c_str());
+              osc.send_filename(key, filename);
+            }
+
             if (word == "control") {
               unsigned long port;
               float value;

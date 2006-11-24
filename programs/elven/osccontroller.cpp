@@ -68,11 +68,23 @@ void OSCController::stop() {
 }
 
 
-void OSCController::send_configure(const std::string& key, const std::string& value) {
+void OSCController::send_configure(const std::string& key, 
+                                   const std::string& value) {
   pthread_mutex_lock(&m_clients_mutex);
   for (size_t i = 0; i < m_clients.size(); ++i) {
     lo_send(m_clients[i]->address, (m_clients[i]->path + "configure").c_str(),
             "ss", key.c_str(), value.c_str());
+  }
+  pthread_mutex_unlock(&m_clients_mutex);
+}
+
+
+void OSCController::send_filename(const std::string& key, 
+                                  const std::string& filename) {
+  pthread_mutex_lock(&m_clients_mutex);
+  for (size_t i = 0; i < m_clients.size(); ++i) {
+    lo_send(m_clients[i]->address, (m_clients[i]->path + "set_file").c_str(),
+            "ss", key.c_str(), filename.c_str());
   }
   pthread_mutex_unlock(&m_clients_mutex);
 }
@@ -131,6 +143,12 @@ int OSCController::control_handler(const char*, const char*, lo_arg** argv,
 int OSCController::configure_handler(const char*, const char*, lo_arg** argv, 
                                      int argc, lo_message, void* cbdata) {
   static_cast<CallbackData*>(cbdata)->host.configure(&argv[0]->s, &argv[1]->s);
+}
+
+
+int OSCController::set_file_handler(const char*, const char*, lo_arg** argv, 
+                                    int argc, lo_message, void* cbdata) {
+  static_cast<CallbackData*>(cbdata)->host.set_file(&argv[0]->s, &argv[1]->s);
 }
 
 

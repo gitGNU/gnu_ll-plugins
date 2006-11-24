@@ -555,8 +555,13 @@ char* LV2Host::configure(const char* key, const char* value) {
   if (m_inst_desc && m_inst_desc->configure) {
     char* result = m_inst_desc->configure(m_handle, key, value);
     if (!result) {
-      m_configuration[key] = value;
-      m_program_is_valid;
+      if (!strcmp(value, "")) {
+        std::map<string, string>::iterator iter = m_configuration.find(key);
+        if (iter != m_configuration.end())
+          m_configuration.erase(iter);
+      }
+      else
+        m_configuration[key] = value;
     }
     else {
       cerr<<"ERROR CONFIGURING PLUGIN: "<<result<<endl;
@@ -567,6 +572,34 @@ char* LV2Host::configure(const char* key, const char* value) {
   }
   else
     cerr<<"This plugin has no configure() callback"<<endl;
+
+  return 0;
+}
+
+
+char* LV2Host::set_file(const char* key, const char* filename) {
+  cerr<<"Calling set_file(\""<<key<<"\", \""<<filename<<"\")"<<endl;
+  if (m_inst_desc && m_inst_desc->set_file) {
+    char* result = m_inst_desc->set_file(m_handle, key, filename);
+    if (!result) {
+      if (!strcmp(filename, "")) {
+        std::map<string, string>::iterator iter = m_filenames.find(key);
+        if (iter != m_filenames.end())
+          m_filenames.erase(iter);
+      }
+      else
+        m_filenames[key] = filename;
+    }
+    else {
+      cerr<<"ERROR SETTING FILE: "<<result<<endl;
+      free(result);
+    }
+    
+    return result;
+  }
+  else
+    cerr<<"This plugin has no set_file() callback"<<endl;
+  
   return 0;
 }
 
@@ -670,6 +703,11 @@ void LV2Host::set_event_queue(EventQueue* q) {
 
 const std::map<std::string, std::string>& LV2Host::get_config() const {
   return m_configuration;
+}
+
+
+const std::map<std::string, std::string>& LV2Host::get_filenames() const {
+  return m_filenames;
 }
 
 

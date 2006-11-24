@@ -52,35 +52,77 @@ public:
   LV2Host(const std::string& uri, unsigned long frame_rate);
   ~LV2Host();
   
+  /** Returns true if the plugin was loaded OK. */
   bool is_valid() const;
   
+  /** Returns a vector of objects containing information about the plugin's 
+      ports. */
   const std::vector<LV2Port>& get_ports() const;
+
+  /** Returns a vector of objects containing information about the plugin's 
+      ports. */
   std::vector<LV2Port>& get_ports();
+  
+  /** Returns the index of the default MIDI port, or -1 if there is no default
+      MIDI port. */
   long get_default_midi_port() const;
   
+  /** Activate the plugin. The plugin must be activated before you call the
+      run() function. */
   void activate();
+  
+  /** Tell the plugin to produce @c nframes frames of signal. */
   void run(unsigned long nframes);
+  
+  /** Deactivate the plugin. */
   void deactivate();
   
+  /** Send a piece of configuration data to the plugin. */
   char* configure(const char* key, const char* value);
+  
+  /** Send a datafile name to the plugin. */
+  char* set_file(const char* key, const char* filename);
+  
+  /** Set the plugin program. */
   void select_program(unsigned long program);
   
+  /** Return the MIDI controller mappings. */
   const std::vector<int>& get_midi_map() const;
   
+  /** Return the path to the standalone GUI program. */
   const std::string& get_gui_path() const;
+  
+  /** Return the path to the plugin bundle. */
   const std::string& get_bundle_dir() const;
   
+  /** Queue a program change. */
   void queue_program(unsigned long program, bool to_jack = true);
+  
+  /** Queue a control port change. */
   void queue_control(unsigned long port, float value, bool to_jack = true);
+  
+  /** Queue a MIDI event. */
   void queue_midi(uint32_t port, uint32_t size, const unsigned char* midi);
+  
+  /** Queue a configuration request. */
   void queue_config_request(EventQueue* sender);
+  
+  /** Queue a passthrough message. */
   void queue_passthrough(const char* msg, void* ptr);
+  
+  /** Set the program. */
   void set_program(uint32_t program);
   
+  /** Set the event queue. */
   void set_event_queue(EventQueue* q);
   
+  /** Returns the current configuration. */
   const std::map<std::string, std::string>& get_config() const;
   
+  /** Returns the currently used filenames. */
+  const std::map<std::string, std::string>& get_filenames() const;
+  
+  /** Returns all found presets. */
   const std::map<uint32_t, LV2Preset>& get_presets() const;
   
 protected:
@@ -98,7 +140,8 @@ protected:
     return nasty_cast<T>(dlsym(m_libhandle, name.c_str()));
   }
   
-  template <typename R, typename A> R call_symbol(const std::string& name, A a) {
+  template <typename R, typename A> R call_symbol(const std::string& name, 
+                                                  A a) {
     typedef R (*FuncType)(A);
     FuncType func = get_symbol<FuncType>(name);
     if (!func) {
@@ -122,6 +165,7 @@ protected:
   std::string m_bundledir;
   
   std::map<std::string, std::string> m_configuration;
+  std::map<std::string, std::string> m_filenames;
   unsigned long m_program;
   bool m_program_is_valid;
   bool m_new_program;
