@@ -5,7 +5,7 @@
 
 #include <gtkmm.h>
 
-#include "lv2uiclient.hpp"
+//#include "lv2uiclient.hpp"
 #include "shapereditor.hpp"
 #include "pdeditor.hpp"
 #include "envelopeeditor.hpp"
@@ -14,7 +14,8 @@
 class EuphoriaWidget : public Gtk::VBox {
 public:
   
-  EuphoriaWidget(LV2UIClient& lv2);
+  //EuphoriaWidget(LV2UIClient& lv2);
+  EuphoriaWidget();
   
   void add_program(int number, const std::string& name);
   void remove_program(int number);
@@ -27,10 +28,13 @@ public:
   sigc::signal<void, std::string> signal_shape_envelope_changed;
   sigc::signal<void, std::string> signal_phase_changed;
   sigc::signal<void, std::string> signal_phase_envelope_changed;
+  sigc::signal<void, uint32_t, float> signal_control_changed;
   
 protected:
   
-  Gtk::VBox* create_knob(LV2UIClient& lv2, const std::string& label, int port,
+  //Gtk::VBox* create_knob(LV2UIClient& lv2, const std::string& label, int port,
+  //                       float red = 0, float green = 0.3, float blue = 1);
+  Gtk::VBox* create_knob(const std::string& label, int port,
                          float red = 0, float green = 0.3, float blue = 1);
   
   void program_selection_changed();

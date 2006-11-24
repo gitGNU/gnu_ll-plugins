@@ -1,8 +1,8 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.134
+PACKAGE_VERSION = 0.1.135
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2 gsl>=1.8
 
-ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a
+ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a libkeyboard.a libvgknob.a libenvelopeeditor.a libshapereditor.a
 
 liblv2_plugin_a_SOURCES = \
 	lv2plugin.hpp lv2plugin.cpp \
@@ -22,8 +22,24 @@ liblv2_oscui_a_SOURCES = lv2uiclient.hpp lv2uiclient.cpp
 liblv2_oscui_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo`
 liblv2_oscui_a_SOURCEDIR = libraries/lv2oscui
 
+libkeyboard_a_SOURCES = keyboard.hpp keyboard.cpp
+libkeyboard_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
+libkeyboard_a_SOURCEDIR = libraries/widgets
 
-PROGRAMS = lv2peg elven paqtest
+libvgknob_a_SOURCES = vgknob.hpp vgknob.cpp
+libvgknob_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
+libvgknob_a_SOURCEDIR = libraries/widgets
+
+libenvelopeeditor_a_SOURCES = envelopeeditor.hpp envelopeeditor.cpp
+libenvelopeeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
+libenvelopeeditor_a_SOURCEDIR = libraries/widgets
+
+libshapereditor_a_SOURCES = shapereditor.hpp shapereditor.cpp
+libshapereditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
+libshapereditor_a_SOURCEDIR = libraries/widgets
+
+
+PROGRAMS = lv2peg elven paqtest guitest
 
 lv2peg_SOURCES = lv2peg.cpp
 lv2peg_CFLAGS = -Ilibraries/paq -DVERSION=\"$(PACKAGE_VERSION)\"
@@ -42,6 +58,28 @@ elven_SOURCEDIR = programs/elven
 paqtest_SOURCES = main.cpp
 paqtest_LDFLAGS = libraries/paq/libpaq.a
 paqtest_SOURCEDIR = libraries/paq
+
+guitest_SOURCES = guitest.cpp
+guitest_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -I.
+guitest_LDFLAGS = `pkg-config --libs gtkmm-2.4`
+guitest_SOURCEDIR = programs/guitest
+
+
+MODULES = guiplugin.so euphoriaguiplugin.so
+
+guiplugin_so_SOURCES = guiplugin.cpp
+guiplugin_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/widgets -I.
+guiplugin_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` libraries/widgets/libkeyboard.a
+guiplugin_so_SOURCEDIR = programs/guitest
+
+euphoriaguiplugin_so_SOURCES = \
+	euphoriaguiplugin.cpp \
+	euphoriawidget.cpp euphoriawidget.hpp \
+	pdeditor.cpp pdeditor.hpp
+euphoriaguiplugin_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/widgets -I.
+euphoriaguiplugin_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` libraries/widgets/libvgknob.a libraries/widgets/libenvelopeeditor.a libraries/widgets/libshapereditor.a
+euphoriaguiplugin_so_SOURCEDIR = plugins/euphoria
+
 
 LV2_PLUGINS = control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 phase-distortion-osc.lv2 euphoria.lv2 sineshaper.lv2 klaviatur.lv2 audio_identity.lv2 azr3.lv2
 
@@ -70,9 +108,9 @@ klaviatur_lv2_LDFLAGS = $(PLUGINFLAGS)
 klaviatur_lv2_PEGFILES = klaviatur.peg
 klaviatur_lv2_SOURCEDIR = plugins/klaviatur
 klaviatur_lv2_PROGRAMS = klaviatur_gtk
-klaviatur_gtk_SOURCES = klaviatur_gtk.cpp keyboard.cpp keyboard.hpp
-klaviatur_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo` -Ilibraries/lv2oscui -I.
-klaviatur_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo` libraries/lv2oscui/liblv2_oscui.a
+klaviatur_gtk_SOURCES = klaviatur_gtk.cpp
+klaviatur_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo` -Ilibraries/lv2oscui -Ilibraries/widgets -I.
+klaviatur_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo` libraries/lv2oscui/liblv2_oscui.a libraries/widgets/libkeyboard.a
 klaviatur_gtk_SOURCEDIR = plugins/klaviatur
 
 # Euphoria
@@ -81,15 +119,13 @@ euphoria_lv2_DATA = manifest.ttl euphoria.ttl presets.ttl
 euphoria_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/instrument -Iextensions/miditype -I. `pkg-config --cflags gsl`
 euphoria_lv2_LDFLAGS = $(INSTRUMENTFLAGS) `pkg-config --libs gsl`
 euphoria_lv2_PEGFILES = euphoria.peg
-euphoria_lv2_PROGRAMS = euphoria_gtk
+#euphoria_lv2_PROGRAMS = euphoria_gtk
 euphoria_lv2_SOURCEDIR = plugins/euphoria
 euphoria_gtk_SOURCES = \
 	euphoria_gtk.cpp \
-	envelopeeditor.cpp envelopeeditor.hpp \
 	euphoriawidget.cpp euphoriawidget.hpp \
 	pdeditor.cpp pdeditor.hpp \
-	shapereditor.cpp shapereditor.hpp \
-	vgknob.cpp vgknob.hpp
+	shapereditor.cpp shapereditor.hpp
 euphoria_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo` -Ilibraries/lv2oscui -I.
 euphoria_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo` libraries/lv2oscui/liblv2_oscui.a
 euphoria_gtk_SOURCEDIR = plugins/euphoria

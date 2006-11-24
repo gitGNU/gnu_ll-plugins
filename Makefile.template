@@ -230,6 +230,7 @@ define MODULE_template
 
 # variables
 $(2)_SRCPRF = $$(if $$($(2)_SOURCEDIR),$$($(2)_SOURCEDIR),.)
+$(2)_BLDPRF = $$(if $$($(2)_BUILDDIR),$$($(2)_BUILDDIR),$$($(2)_SRCPRF))
 $(2)_FULLSOURCES = $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_SOURCES))
 $(2)_CSOURCES = $$(filter %.c,$$($(2)_FULLSOURCES))
 $(2)_CXXSOURCES = $$(filter %.cpp,$$($(2)_FULLSOURCES))
@@ -239,6 +240,7 @@ $(2)_OBJECTS = $$($(2)_COBJECTS) $$($(2)_CXXOBJECTS)
 ALL_OBJECTS += $$($(2)_OBJECTS)
 ALL_SOURCES += $$($(2)_FULLSOURCES)
 $(2)_INSTDIR = $$(if $$($(2)_INSTALLDIR),$$($(2)_INSTALLDIR),$(pkglibdir))
+MODULES_REAL += $$($(2)_BLDPRF)/$(1)
 
 # targets
 $$($(2)_COBJECTS): Makefile.config
@@ -247,15 +249,15 @@ $$($(2)_COBJECTS): Makefile.config
 $$($(2)_CXXOBJECTS): Makefile.config
 	$(CXX) -c -o $$@ $(MODULE_CFLAGS) $(CFLAGS) $(CXXFLAGS) $$($(2)_CFLAGS) $$($$(patsubst %.o,%_cpp_CFLAGS,$$(notdir $$@))) $$(subst .o,.cpp,$$@)
 
-$(1): $$($(2)_OBJECTS) $(LIBRARIES) $(ARCHIVES_REAL)
+$$($(2)_BLDPRF)/$(1): $$($(2)_OBJECTS) $(LIBRARIES) $(ARCHIVES_REAL)
 	$(CXX) $(MODULE_LDFLAGS) $$($(2)_OBJECTS)  $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
 
 install-$(2)-headers: $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS))
 	mkdir -p $(pkgincludedir)
 	cp $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS)) $(pkgincludedir)
 
-install-$(2): $(1) $$(if $$($(2)_HEADERS),install-$(2)-headers)
-	mkdir -p $$($(2)_INSTDIR) && cp $(1) $$($(2)_INSTDIR)
+install-$(2): $$($(2)_BLDPRF)/$(1) $$(if $$($(2)_HEADERS),install-$(2)-headers)
+	mkdir -p $$($(2)_INSTDIR) && cp $$($(2)_BLDPRF)/$(1) $$($(2)_INSTDIR)
 
 endef
 $(foreach mod,$(MODULES),$(eval $(call MODULE_template,$(mod),$(subst .,_,$(mod)))))
@@ -263,7 +265,7 @@ $(foreach mod,$(MODULES),$(eval $(call MODULE_template,$(mod),$(subst .,_,$(mod)
 
 
 # START HERE
-really-all: $(if $(PKG_DEPS),check-pkg-deps) $(ARCHIVES_REAL) $(LIBRARIES) $(PROGRAMS_REAL) $(MODULES) $(LV2_PLUGINS_REAL)
+really-all: $(if $(PKG_DEPS),check-pkg-deps) $(ARCHIVES_REAL) $(LIBRARIES) $(PROGRAMS_REAL) $(MODULES_REAL) $(LV2_PLUGINS_REAL)
 
 
 
@@ -276,7 +278,7 @@ Makefile.deps: $(ALL_SOURCES)
 
 # GLOBAL CLEAN
 clean:
-	rm -rf $(ALL_OBJECTS) $(PROGRAMS_REAL) $(MODULES) $(LIBRARIES) $(ARCHIVES_REAL) $(LV2_PLUGINS_REAL)
+	rm -rf $(ALL_OBJECTS) $(PROGRAMS_REAL) $(MODULES_REAL) $(LIBRARIES) $(ARCHIVES_REAL) $(LV2_PLUGINS_REAL)
 
 
 # GLOBAL INSTALL

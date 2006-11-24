@@ -8,7 +8,7 @@
   a lv2:Plugin;
   doap:name "Euphoria";
   doap:licence <http://usefulinc.com/doap/licenses/gpl>;
-  ll:standaloneGui <euphoria_gtk>;
+  ll:gtk2Gui <euphoriaguiplugin.so>;
   lv2:requiredHostFeature ll:instrument-ext;
   ll:pegName "e";  
   ll:defaultPresets <presets.ttl>;
