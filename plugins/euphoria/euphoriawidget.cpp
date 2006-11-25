@@ -65,7 +65,6 @@ EuphoriaWidget::EuphoriaWidget()
   phaseEScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
   phaseEScrw->set_shadow_type(SHADOW_IN);
   phaseEScrw->add(m_phase);
-  phaseEBox->pack_start(*phaseEScrw);
   phaseEBox->pack_start(*phaseEScrw, false, false);
   HBox* phaseEHBox = manage(new HBox(true));
   phaseEBox->pack_start(*phaseEHBox, false, false);
@@ -115,7 +114,6 @@ EuphoriaWidget::EuphoriaWidget()
   shapeEScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
   shapeEScrw->set_shadow_type(SHADOW_IN);
   shapeEScrw->add(m_shaper);
-  shapeEBox->pack_start(*shapeEScrw);
   shapeEBox->pack_start(*shapeEScrw, false, false);
   HBox* shapeEHBox = manage(new HBox(true));
   shapeEBox->pack_start(*shapeEHBox, false, false);
