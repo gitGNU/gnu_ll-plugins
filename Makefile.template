@@ -273,14 +273,25 @@ really-all: $(if $(PKG_DEPS),check-pkg-deps) $(ARCHIVES_REAL) $(LIBRARIES) $(PRO
 
 # DEPENDENCY COMPUTATION
 DEP_SOURCES = $(filter %.c,$(ALL_SOURCES)) $(filter %.cpp,$(ALL_SOURCES))
-Makefile.deps: $(ALL_SOURCES)
-	@rm -f Makefile.deps
-	@echo -n Computing dependencies...
-	@DEPDIRS=`for i in */ */*/ */*/*/ */*/*/*/; do echo -n " -I$$i"; done`; $(foreach src,$(DEP_SOURCES),$(CC) -MM $$DEPDIRS $(DEPDIRS) $(PKG_DEPDIRS) -MT $(patsubst %.cpp,%.o,$(patsubst %.c,%.o,$(src))) $(src) >> Makefile.deps && echo -n . &&) echo .
+DEP_FILES = $(patsubst %,%.dep,$(DEP_SOURCES))
+DEPDIRS = $(shell for i in . */ */*/ */*/*/ */*/*/*/; do echo -n " -I$$i"; done)
+%.dep: %
+	@echo -n Generating dependencies for $<...
+	@echo -n .
+	@$(CC) -MM $(DEPDIRS) $(PKG_DEPDIRS) -MT $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$<)) -o $@ $<
+	@$(CC) -MM $(DEPDIRS) $(PKG_DEPDIRS) -MT $@ -o $@.dep $<
+	@cat $@.dep >> $@
+	@rm -f $@.dep
+	@echo .
+
+Makefile.deps: $(DEP_FILES)
+	rm -f Makefile.deps
+	@$(foreach dep,$(DEP_FILES),cat $(dep) >> Makefile.deps && ) true
+
 
 # GLOBAL CLEAN
 clean:
-	rm -rf $(ALL_OBJECTS) $(PROGRAMS_REAL) $(MODULES_REAL) $(LIBRARIES) $(ARCHIVES_REAL) $(LV2_PLUGINS_REAL)
+	rm -rf $(ALL_OBJECTS) $(PROGRAMS_REAL) $(MODULES_REAL) $(LIBRARIES) $(ARCHIVES_REAL) $(LV2_PLUGINS_REAL) $(DEP_FILES)
 
 
 # GLOBAL INSTALL
