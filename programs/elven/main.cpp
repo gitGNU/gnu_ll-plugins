@@ -23,6 +23,7 @@ using namespace std;
 vector<jack_port_t*> jack_ports;
 jack_client_t* jack_client;
 lash_client_t* lash_client;
+bool still_running;
 
 
 string escape_space(const string& str) {
@@ -261,6 +262,12 @@ int process(jack_nframes_t nframes, void* arg) {
 }
 
 
+void sigchild(int signal) {
+  if (signal == SIGCHLD)
+    still_running = false;
+}
+
+
 void print_usage(const char* argv0) {
   cerr<<"usage: "<<argv0<<" PLUGIN_URI"<<endl
       <<"example: "<<argv0
@@ -358,7 +365,7 @@ int main(int argc, char** argv) {
     lv2h.activate();
     jack_activate(jack_client);
     
-    bool still_running = true;
+    still_running = true;
     OSCController osc(lv2h, still_running);
     osc.start();
     //cerr<<"Listening on URL "<<osc.get_url()<<endl;
@@ -373,6 +380,8 @@ int main(int argc, char** argv) {
         cerr<<"Could not execute "<<gui<<endl;
         exit(-1);
       }
+      else if (gui_pid > 0)
+        signal(SIGCHLD, &sigchild);
     }
     
     // queue that the host can pass configurations to
@@ -385,7 +394,7 @@ int main(int argc, char** argv) {
         
         // save
         if (lash_event_get_type(event) == LASH_Save_File) {
-          //cerr<<"LASH SAVE"<<endl;
+
           ofstream of((string(lash_event_get_string(event)) + 
                        "/lv2host").c_str());
           
@@ -425,7 +434,7 @@ int main(int argc, char** argv) {
         
         // restore
         else if (lash_event_get_type(event) == LASH_Restore_File) {
-          //cerr<<"LASH RESTORE"<<endl;
+
           ifstream ifs((string(lash_event_get_string(event)) + 
                         "/lv2host").c_str());
           while (ifs) {
@@ -463,10 +472,8 @@ int main(int argc, char** argv) {
         }
         
         // quit
-        else if (lash_event_get_type(event) == LASH_Quit) {
-          //cerr<<"LASH QUIT"<<endl;
+        else if (lash_event_get_type(event) == LASH_Quit)
           still_running = false;
-        }
         
         lash_event_destroy(event);
       }
@@ -476,7 +483,7 @@ int main(int argc, char** argv) {
     
     // kill the GUI
     if (gui_pid) {
-      osc.send_quit();
+      kill(gui_pid, SIGKILL);
       waitpid(gui_pid, 0, 0);
     }
     

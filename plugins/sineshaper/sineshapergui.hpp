@@ -66,9 +66,9 @@ protected:
   
   /** Create a SkinDial widget and put it in the box with the name @c name. */
   SkinDial* create_knob(const string& name, const string& tooltip,
-			double min, double max, double val, 
-			SkinDial::Mapping mapping = SkinDial::Linear,
-			double center = 0.5);
+                        double min, double max, double val, 
+                        SkinDial::Mapping mapping = SkinDial::Linear,
+                        double center = 0.5);
   
   /** Call this when the LV2 host has changed a control port value. */
   void control_slot(int port, float value);
