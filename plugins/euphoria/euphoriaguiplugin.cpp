@@ -16,19 +16,14 @@ public:
   
   EuphoriaGUI(LV2Controller& ctrl, const std::string& URI, 
               const std::string& bundle_path, Widget*& widget) {
-    widget = m_euph = new EuphoriaWidget;
-    m_euph->signal_control_changed.
+    widget = &m_euph;
+    m_euph.signal_control_changed.
       connect(mem_fun(ctrl, &LV2Controller::set_control));
   }
   
-  ~EuphoriaGUI() {
-    delete m_euph;
-  }
-  
-  
 protected:
 
-  EuphoriaWidget* m_euph;
+  EuphoriaWidget m_euph;
   
 };
 
