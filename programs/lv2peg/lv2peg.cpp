@@ -218,6 +218,10 @@ int main(int argc, char** argv) {
   for (piter = info.begin(); piter != info.end(); ++piter) {
     fout<<"/* "<<piter->first<<" */"<<endl<<endl;
     
+    // write the URI
+    fout<<"static const char "<<plugins[piter->first]<<"_uri[] = \""
+        <<piter->first<<"\";"<<endl<<endl;
+    
     // write port labels
     fout<<"enum "<<plugins[piter->first]<<"_port_enum {"<<endl;
     map<int, PortInfo>::const_iterator iter;
