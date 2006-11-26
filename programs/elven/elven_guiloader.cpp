@@ -29,6 +29,7 @@
 #include <gtkmm/plug.h>
 
 #include "lv2-gtk2gui.h"
+#include "lv2-instrument-gtk2gui.h"
 #include "lv2uiclient.hpp"
 
 
@@ -42,8 +43,38 @@ void set_control(LV2UI_Controller c, uint32_t port, float value) {
 }
 
 
+void configure(LV2UI_Controller c, const char* key, const char* value) {
+  static_cast<LV2UIClient*>(c)->send_configure(key, value);
+}
+
+
+void set_file(LV2UI_Controller c, const char* key, const char* filename) {
+  static_cast<LV2UIClient*>(c)->send_filename(key, filename);
+}
+
+
 void* extension_data(LV2UI_Controller c, const char* URI) {
+  static LV2_InstrumentControllerDescriptor instcdesc = {
+    &configure,
+    &set_file
+  };
+  if (!strcmp(URI, "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext"))
+    return &instcdesc;
   return 0;
+}
+
+
+void ui_configure(const std::string& key, const std::string& value,
+                  LV2UI_Handle handle, 
+                  const LV2_InstrumentUIDescriptor* instdesc) {
+  instdesc->configure(handle, key.c_str(), value.c_str());
+}
+
+
+void ui_set_file(const std::string& key, const std::string& filename,
+                 LV2UI_Handle handle, 
+                 const LV2_InstrumentUIDescriptor* instdesc) {
+  instdesc->set_file(handle, key.c_str(), filename.c_str());
 }
 
 
@@ -110,6 +141,16 @@ int main(int argc, char** argv) {
   // connect OSC server to UI
   if (desc->set_control) {
     osc.control_received.connect(bind<0>(desc->set_control, ui));
+  }
+  if (desc->extension_data) {
+    const LV2_InstrumentUIDescriptor* instdesc = static_cast<LV2_InstrumentUIDescriptor*>(desc->extension_data(ui, "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext"));
+    if (instdesc) {
+      if (instdesc->configure) {
+        osc.configure_received.connect(bind(bind(&ui_configure, instdesc), ui));
+      }
+      if (instdesc->set_file)
+        osc.filename_received.connect(bind(bind(&ui_set_file, instdesc), ui));
+    }
   }
   
   // show the GUI instance and start the main loop

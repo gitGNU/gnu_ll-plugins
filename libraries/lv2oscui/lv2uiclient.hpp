@@ -99,6 +99,9 @@ public:
   /** Send a configuration value to the plugin. */
   void send_configure(const std::string& key, const std::string& value);
   
+  /** Send a configuration value to the plugin. */
+  void send_filename(const std::string& key, const std::string& filename);
+  
   /** Send a MIDI event to the plugin. The effect will be exactly the same
       as if it had been sent by the plugin host. */
   void send_midi(int port, int size, const unsigned char* event);
@@ -124,7 +127,11 @@ public:
   
   /** Emitted when the host sends a configuration value. The parameters are
       the configuration key and the configuration value. */
-  sigc::signal<void, const std::string, const std::string> configure_received;
+  sigc::signal<void, std::string, std::string> configure_received;
+  
+  /** Emitted when the host sends a filename. The parameters are
+      the filename key and the filename value. */
+  sigc::signal<void, std::string, std::string> filename_received;
   
   /** Emitted when the host wants the UI to be visible. A LV2 GUI should not
       show any windows until this signal is emitted. */
@@ -162,6 +169,9 @@ private:
   static int configure_handler(const char *path, const char *types,
                                lo_arg **argv, int argc, 
                                void *data, void *user_data);
+  static int filename_handler(const char *path, const char *types,
+                              lo_arg **argv, int argc, 
+                              void *data, void *user_data);
   static int show_handler(const char *path, const char *types,
                           lo_arg **argv, int argc, 
                           void *data, void *user_data);
@@ -194,6 +204,7 @@ private:
       m_adjustments[port]->set_value(value);
     control_received(port, value);
   }
+
   Glib::Dispatcher m_program_dispatcher;
   std::queue<int> m_program_queue;
   void program_receiver() {
@@ -203,6 +214,7 @@ private:
     m_active_program = program;
     program_received(program);
   }
+
   Glib::Dispatcher m_configure_dispatcher;
   std::queue<std::pair<std::string, std::string> > m_configure_queue;
   void configure_receiver() {
@@ -212,6 +224,15 @@ private:
     configure_received(key, value);
   }
   
+  Glib::Dispatcher m_filename_dispatcher;
+  std::queue<std::pair<std::string, std::string> > m_filename_queue;
+  void filename_receiver() {
+    std::string key = m_filename_queue.front().first;
+    std::string value = m_filename_queue.front().second;
+    m_filename_queue.pop();
+    filename_received(key, value);
+  }
+
   Glib::Dispatcher m_add_program_dispatcher;
   std::queue<std::pair<int, std::string> > m_add_program_queue;
   void add_program_receiver() {

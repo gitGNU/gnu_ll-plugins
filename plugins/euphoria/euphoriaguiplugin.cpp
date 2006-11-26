@@ -42,12 +42,25 @@ public:
     widget = &m_euph;
     m_euph.signal_control_changed.
       connect(mem_fun(ctrl, &LV2Controller::set_control));
+    m_euph.signal_phase_changed.
+      connect(bind<0>(mem_fun(ctrl, &LV2Controller::configure), "phase"));
+    m_euph.signal_shape_changed.
+      connect(bind<0>(mem_fun(ctrl, &LV2Controller::configure), "shape"));
+    m_euph.signal_phase_envelope_changed.
+      connect(bind<0>(mem_fun(ctrl, &LV2Controller::configure), "phase_env"));
+    m_euph.signal_shape_envelope_changed.
+      connect(bind<0>(mem_fun(ctrl, &LV2Controller::configure), "shape_env"));
+
   }
   
   void set_control(uint32_t port, float value) {
     m_euph.set_control(port, value);
   }
 
+  void configure(const char* key, const char* value) {
+    m_euph.configure(key, value);
+  }
+  
 protected:
 
   EuphoriaWidget m_euph;

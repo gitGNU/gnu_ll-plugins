@@ -32,15 +32,27 @@ using namespace std;
 
 LV2Controller::LV2Controller()
   : m_cdesc(0),
-    m_ctrl(0) {
+    m_ctrl(0),
+    m_instdesc(0) {
 
 }
 
 
 void LV2Controller::set_control(uint32_t port, float value) {
-  if (m_cdesc) {
+  if (m_cdesc)
     m_cdesc->set_control(m_ctrl, port, value);
-  }
+}
+
+
+void LV2Controller::configure(const string& key, const string& value) {
+  if (m_cdesc && m_instdesc)
+    m_instdesc->configure(m_ctrl, key.c_str(), value.c_str());
+}
+
+
+void LV2Controller::set_file(const string& key, const string& filename) {
+  if (m_cdesc && m_instdesc)
+    m_instdesc->set_file(m_ctrl, key.c_str(), filename.c_str());
 }
   
 
@@ -54,8 +66,9 @@ void* LV2Controller::extension_data(const std::string& URI) {
 LV2Controller::LV2Controller(LV2UI_ControllerDescriptor* cdesc, 
                              LV2UI_Controller ctrl)
   : m_cdesc(cdesc),
-    m_ctrl(ctrl) {
-
+    m_ctrl(ctrl),
+    m_instdesc(0) {
+  m_instdesc = static_cast<LV2_InstrumentControllerDescriptor*>(m_cdesc->extension_data(m_ctrl, "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext"));
 }
 
 
@@ -78,12 +91,32 @@ namespace LV2G2GSupportFunctions {
   }
   
   
+  void configure(LV2UI_Handle instance, const char* key, const char* value) {
+    static_cast<LV2GTK2GUI*>(instance)->configure(key, value);
+  }
+
+  
+  void set_file(LV2UI_Handle instance, const char* key, const char* filename) {
+    static_cast<LV2GTK2GUI*>(instance)->set_file(key, filename);
+  }
+  
+  
   void* extension_data(LV2UI_Handle instance, const char* URI) {
+    if (!strcmp(URI, 
+                "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext")) {
+      return &LV2GTK2GUI::m_instrument_ui_desc;
+    }
     return static_cast<LV2GTK2GUI*>(instance)->extension_data(URI);
   }
   
   
 }  
+
+
+LV2_InstrumentUIDescriptor LV2GTK2GUI::m_instrument_ui_desc = {
+  &LV2G2GSupportFunctions::configure,
+  &LV2G2GSupportFunctions::set_file
+};
 
 
 extern "C" {

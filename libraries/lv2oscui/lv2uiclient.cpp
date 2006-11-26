@@ -60,6 +60,8 @@ LV2UIClient::LV2UIClient(const string& osc_url, const string& bundle,
     connect(mem_fun(*this, &LV2UIClient::program_receiver));
   m_configure_dispatcher.
     connect(mem_fun(*this, &LV2UIClient::configure_receiver));
+  m_filename_dispatcher.
+    connect(mem_fun(*this, &LV2UIClient::filename_receiver));
   m_add_program_dispatcher.
     connect(mem_fun(*this, &LV2UIClient::add_program_receiver));
   m_remove_program_dispatcher.
@@ -85,6 +87,8 @@ LV2UIClient::LV2UIClient(const string& osc_url, const string& bundle,
                               &LV2UIClient::clear_programs_handler, this);
   lo_server_thread_add_method(m_server_thread, "/lv2plugin/configure", "ss", 
                               &LV2UIClient::configure_handler, this);
+  lo_server_thread_add_method(m_server_thread, "/lv2plugin/set_file", "ss", 
+                              &LV2UIClient::filename_handler, this);
   lo_server_thread_add_method(m_server_thread, "/lv2plugin/show", "", 
                               &LV2UIClient::show_handler, this);
   lo_server_thread_add_method(m_server_thread, "/lv2plugin/hide", "", 
@@ -194,6 +198,14 @@ void LV2UIClient::send_configure(const string& key, const string& value) {
 }
 
 
+void LV2UIClient::send_filename(const string& key, const string& filename) {
+  if (m_valid) {
+    lo_send(m_plugin_address, (m_plugin_path + "/set_file").c_str(),
+            "ss", key.c_str(), filename.c_str());
+  }
+}
+
+
 void LV2UIClient::send_midi(int port, int size, const unsigned char* event) {
   if (m_valid) {
     lo_send(m_plugin_address, (m_plugin_path + "/midi").c_str(), "iis", 
@@ -271,6 +283,18 @@ int LV2UIClient::configure_handler(const char *path, const char *types,
   string value(&argv[1]->s);
   me->m_configure_queue.push(make_pair(key, value));
   me->m_configure_dispatcher();
+  return 0;
+}
+
+
+int LV2UIClient::filename_handler(const char *path, const char *types,
+                                  lo_arg **argv, int argc, 
+                                  void *data, void *user_data) {
+  LV2UIClient* me = static_cast<LV2UIClient*>(user_data);
+  string key(&argv[0]->s);
+  string value(&argv[1]->s);
+  me->m_filename_queue.push(make_pair(key, value));
+  me->m_filename_dispatcher();
   return 0;
 }
 

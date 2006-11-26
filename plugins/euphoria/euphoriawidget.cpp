@@ -396,9 +396,13 @@ void EuphoriaWidget::set_control(uint32_t port, float value) {
 
 void EuphoriaWidget::configure(const std::string& key, 
                                const std::string& value) {
-  if (key == "shape")
+  if (key == "phase")
+    m_phase.set_string(value);
+  else if (key == "phase_env")
+    m_phase_env.set_string(value);
+  else if (key == "shape")
     m_shaper.set_string(value);
-  if (key == "shape_env")
+  else if (key == "shape_env")
     m_shape_env.set_string(value);
 }
 
