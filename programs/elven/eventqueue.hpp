@@ -21,7 +21,7 @@
 
 ****************************************************************************/
 
-#ifdef EVENTQUEUE_HPP
+#ifndef EVENTQUEUE_HPP
 #define EVENTQUEUE_HPP
 
 #include <semaphore.h>
