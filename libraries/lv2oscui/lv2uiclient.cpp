@@ -36,13 +36,13 @@ using namespace Glib;
 
 
 
-LV2UIClient::LV2UIClient(int argc, char** argv, bool wait) 
-  : m_valid(false), m_blocking(false) {
-  
-  if (argc < 5) {
-    cerr<<"Not enough arguments passed to the LV2UIClient constructor! "<<endl;
-    return;
-  }
+LV2UIClient::LV2UIClient(const string& osc_url, const string& bundle,
+                         const string& plugin_uri, const string& identifier, 
+                         bool wait)
+  : m_valid(false), 
+    m_blocking(false),
+    m_identifier(identifier),
+    m_bundle(bundle) {
   
   /*
   cerr<<"Plugin OSC URL: "<<argv[1]<<endl
@@ -50,9 +50,6 @@ LV2UIClient::LV2UIClient(int argc, char** argv, bool wait)
       <<"Plugin URI: "<<argv[3]<<endl
       <<"Plugin identifier: "<<argv[4]<<endl;
   */
-  
-  m_identifier = argv[4];
-  m_bundle = argv[2];
   
   if(!thread_supported())
     thread_init();
@@ -70,8 +67,8 @@ LV2UIClient::LV2UIClient(int argc, char** argv, bool wait)
   
   control_received.connect(mem_fun(*this, &LV2UIClient::update_adjustments));
 
-  m_plugin_address = lo_address_new_from_url(argv[1]);
-  m_plugin_path = lo_url_get_path(argv[1]);
+  m_plugin_address = lo_address_new_from_url(osc_url.c_str());
+  m_plugin_path = lo_url_get_path(osc_url.c_str());
   if (m_plugin_path[m_plugin_path.size() - 1] == '/')
     m_plugin_path = m_plugin_path.substr(0, m_plugin_path.size() - 1);
   m_server_thread = lo_server_thread_new(NULL, NULL);

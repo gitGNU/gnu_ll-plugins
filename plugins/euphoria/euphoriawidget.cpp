@@ -1,3 +1,27 @@
+/****************************************************************************
+    
+    euphoriawidget.cpp - A GUI for the Euphoria LV2 synth
+    
+    Copyright (C) 2006  Lars Luthman <lars.luthman@gmail.com>
+    
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+    
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor,
+    Boston, MA  02110-1301  USA
+
+****************************************************************************/
+
+#include <cassert>
 #include <iostream>
 
 #include "euphoriawidget.hpp"
@@ -19,7 +43,8 @@ void moo(Allocation& a, Widget* w) {
 //EuphoriaWidget::EuphoriaWidget(LV2UIClient& lv2)
 EuphoriaWidget::EuphoriaWidget()
   : VBox(false, 6),
-    m_program_store(ListStore::create(m_program_columns)) {
+    m_program_store(ListStore::create(m_program_columns)),
+    m_adj(e_n_ports, 0) {
   
   set_border_width(6);
   
@@ -363,6 +388,12 @@ void EuphoriaWidget::clear_programs() {
 }
 
 
+void EuphoriaWidget::set_control(uint32_t port, float value) {
+  if (port < m_adj.size() && m_adj[port])
+    m_adj[port]->set_value(value);
+}
+
+
 void EuphoriaWidget::configure(const std::string& key, 
                                const std::string& value) {
   if (key == "shape")
@@ -384,6 +415,8 @@ VBox* EuphoriaWidget::create_knob(const string& label, int port,
   adj.signal_value_changed().
     connect(compose(bind<0>(signal_control_changed, port),
                     mem_fun(adj, &Adjustment::get_value)));
+  assert(m_adj[port] == 0);
+  m_adj[port] = &adj;
   box->pack_start(*knob);
   Label* text = manage(new Label(string("<small>") + label + "</small>"));
   text->set_use_markup(true);

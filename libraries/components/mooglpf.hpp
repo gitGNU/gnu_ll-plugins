@@ -1,6 +1,29 @@
-/** Based on (well, actually blatantly stolen from)  Fons Adriaensen's
+/****************************************************************************
+    
+    mooglpf.hpp - A filter that emulates a Moog lowpass filter
+    
+    Based on (well, actually blatantly stolen from)  Fons Adriaensen's
     LADSPA plugin Mvclpf-4 in the mcp-plugins package. Thank you, Fons!
-*/
+
+    Copyright (C) 2003 Fons Adriaensen
+    Copyright (C) 2006 Lars Luthman <lars.luthman@gmail.com>
+    
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+    
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor,
+    Boston, MA  02110-1301  USA
+
+****************************************************************************/
 
 #ifndef MOOGLPF_HPP
 #define MOOGLPF_HPP
@@ -24,10 +47,10 @@ public:
 
   
   void MoogLPF::run(uint32_t samples, float* input, float* output,
-		    float* frequency, float* exp_fm, float* resonance,
-		    float input_gain, float freq_ctrl, float exp_fm_gain,
-		    float res_ctrl, float res_gain, float poles, 
-		    float output_gain) {
+                    float* frequency, float* exp_fm, float* resonance,
+                    float input_gain, float freq_ctrl, float exp_fm_gain,
+                    float res_ctrl, float res_gain, float poles, 
+                    float output_gain) {
     int   k, op;
     float *p2, *p3, *p4;
     float c1, c2, c3, c4, c5;
@@ -57,10 +80,10 @@ public:
       
       t = exp2ap(exp_fm_gain * *p3 + freq_ctrl + *p2 + 9.70) / m_rate;
       if (t < 0.75)
-	t *= 1.005 - t * (0.624 - t * (0.65 - t * 0.54));
+        t *= 1.005 - t * (0.624 - t * (0.65 - t * 0.54));
       else {
-	t *= 0.6748;
-	if (t > 0.82) t = 0.82;
+        t *= 0.6748;
+        if (t > 0.82) t = 0.82;
       }
       dw = (t - w) / k;
       
@@ -70,51 +93,51 @@ public:
       dr = (t - r) / k;  
       
       while (k--) {
-	w += dw;                        
-	r += dr;
-	
-	x = *input * g0 - (4.3 - 0.2 * w) * r * c5 + 1e-10; 
-	//            x = tanh (x);
-	x /= sqrt (1 + x * x);
-	d = w * (x  - c1) / (1 + c1 * c1);           
-	x = c1 + 0.77 * d;
-	c1 = x + 0.23 * d;        
-	d = w * (x  - c2) / (1 + c2 * c2);            
-	x = c2 + 0.77 * d;
-	c2 = x + 0.23 * d;        
-	d = w * (x  - c3) / (1 + c3 * c3);            
-	x = c3 + 0.77 * d;
-	c3 = x + 0.23 * d;        
-	d = w * (x  - c4);
-	x = c4 + 0.77 * d;
-	c4 = x + 0.23 * d;        
-	c5 += 0.85 * (c4 - c5);
-	
-	x = y = *input++ * g0 -(4.3 - 0.2 * w) * r * c5;
-	//            x = tanh (x);
-	x /= sqrt (1 + x * x);
-	d = w * (x  - c1) / (1 + c1 * c1);            
-	x = c1 + 0.77 * d;
-	c1 = x + 0.23 * d;        
-	d = w * (x  - c2) / (1 + c2 * c2);            
-	x = c2 + 0.77 * d;
-	c2 = x + 0.23 * d;        
-	d = w * (x  - c3) / (1 + c3 * c3);            
-	x = c3 + 0.77 * d;
-	c3 = x + 0.23 * d;        
-	d = w * (x  - c4);
-	x = c4 + 0.77 * d;
-	c4 = x + 0.23 * d;        
-	c5 += 0.85 * (c4 - c5);
-	
-	switch (op) {
-	case 1: y = c1; break;
-	case 2: y = c2; break;
-	case 3: y = c3; break;
-	case 4: y = c4; break;
-	}
-	
-	*output++  = g1 * y;
+        w += dw;                        
+        r += dr;
+  
+        x = *input * g0 - (4.3 - 0.2 * w) * r * c5 + 1e-10; 
+        //            x = tanh (x);
+        x /= sqrt (1 + x * x);
+        d = w * (x  - c1) / (1 + c1 * c1);           
+        x = c1 + 0.77 * d;
+        c1 = x + 0.23 * d;        
+        d = w * (x  - c2) / (1 + c2 * c2);            
+        x = c2 + 0.77 * d;
+        c2 = x + 0.23 * d;        
+        d = w * (x  - c3) / (1 + c3 * c3);            
+        x = c3 + 0.77 * d;
+        c3 = x + 0.23 * d;        
+        d = w * (x  - c4);
+        x = c4 + 0.77 * d;
+        c4 = x + 0.23 * d;        
+        c5 += 0.85 * (c4 - c5);
+  
+        x = y = *input++ * g0 -(4.3 - 0.2 * w) * r * c5;
+        //            x = tanh (x);
+        x /= sqrt (1 + x * x);
+        d = w * (x  - c1) / (1 + c1 * c1);            
+        x = c1 + 0.77 * d;
+        c1 = x + 0.23 * d;        
+        d = w * (x  - c2) / (1 + c2 * c2);            
+        x = c2 + 0.77 * d;
+        c2 = x + 0.23 * d;        
+        d = w * (x  - c3) / (1 + c3 * c3);            
+        x = c3 + 0.77 * d;
+        c3 = x + 0.23 * d;        
+        d = w * (x  - c4);
+        x = c4 + 0.77 * d;
+        c4 = x + 0.23 * d;        
+        c5 += 0.85 * (c4 - c5);
+  
+        switch (op) {
+        case 1: y = c1; break;
+        case 2: y = c2; break;
+        case 3: y = c3; break;
+        case 4: y = c4; break;
+        }
+  
+        *output++  = g1 * y;
       }
     } while (samples);
 

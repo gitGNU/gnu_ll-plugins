@@ -1,3 +1,26 @@
+/****************************************************************************
+    
+    main.cpp - Main source file for the LV2 host Elven
+    
+    Copyright (C) 2006  Lars Luthman <lars.luthman@gmail.com>
+    
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+    
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor,
+    Boston, MA  02110-1301  USA
+
+****************************************************************************/
+
 #include <csignal>
 #include <fstream>
 #include <iostream>
@@ -375,8 +398,9 @@ int main(int argc, char** argv) {
     pid_t gui_pid = 0;
     if (gui.size()) {
       if (!(gui_pid = fork())) {
-        execlp("elven_guiloader", "elven_guiloader", gui.c_str(), argv[1],
-               lv2h.get_bundle_dir().c_str(), "Elven, channel 0", 0);
+        execlp("elven_guiloader", "elven_guiloader", gui.c_str(), 
+               osc.get_url().c_str(), argv[1], lv2h.get_bundle_dir().c_str(),
+               "Elven, channel 0", 0);
         cerr<<"Could not execute "<<gui<<endl;
         exit(-1);
       }

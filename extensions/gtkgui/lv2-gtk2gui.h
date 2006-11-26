@@ -1,8 +1,14 @@
 /************************************************************************
  *
- * Generic UI extension for LV2
+ * GTK2 in-process UI extension for LV2
  *
  * Copyright (C) 2006 Lars Luthman <lars.luthman@gmail.com>
+ * 
+ * Based on lv2.h, which is 
+ *
+ * Copyright (C) 2000-2002 Richard W.E. Furse, Paul Barton-Davis, Stefan
+ * Westerfeld
+ * Copyright (C) 2006 Steve Harris, Dave Robillard.
  *
  * This header is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,6 +27,20 @@
  *
  ***********************************************************************/
 
+/** This extension defines an interface that can be used in LV2 plugins and
+    hosts to create GTK2 GUIs for plugins. The GUIs will be plugins that
+    will reside in shared object files in the plugin bundle directory and
+    be referenced in the RDF file using the triple
+    
+    <http://my.plugin> <http://ll-plugins.nongnu.org/lv2/namespace#gtk2Gui> <mygui.so>
+    
+    where <http://my.plugin> is the URI of the plugin and <mygui.so> is the 
+    relative URI to the shared object file. While it is possible to have the
+    plugin GUI and the plugin in the same shared object file it is probably
+    a good idea to keep them separate so that hosts that don't want GUIs
+    don't have to load the GUI code.
+*/
+
 #ifndef LV2_GTK2GUI_H
 #define LV2_GTK2GUI_H
 
@@ -38,7 +58,7 @@ typedef void* LV2UI_Controller;
 
 
 /** This struct contains pointers to functions provided by the program which is
-    loading the GUI plugin. None of the pointers are allowed to be NULL. */
+    loading the GUI plugin. None of the members are allowed to be NULL. */
 typedef struct {
 
   /** Change the value of one of the plugin's control rate float ports. If
@@ -68,8 +88,8 @@ typedef struct {
       controller that this GUI is going to be used with is passed as a 
       parameter, as well as a pointer to a GtkWidget pointer. This should
       be set to point to the widget that will act as the GTK+ GUI for the 
-      plugin. The GUI is not allowed to set this pointer to NULL unless it
-      also returns NULL from this function. */
+      plugin instance. The GUI is not allowed to set this pointer to NULL 
+      unless it also returns NULL from this function. */
   LV2UI_Handle (*instantiate)(LV2UI_ControllerDescriptor*   descriptor,
                               LV2UI_Controller              controller,
                               const char*                   URI,
@@ -106,7 +126,7 @@ typedef struct {
  * the file).
  *
  * A host will find the plugin shared object file by one means or another,
- * find the lv2gtk2gui_descriptor() function, call it, and proceed from 
+ * find the lv2ui_descriptor() function, call it, and proceed from 
  * there. */
 const LV2UI_UIDescriptor* lv2ui_descriptor(const char* URI);
 

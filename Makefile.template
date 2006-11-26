@@ -285,9 +285,10 @@ DEPDIRS = $(shell for i in . */ */*/ */*/*/ */*/*/*/; do echo -n " -I$$i"; done)
 	@echo .
 
 Makefile.deps: $(DEP_FILES)
-	rm -f Makefile.deps
+	@echo -n Merging dependencies...
+	@rm -f Makefile.deps
 	@$(foreach dep,$(DEP_FILES),cat $(dep) >> Makefile.deps && ) true
-
+	@echo .
 
 # GLOBAL CLEAN
 clean:

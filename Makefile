@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.141
+PACKAGE_VERSION = 0.1.142
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2 gsl>=1.8
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a liblv2_gtk2gui.a libkeyboard.a libvgknob.a libenvelopeeditor.a libshapereditor.a libpdeditor.a
@@ -47,7 +47,7 @@ libpdeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
 libpdeditor_a_SOURCEDIR = libraries/widgets
 
 
-PROGRAMS = lv2peg elven elven_guiloader paqtest
+PROGRAMS = lv2peg elven elven_guiloader sockettest paqtest
 
 lv2peg_SOURCES = lv2peg.cpp
 lv2peg_CFLAGS = -Ilibraries/paq -DVERSION=\"$(PACKAGE_VERSION)\"
@@ -64,9 +64,14 @@ elven_LDFLAGS = `pkg-config --libs jack liblo lash-1.0` libraries/paq/libpaq.a -
 elven_SOURCEDIR = programs/elven
 
 elven_guiloader_SOURCES = elven_guiloader.cpp
-elven_guiloader_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -I.
-elven_guiloader_LDFLAGS = `pkg-config --libs gtkmm-2.4`
+elven_guiloader_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo` -Iextensions/gtkgui -I. -Ilibraries/lv2oscui
+elven_guiloader_LDFLAGS = `pkg-config --libs gtkmm-2.4 liblo gthread-2.0` libraries/lv2oscui/liblv2_oscui.a
 elven_guiloader_SOURCEDIR = programs/elven
+
+sockettest_SOURCES = sockettest.cpp
+sockettest_CFLAGS = `pkg-config --cflags gtkmm-2.4`
+sockettest_LDFLAGS = `pkg-config --libs gtkmm-2.4`
+sockettest_SOURCEDIR = programs/elven
 
 paqtest_SOURCES = main.cpp
 paqtest_LDFLAGS = libraries/paq/libpaq.a

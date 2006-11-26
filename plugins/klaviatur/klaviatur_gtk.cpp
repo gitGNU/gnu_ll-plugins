@@ -54,7 +54,7 @@ void handle_keyrelease(unsigned char key, LV2UIClient& lv2) {
 int main(int argc, char** argv) {
   
   // create the objects
-  LV2UIClient lv2(argc, argv, true);
+  LV2UIClient lv2(argv[1], argv[3], argv[2], argv[4], true);
   if (!lv2.is_valid()) {
     cerr<<"Could not start OSC listener. You are not running the "<<endl
         <<"program manually, are you? It's supposed to be started by "<<endl
