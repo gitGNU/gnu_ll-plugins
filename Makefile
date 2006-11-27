@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.151
+PACKAGE_VERSION = 0.1.152
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2 gsl>=1.8
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a liblv2_gtk2gui.a libkeyboard.a libvgknob.a libenvelopeeditor.a libshapereditor.a libpdeditor.a
@@ -23,7 +23,7 @@ liblv2_oscui_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo`
 liblv2_oscui_a_SOURCEDIR = libraries/lv2oscui
 
 liblv2_gtk2gui_a_SOURCES = lv2gtk2gui.hpp lv2gtk2gui.cpp
-liblv2_gtk2gui_a_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Iextensions/instrument -Iextensions/program -Iextensions/miditype -I.
+liblv2_gtk2gui_a_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -I.
 liblv2_gtk2gui_a_SOURCEDIR = libraries/lv2gtk2gui
 
 libkeyboard_a_SOURCES = keyboard.hpp keyboard.cpp
@@ -64,7 +64,7 @@ elven_LDFLAGS = `pkg-config --libs jack liblo lash-1.0` libraries/paq/libpaq.a -
 elven_SOURCEDIR = programs/elven
 
 elven_guiloader_SOURCES = elven_guiloader.cpp
-elven_guiloader_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo` -Iextensions/gtkgui -Iextensions/instrument -Iextensions/miditype -Iextensions/program -I. -Ilibraries/lv2oscui
+elven_guiloader_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo` -Iextensions/gtkgui -I. -Ilibraries/lv2oscui
 elven_guiloader_LDFLAGS = `pkg-config --libs gtkmm-2.4 liblo gthread-2.0` libraries/lv2oscui/liblv2_oscui.a
 elven_guiloader_SOURCEDIR = programs/elven
 
@@ -104,11 +104,11 @@ klaviatur_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype -Ilibraries/c
 klaviatur_lv2_LDFLAGS = $(PLUGINFLAGS)
 klaviatur_lv2_PEGFILES = klaviatur.peg
 klaviatur_lv2_SOURCEDIR = plugins/klaviatur
-#klaviatur_lv2_PROGRAMS = klaviatur_gtk
-#klaviatur_gtk_SOURCES = klaviatur_gtk.cpp
-#klaviatur_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo` -Ilibraries/lv2oscui -Ilibraries/widgets -I.
-#klaviatur_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo` libraries/lv2oscui/liblv2_oscui.a libraries/widgets/libkeyboard.a
-#klaviatur_gtk_SOURCEDIR = plugins/klaviatur
+klaviatur_lv2_MODULES = klaviatur_gtk.so
+klaviatur_gtk_so_SOURCES = klaviatur_gtk.cpp
+klaviatur_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/lv2gtk2gui -Ilibraries/widgets -I.
+klaviatur_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libkeyboard.a
+klaviatur_gtk_so_SOURCEDIR = plugins/klaviatur
 
 # Euphoria
 euphoria_lv2_SOURCES = euphoria.cpp shaper.hpp shaper.cpp envelope.hpp pdoscillator.hpp
@@ -121,7 +121,7 @@ euphoria_lv2_MODULES = euphoriaguiplugin.so
 euphoriaguiplugin_so_SOURCES = \
 	euphoriaguiplugin.cpp \
 	euphoriawidget.cpp euphoriawidget.hpp
-euphoriaguiplugin_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Iextensions/instrument -Iextensions/program -Iextensions/miditype -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
+euphoriaguiplugin_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
 euphoriaguiplugin_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` libraries/widgets/libvgknob.a libraries/widgets/libenvelopeeditor.a libraries/widgets/libshapereditor.a libraries/widgets/libpdeditor.a libraries/lv2gtk2gui/liblv2_gtk2gui.a
 euphoriaguiplugin_so_SOURCEDIR = plugins/euphoria
 
@@ -188,7 +188,7 @@ azr3_lv2_LDFLAGS = $(INSTRUMENTFLAGS)
 azr3_lv2_SOURCEDIR = plugins/azr3
 azr3_lv2_MODULES = azr3_gtk.so
 azr3_gtk_so_SOURCES = azr3_gtk.cpp knob.hpp knob.cpp switch.hpp switch.cpp drawbar.hpp drawbar.cpp textbox.hpp textbox.cpp
-azr3_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/instrument -Iextensions/gtkgui -Iextensions/program -Iextensions/miditype -I. -Ilibraries/lv2gtk2gui
+azr3_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -I. -Ilibraries/lv2gtk2gui
 azr3_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` libraries/lv2gtk2gui/liblv2_gtk2gui.a
 azr3_gtk_so_SOURCEDIR = plugins/azr3
 
@@ -196,6 +196,7 @@ azr3_gtk_so_SOURCEDIR = plugins/azr3
 # The shared headers need to go in the distribution too
 EXTRA_DIST = \
   lv2.h \
+	\
 	libraries/components/adsr.hpp \
 	libraries/components/chebyshevshaper.hpp \
 	libraries/components/dcblocker.hpp \
@@ -220,7 +221,10 @@ EXTRA_DIST = \
 	extensions/midimap/lv2-midimap.rdfs \
 	extensions/instrument/lv2-instrument.h \
 	extensions/transporttype/lv2-transport.h \
-	extensions/gtkgui/lv2-gtk2gui.h
+	extensions/gtkgui/lv2-gtk2gui.h \
+	extensions/gtkgui/lv2-instrument-gtk2gui.h \
+	extensions/gtkgui/lv2-program-gtk2gui.h \
+	extensions/gtkgui/lv2-miditype-gtk2gui.h 
 
 
 # Do the magic

@@ -94,7 +94,7 @@ void* extension_data(LV2UI_Controller c, const char* URI) {
     return &instcdesc;
   if (!strcmp(URI, "http://ll-plugins.nongnu.org/lv2/namespace#program"))
     return &progcdesc;
-  if (!strcmp(URI, "http://ll-plugins.nongnu.org/lv2/namespace#miditype"))
+  if (!strcmp(URI, "http://ll-plugins.nongnu.org/lv2/ext/miditype"))
     return &midicdesc;
   return 0;
 }

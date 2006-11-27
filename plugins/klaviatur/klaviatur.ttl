@@ -8,7 +8,7 @@
   a lv2:Plugin;
   doap:name "Klaviatur";
   doap:licence <http://usefulinc.com/doap/licenses/gpl>;
-  ll:standaloneGui <klaviatur_gtk>;
+  ll:gtk2Gui <klaviatur_gtk.so>;
   ll:pegName "k";  
   
   lv2:port [

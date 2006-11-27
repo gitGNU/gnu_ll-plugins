@@ -26,62 +26,48 @@
 
 #include <gtkmm.h>
 
-#include "lv2uiclient.hpp"
+#include "lv2gtk2gui.hpp"
 #include "klaviatur.peg"
 #include "keyboard.hpp"
 
 
-using namespace std;
-using namespace Gtk;
-using namespace Glib;
 using namespace sigc;
+using namespace Gtk;
 
 
-void handle_keypress(unsigned char key, LV2UIClient& lv2) {
-  //cerr<<"key on: "<<int(key)<<endl;
-  unsigned char data[3] = { 0x90, key + 36, 64 };
-  lv2.send_midi(k_midi_input, 3, data);
-}
-
-
-void handle_keyrelease(unsigned char key, LV2UIClient& lv2) {
-  //cerr<<"key off: "<<int(key)<<endl;
-  unsigned char data[3] = { 0x80, key + 36, 64 };
-  lv2.send_midi(k_midi_input, 3, data);
-}
-
-
-int main(int argc, char** argv) {
+class KlaviaturGUI : public LV2GTK2GUI {
+public:
   
-  // create the objects
-  LV2UIClient lv2(argv[1], argv[3], argv[2], argv[4], true);
-  if (!lv2.is_valid()) {
-    cerr<<"Could not start OSC listener. You are not running the "<<endl
-        <<"program manually, are you? It's supposed to be started by "<<endl
-        <<"the plugin host."<<endl;
-    return 1;
+  KlaviaturGUI(LV2Controller& ctrl, const std::string& URI, 
+               const std::string& bundle_path, Widget*& widget) {
+
+    m_kb.set_flags(m_kb.get_flags() | CAN_FOCUS);
+    m_kb.signal_key_on().
+      connect(bind(mem_fun(*this, &KlaviaturGUI::handle_keypress), ref(ctrl)));
+    m_kb.signal_key_off().
+      connect(bind(mem_fun(*this, &KlaviaturGUI::handle_keyrelease),ref(ctrl)));
+    widget = &m_kb;
   }
   
-  Main kit(argc, argv);
-  Window main_win;
-  Keyboard kb;
-  kb.set_flags(kb.get_flags() | CAN_FOCUS);
-  main_win.add(kb);
-  
-  main_win.set_title(string("Klaviatur: ") + lv2.get_identifier());
-  
-  lv2.show_received.connect(mem_fun(main_win, &Window::show_all));
-  lv2.hide_received.connect(mem_fun(main_win, &Window::hide));
-  lv2.quit_received.connect(&Main::quit);
-  kb.signal_key_on().connect(bind(&handle_keypress, ref(lv2)));
-  kb.signal_key_off().connect(bind(&handle_keyrelease, ref(lv2)));
-  main_win.signal_delete_event().connect(bind_return(hide(&Main::quit), true));
-  
-  // start
-  lv2.send_update_request();
-  Main::run();
+protected:
 
-  return 0;
+  void handle_keypress(unsigned char key, LV2Controller& ctrl) {
+    unsigned char data[3] = { 0x90, key + 36, 64 };
+    ctrl.send_midi(k_midi_input, 3, data);
+  }
+  
+  
+  void handle_keyrelease(unsigned char key, LV2Controller& ctrl) {
+    unsigned char data[3] = { 0x80, key + 36, 64 };
+    ctrl.send_midi(k_midi_input, 3, data);
+  }
+
+  Keyboard m_kb;
+  
+};
+
+
+void initialise() __attribute__((constructor));
+void initialise() {
+  register_lv2gtk2gui<KlaviaturGUI>("http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0");
 }
-
-
