@@ -33,7 +33,8 @@ using namespace std;
 LV2Controller::LV2Controller()
   : m_cdesc(0),
     m_ctrl(0),
-    m_instdesc(0) {
+    m_instdesc(0),
+    m_progdesc(0) {
 
 }
 
@@ -56,6 +57,12 @@ void LV2Controller::set_file(const string& key, const string& filename) {
 }
   
 
+void LV2Controller::set_program(unsigned char number) {
+  if (m_cdesc && m_progdesc)
+    m_progdesc->set_program(m_ctrl, number);
+}
+
+
 void* LV2Controller::extension_data(const std::string& URI) {
   if (m_cdesc)
     return m_cdesc->extension_data(m_ctrl, URI.c_str());
@@ -69,6 +76,7 @@ LV2Controller::LV2Controller(LV2UI_ControllerDescriptor* cdesc,
     m_ctrl(ctrl),
     m_instdesc(0) {
   m_instdesc = static_cast<LV2_InstrumentControllerDescriptor*>(m_cdesc->extension_data(m_ctrl, "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext"));
+  m_progdesc = static_cast<LV2_ProgramControllerDescriptor*>(m_cdesc->extension_data(m_ctrl, "http://ll-plugins.nongnu.org/lv2/namespace#program"));
 }
 
 
@@ -101,11 +109,36 @@ namespace LV2G2GSupportFunctions {
   }
   
   
+  void add_program(LV2UI_Handle instance, unsigned char number, 
+                   const char* name) {
+    static_cast<LV2GTK2GUI*>(instance)->add_program(number, name);
+  }
+
+  
+  void remove_program(LV2UI_Handle instance, unsigned char number) {
+    static_cast<LV2GTK2GUI*>(instance)->remove_program(number);
+  }
+  
+
+  void clear_programs(LV2UI_Handle instance) {
+    static_cast<LV2GTK2GUI*>(instance)->clear_programs();
+  }
+
+  
+  void set_program(LV2UI_Handle instance, unsigned char number) {
+    static_cast<LV2GTK2GUI*>(instance)->set_program(number);
+  }
+  
+
   void* extension_data(LV2UI_Handle instance, const char* URI) {
     if (!strcmp(URI, 
-                "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext")) {
+                "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext"))
       return &LV2GTK2GUI::m_instrument_ui_desc;
-    }
+    else if (!strcmp(URI, 
+                     "http://ll-plugins.nongnu.org/lv2/namespace#program"))
+      return &LV2GTK2GUI::m_program_ui_desc;
+
+    
     return static_cast<LV2GTK2GUI*>(instance)->extension_data(URI);
   }
   
@@ -116,6 +149,14 @@ namespace LV2G2GSupportFunctions {
 LV2_InstrumentUIDescriptor LV2GTK2GUI::m_instrument_ui_desc = {
   &LV2G2GSupportFunctions::configure,
   &LV2G2GSupportFunctions::set_file
+};
+
+
+LV2_ProgramUIDescriptor LV2GTK2GUI::m_program_ui_desc = {
+  &LV2G2GSupportFunctions::add_program,
+  &LV2G2GSupportFunctions::remove_program,
+  &LV2G2GSupportFunctions::clear_programs,
+  &LV2G2GSupportFunctions::set_program
 };
 
 

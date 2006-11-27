@@ -32,6 +32,7 @@
 
 #include "lv2-gtk2gui.h"
 #include "lv2-instrument-gtk2gui.h"
+#include "lv2-program-gtk2gui.h"
 
 
 class LV2Controller;
@@ -78,6 +79,15 @@ namespace LV2G2GSupportFunctions {
 
   void set_file(LV2UI_Handle instance, const char* key, const char* filename);
   
+  void add_program(LV2UI_Handle instance, unsigned char number, 
+                   const char* name);
+  
+  void remove_program(LV2UI_Handle instance, unsigned char number);
+  
+  void clear_programs(LV2UI_Handle instance);
+  
+  void set_program(LV2UI_Handle instance, unsigned char number);
+  
   /* Try to access extension-specific data. You should not use this directly. */
   void* extension_data(LV2UI_Handle instance, const char* URI);
   
@@ -101,6 +111,8 @@ public:
   
   void set_file(const std::string& key, const std::string& filename);
   
+  void set_program(unsigned char number);
+  
   /** Return data associated with an extension URI, or 0 if that extension
       is not supported or does not have any data for use in controllers. */
   void* extension_data(const std::string& URI);
@@ -118,6 +130,7 @@ protected:
   LV2UI_ControllerDescriptor* m_cdesc;
   LV2UI_Controller m_ctrl;
   LV2_InstrumentControllerDescriptor* m_instdesc;
+  LV2_ProgramControllerDescriptor* m_progdesc;
 };
 
 
@@ -143,6 +156,14 @@ public:
   
   virtual void set_file(const char* key, const char* filename) { }
   
+  virtual void add_program(unsigned char number, const char* name) { }
+  
+  virtual void remove_program(unsigned char number) { }
+  
+  virtual void clear_programs() { }
+  
+  virtual void set_program(unsigned char number) { }
+  
   virtual void* extension_data(const std::string& URI) { return 0; }
 
 private:
@@ -159,6 +180,7 @@ private:
   LV2Controller* m_controller;
 
   static LV2_InstrumentUIDescriptor m_instrument_ui_desc;
+  static LV2_ProgramUIDescriptor m_program_ui_desc;
   
 };
 

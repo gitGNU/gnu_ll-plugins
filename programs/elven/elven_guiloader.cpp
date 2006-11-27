@@ -30,6 +30,7 @@
 
 #include "lv2-gtk2gui.h"
 #include "lv2-instrument-gtk2gui.h"
+#include "lv2-program-gtk2gui.h"
 #include "lv2uiclient.hpp"
 
 
@@ -53,13 +54,24 @@ void set_file(LV2UI_Controller c, const char* key, const char* filename) {
 }
 
 
+void set_program(LV2UI_Controller c, unsigned char number) {
+  static_cast<LV2UIClient*>(c)->send_program(number);
+}
+
+
 void* extension_data(LV2UI_Controller c, const char* URI) {
   static LV2_InstrumentControllerDescriptor instcdesc = {
     &configure,
     &set_file
   };
+  static LV2_ProgramControllerDescriptor progcdesc = {
+    &set_program
+  };
+  
   if (!strcmp(URI, "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext"))
     return &instcdesc;
+  if (!strcmp(URI, "http://ll-plugins.nongnu.org/lv2/namespace#program"))
+    return &progcdesc;
   return 0;
 }
 
@@ -75,6 +87,12 @@ void ui_set_file(const std::string& key, const std::string& filename,
                  LV2UI_Handle handle, 
                  const LV2_InstrumentUIDescriptor* instdesc) {
   instdesc->set_file(handle, key.c_str(), filename.c_str());
+}
+
+
+void ui_add_program(int number, const std::string& name, LV2UI_Handle handle,
+                    const LV2_ProgramUIDescriptor* progdesc) {
+  progdesc->add_program(handle, number, name.c_str());
 }
 
 
@@ -150,6 +168,24 @@ int main(int argc, char** argv) {
       }
       if (instdesc->set_file)
         osc.filename_received.connect(bind(bind(&ui_set_file, instdesc), ui));
+    }
+    const LV2_ProgramUIDescriptor* progdesc = static_cast<LV2_ProgramUIDescriptor*>(desc->extension_data(ui, "http://ll-plugins.nongnu.org/lv2/namespace#program"));
+    if (progdesc) {
+      if (progdesc->add_program) {
+        osc.add_program_received.
+          connect(bind(bind(&ui_add_program, progdesc), ui));
+      }
+      if (progdesc->remove_program) {
+        osc.remove_program_received.
+          connect(bind<0>(progdesc->remove_program, ui));
+      }
+      if (progdesc->clear_programs) {
+        osc.clear_programs_received.connect(bind(progdesc->clear_programs, ui));
+      }
+      if (progdesc->set_program) {
+        osc.program_received.
+          connect(bind<0>(progdesc->set_program, ui));
+      }
     }
   }
   

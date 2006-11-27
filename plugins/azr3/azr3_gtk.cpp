@@ -28,14 +28,12 @@
 
 #include <gtkmm.h>
 
-//#include "lv2uiclient.hpp"
 #include "panelfx.xpm"
 #include "voice.xpm"
 #include "drawbar.hpp"
 #include "knob.hpp"
 #include "switch.hpp"
 #include "Globals.h"
-//#include "programlist.hpp"
 #include "textbox.hpp"
 
 #include "lv2gtk2gui.hpp"
@@ -49,44 +47,6 @@ using namespace sigc;
 
 
 /*
-  void update_program_menu(LV2UIClient& lv2) {
-  program_menu->items().clear();
-  map<int, string>::const_iterator iter;
-  for (iter = programs.begin(); iter != programs.end(); ++iter) {
-  ostringstream oss;
-  oss<<setw(2)<<setfill('0')<<iter->first<<' '<<iter->second.substr(0, 23);
-  MenuItem* item = manage(new MenuItem(oss.str()));
-  item->signal_activate().
-  connect(bind(mem_fun(lv2, &LV2UIClient::send_program), iter->first));
-  program_menu->items().push_back(*item);
-  item->show();
-  item->get_child()->modify_fg(STATE_NORMAL, menu_fg);
-  }
-  }
-
-
-  void add_program(int number, const string& name, LV2UIClient& lv2) {
-  programs[number] = name;
-  update_program_menu(lv2);
-  }
-
-
-  void remove_program(int number, LV2UIClient& lv2) {
-  map<int, string>::iterator iter = programs.find(number);
-  if (iter != programs.end()) {
-  programs.erase(iter);
-  update_program_menu(lv2);
-  }
-  }
-
-
-  void clear_programs(LV2UIClient& lv2) {
-  if (programs.size() > 0) {
-  programs.clear();
-  update_program_menu(lv2);
-  }
-  }
-
 
   void save_program(LV2UIClient& lv2) {
   Dialog dlg("Save program");
@@ -117,79 +77,6 @@ using namespace sigc;
   }
 
 
-  Menu* create_menu(LV2UIClient& lv2) {
-
-  Color bg;
-  bg.set_rgb(16000, 16000, 16000);
-  menu_fg.set_rgb(65535, 65535, 50000);
-  Menu* menu = manage(new Menu);
-  
-  program_menu = manage(new Menu);
-  update_program_menu(lv2);
-  
-  MenuItem* program_item = manage(new MenuItem("Select program"));
-  program_item->set_submenu(*program_menu);
-  program_item->show();
-  program_item->get_child()->modify_fg(STATE_NORMAL, menu_fg);
-  
-  MenuItem* save_item = manage(new MenuItem("Save program"));
-  save_item->signal_activate().connect(bind(&save_program, ref(lv2)));
-  save_item->show();
-  save_item->get_child()->modify_fg(STATE_NORMAL, menu_fg);
-
-  menu->items().push_back(*program_item);
-  menu->items().push_back(*save_item);
-  
-  menu->modify_bg(STATE_NORMAL, bg);
-  menu->modify_fg(STATE_NORMAL, menu_fg);
-  program_menu->modify_bg(STATE_NORMAL, bg);
-  program_menu->modify_fg(STATE_NORMAL, menu_fg);
-  
-  return menu;
-  }
-
-
-  bool popup_menu(GdkEventButton* event, Menu* menu) {
-  menu->popup(event->button, event->time);
-  }
-*/
-
-
-/*
-  void display_scroll(int line, GdkEventScroll* e, LV2UIClient& lv2) {
-  if (line < 2) {
-  map<int, string>::const_iterator iter = programs.find(current_program);
-  if (iter == programs.end())
-  iter = programs.begin();
-  if (iter != programs.end()) {
-  if (e->direction == GDK_SCROLL_UP) {
-  ++iter;
-  iter = (iter == programs.end() ? programs.begin() : iter);
-  lv2.send_program(iter->first);
-  }
-  else if (e->direction == GDK_SCROLL_DOWN) {
-  if (iter == programs.begin())
-  for (int i = 0; i < programs.size() - 1; ++i, ++iter);
-  else
-  --iter;
-  lv2.send_program(iter->first);
-  }
-  }
-  }
-  else {
-  int oldsplitkey = splitkey;
-  if (splitswitch->get_adjustment().get_value() < 0.5)
-  splitkey = 0;
-  if (e->direction == GDK_SCROLL_UP)
-  splitkey = (splitkey + 1) % 128;
-  else if (e->direction == GDK_SCROLL_DOWN)
-  splitkey = (splitkey - 1) % 128;
-  while (splitkey < 0)
-  splitkey += 128;
-  if (oldsplitkey != splitkey)
-  splitpoint_adj->set_value(splitkey / 128.0);
-  }
-  }
 */
 
 
@@ -243,14 +130,15 @@ public:
     // add the display
     tbox = add_textbox(fbox, pixmap, 391, 19, 3, 140, 39);
     tbox->add_events(SCROLL_MASK);
-    //tbox->signal_scroll_display.connect(bind(&display_scroll, ref(lv2)));
-    //Menu* menu = create_menu(lv2);
-    //tbox->signal_button_press_event().connect(bind(&popup_menu, menu));
+    tbox->signal_scroll_display.
+      connect(mem_fun(*this, &AZR3GUI::display_scroll));
+    Menu* menu = create_menu();
+    tbox->signal_button_press_event().
+      connect(bind(mem_fun(*this, &AZR3GUI::popup_menu), menu));
     splitpoint_adj = new Adjustment(0, 0, 1);
     m_adj[n_splitpoint] = splitpoint_adj;
     splitpoint_adj->signal_value_changed().
-      connect(bind(mem_fun(*this, &AZR3GUI::splitpoint_changed),
-                   splitpoint_adj));
+      connect(mem_fun(*this, &AZR3GUI::splitpoint_changed));
     //splitpoint_adj->signal_value_changed().
     //  connect(compose(&splitpoint_changed, 
     //                  mem_fun(*splitpoint_adj, &Adjustment::get_value)));
@@ -370,6 +258,11 @@ public:
   
     widget = &fbox;
     
+    signal_control_changed.
+      connect(mem_fun(ctrl, &LV2Controller::set_control));
+    signal_set_program.
+      connect(mem_fun(ctrl, &LV2Controller::set_program));
+    splitpoint_changed();
   }
   
   void set_control(uint32_t port, float value) {
@@ -378,8 +271,42 @@ public:
   }
   
   
-  sigc::signal<void, uint32_t, float> signal_control_changed;
+  void add_program(unsigned char number, const char* name) {
+    programs[number] = name;
+    update_program_menu();
+  }
+
+
+  void remove_program(unsigned char number) {
+    map<int, string>::iterator iter = programs.find(number);
+    if (iter != programs.end()) {
+      programs.erase(iter);
+      update_program_menu();
+    }
+  }
   
+  
+  void set_program(unsigned char number) {
+    map<int, string>::const_iterator iter = programs.find(number);
+    ostringstream oss;
+    oss<<"AZR-3 LV2 P"<<setw(2)<<setfill('0')<<int(number);
+    tbox->set_string(0, oss.str());
+    if (iter != programs.end())
+      tbox->set_string(1, iter->second.substr(0, 23));
+    current_program = number;
+  }
+  
+
+  void clear_programs() {
+    if (programs.size() > 0) {
+      programs.clear();
+      update_program_menu();
+    }
+  }
+
+  
+  sigc::signal<void, uint32_t, float> signal_control_changed;
+  sigc::signal<void, int> signal_set_program;
   
 protected:
   
@@ -553,19 +480,8 @@ protected:
   }
 
 
-  void program_changed(int program) {
-    map<int, string>::const_iterator iter = programs.find(program);
-    ostringstream oss;
-    oss<<"AZR-3 LV2 P"<<setw(2)<<setfill('0')<<program;
-    tbox->set_string(0, oss.str());
-    if (iter != programs.end())
-      tbox->set_string(1, iter->second.substr(0, 23));
-    current_program = program;
-  }
-
-
-  void splitpoint_changed(Adjustment* adj) {
-    float value = adj->get_value();
+  void splitpoint_changed() {
+    float value = m_adj[n_splitpoint]->get_value();
     int key = int(value * 128);
     if (key <= 0 || key >= 128) {
       tbox->set_string(2, "Keyboard split OFF");
@@ -578,11 +494,100 @@ protected:
     }
   }
 
+
+  void update_program_menu() {
+    program_menu->items().clear();
+    map<int, string>::const_iterator iter;
+    for (iter = programs.begin(); iter != programs.end(); ++iter) {
+      ostringstream oss;
+      oss<<setw(2)<<setfill('0')<<iter->first<<' '<<iter->second.substr(0, 23);
+      MenuItem* item = manage(new MenuItem(oss.str()));
+      item->signal_activate().connect(bind(signal_set_program, iter->first));
+      //item->signal_activate().
+      //  connect(bind(mem_fun(lv2, &LV2UIClient::send_program), iter->first));
+      program_menu->items().push_back(*item);
+      item->show();
+      item->get_child()->modify_fg(STATE_NORMAL, menu_fg);
+    }
+  }
+
+
+  Menu* create_menu() {
+    
+    Color bg;
+    bg.set_rgb(16000, 16000, 16000);
+    menu_fg.set_rgb(65535, 65535, 50000);
+    Menu* menu = manage(new Menu);
+    
+    program_menu = manage(new Menu);
+    update_program_menu();
+    
+    MenuItem* program_item = manage(new MenuItem("Select program"));
+    program_item->set_submenu(*program_menu);
+    program_item->show();
+    program_item->get_child()->modify_fg(STATE_NORMAL, menu_fg);
+    
+    MenuItem* save_item = manage(new MenuItem("Save program"));
+    //save_item->signal_activate().connect(bind(&save_program, ref(lv2)));
+    save_item->show();
+    save_item->get_child()->modify_fg(STATE_NORMAL, menu_fg);
+    
+    menu->items().push_back(*program_item);
+    menu->items().push_back(*save_item);
+    
+    menu->modify_bg(STATE_NORMAL, bg);
+    menu->modify_fg(STATE_NORMAL, menu_fg);
+    program_menu->modify_bg(STATE_NORMAL, bg);
+    program_menu->modify_fg(STATE_NORMAL, menu_fg);
+    
+    return menu;
+  }
   
+
+  bool popup_menu(GdkEventButton* event, Menu* menu) {
+    menu->popup(event->button, event->time);
+  }
+
+  
+  void display_scroll(int line, GdkEventScroll* e) {
+    if (line < 2) {
+      map<int, string>::const_iterator iter = programs.find(current_program);
+      if (iter == programs.end())
+        iter = programs.begin();
+      if (iter != programs.end()) {
+        if (e->direction == GDK_SCROLL_UP) {
+          ++iter;
+          iter = (iter == programs.end() ? programs.begin() : iter);
+          //lv2.send_program(iter->first);
+        }
+        else if (e->direction == GDK_SCROLL_DOWN) {
+          if (iter == programs.begin())
+            for (int i = 0; i < programs.size() - 1; ++i, ++iter);
+          else
+            --iter;
+          //lv2.send_program(iter->first);
+        }
+      }
+    }
+    else {
+      int oldsplitkey = splitkey;
+      if (splitswitch->get_adjustment().get_value() < 0.5)
+        splitkey = 0;
+      if (e->direction == GDK_SCROLL_UP)
+        splitkey = (splitkey + 1) % 128;
+      else if (e->direction == GDK_SCROLL_DOWN)
+        splitkey = (splitkey - 1) % 128;
+      while (splitkey < 0)
+        splitkey += 128;
+      if (oldsplitkey != splitkey)
+        splitpoint_adj->set_value(splitkey / 128.0);
+    }
+  }
+
+
   bool showing_fx_controls;
   vector<Widget*> fx_widgets;
   vector<Widget*> voice_widgets;
-  //vector<Program> programs(32);
   map<int, string> programs;
   int current_program;
   int splitkey;

@@ -177,7 +177,6 @@ int OSCController::set_file_handler(const char*, const char*, lo_arg** argv,
 
 int OSCController::program_handler(const char*, const char*, lo_arg** argv, 
                                    int argc, lo_message, void* cbdata) {
-  cerr<<__PRETTY_FUNCTION__<<endl;
   unsigned long program = argv[0]->i;
   static_cast<CallbackData*>(cbdata)->host.queue_program(program);
 }

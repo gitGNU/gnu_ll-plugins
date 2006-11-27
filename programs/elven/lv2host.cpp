@@ -518,6 +518,7 @@ void LV2Host::run(unsigned long nframes) {
       
     case EventQueue::Program: 
       select_program(e.program.program);
+      queue_program(e.program.program, false);
       break;
       
     case EventQueue::Control: {
