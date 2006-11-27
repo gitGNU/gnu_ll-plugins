@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.149
+PACKAGE_VERSION = 0.1.150
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2 gsl>=1.8
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a liblv2_gtk2gui.a libkeyboard.a libvgknob.a libenvelopeeditor.a libshapereditor.a libpdeditor.a
@@ -104,11 +104,11 @@ klaviatur_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype -Ilibraries/c
 klaviatur_lv2_LDFLAGS = $(PLUGINFLAGS)
 klaviatur_lv2_PEGFILES = klaviatur.peg
 klaviatur_lv2_SOURCEDIR = plugins/klaviatur
-klaviatur_lv2_PROGRAMS = klaviatur_gtk
-klaviatur_gtk_SOURCES = klaviatur_gtk.cpp
-klaviatur_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo` -Ilibraries/lv2oscui -Ilibraries/widgets -I.
-klaviatur_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo` libraries/lv2oscui/liblv2_oscui.a libraries/widgets/libkeyboard.a
-klaviatur_gtk_SOURCEDIR = plugins/klaviatur
+#klaviatur_lv2_PROGRAMS = klaviatur_gtk
+#klaviatur_gtk_SOURCES = klaviatur_gtk.cpp
+#klaviatur_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo` -Ilibraries/lv2oscui -Ilibraries/widgets -I.
+#klaviatur_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo` libraries/lv2oscui/liblv2_oscui.a libraries/widgets/libkeyboard.a
+#klaviatur_gtk_SOURCEDIR = plugins/klaviatur
 
 # Euphoria
 euphoria_lv2_SOURCES = euphoria.cpp shaper.hpp shaper.cpp envelope.hpp pdoscillator.hpp
@@ -134,11 +134,11 @@ sineshaper_lv2_DATA = manifest.ttl sineshaper.ttl sineshaper.glade dial.png sine
 sineshaper_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/miditype -Iextensions/instrument -I.
 sineshaper_lv2_LDFLAGS = $(INSTRUMENTFLAGS)
 sineshaper_lv2_SOURCEDIR = plugins/sineshaper
-sineshaper_lv2_PROGRAMS = sineshaper_gtk
-sineshaper_gtk_SOURCES = sineshapergui.cpp sineshapergui.hpp main.cpp skindial_gtkmm.hpp skindial_gtkmm.cpp
-sineshaper_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 libglademm-2.4 liblo` -Ilibraries/lv2oscui -Ilibraries/components -Iextensions/instrument -I.
-sineshaper_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo libglademm-2.4` libraries/lv2oscui/liblv2_oscui.a
-sineshaper_gtk_SOURCEDIR = plugins/sineshaper
+#sineshaper_lv2_PROGRAMS = sineshaper_gtk
+#sineshaper_gtk_SOURCES = sineshapergui.cpp sineshapergui.hpp main.cpp skindial_gtkmm.hpp skindial_gtkmm.cpp
+#sineshaper_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 libglademm-2.4 liblo` -Ilibraries/lv2oscui -Ilibraries/components -Iextensions/instrument -I.
+#sineshaper_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo libglademm-2.4` libraries/lv2oscui/liblv2_oscui.a
+#sineshaper_gtk_SOURCEDIR = plugins/sineshaper
 
 # MIDIIdentity
 midi_identity_lv2_SOURCES = midi_identity.cpp

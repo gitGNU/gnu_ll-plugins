@@ -46,44 +46,6 @@ using namespace std;
 using namespace sigc;
 
 
-/*
-
-  void save_program(LV2UIClient& lv2) {
-  Dialog dlg("Save program");
-  dlg.add_button(Stock::CANCEL, RESPONSE_CANCEL);
-  dlg.add_button(Stock::OK, RESPONSE_OK);
-  Table tbl(2, 2);
-  tbl.set_col_spacings(3);
-  tbl.set_row_spacings(3);
-  tbl.set_border_width(3);
-  Label lbl1("Name:");
-  Label lbl2("Number:");
-  Entry ent;
-  ent.set_max_length(23);
-  Adjustment adj(0, 0, 31);
-  SpinButton spb(adj);
-  unsigned long program = 0;
-  if (lv2.get_active_program(program))
-  spb.set_value(program);
-  tbl.attach(lbl1, 0, 1, 0, 1);
-  tbl.attach(lbl2, 0, 1, 1, 2);
-  tbl.attach(ent, 1, 2, 0, 1);
-  tbl.attach(spb, 1, 2, 1, 2);
-  dlg.get_vbox()->pack_start(tbl);
-  dlg.show_all();
-  if (dlg.run() == RESPONSE_OK) {
-  cerr<<"Saving programs is not implemented yet"<<endl;
-  }
-  }
-
-
-*/
-
-
-//int main(int argc, char** argv) {
-  
-
-
 class AZR3GUI : public LV2GTK2GUI {
 public:
   
@@ -528,7 +490,8 @@ protected:
     program_item->get_child()->modify_fg(STATE_NORMAL, menu_fg);
     
     MenuItem* save_item = manage(new MenuItem("Save program"));
-    //save_item->signal_activate().connect(bind(&save_program, ref(lv2)));
+    save_item->signal_activate().
+      connect(mem_fun(*this, &AZR3GUI::save_program));
     save_item->show();
     save_item->get_child()->modify_fg(STATE_NORMAL, menu_fg);
     
@@ -581,6 +544,33 @@ protected:
         splitkey += 128;
       if (oldsplitkey != splitkey)
         splitpoint_adj->set_value(splitkey / 128.0);
+    }
+  }
+
+
+  void save_program() {
+    Dialog dlg("Save program");
+    dlg.add_button(Stock::CANCEL, RESPONSE_CANCEL);
+    dlg.add_button(Stock::OK, RESPONSE_OK);
+    Table tbl(2, 2);
+    tbl.set_col_spacings(3);
+    tbl.set_row_spacings(3);
+    tbl.set_border_width(3);
+    Label lbl1("Name:");
+    Label lbl2("Number:");
+    Entry ent;
+    ent.set_max_length(23);
+    Adjustment adj(0, 0, 31);
+    SpinButton spb(adj);
+    spb.set_value(current_program);
+    tbl.attach(lbl1, 0, 1, 0, 1);
+    tbl.attach(lbl2, 0, 1, 1, 2);
+    tbl.attach(ent, 1, 2, 0, 1);
+    tbl.attach(spb, 1, 2, 1, 2);
+    dlg.get_vbox()->pack_start(tbl);
+    dlg.show_all();
+    if (dlg.run() == RESPONSE_OK) {
+      cerr<<"Saving programs is not implemented yet"<<endl;
     }
   }
 
