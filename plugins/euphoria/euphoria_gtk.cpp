@@ -1,6 +1,6 @@
 /****************************************************************************
     
-    euphoria_gtk.cpp - GUI for the Euphoria LV2 synth
+    euphoriaguiplugin.cpp - A GUI for the Euphoria LV2 synth
     
     Copyright (C) 2006  Lars Luthman <lars.luthman@gmail.com>
     
@@ -22,69 +22,53 @@
 ****************************************************************************/
 
 #include <iostream>
-#include <string>
 
 #include <gtkmm.h>
 
-#include "lv2uiclient.hpp"
+#include "lv2gtk2gui.hpp"
 #include "euphoriawidget.hpp"
 
 
 using namespace std;
 using namespace Gtk;
-using namespace Glib;
 using namespace sigc;
 
 
-void set_program(int program) {
-  cerr<<"Program "<<program<<" selected!"<<endl;
-}
-
-
-int main(int argc, char** argv) {
+class EuphoriaGUI : public LV2GTK2GUI {
+public:
   
-  // create the objects
-  LV2UIClient lv2(argc, argv, true);
-  if (!lv2.is_valid()) {
-    cerr<<"Could not start OSC listener. You are not running the "<<endl
-        <<"program manually, are you? It's supposed to be started by "<<endl
-        <<"the plugin host."<<endl;
-    return 1;
+  EuphoriaGUI(LV2Controller& ctrl, const std::string& URI, 
+              const std::string& bundle_path, Widget*& widget) {
+    widget = &m_euph;
+    m_euph.signal_control_changed.
+      connect(mem_fun(ctrl, &LV2Controller::set_control));
+    m_euph.signal_phase_changed.
+      connect(bind<0>(mem_fun(ctrl, &LV2Controller::configure), "phase"));
+    m_euph.signal_shape_changed.
+      connect(bind<0>(mem_fun(ctrl, &LV2Controller::configure), "shape"));
+    m_euph.signal_phase_envelope_changed.
+      connect(bind<0>(mem_fun(ctrl, &LV2Controller::configure), "phase_env"));
+    m_euph.signal_shape_envelope_changed.
+      connect(bind<0>(mem_fun(ctrl, &LV2Controller::configure), "shape_env"));
+
   }
   
-  Main kit(argc, argv);
-  Window main_win;
-  EuphoriaWidget euph(lv2);
-  main_win.set_title(string("Euphoria: ") + lv2.get_identifier());
-  main_win.add(euph);
-  
-  lv2.show_received.connect(mem_fun(main_win, &Window::show_all));
-  lv2.hide_received.connect(mem_fun(main_win, &Window::hide));
-  lv2.quit_received.connect(&Main::quit);
-  lv2.add_program_received.connect(mem_fun(euph, &EuphoriaWidget::add_program));
-  lv2.remove_program_received.
-    connect(mem_fun(euph, &EuphoriaWidget::remove_program));
-  lv2.clear_programs_received.
-    connect(mem_fun(euph, &EuphoriaWidget::clear_programs));
-  lv2.configure_received.connect(mem_fun(euph, &EuphoriaWidget::configure));
+  void set_control(uint32_t port, float value) {
+    m_euph.set_control(port, value);
+  }
 
-  euph.signal_program_selected.connect(mem_fun(lv2,&LV2UIClient::send_program));
-  euph.signal_shape_changed.
-    connect(bind<0>(mem_fun(lv2, &LV2UIClient::send_configure), "shape"));
-  euph.signal_shape_envelope_changed.
-    connect(bind<0>(mem_fun(lv2, &LV2UIClient::send_configure), "shape_env"));
-  euph.signal_phase_changed.
-    connect(bind<0>(mem_fun(lv2, &LV2UIClient::send_configure), "phase"));
-  euph.signal_phase_envelope_changed.
-    connect(bind<0>(mem_fun(lv2, &LV2UIClient::send_configure), "phase_env"));
+  void configure(const char* key, const char* value) {
+    m_euph.configure(key, value);
+  }
   
-  main_win.signal_delete_event().connect(bind_return(hide(&Main::quit), true));
-  
-  // start
-  lv2.send_update_request();
-  Main::run();
+protected:
 
-  return 0;
+  EuphoriaWidget m_euph;
+  
+};
+
+
+void initialise() __attribute__((constructor));
+void initialise() {
+  register_lv2gtk2gui<EuphoriaGUI>("http://ll-plugins.nongnu.org/lv2/dev/euphoria/0.0.0");
 }
-
-

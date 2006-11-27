@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.152
+PACKAGE_VERSION = 0.1.153
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2 gsl>=1.8
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a liblv2_gtk2gui.a libkeyboard.a libvgknob.a libenvelopeeditor.a libshapereditor.a libpdeditor.a
@@ -117,13 +117,13 @@ euphoria_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/
 euphoria_lv2_LDFLAGS = $(INSTRUMENTFLAGS) `pkg-config --libs gsl`
 euphoria_lv2_PEGFILES = euphoria.peg
 euphoria_lv2_SOURCEDIR = plugins/euphoria
-euphoria_lv2_MODULES = euphoriaguiplugin.so
-euphoriaguiplugin_so_SOURCES = \
-	euphoriaguiplugin.cpp \
+euphoria_lv2_MODULES = euphoria_gtk.so
+euphoria_gtk_so_SOURCES = \
+	euphoria_gtk.cpp \
 	euphoriawidget.cpp euphoriawidget.hpp
-euphoriaguiplugin_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
-euphoriaguiplugin_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` libraries/widgets/libvgknob.a libraries/widgets/libenvelopeeditor.a libraries/widgets/libshapereditor.a libraries/widgets/libpdeditor.a libraries/lv2gtk2gui/liblv2_gtk2gui.a
-euphoriaguiplugin_so_SOURCEDIR = plugins/euphoria
+euphoria_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
+euphoria_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` libraries/widgets/libvgknob.a libraries/widgets/libenvelopeeditor.a libraries/widgets/libshapereditor.a libraries/widgets/libpdeditor.a libraries/lv2gtk2gui/liblv2_gtk2gui.a
+euphoria_gtk_so_SOURCEDIR = plugins/euphoria
 
 # Sineshaper
 sineshaper_lv2_SOURCES = \
