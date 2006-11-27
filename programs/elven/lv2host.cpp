@@ -342,6 +342,14 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     
     m_bundledir = plugindir;
     
+    // plugin name
+    Variable name;
+    qr = select(name)
+      .where(uriref, doap("name"), name)
+      .run(data);
+    if (qr.size() > 0)
+      m_name = qr[0][name]->name;
+    
     // default preset path
     Variable preset_path;
     qr = select(preset_path)
@@ -653,6 +661,11 @@ const std::string& LV2Host::get_gui_path() const {
 
 const std::string& LV2Host::get_bundle_dir() const {
   return m_bundledir;
+}
+
+
+const std::string& LV2Host::get_name() const {
+  return m_name;
 }
 
 

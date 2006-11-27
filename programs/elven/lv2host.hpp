@@ -112,11 +112,14 @@ public:
   /** Return the MIDI controller mappings. */
   const std::vector<int>& get_midi_map() const;
   
-  /** Return the path to the standalone GUI program. */
+  /** Return the path to the GUI plugin module. */
   const std::string& get_gui_path() const;
   
   /** Return the path to the plugin bundle. */
   const std::string& get_bundle_dir() const;
+  
+  /** Return the name of the plugin. */
+  const std::string& get_name() const;
   
   /** Queue a program change. */
   void queue_program(unsigned long program, bool to_jack = true);
@@ -186,6 +189,7 @@ protected:
   long m_default_midi_port;
   std::string m_plugingui;
   std::string m_bundledir;
+  std::string m_name;
   
   std::map<std::string, std::string> m_configuration;
   std::map<std::string, std::string> m_filenames;

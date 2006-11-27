@@ -108,16 +108,16 @@ string unescape_space(const string& str) {
 }
 
 
-bool init_lash(int argc, char** argv) {
+bool init_lash(int argc, char** argv, const char* jackname) {
   //cerr<<"Initialising LASH client"<<endl;
-  lash_client = lash_init(lash_extract_args(&argc, &argv), "lv2host", 
+  lash_client = lash_init(lash_extract_args(&argc, &argv), "elven", 
                           LASH_Config_File, LASH_PROTOCOL(2, 0));
   
   if (lash_client) {
     lash_event_t* event = lash_event_new_with_type(LASH_Client_Name);
-    lash_event_set_string(event, "LV2Host");
+    lash_event_set_string(event, "Elven");
     lash_send_event(lash_client, event);      
-    lash_jack_client_name(lash_client, "LV2Host");
+    lash_jack_client_name(lash_client, jackname);
   }
   else
     cerr<<"Could not initialise LASH!"<<endl;
@@ -321,11 +321,6 @@ int main(int argc, char** argv) {
   
   if (lv2h.is_valid()) {
     
-    if (!init_lash(argc, argv)) {
-      cerr<<"Could not initialise LASH"<<endl;
-      return -1;
-    }
-
     cerr<<"MIDI map:"<<endl;
     for (unsigned i = 0; i < 127; ++i) {
       long port = lv2h.get_midi_map()[i];
@@ -346,11 +341,16 @@ int main(int argc, char** argv) {
     */
     
     // initialise JACK client and plugin port buffers
-    if (!(jack_client = jack_client_open("LV2Host", jack_options_t(0), 0))) {
+    if (!(jack_client = jack_client_open(lv2h.get_name().c_str(), 
+                                         jack_options_t(0), 0))) {
       cerr<<"jackd isn't running!"<<endl;
       return -1;
     }
       
+    if (!init_lash(argc, argv, jack_get_client_name(jack_client))) {
+      cerr<<"Could not initialise LASH"<<endl;
+      return -1;
+    }
     
     for (size_t i = 0; i < lv2h.get_ports().size(); ++i) {
       jack_port_t* port = 0;
@@ -400,7 +400,7 @@ int main(int argc, char** argv) {
       if (!(gui_pid = fork())) {
         execlp("elven_guiloader", "elven_guiloader", gui.c_str(), 
                osc.get_url().c_str(), argv[1], lv2h.get_bundle_dir().c_str(),
-               "Elven, channel 0", 0);
+               lv2h.get_name().c_str(), 0);
         cerr<<"Could not execute "<<gui<<endl;
         exit(-1);
       }
