@@ -321,15 +321,19 @@ int main(int argc, char** argv) {
   
   if (lv2h.is_valid()) {
     
-    cerr<<"MIDI map:"<<endl;
+    bool has_map = false;
     for (unsigned i = 0; i < 127; ++i) {
       long port = lv2h.get_midi_map()[i];
       if (port == -1)
         continue;
+      if (!has_map)
+        cerr<<"MIDI map:"<<endl;
+      has_map = true;
       cerr<<"  "<<i<<" -> "<<port<<" ("
           <<lv2h.get_ports()[port].symbol<<")"<<endl;
     }
-    cerr<<endl;
+    if (has_map)
+      cerr<<endl;
     
     //cerr<<"Default MIDI port: "<<lv2h.get_default_midi_port()<<endl;
     
