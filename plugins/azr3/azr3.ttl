@@ -8,7 +8,7 @@
   a lv2:Plugin;
   doap:name "AZR3";
   doap:licence <http://usefulinc.com/doap/licenses/gpl>;
-  ll:standaloneGui <azr3_gtk>;
+  ll:gtk2Gui <azr3_gtk.so>;
   ll:defaultPresets <presets.ttl>;
       
   lv2:port [

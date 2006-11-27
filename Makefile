@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.145
+PACKAGE_VERSION = 0.1.146
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2 gsl>=1.8
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a liblv2_gtk2gui.a libkeyboard.a libvgknob.a libenvelopeeditor.a libshapereditor.a libpdeditor.a
@@ -186,11 +186,11 @@ azr3_lv2_DATA = manifest.ttl azr3.ttl presets.ttl
 azr3_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype -Iextensions/instrument -Ilibraries/components -I.
 azr3_lv2_LDFLAGS = $(INSTRUMENTFLAGS)
 azr3_lv2_SOURCEDIR = plugins/azr3
-azr3_lv2_PROGRAMS = azr3_gtk
-azr3_gtk_SOURCES = azr3_gtk.cpp knob.hpp knob.cpp switch.hpp switch.cpp drawbar.hpp drawbar.cpp textbox.hpp textbox.cpp
-azr3_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo` -Ilibraries/lv2oscui
-azr3_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo` libraries/lv2oscui/liblv2_oscui.a
-azr3_gtk_SOURCEDIR = plugins/azr3
+azr3_lv2_MODULES = azr3_gtk.so
+azr3_gtk_so_SOURCES = azr3_gtk.cpp knob.hpp knob.cpp switch.hpp switch.cpp drawbar.hpp drawbar.cpp textbox.hpp textbox.cpp
+azr3_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/instrument -Iextensions/gtkgui -I. -Ilibraries/lv2gtk2gui
+azr3_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` libraries/lv2gtk2gui/liblv2_gtk2gui.a
+azr3_gtk_so_SOURCEDIR = plugins/azr3
 
 
 # The shared headers need to go in the distribution too
