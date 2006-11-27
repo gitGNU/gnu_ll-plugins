@@ -22,8 +22,8 @@
 
 *************************************************************************/
 
-#ifndef LV2_PROGRAM_GTK2GUI_H
-#define LV2_PROGRAM_GTK2GUI_H
+#ifndef LV2_MIDITYPE_GTK2GUI_H
+#define LV2_MIDITYPE_GTK2GUI_H
 
 #include <lv2-gtk2gui.h>
 
@@ -34,37 +34,31 @@ extern "C" {
 
 /** A pointer to an object of this type should be returned by the 
     extension_data() function in the LV2UI_ControllerDescriptor when it is 
-    called with the URI <http://ll-plugins.nongnu.org/lv2/namespace#program>. */
+    called with the URI <http://ll-plugins.nongnu.org/lv2/ext/miditype>. */
 typedef struct {
   
-  /** Tell the host to start using the plugin program with the given number. */
-  void (*set_program)(LV2UI_Controller, unsigned char number);
+  /** Send a MIDI event to the plugin instance. */
+  void (*send_midi)(LV2UI_Controller     controller, 
+                    uint32_t             port, 
+                    uint32_t             size,
+                    const unsigned char* data);
 
-} LV2_ProgramControllerDescriptor;
+} LV2_MIDIControllerDescriptor;
 
 
 /** A pointer to an object of this type should be returned by the 
     extension_data() function in the LV2UI_UIDescriptor when it is called 
-    with the URI <http://ll-plugins.nongnu.org/lv2/namespace#program>. */
+    with the URI <http://ll-plugins.nongnu.org/lv2/ext/miditype>. */
 typedef struct {
   
-  /** Tell the GUI that a program has been added for the plugin instance. */
-  void (*add_program)(LV2UI_Handle handle, 
-                      unsigned char number,
-                      const char* name);
+  /** Tell the GUI that the plugin instance received a MIDI event. There is
+      no guarantee that the host will call this for every event, or at all. */
+  void (*midi_received)(LV2UI_Handle         handle, 
+                        uint32_t             port, 
+                        uint32_t             size,
+                        const unsigned char* data); 
   
-  /** Tell the GUI that a program has been removed for the plugin instance. */
-  void (*remove_program)(LV2UI_Handle handle,
-                         unsigned char number);
-  
-  /** Tell the GUI that all programs have been removed for the plugin 
-      instance. */
-  void (*clear_programs)(LV2UI_Handle handle);
-  
-  /**Tell the GUI that the given program is now being used for the plugin. */
-  void (*set_program)(LV2UI_Handle handle, unsigned char number);
-
-} LV2_ProgramUIDescriptor;
+} LV2_MIDIUIDescriptor;
 
 
 #ifdef __cplusplus

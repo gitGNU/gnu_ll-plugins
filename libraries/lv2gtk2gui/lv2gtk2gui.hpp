@@ -33,6 +33,7 @@
 #include "lv2-gtk2gui.h"
 #include "lv2-instrument-gtk2gui.h"
 #include "lv2-program-gtk2gui.h"
+#include "lv2-miditype-gtk2gui.h"
 
 
 class LV2Controller;
@@ -113,6 +114,8 @@ public:
   
   void set_program(unsigned char number);
   
+  void send_midi(uint32_t port, uint32_t size, const unsigned char* data);
+  
   /** Return data associated with an extension URI, or 0 if that extension
       is not supported or does not have any data for use in controllers. */
   void* extension_data(const std::string& URI);
@@ -131,6 +134,7 @@ protected:
   LV2UI_Controller m_ctrl;
   LV2_InstrumentControllerDescriptor* m_instdesc;
   LV2_ProgramControllerDescriptor* m_progdesc;
+  LV2_MIDIControllerDescriptor* m_mididesc;
 };
 
 

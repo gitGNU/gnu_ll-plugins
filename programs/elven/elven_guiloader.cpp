@@ -30,6 +30,7 @@
 
 #include "lv2-gtk2gui.h"
 #include "lv2-instrument-gtk2gui.h"
+#include "lv2-miditype-gtk2gui.h"
 #include "lv2-program-gtk2gui.h"
 #include "lv2uiclient.hpp"
 
@@ -39,26 +40,44 @@ using namespace Gtk;
 using namespace sigc;
 
 
+/** Change a control port value in the plugin. This function is exposed to
+    the plugin GUI. */
 void set_control(LV2UI_Controller c, uint32_t port, float value) {
   static_cast<LV2UIClient*>(c)->send_control(port, value);
 }
 
 
+/** Change the configuration of the plugin. This function is exposed to
+    the plugin GUI. */
 void configure(LV2UI_Controller c, const char* key, const char* value) {
   static_cast<LV2UIClient*>(c)->send_configure(key, value);
 }
 
 
+/** Change a data file in the plugin. This function is exposed to the 
+    plugin GUI. */
 void set_file(LV2UI_Controller c, const char* key, const char* filename) {
   static_cast<LV2UIClient*>(c)->send_filename(key, filename);
 }
 
 
+/** Send a MIDI event to the plugin. This function is exposed to the plugin
+    GUI. */
+void send_midi(LV2UI_Controller c, uint32_t port, uint32_t size,
+               const unsigned char* data) {
+  static_cast<LV2UIClient*>(c)->send_midi(port, size, data);
+}
+
+
+/** Change the current program of the plugin. This function is exposed to
+    the plugin GUI. */
 void set_program(LV2UI_Controller c, unsigned char number) {
   static_cast<LV2UIClient*>(c)->send_program(number);
 }
 
 
+/** Return structs with additional function pointers to control the plugin.
+    This function is exposed to the plugin GUI. */
 void* extension_data(LV2UI_Controller c, const char* URI) {
   static LV2_InstrumentControllerDescriptor instcdesc = {
     &configure,
@@ -67,11 +86,16 @@ void* extension_data(LV2UI_Controller c, const char* URI) {
   static LV2_ProgramControllerDescriptor progcdesc = {
     &set_program
   };
+  static LV2_MIDIControllerDescriptor midicdesc = {
+    &send_midi
+  };
   
   if (!strcmp(URI, "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext"))
     return &instcdesc;
   if (!strcmp(URI, "http://ll-plugins.nongnu.org/lv2/namespace#program"))
     return &progcdesc;
+  if (!strcmp(URI, "http://ll-plugins.nongnu.org/lv2/namespace#miditype"))
+    return &midicdesc;
   return 0;
 }
 

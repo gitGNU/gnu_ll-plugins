@@ -383,8 +383,10 @@ protected:
     sw->get_adjustment().signal_value_changed().
       connect(compose(bind<0>(signal_control_changed, port),
                       mem_fun(sw->get_adjustment(), &Adjustment::get_value)));
-    assert(m_adj[port] == 0);
-    m_adj[port] = &sw->get_adjustment();
+    if (port < m_adj.size()) {
+      assert(m_adj[port] == 0);
+      m_adj[port] = &sw->get_adjustment();
+    }
     //lv2.connect_adjustment(&sw->get_adjustment(), port);
     return sw;
   }

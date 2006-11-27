@@ -208,8 +208,11 @@ void LV2UIClient::send_filename(const string& key, const string& filename) {
 
 void LV2UIClient::send_midi(int port, int size, const unsigned char* event) {
   if (m_valid) {
+    unsigned char* data = new unsigned char[size + 1];
+    memcpy(data, event, size);
+    data[size] = 0;
     lo_send(m_plugin_address, (m_plugin_path + "/midi").c_str(), "iis", 
-            port, size, event);
+            port, size, data);
   }
 }
 
