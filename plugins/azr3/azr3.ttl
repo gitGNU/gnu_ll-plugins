@@ -18,7 +18,7 @@
     lv2:symbol "mono";
     lv2:name "Mono";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     lv2:hint lv2:toggled;
     ll:defaultMidiController [
@@ -34,7 +34,7 @@
     lv2:symbol "click";
     lv2:name "Click";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0.2;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -49,7 +49,7 @@
     lv2:symbol "bender";
     lv2:name "Bender";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0.2;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -79,7 +79,7 @@
     lv2:symbol "vperc";
     lv2:name "Perc";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -94,7 +94,7 @@
     lv2:symbol "percvol";
     lv2:name "Perc vol";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0.75;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -109,7 +109,7 @@
     lv2:symbol "percfade";
     lv2:name "Perc fade";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0.5;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -124,7 +124,7 @@
     lv2:symbol "vol1";
     lv2:name "Vol 1";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0.6;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -139,7 +139,7 @@
     lv2:symbol "vol2";
     lv2:name "Vol 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0.6;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -154,7 +154,7 @@
     lv2:symbol "vol3";
     lv2:name "Vol 3";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -169,7 +169,7 @@
     lv2:symbol "master";
     lv2:name "Master";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0.22;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -184,7 +184,7 @@
     lv2:symbol "perc1";
     lv2:name "Perc 1";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     lv2:hint lv2:toggled;
     ll:defaultMidiController [
@@ -230,7 +230,7 @@
     lv2:symbol "db3_1";
     lv2:name "DB3, 1";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -245,7 +245,7 @@
     lv2:symbol "db4_1";
     lv2:name "DB4, 1";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -260,7 +260,7 @@
     lv2:symbol "db5_1";
     lv2:name "DB5, 1";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -275,7 +275,7 @@
     lv2:symbol "db6_1";
     lv2:name "DB6, 1";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -290,7 +290,7 @@
     lv2:symbol "db7_1";
     lv2:name "DB7, 1";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -305,7 +305,7 @@
     lv2:symbol "db8_1";
     lv2:name "DB8, 1";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -320,7 +320,7 @@
     lv2:symbol "db9_1";
     lv2:name "DB9, 1";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -335,7 +335,7 @@
     lv2:symbol "vibrato1";
     lv2:name "Vibrato 1";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     lv2:hint lv2:toggled;
     ll:defaultMidiController [
@@ -351,7 +351,7 @@
     lv2:symbol "vstrength1";
     lv2:name "VStrength 1";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0.3;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -366,7 +366,7 @@
     lv2:symbol "vmix1";
     lv2:name "VMix 1";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0.35;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -381,7 +381,7 @@
     lv2:symbol "perc2";
     lv2:name "Perc 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     lv2:hint lv2:toggled;
     ll:defaultMidiController [
@@ -397,7 +397,7 @@
     lv2:symbol "db1_2";
     lv2:name "DB1, 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -412,7 +412,7 @@
     lv2:symbol "db2_2";
     lv2:name "DB2, 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -427,7 +427,7 @@
     lv2:symbol "db3_2";
     lv2:name "DB3, 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -442,7 +442,7 @@
     lv2:symbol "db4_2";
     lv2:name "DB4, 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -457,7 +457,7 @@
     lv2:symbol "db5_2";
     lv2:name "DB5, 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -472,7 +472,7 @@
     lv2:symbol "db6_2";
     lv2:name "DB6, 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -487,7 +487,7 @@
     lv2:symbol "db7_2";
     lv2:name "DB7, 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -502,7 +502,7 @@
     lv2:symbol "db8_2";
     lv2:name "DB8, 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -517,7 +517,7 @@
     lv2:symbol "db9_2";
     lv2:name "DB9, 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -532,7 +532,7 @@
     lv2:symbol "vibrato2";
     lv2:name "Vibrato 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     lv2:hint lv2:toggled;
     ll:defaultMidiController [
@@ -548,7 +548,7 @@
     lv2:symbol "vstrength2";
     lv2:name "VStrength 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -563,7 +563,7 @@
     lv2:symbol "vmix2";
     lv2:name "VMix 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -578,7 +578,7 @@
     lv2:symbol "perc3";
     lv2:name "Perc 3";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     lv2:hint lv2:toggled;
     ll:defaultMidiController [
@@ -594,7 +594,7 @@
     lv2:symbol "db1_2";
     lv2:name "DB1, 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -609,7 +609,7 @@
     lv2:symbol "db2_2";
     lv2:name "DB2, 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -624,7 +624,7 @@
     lv2:symbol "db3_2";
     lv2:name "DB3, 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -639,7 +639,7 @@
     lv2:symbol "db4_2";
     lv2:name "DB4, 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -654,7 +654,7 @@
     lv2:symbol "db5_2";
     lv2:name "DB5, 2";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -669,7 +669,7 @@
     lv2:symbol "mrvalve";
     lv2:name "Mr Valve";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     lv2:hint lv2:toggled;
     ll:defaultMidiController [
@@ -685,7 +685,7 @@
     lv2:symbol "drive";
     lv2:name "Drive";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0.4;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -700,7 +700,7 @@
     lv2:symbol "set";
     lv2:name "Set";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -715,7 +715,7 @@
     lv2:symbol "tone";
     lv2:name "Tone";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0.66;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -730,7 +730,7 @@
     lv2:symbol "mix";
     lv2:name "Mix";
     lv2:minimum 0;
-    lv2:default 1;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -777,7 +777,7 @@
     lv2:symbol "l_slow";
     lv2:name "Lower slow";
     lv2:minimum 0;
-    lv2:default 0.05;
+    lv2:default 0.1;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -792,7 +792,7 @@
     lv2:symbol "l_fast";
     lv2:name "Lower fast";
     lv2:minimum 0;
-    lv2:default 0.75;
+    lv2:default 0.65;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -807,7 +807,7 @@
     lv2:symbol "u_slow";
     lv2:name "Upper slow";
     lv2:minimum 0;
-    lv2:default 0.05;
+    lv2:default 0.047;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -822,7 +822,7 @@
     lv2:symbol "u_fast";
     lv2:name "Upper fast";
     lv2:minimum 0;
-    lv2:default 0.75;
+    lv2:default 0.78;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -867,7 +867,7 @@
     lv2:symbol "splitpoint";
     lv2:name "Splitpoint";
     lv2:minimum 0;
-    lv2:default 0.5;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -882,7 +882,7 @@
     lv2:symbol "complex";
     lv2:name "Complex";
     lv2:minimum 0;
-    lv2:default 0.5;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -897,7 +897,7 @@
     lv2:symbol "pedalspeed";
     lv2:name "Pedal speed";
     lv2:minimum 0;
-    lv2:default 0.5;
+    lv2:default 0;
     lv2:maximum 1;
     lv2:hint lv2:toggled;
     ll:defaultMidiController [
@@ -913,7 +913,7 @@
     lv2:symbol "sustain";
     lv2:name "Sustain";
     lv2:minimum 0;
-    lv2:default 0.5;
+    lv2:default 0;
     lv2:maximum 1;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -928,7 +928,7 @@
     lv2:symbol "sustain1";
     lv2:name "Sustain 1";
     lv2:minimum 0;
-    lv2:default 0.5;
+    lv2:default 0;
     lv2:maximum 1;
     lv2:hint lv2:toggled;
     ll:defaultMidiController [
@@ -944,7 +944,7 @@
     lv2:symbol "sustain2";
     lv2:name "Sustain 2";
     lv2:minimum 0;
-    lv2:default 0.5;
+    lv2:default 0;
     lv2:maximum 1;
     lv2:hint lv2:toggled;
     ll:defaultMidiController [
@@ -960,7 +960,7 @@
     lv2:symbol "sustain3";
     lv2:name "Sustain 3";
     lv2:minimum 0;
-    lv2:default 0.5;
+    lv2:default 0;
     lv2:maximum 1;
     lv2:hint lv2:toggled;
     ll:defaultMidiController [

@@ -20,6 +20,7 @@
 
 ****************************************************************************/
 
+#include <cassert>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -45,22 +46,6 @@ using namespace Gdk;
 using namespace Glib;
 using namespace std;
 using namespace sigc;
-
-
-/*
-  bool showing_fx_controls = true;
-  vector<Widget*> fx_widgets;
-  vector<Widget*> voice_widgets;
-  //vector<Program> programs(32);
-  map<int, string> programs;
-  int current_program = 0;
-  int splitkey = 0;
-  Textbox* tbox;
-  Switch* splitswitch;
-  Adjustment* splitpoint_adj;
-  Menu* program_menu;
-  Color menu_fg;
-*/
 
 
 /*
@@ -208,16 +193,6 @@ using namespace sigc;
 */
 
 
-/*
-  void splitbox_clicked(LV2UIClient& lv2) {
-  if (splitswitch->get_adjustment().get_value() < 0.5)
-  splitpoint_adj->set_value(0);
-  else
-  splitpoint_adj->set_value(splitkey / 128.0);
-  }
-*/
-
-
 //int main(int argc, char** argv) {
   
 
@@ -229,25 +204,24 @@ public:
           const std::string& bundle_path, Widget*& widget)
     : showing_fx_controls(true),
       current_program(0),
-      splitkey(0) {
+      splitkey(0),
+      m_adj(kNumControls, 0) {
 
     fbox.set_has_window(true);
     vbox.set_has_window(true);
     fbox.put(vbox, 0, 615);
     voice_widgets.push_back(&vbox);
-    //window.add(fbox);
     RefPtr<Pixbuf> voicebuf = Pixbuf::create_from_xpm_data(voice);
     RefPtr<Pixbuf> pixbuf = Pixbuf::create_from_xpm_data(panelfx);
     fbox.set_size_request(pixbuf->get_width(), pixbuf->get_height());
     vbox.set_size_request(voicebuf->get_width(), voicebuf->get_height());
-    //window.show_all();
     RefPtr<Pixmap> pixmap = Pixmap::create(fbox.get_window(), 
                                            pixbuf->get_width(), 
                                            pixbuf->get_height());
     RefPtr<Pixmap> voicepxm = Pixmap::create(vbox.get_window(),
                                              voicebuf->get_width(),
                                              voicebuf->get_height());
-    //window.hide();
+
     RefPtr<Bitmap> bitmap;
     pixbuf->render_pixmap_and_mask(pixmap, bitmap, 10);
     voicebuf->render_pixmap_and_mask(voicepxm, bitmap, 10);
@@ -265,7 +239,6 @@ public:
     s->set_bg_pixmap(STATE_SELECTED, voicepxm);
     s->set_bg_pixmap(STATE_INSENSITIVE, voicepxm);
     vbox.set_style(s);
-    //window.set_resizable(false);
   
     // add the display
     tbox = add_textbox(fbox, pixmap, 391, 19, 3, 140, 39);
@@ -274,7 +247,7 @@ public:
     //Menu* menu = create_menu(lv2);
     //tbox->signal_button_press_event().connect(bind(&popup_menu, menu));
     splitpoint_adj = new Adjustment(0, 0, 1);
-    //lv2.connect_adjustment(splitpoint_adj, n_splitpoint);
+    m_adj[n_splitpoint] = splitpoint_adj;
     splitpoint_adj->signal_value_changed().
       connect(bind(mem_fun(*this, &AZR3GUI::splitpoint_changed),
                    splitpoint_adj));
@@ -283,9 +256,10 @@ public:
     //                  mem_fun(*splitpoint_adj, &Adjustment::get_value)));
   
     // keyboard split switch
+    // XXX n_split is not a port number
     splitswitch = add_switch(fbox, n_split, 537, 49, Switch::Mini);
-    //splitswitch->get_adjustment().signal_value_changed().
-    //  connect(bind(&splitbox_clicked, ref(lv2)));
+    splitswitch->get_adjustment().signal_value_changed().
+      connect(mem_fun(*this, &AZR3GUI::splitbox_clicked));
   
     // upper knobs
     add_switch(fbox, n_mono, 61, 105, Switch::Mini);
@@ -399,9 +373,14 @@ public:
   }
   
   void set_control(uint32_t port, float value) {
-
+    if (port < m_adj.size() && m_adj[port])
+      m_adj[port]->set_value(value);
   }
-
+  
+  
+  sigc::signal<void, uint32_t, float> signal_control_changed;
+  
+  
 protected:
   
   
@@ -450,6 +429,14 @@ protected:
       }
     return string(notestr);
   }
+  
+  
+  void splitbox_clicked() {
+    if (splitswitch->get_adjustment().get_value() < 0.5)
+      splitpoint_adj->set_value(0);
+    else
+      splitpoint_adj->set_value(splitkey / 128.0);
+  }
 
 
   void set_back_pixmap(Widget* wdg, RefPtr<Pixmap> pm) {
@@ -468,6 +455,11 @@ protected:
     knob->modify_bg_pixmap(STATE_PRELIGHT, "<parent>");
     knob->modify_bg_pixmap(STATE_SELECTED, "<parent>");
     knob->modify_bg_pixmap(STATE_INSENSITIVE, "<parent>");
+    knob->get_adjustment().signal_value_changed().
+      connect(compose(bind<0>(signal_control_changed, port),
+                      mem_fun(knob->get_adjustment(), &Adjustment::get_value)));
+    assert(m_adj[port] == 0);
+    m_adj[port] = &knob->get_adjustment();
     //lv2.connect_adjustment(&knob->get_adjustment(), port);
     return knob;
   }
@@ -484,6 +476,12 @@ protected:
     db->modify_bg_pixmap(STATE_PRELIGHT, "<parent>");
     db->modify_bg_pixmap(STATE_SELECTED, "<parent>");
     db->modify_bg_pixmap(STATE_INSENSITIVE, "<parent>");
+    db->get_adjustment().signal_value_changed().
+      connect(compose(bind<0>(signal_control_changed, port),
+                      mem_fun(db->get_adjustment(), &Adjustment::get_value)));
+    assert(m_adj[port] == 0);
+    m_adj[port] = &db->get_adjustment();
+
     //lv2.connect_adjustment(&db->get_adjustment(), port);
     return db;
   }
@@ -493,6 +491,11 @@ protected:
                      int xoffset, int yoffset, Switch::Type type) {
     Switch* sw = manage(new Switch(type));
     fbox.put(*sw, xoffset, yoffset);
+    sw->get_adjustment().signal_value_changed().
+      connect(compose(bind<0>(signal_control_changed, port),
+                      mem_fun(sw->get_adjustment(), &Adjustment::get_value)));
+    assert(m_adj[port] == 0);
+    m_adj[port] = &sw->get_adjustment();
     //lv2.connect_adjustment(&sw->get_adjustment(), port);
     return sw;
   }
@@ -590,6 +593,7 @@ protected:
   Color menu_fg;
   Fixed fbox;
   Fixed vbox;
+  std::vector<Adjustment*> m_adj;
 
 };
 
