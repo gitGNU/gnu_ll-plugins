@@ -33,6 +33,7 @@
 #include "lv2-miditype-gtk2gui.h"
 #include "lv2-program-gtk2gui.h"
 #include "lv2uiclient.hpp"
+#include "debug.hpp"
 
 
 using namespace std;
@@ -122,22 +123,26 @@ void ui_add_program(int number, const std::string& name, LV2UI_Handle handle,
 
 int main(int argc, char** argv) {
   
+  DebugInfo::prefix() = "G ";
+  
   // initialise GTK
   Gtk::Main kit(argc, argv);
   
-  if (argc < 6) {
-    cerr<<"Not enough parameters."<<endl;
+  if (argc < 7) {
+    DBG0("Not enough parameters.");
     return 1;
   }
+
+  DebugInfo::level() = atoi(argv[1]);
   
-  const char* filename = argv[1];
-  const char* osc_url = argv[2];
-  const char* uri = argv[3];
-  const char* bundle_path = argv[4];
-  const char* name = argv[5];
+  const char* filename = argv[2];
+  const char* osc_url = argv[3];
+  const char* uri = argv[4];
+  const char* bundle_path = argv[5];
+  const char* name = argv[6];
   int socket_id = -1;
-  if (argc > 6)
-    socket_id = atoi(argv[6]);
+  if (argc > 7)
+    socket_id = atoi(argv[7]);
   
   LV2UI_ControllerDescriptor cdesc = {
     &set_control,
@@ -145,9 +150,10 @@ int main(int argc, char** argv) {
   };
   
   // open the module
+  DBG2("Loading "<<filename);
   void* module = dlopen(filename, RTLD_LAZY);
   if (!module) {
-    cerr<<"Could not load "<<filename<<endl;
+    DBG0("Could not load "<<filename);
     return 1;
   }
   
@@ -155,19 +161,19 @@ int main(int argc, char** argv) {
   LV2UI_UIDescriptorFunction func = 
     (LV2UI_UIDescriptorFunction)dlsym(module, "lv2ui_descriptor");
   if (!func) {
-    cerr<<"Could not find symbol lv2ui_descriptor in "<<filename<<endl;
+    DBG0("Could not find symbol lv2ui_descriptor in "<<filename);
     return 1;
   }
   const LV2UI_UIDescriptor* desc = func(uri);
   if (!desc) {
-    cerr<<"lv2ui_descriptor() returned NULL"<<endl;
+    DBG0("lv2ui_descriptor() returned NULL");
     return 1;
   }
   
   // create an OSC server
   LV2UIClient osc(osc_url, bundle_path, uri, name, true);
   if (!osc.is_valid()) {
-    cerr<<"Could not start an OSC server"<<endl;
+    DBG0("Could not start an OSC server");
     return 1;
   }
   
@@ -176,7 +182,7 @@ int main(int argc, char** argv) {
   LV2UI_Controller ctrl = static_cast<LV2UI_Controller>(&osc);
   LV2UI_Handle ui = desc->instantiate(&cdesc, ctrl, uri, bundle_path, &cwidget);
   if (!ui || !cwidget) {
-    cerr<<"Could not create an UI"<<endl;
+    DBG0("Could not create an UI instance");
     return 1;
   }
   
@@ -187,6 +193,7 @@ int main(int argc, char** argv) {
   if (desc->extension_data) {
     const LV2_InstrumentUIDescriptor* instdesc = static_cast<LV2_InstrumentUIDescriptor*>(desc->extension_data(ui, "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext"));
     if (instdesc) {
+      DBG2("The GUI uses the instrument extension");
       if (instdesc->configure) {
         osc.configure_received.connect(bind(bind(&ui_configure, instdesc), ui));
       }
@@ -195,6 +202,7 @@ int main(int argc, char** argv) {
     }
     const LV2_ProgramUIDescriptor* progdesc = static_cast<LV2_ProgramUIDescriptor*>(desc->extension_data(ui, "http://ll-plugins.nongnu.org/lv2/namespace#program"));
     if (progdesc) {
+      DBG2("The GUI uses the program extension");
       if (progdesc->add_program) {
         osc.add_program_received.
           connect(bind(bind(&ui_add_program, progdesc), ui));
@@ -220,18 +228,22 @@ int main(int argc, char** argv) {
     win.add(*Glib::wrap(cwidget));
     win.show_all();
     osc.send_update_request();
+    DBG2("Starting GUI in its own window");
     kit.run(win);
   }
   else {
     Plug plug(socket_id);
     plug.add(*Glib::wrap(cwidget));
     osc.send_update_request();
+    DBG2("Starting GUI in an embeddable plug");
     kit.run(plug);
   }
   
   // clean up
   desc->cleanup(ui);
   dlclose(module);
+  
+  DBG2("elven_guiloader is exiting");
   
   return 0;
 }

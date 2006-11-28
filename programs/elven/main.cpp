@@ -26,6 +26,7 @@
 #include <iostream>
 #include <vector>
 #include <unistd.h>
+#include <sstream>
 
 #include <sys/wait.h>
 
@@ -38,6 +39,7 @@
 
 #include "osccontroller.hpp"
 #include "eventqueue.hpp"
+#include "debug.hpp"
 
 
 using namespace std;
@@ -109,7 +111,7 @@ string unescape_space(const string& str) {
 
 
 bool init_lash(int argc, char** argv, const char* jackname) {
-  //cerr<<"Initialising LASH client"<<endl;
+  DBG2("Initialising LASH client");
   lash_client = lash_init(lash_extract_args(&argc, &argv), "elven", 
                           LASH_Config_File, LASH_PROTOCOL(2, 0));
   
@@ -120,7 +122,7 @@ bool init_lash(int argc, char** argv, const char* jackname) {
     lash_jack_client_name(lash_client, jackname);
   }
   else
-    cerr<<"Could not initialise LASH!"<<endl;
+    DBG0("Could not initialise LASH!");
   
   return (lash_client != 0);
 }
@@ -129,6 +131,9 @@ bool init_lash(int argc, char** argv, const char* jackname) {
 /** Translate from an LV2 MIDI buffer to a JACK MIDI buffer. */
 void lv2midi2jackmidi(LV2Port& port, jack_port_t* jack_port, 
                       jack_nframes_t nframes) {
+  
+  DBG4("Translating MIDI events from LV2 to JACK for port "<<port.symbol);
+  
   jack_nframes_t timestamp;
   size_t data_size;
   void* output_buf = jack_port_get_buffer(jack_port, nframes);
@@ -140,6 +145,8 @@ void lv2midi2jackmidi(LV2Port& port, jack_port_t* jack_port,
   unsigned char* data = input_buf->data;
   
   for (size_t i = 0; i < input_buf->event_count; ++i) {
+    
+    DBG3("Received MIDI event from the plugin on port "<<port.symbol);
     
     // retrieve LV2 MIDI event
     timestamp = static_cast<jack_nframes_t>(*reinterpret_cast<double*>(data));
@@ -160,6 +167,8 @@ void lv2midi2jackmidi(LV2Port& port, jack_port_t* jack_port,
 void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
                       LV2Host& host, jack_nframes_t nframes) {
   
+  DBG4("Translating MIDI events from JACK to LV2 for port "<<port.symbol);
+  
   static unsigned bank = 0;
   
   void* input_buf = jack_port_get_buffer(jack_port, nframes);
@@ -174,6 +183,8 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
   // iterate over all incoming JACK MIDI events
   unsigned char* data = output_buf->data;
   for (unsigned int i = 0; i < input_event_count; ++i) {
+    
+    DBG3("Received MIDI event from JACK on port "<<port.symbol);
     
     // retrieve JACK MIDI event
     jack_midi_event_get(&input_event, input_buf, i, nframes);
@@ -285,14 +296,20 @@ int process(jack_nframes_t nframes, void* arg) {
 }
 
 
+void thread_init(void*) {
+  DebugInfo::thread_prefix()[pthread_self()] = "J ";
+}
+
+
 void sigchild(int signal) {
+  DBG2("Child process terminated");
   if (signal == SIGCHLD)
     still_running = false;
 }
 
 
 void print_usage(const char* argv0) {
-  cerr<<"usage: "<<argv0<<" PLUGIN_URI"<<endl
+  cerr<<"usage: "<<argv0<<" [-d DEBUGLEVEL] [-h] PLUGIN_URI"<<endl
       <<"example: "<<argv0
       <<" 'http://ll-plugins.nongnu.org/lv2/euphoria/0.0.0'"<<endl;
 }
@@ -300,12 +317,17 @@ void print_usage(const char* argv0) {
 
 int main(int argc, char** argv) {
   
+  DebugInfo::prefix() = "H:";
+  DebugInfo::thread_prefix()[pthread_self()] = "M ";
+  
   if (argc < 2) {
     print_usage(argv[0]);
     return 1;
   }
   
-  for (int i = 0; i < argc; ++i) {
+  int i;
+  for (i = 1; i < argc; ++i) {
+    
     if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
       cerr<<"Elven is an (E)xperimental (LV)2 (E)xecution e(N)vironment.\n\n"
           <<"(C) 2006 Lars Luthman <lars.luthman@gmail.com>\n"
@@ -314,26 +336,39 @@ int main(int argc, char** argv) {
       print_usage(argv[0]);
       return 0;
     }
+    
+    else if (!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug")) {
+      if (i == argc - 1) {
+        cerr<<"No debug level given!"<<endl;
+        return 1;
+      }
+      DebugInfo::level() = atoi(argv[i + 1]);
+      ++i;
+    }
+    
+    else
+      break;
   }
   
   // load plugin
-  LV2Host lv2h(argv[1], 48000);
+  LV2Host lv2h(argv[i], 48000);
   
   if (lv2h.is_valid()) {
     
+    DBG2("Plugin host is OK");
+    
     bool has_map = false;
-    for (unsigned i = 0; i < 127; ++i) {
-      long port = lv2h.get_midi_map()[i];
+    for (unsigned j = 0; j < 127; ++j) {
+      long port = lv2h.get_midi_map()[j];
       if (port == -1)
         continue;
       if (!has_map)
-        cerr<<"MIDI map:"<<endl;
+        DBG2("MIDI map:");
       has_map = true;
-      cerr<<"  "<<i<<" -> "<<port<<" ("
-          <<lv2h.get_ports()[port].symbol<<")"<<endl;
+      DBG2("  "<<j<<" -> "<<port<<" ("<<lv2h.get_ports()[port].symbol<<")");
     }
     if (has_map)
-      cerr<<endl;
+      DBG2("");
     
     //cerr<<"Default MIDI port: "<<lv2h.get_default_midi_port()<<endl;
     
@@ -356,9 +391,9 @@ int main(int argc, char** argv) {
       return -1;
     }
     
-    for (size_t i = 0; i < lv2h.get_ports().size(); ++i) {
+    for (size_t p = 0; p < lv2h.get_ports().size(); ++p) {
       jack_port_t* port = 0;
-      LV2Port& lv2port = lv2h.get_ports()[i];
+      LV2Port& lv2port = lv2h.get_ports()[p];
       
       // add JACK MIDI port and allocate internal MIDI buffer
       if (lv2port.midi) {
@@ -389,6 +424,7 @@ int main(int argc, char** argv) {
       jack_ports.push_back(port);
     }
     jack_set_process_callback(jack_client, &process, &lv2h);
+    jack_set_thread_init_callback(jack_client, &thread_init, 0);
     lv2h.activate();
     jack_activate(jack_client);
     
@@ -402,10 +438,12 @@ int main(int argc, char** argv) {
     pid_t gui_pid = 0;
     if (gui.size()) {
       if (!(gui_pid = fork())) {
-        execlp("elven_guiloader", "elven_guiloader", gui.c_str(), 
-               osc.get_url().c_str(), argv[1], lv2h.get_bundle_dir().c_str(),
-               lv2h.get_name().c_str(), 0);
-        cerr<<"Could not execute "<<gui<<endl;
+        ostringstream oss;
+        oss<<DebugInfo::level();
+        execlp("elven_guiloader", "elven_guiloader", oss.str().c_str(), 
+               gui.c_str(), osc.get_url().c_str(), argv[i], 
+               lv2h.get_bundle_dir().c_str(), lv2h.get_name().c_str(), 0);
+        DBG0("Could not execute elven_guiloader");
         exit(-1);
       }
       else if (gui_pid > 0)
@@ -521,7 +559,6 @@ int main(int argc, char** argv) {
   }
   
   else {
-    cerr<<"Could not find the plugin with URI <"<<argv[1]<<">"<<endl;
     return 1;
   }
   

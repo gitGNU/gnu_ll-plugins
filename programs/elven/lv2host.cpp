@@ -38,6 +38,7 @@
 
 #include "lv2host.hpp"
 #include "lv2-midifunctions.h"
+#include "debug.hpp"
 
 
 using namespace std;
@@ -60,12 +61,15 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     m_midimap(128, -1),
     m_from_jack(0) {
   
+  DBG2("Creating plugin loader...");
+  
   pthread_mutex_init(&m_mutex, 0);
   
   // get the directories to look in
   vector<string> search_dirs;
   const char* lv2p_c = getenv("LV2_PATH");
   if (!lv2p_c) {
+    DBG1("LV2_PATH is not defined, will search default directories");
     search_dirs.push_back(string(getenv("HOME")) + "/.lv2");
     search_dirs.push_back("/usr/lib/lv2");
     search_dirs.push_back("/usr/local/lib/lv2");
@@ -91,10 +95,12 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   // iterate over all directories
   for (unsigned i = 0; i < search_dirs.size(); ++i) {
     
+    DBG2("Searching "<<search_dirs[i]);
+    
     // open the directory
     DIR* d = opendir(search_dirs[i].c_str());
     if (d == 0) {
-      cerr<<"Could not open "<<search_dirs[i]<<": "<<strerror(errno)<<endl;
+      DBG1("Could not open "<<search_dirs[i]<<": "<<strerror(errno));
       continue;
     }
     
@@ -110,10 +116,14 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
         // is it actually a directory?
         plugindir = search_dirs[i] + "/" + e->d_name;
         struct stat stat_info;
-        if (stat(plugindir.c_str(), &stat_info))
+        if (stat(plugindir.c_str(), &stat_info)) {
+          DBG1("Could not get file information about "<<plugindir);
           continue;
-        if (!S_ISDIR(stat_info.st_mode))
+        }
+        if (!S_ISDIR(stat_info.st_mode)) {
+          DBG1(plugindir<<" is not a directory");
           continue;
+        }
         
         // parse the manifest to get the library filename and the data filename
         ttlfile = plugindir + "/manifest.ttl";
@@ -126,7 +136,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
           TurtleParser tp;
           RDFData data;
           if (!tp.parse_ttl(text, data)) {
-            cerr<<"Could not parse "<<plugindir<<"/manifest.ttl"<<endl;
+            DBG1("Could not parse "<<plugindir<<"/manifest.ttl");
             continue;
           }
           Variable binary, datafile;
@@ -134,15 +144,25 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
           qr = select(binary)
             .where(uriref, lv2("binary"), binary)
             .run(data);
-          if (qr.size() == 0)
+          if (qr.size() == 0) {
+            DBG2("Did not find an lv2:binary reference for "<<uriref
+                 <<" in "<<plugindir<<"/manifest.ttl");
             continue;
-          else
+          }
+          else {
             library = absolutise(qr[0][binary]->name, plugindir);
+            DBG2("Found shared object file "<<library);
+          }
           qr = select(datafile)
             .where(uriref, rdfs("seeAlso"), datafile)
             .run(data);
-          if (qr.size() > 0)
-            ttlfile = absolutise(qr[0][datafile]->name, plugindir);
+          if (qr.size() == 0) {
+            DBG2("Did not find an rdfs:seeAlso reference for "<<uriref
+                 <<" in "<<plugindir<<"/manifest.ttl");
+            continue;
+          }
+          ttlfile = absolutise(qr[0][datafile]->name, plugindir);
+          DBG2("Found RDF file "<<ttlfile);
           break;
         }
       }
@@ -154,7 +174,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   }
   
   if (library == "") {
-    cerr<<"Could not find plugin "<<uri<<endl;
+    DBG0("Could not find plugin "<<uri);
     return;
   }
   
@@ -168,7 +188,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     TurtleParser tp;
     RDFData data;
     if (!tp.parse_ttl(text, data)) {
-      cerr<<"Could not parse "<<ttlfile<<endl;
+      DBG0("Could not parse "<<ttlfile);
       return;
     }
     Variable symbol, index, portclass, porttype, port;
@@ -188,14 +208,19 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
       
       // index
       size_t p = atoi(qr[j][index]->name.c_str());
-      if (p >= m_ports.size())
+      if (p >= m_ports.size()) {
+        DBG0("Found port with index "<<p<<", but there are only "
+             <<m_ports.size()<<" ports in total");
         return;
+      }
       
       // symbol
       m_ports[p].symbol = qr[j][symbol]->name;
+      DBG2("Found port "<<m_ports[p].symbol);
       
       // direction and rate
       string pclass = qr[j][portclass]->name;
+      DBG2(m_ports[p].symbol<<" is an "<<pclass);
       if (pclass == lv2("ControlRateInputPort")) {
         m_ports[p].direction = InputPort;
         m_ports[p].rate = ControlRate;
@@ -213,18 +238,19 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
         m_ports[p].rate = AudioRate;
       }
       else {
-        cerr<<"Unknown port class: "<<pclass<<endl;
+        DBG0("Unknown port class: "<<pclass);
         return;
       }
       
       // type
       string type = qr[j][porttype]->name;
+      DBG2(m_ports[p].symbol<<" has the datatype "<<type);
       if (type == lv2("float"))
         m_ports[p].midi = false;
       else if (type == llext("miditype"))
         m_ports[p].midi = true;
       else {
-        cerr<<"Unknown datatype: "<<type<<endl;
+        DBG0("Unknown datatype: "<<type);
         return;
       }
       
@@ -276,6 +302,8 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
         return;
       m_ports[p].max_value = 
         atof(qr[j][max_value]->name.c_str());
+      DBG2(m_ports[p].symbol<<" has the range ["<<m_ports[p].min_value
+           <<", "<<m_ports[p].max_value<<"]");
     }
     
     // check range sanity
@@ -329,16 +357,20 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
       .where(uriref, extension_predicate, ll("instrument-ext"))
       .run(data);
     if (qr.size() > 0 && (qr[0][extension_predicate]->name == lv2("requiredHostFeature") ||
-                          qr[0][extension_predicate]->name == lv2("optionalHostFeature")))
+                          qr[0][extension_predicate]->name == lv2("optionalHostFeature"))) {
       isInstrument = true;
+      DBG2("This plugin uses the instrument extension");
+    }
     
     // standalone GUI path
     Variable gui_path;
     qr = select(gui_path)
       .where(uriref, ll("gtk2Gui"), gui_path)
       .run(data);
-    if (qr.size() > 0)
+    if (qr.size() > 0) {
       m_plugingui = absolutise(qr[0][gui_path]->name, plugindir);
+      DBG2("Found GUI plugin file "<<m_plugingui);
+    }
     
     m_bundledir = plugindir;
     
@@ -357,7 +389,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
       .run(data);
     if (qr.size() > 0) {
       string presetfile = absolutise(qr[0][preset_path]->name, plugindir);
-      cerr<<"Loading presets from "<<presetfile<<endl;
+      DBG2("Found default preset file "<<presetfile);
       ifstream ifs(presetfile.c_str());
       string text, line;
       while (getline(ifs, line))
@@ -365,14 +397,14 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
       TurtleParser tp;
       RDFData data;
       if (!tp.parse_ttl(text, data)) {
-        cerr<<"Could not parse presets from "<<presetfile<<endl;
+        DBG0("Could not parse presets from "<<presetfile);
       }
       else {
         Variable bank;
         qr = select(bank).where(uriref, ll("hasBank"), bank).run(data);
         if (qr.size() > 0) {
           string bankuri = qr[0][bank]->name;
-          cerr<<"Found preset bank "<<bankuri<<endl;
+          DBG2("Found preset bank "<<bankuri);
           Variable preset, name, program;
           vector<QueryResult> qr2 = select(preset, name, program)
             .where(uriref, ll("hasSetting"), preset)
@@ -382,8 +414,8 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
             .run(data);
           for (int j = 0; j < qr2.size(); ++j) {
             string preseturi = qr2[j][preset]->name;
-            cerr<<"Found the preset \""<<qr2[j][name]->name<<"\" "
-                <<" with MIDI program number "<<qr2[j][program]->name<<endl;
+            DBG2("Found the preset \""<<qr2[j][name]->name<<"\" "
+                 <<" with MIDI program number "<<qr2[j][program]->name);
             int pnum = atoi(qr2[j][program]->name.c_str());
             m_presets[pnum].name = qr2[j][name]->name;
             m_presets[pnum].values.clear();
@@ -409,14 +441,14 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   // if we got this far the data is OK. time to load the library
   m_libhandle = dlopen(library.c_str(), RTLD_NOW);
   if (!m_libhandle) {
-    cerr<<"Could not dlopen "<<library<<": "<<dlerror()<<endl;
+    DBG0("Could not dlopen "<<library<<": "<<dlerror());
     return;
   }
   
   // get the descriptor
   LV2_Descriptor_Function dfunc = get_symbol<LV2_Descriptor_Function>("lv2_descriptor");
   if (!dfunc) {
-    cerr<<library<<" has no LV2 descriptor function"<<endl;
+    DBG0(library<<" has no LV2 descriptor function");
     dlclose(m_libhandle);
     return;
   }
@@ -425,7 +457,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
       break;
   }
   if (!m_desc) {
-    cerr<<library<<" does not contain the plugin "<<uri<<endl;
+    DBG0(library<<" does not contain the plugin "<<uri);
     dlclose(m_libhandle);
     return;
   }
@@ -436,7 +468,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     if (m_desc->extension_data)
       m_inst_desc = (LV2_InstrumentDescriptor*)(m_desc->extension_data("<http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>"));
     if (!m_inst_desc) {
-      cerr<<library<<" does not contain the instrument "<<uri<<endl;
+      DBG0(library<<" does not contain the instrument "<<uri);
       return;
     }
   }
@@ -468,7 +500,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   */
   
   if (!m_handle) {
-    cerr<<"Could not instantiate plugin "<<uri<<endl;
+    DBG0("Could not instantiate plugin "<<uri);
     dlclose(m_libhandle);
     return;
   }
@@ -477,6 +509,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   
 LV2Host::~LV2Host() {
   if (m_handle) {
+    DBG2("Destroying plugin instance");
     if (m_desc->cleanup)
       m_desc->cleanup(m_handle);
     dlclose(m_libhandle);
@@ -508,6 +541,7 @@ long LV2Host::get_default_midi_port() const {
 
 void LV2Host::activate() {
   assert(m_handle);
+  DBG2("Activating plugin instance");
   if (m_desc->activate)
     m_desc->activate(m_handle);
 }
@@ -524,7 +558,7 @@ void LV2Host::run(unsigned long nframes) {
   while ((t = m_to_jack.read_event()) != EventQueue::None) {
     switch (t) {
       
-    case EventQueue::Program: 
+    case EventQueue::Program:
       select_program(e.program.program);
       queue_program(e.program.program, false);
       break;
@@ -533,6 +567,7 @@ void LV2Host::run(unsigned long nframes) {
       const unsigned long& port = e.control.port;
       const float& value = e.control.value;
       *static_cast<float*>(m_ports[port].buffer) = value;
+      DBG3("Changing value for port "<<port<<" to "<<value);
       //queue_control(port, value, false);
       break;
     }
@@ -558,6 +593,7 @@ void LV2Host::run(unsigned long nframes) {
       break;
       
     case EventQueue::Midi: {
+      DBG3("Received MIDI event from the main thread");
       LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[e.midi.port].buffer);
       LV2_MIDIState state = { midi, nframes, 0 };
       // XXX DANGER! Can't set the timestamp to 0 since other events may
@@ -577,13 +613,14 @@ void LV2Host::run(unsigned long nframes) {
 
 void LV2Host::deactivate() {
   assert(m_handle);
+  DBG2("Deactivating the plugin instance");
   if (m_desc->deactivate)
     m_desc->deactivate(m_handle);
 }
 
 
 char* LV2Host::configure(const char* key, const char* value) {
-  cerr<<"Calling configure(\""<<key<<"\", \""<<value<<"\")"<<endl;
+  DBG2("Calling configure(\""<<key<<"\", \""<<value<<"\")");
   if (m_inst_desc && m_inst_desc->configure) {
     char* result = m_inst_desc->configure(m_handle, key, value);
     if (!result) {
@@ -596,21 +633,21 @@ char* LV2Host::configure(const char* key, const char* value) {
         m_configuration[key] = value;
     }
     else {
-      cerr<<"ERROR CONFIGURING PLUGIN: "<<result<<endl;
+      DBG0("ERROR CONFIGURING PLUGIN: "<<result);
       free(result);
     }
     
     return result;
   }
   else
-    cerr<<"This plugin has no configure() callback"<<endl;
+    DBG0("This plugin has no configure() callback");
 
   return 0;
 }
 
 
 char* LV2Host::set_file(const char* key, const char* filename) {
-  cerr<<"Calling set_file(\""<<key<<"\", \""<<filename<<"\")"<<endl;
+  DBG2("Calling set_file(\""<<key<<"\", \""<<filename<<"\")");
   if (m_inst_desc && m_inst_desc->set_file) {
     char* result = m_inst_desc->set_file(m_handle, key, filename);
     if (!result) {
@@ -623,14 +660,14 @@ char* LV2Host::set_file(const char* key, const char* filename) {
         m_filenames[key] = filename;
     }
     else {
-      cerr<<"ERROR SETTING FILE: "<<result<<endl;
+      DBG0("ERROR SETTING FILE: "<<result);
       free(result);
     }
     
     return result;
   }
   else
-    cerr<<"This plugin has no set_file() callback"<<endl;
+    DBG0("This plugin has no set_file() callback");
   
   return 0;
 }
@@ -639,6 +676,7 @@ char* LV2Host::set_file(const char* key, const char* filename) {
 void LV2Host::select_program(unsigned long program) {
   map<uint32_t, LV2Preset>::const_iterator iter = m_presets.find(program);
   if (iter != m_presets.end()) {
+    DBG3("Changing program to "<<program);
     map<uint32_t, float>::const_iterator piter;
     for (piter = iter->second.values.begin(); 
          piter != iter->second.values.end(); ++piter) {
@@ -646,6 +684,8 @@ void LV2Host::select_program(unsigned long program) {
       queue_control(piter->first, piter->second, false);
     }
   }
+  else
+    DBG3("Trying to change program to invalid program "<<program);
 }
 
 
@@ -671,6 +711,7 @@ const std::string& LV2Host::get_name() const {
 
 void LV2Host::queue_program(unsigned long program, bool to_jack) {
   if (to_jack) {
+    DBG2("Queueing program change to program "<<program);
     //cerr<<__PRETTY_FUNCTION__<<endl;
     pthread_mutex_lock(&m_mutex);
     m_to_jack.write_program(program);
@@ -684,6 +725,7 @@ void LV2Host::queue_program(unsigned long program, bool to_jack) {
 void LV2Host::queue_control(unsigned long port, float value, bool to_jack) {
   if (port < m_ports.size()) {
     if (to_jack) {
+      DBG2("Queueing control change of port "<<port<<" to value "<<value);
       pthread_mutex_lock(&m_mutex);
       m_to_jack.write_control(port, value);
       pthread_mutex_unlock(&m_mutex);
@@ -698,15 +740,16 @@ void LV2Host::queue_midi(uint32_t port, uint32_t size,
                          const unsigned char* midi) {
   if (port < m_ports.size() && m_ports[port].midi) {
     if (size <= 4) {
+      DBG2("Queueing MIDI event for port "<<port);
       pthread_mutex_lock(&m_mutex);
       m_to_jack.write_midi(port, size, midi);
       pthread_mutex_unlock(&m_mutex);
     }
     else
-      cerr<<"Can only write MIDI events smaller than 5 bytes"<<endl;
+      DBG0("Can only write MIDI events smaller than 5 bytes");
   }
   else
-    cerr<<"Trying to write MIDI to invalid port "<<port<<endl;
+    DBG0("Trying to write MIDI to invalid port "<<port);
 }
 
 
@@ -723,7 +766,7 @@ void LV2Host::queue_passthrough(const char* msg, void* ptr) {
 void LV2Host::set_program(uint32_t program) {
   map<uint32_t, LV2Preset>::const_iterator iter = m_presets.find(program);
   if (iter == m_presets.end()) {
-    cerr<<"Could not find program "<<program<<endl;
+    DBG0("Could not find program "<<program);
   }
   else {
     map<uint32_t, float>::const_iterator piter = iter->second.values.begin();

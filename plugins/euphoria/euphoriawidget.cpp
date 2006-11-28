@@ -81,10 +81,13 @@ EuphoriaWidget::EuphoriaWidget()
   VBox* voiceVBox = manage(new VBox(false, 6));
   voiceVBox->set_border_width(6);
   voiceFrame->add(*voiceVBox);
-  Table* voiceTable = manage(new Table(2, 4));
-  voiceVBox->pack_start(*voiceTable);
-  voiceTable->set_spacings(6);
-  
+  Notebook* voice_nbk = manage(new Notebook);
+  voiceVBox->pack_start(*voice_nbk);
+
+  Table* phaseTable = manage(new Table(1, 4));
+  phaseTable->set_border_width(6);
+  voice_nbk->append_page(*phaseTable, "PDO");
+  phaseTable->set_spacings(6);
   VBox* phaseEBox = manage(new VBox);
   ScrolledWindow* phaseEScrw = manage(new ScrolledWindow);
   phaseEScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
@@ -93,10 +96,10 @@ EuphoriaWidget::EuphoriaWidget()
   phaseEBox->pack_start(*phaseEScrw, false, false);
   HBox* phaseEHBox = manage(new HBox(true));
   phaseEBox->pack_start(*phaseEHBox, false, false);
-  voiceTable->attach(*phaseEBox, 0, 1, 0, 1, 
+  phaseTable->attach(*phaseEBox, 0, 1, 0, 1, 
                      AttachOptions(0), AttachOptions(0));
   Table* phaseT1 = manage(new Table(2, 2));
-  voiceTable->attach(*phaseT1, 1, 2, 0, 1, AttachOptions(0), AttachOptions(0));
+  phaseTable->attach(*phaseT1, 1, 2, 0, 1, AttachOptions(0), AttachOptions(0));
   phaseT1->set_spacings(3);
   phaseT1->attach(*create_knob("P.Dist", e_phase_dist), 
                   0, 1, 0, 1, AttachOptions(0));
@@ -119,10 +122,10 @@ EuphoriaWidget::EuphoriaWidget()
   phaseScrw->set_shadow_type(SHADOW_IN);
   phaseScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
   phaseScrw->add(m_phase_env);
-  voiceTable->attach(*phaseEnvBox, 2, 3, 0, 1, 
+  phaseTable->attach(*phaseEnvBox, 2, 3, 0, 1, 
                      FILL|EXPAND, AttachOptions(0));
   Table* phaseT2 = manage(new Table(2, 2));
-  voiceTable->attach(*phaseT2, 3, 4, 0, 1, AttachOptions(0), AttachOptions(0));
+  phaseTable->attach(*phaseT2, 3, 4, 0, 1, AttachOptions(0), AttachOptions(0));
   phaseT2->set_spacings(3);
   phaseT2->attach(*create_knob("Att", e_pd_attack, 1, 0, 0), 
                   0, 1, 0, 1, AttachOptions(0));
@@ -133,6 +136,10 @@ EuphoriaWidget::EuphoriaWidget()
   phaseT2->attach(*create_knob("Rel", e_pd_release), 
                   1, 2, 1, 2, AttachOptions(0));
   
+  Table* shapeTable = manage(new Table(1, 4));
+  shapeTable->set_border_width(6);
+  voice_nbk->append_page(*shapeTable, "SHP");
+  shapeTable->set_spacings(6);
   VBox* shapeEBox = manage(new VBox);
   m_shaper.set_size_request(91, 91);
   ScrolledWindow* shapeEScrw = manage(new ScrolledWindow);
@@ -142,10 +149,10 @@ EuphoriaWidget::EuphoriaWidget()
   shapeEBox->pack_start(*shapeEScrw, false, false);
   HBox* shapeEHBox = manage(new HBox(true));
   shapeEBox->pack_start(*shapeEHBox, false, false);
-  voiceTable->attach(*shapeEBox, 0, 1, 1, 2, 
+  shapeTable->attach(*shapeEBox, 0, 1, 0, 1, 
                      AttachOptions(0), AttachOptions(0));
   Table* shapeT1 = manage(new Table(2, 2));
-  voiceTable->attach(*shapeT1, 1, 2, 1, 2, AttachOptions(0), AttachOptions(0));
+  shapeTable->attach(*shapeT1, 1, 2, 0, 1, AttachOptions(0), AttachOptions(0));
   shapeT1->set_spacings(3);
   shapeT1->attach(*create_knob("Shape", e_shape), 
                   0, 1, 0, 1, AttachOptions(0));
@@ -169,10 +176,10 @@ EuphoriaWidget::EuphoriaWidget()
   shapeScrw->set_shadow_type(SHADOW_IN);
   shapeScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
   shapeScrw->add(m_shape_env);
-  voiceTable->attach(*shapeEnvBox, 2, 3, 1, 2, 
+  shapeTable->attach(*shapeEnvBox, 2, 3, 0, 1, 
                      FILL|EXPAND, AttachOptions(0));
   Table* shapeT2 = manage(new Table(2, 2));
-  voiceTable->attach(*shapeT2, 3, 4, 1, 2, AttachOptions(0), AttachOptions(0));
+  shapeTable->attach(*shapeT2, 3, 4, 0, 1, AttachOptions(0), AttachOptions(0));
   shapeT2->set_spacings(3);
   shapeT2->attach(*create_knob("Att", e_shape_attack, 1, 0, 0), 
                   0, 1, 0, 1, AttachOptions(0));
