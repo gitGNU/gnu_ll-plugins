@@ -26,13 +26,24 @@
 #include <cstdlib>
 
 
+/** A class that simulates a discrete-time Markov process with a finite 
+    state space. You can set all the transition probabilities. */
 class Markov {
 public:
-
+  
+  /** Create a new Markov process with @c nstates states. */
   inline Markov(unsigned int nstates);
+  
+  /** Destroy the Markov process. */
   inline ~Markov();
+  
+  /** Set the current state of the process. */
   inline void set_state(unsigned int state);
+  
+  /** Go to next (indeterministic) state. */
   inline unsigned int transition();
+  
+  /** Set the transition probability from one state to another. */
   inline void set_probability(unsigned int from, unsigned int to, float prob);
   
 protected:
