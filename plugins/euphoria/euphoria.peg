@@ -16,7 +16,7 @@ typedef struct {
 
 /* <http://ll-plugins.nongnu.org/lv2/dev/euphoria/0.0.0> */
 
-static const char e_uri[] = "<http://ll-plugins.nongnu.org/lv2/dev/euphoria/0.0.0>";
+static const char e_uri[] = "http://ll-plugins.nongnu.org/lv2/dev/euphoria/0.0.0";
 
 enum e_port_enum {
   e_midi_input,

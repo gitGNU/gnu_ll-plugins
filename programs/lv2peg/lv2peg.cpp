@@ -220,7 +220,7 @@ int main(int argc, char** argv) {
     
     // write the URI
     fout<<"static const char "<<plugins[piter->first]<<"_uri[] = \""
-        <<piter->first<<"\";"<<endl<<endl;
+        <<piter->first.substr(1, piter->first.size() - 2)<<"\";"<<endl<<endl;
     
     // write port labels
     fout<<"enum "<<plugins[piter->first]<<"_port_enum {"<<endl;

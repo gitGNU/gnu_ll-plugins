@@ -16,7 +16,7 @@ typedef struct {
 
 /* <http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0> */
 
-static const char k_uri[] = "<http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0>";
+static const char k_uri[] = "http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0";
 
 enum k_port_enum {
   k_midi_input,
