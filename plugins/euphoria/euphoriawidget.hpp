@@ -76,8 +76,10 @@ protected:
   
   PDEditor m_phase;
   EnvelopeEditor m_phase_env;
+  EnvelopeEditor m_phase_amp_env;
   ShaperEditor m_shaper;
   EnvelopeEditor m_shape_env;
+  EnvelopeEditor m_shape_amp_env;
   
   std::vector<Gtk::Adjustment*> m_adj;
 };
