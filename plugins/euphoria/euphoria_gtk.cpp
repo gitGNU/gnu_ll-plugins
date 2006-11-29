@@ -50,7 +50,9 @@ public:
       connect(bind<0>(mem_fun(ctrl, &LV2Controller::configure), "phase_env"));
     m_euph.signal_shape_envelope_changed.
       connect(bind<0>(mem_fun(ctrl, &LV2Controller::configure), "shape_env"));
-
+    m_euph.signal_program_selected.
+      connect(mem_fun(ctrl, &LV2Controller::set_program));
+    
   }
   
   void set_control(uint32_t port, float value) {
