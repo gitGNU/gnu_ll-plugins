@@ -28,7 +28,6 @@
 
 #include <gtkmm.h>
 
-//#include "lv2uiclient.hpp"
 #include "shapereditor.hpp"
 #include "pdeditor.hpp"
 #include "envelopeeditor.hpp"
@@ -37,7 +36,6 @@
 class EuphoriaWidget : public Gtk::VBox {
 public:
   
-  //EuphoriaWidget(LV2UIClient& lv2);
   EuphoriaWidget();
   
   void add_program(int number, const std::string& name);

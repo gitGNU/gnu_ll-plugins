@@ -123,7 +123,7 @@ void ui_add_program(int number, const std::string& name, LV2UI_Handle handle,
 
 int main(int argc, char** argv) {
   
-  DebugInfo::prefix() = "G ";
+  DebugInfo::prefix() = "GUI ";
   
   // initialise GTK
   Gtk::Main kit(argc, argv);

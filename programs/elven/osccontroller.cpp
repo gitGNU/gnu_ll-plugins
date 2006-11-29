@@ -127,7 +127,7 @@ const string& OSCController::get_url() const {
 int OSCController::update_handler(const char*, const char*, lo_arg** argv, 
                                   int argc, lo_message, void* cbdata) {
   
-  DebugInfo::thread_prefix()[pthread_self()] = "O ";
+  DebugInfo::thread_prefix()[pthread_self()] = "R ";
   
   DBG2("Received /update from "<<(&argv[0]->s));
 
@@ -222,7 +222,9 @@ void OSCController::send_quit() {
 
 
 void* OSCController::sender_thread(void* arg) {
-
+  
+  DebugInfo::thread_prefix()[pthread_self()] = "S ";
+  
   OSCController* me = static_cast<OSCController*>(arg);
   EventQueue::Type t;
   const EventQueue::Event& event = me->m_queue.get_event();
