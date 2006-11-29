@@ -61,6 +61,18 @@ public:
     m_euph.configure(key, value);
   }
   
+  void add_program(unsigned char number, const char* name) {
+    m_euph.add_program(number, name);
+  }
+  
+  void remove_program(unsigned char number) {
+    m_euph.remove_program(number);
+  }
+  
+  void clear_programs() {
+    m_euph.clear_programs();
+  }
+  
 protected:
 
   EuphoriaWidget m_euph;

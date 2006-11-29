@@ -40,7 +40,6 @@ void moo(Allocation& a, Widget* w) {
 }
 
 
-//EuphoriaWidget::EuphoriaWidget(LV2UIClient& lv2)
 EuphoriaWidget::EuphoriaWidget()
   : VBox(false, 6),
     m_program_store(ListStore::create(m_program_columns)),
@@ -154,7 +153,6 @@ VBox* EuphoriaWidget::create_knob(const string& label, int port,
                                    e_ports[port].default_value, 
                                    red, green, blue, e_ports[port].integer,
                                    e_ports[port].logarithmic));
-  //lv2.connect_adjustment(&knob->get_adjustment(), port);
   Adjustment& adj = knob->get_adjustment();
   adj.signal_value_changed().
     connect(compose(bind<0>(signal_control_changed, port),
@@ -194,16 +192,16 @@ Widget& EuphoriaWidget::init_pd_controls() {
   HBox* ed_hbox = manage(new HBox(true));
   ed_box->pack_start(*ed_hbox, false, false);
   phase_tbl->attach(*ed_box, 0, 1, 0, 1, 
-                     AttachOptions(0), AttachOptions(0));
+                    AttachOptions(0), AttachOptions(0));
   Table* knob1_tbl = manage(new Table(2, 2));
   phase_tbl->attach(*knob1_tbl, 1, 2, 0, 1, AttachOptions(0), AttachOptions(0));
   knob1_tbl->set_spacings(3);
   knob1_tbl->attach(*create_knob("P.Dist", e_phase_dist), 
-                  0, 1, 0, 1, AttachOptions(0));
+                    0, 1, 0, 1, AttachOptions(0));
   knob1_tbl->attach(*create_knob("Env", e_pd_env_sens),
-                  0, 1, 1, 2, AttachOptions(0));
+                    0, 1, 1, 2, AttachOptions(0));
   knob1_tbl->attach(*create_knob("Vel", e_pd_vel_sens)
-                  , 1, 2, 0, 1, AttachOptions(0));
+                    , 1, 2, 0, 1, AttachOptions(0));
   
   HScrollbar* env_bar = 
     manage(new HScrollbar(m_phase_env.get_adjustment()));
@@ -217,7 +215,7 @@ Widget& EuphoriaWidget::init_pd_controls() {
   Notebook* phase_nbk = manage(new Notebook);
   env_box->pack_start(*phase_nbk);
   phase_tbl->attach(*env_box, 2, 3, 0, 1, 
-                     FILL|EXPAND, AttachOptions(0));
+                    FILL|EXPAND, AttachOptions(0));
   env_box->pack_start(*env_bar);
 
   ScrolledWindow* env_scw = manage(new ScrolledWindow());
@@ -235,13 +233,13 @@ Widget& EuphoriaWidget::init_pd_controls() {
   phase_tbl->attach(*knob2_tbl, 3, 4, 0, 1, AttachOptions(0), AttachOptions(0));
   knob2_tbl->set_spacings(3);
   knob2_tbl->attach(*create_knob("Att", e_pd_attack, 1, 0, 0), 
-                  0, 1, 0, 1, AttachOptions(0));
+                    0, 1, 0, 1, AttachOptions(0));
   knob2_tbl->attach(*create_knob("Dec", e_pd_decay, 1, 1, 0), 
-                  1, 2, 0, 1, AttachOptions(0));
+                    1, 2, 0, 1, AttachOptions(0));
   knob2_tbl->attach(*create_knob("Sus", e_pd_sustain, 0.3, 1, 0.3), 
-                  0, 1, 1, 2, AttachOptions(0));
+                    0, 1, 1, 2, AttachOptions(0));
   knob2_tbl->attach(*create_knob("Rel", e_pd_release), 
-                  1, 2, 1, 2, AttachOptions(0));
+                    1, 2, 1, 2, AttachOptions(0));
   
   return *phase_tbl;
 }
@@ -265,7 +263,7 @@ Widget& EuphoriaWidget::init_shp_controls() {
   HBox* ed_hbox = manage(new HBox(true));
   ed_box->pack_start(*ed_hbox, false, false);
   shape_tbl->attach(*ed_box, 0, 1, 0, 1, 
-                     AttachOptions(0), AttachOptions(0));
+                    AttachOptions(0), AttachOptions(0));
   
   Table* knob1_tbl = manage(new Table(2, 2));
   shape_tbl->attach(*knob1_tbl, 1, 2, 0, 1, AttachOptions(0), AttachOptions(0));
@@ -295,19 +293,19 @@ Widget& EuphoriaWidget::init_shp_controls() {
   env_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
   env_scw->add(m_shape_env);
   shape_tbl->attach(*env_box, 2, 3, 0, 1, 
-                     FILL|EXPAND, AttachOptions(0));
+                    FILL|EXPAND, AttachOptions(0));
 
   Table* knob2_tbl = manage(new Table(2, 2));
   shape_tbl->attach(*knob2_tbl, 3, 4, 0, 1, AttachOptions(0), AttachOptions(0));
   knob2_tbl->set_spacings(3);
   knob2_tbl->attach(*create_knob("Att", e_shape_attack, 1, 0, 0), 
-                  0, 1, 0, 1, AttachOptions(0));
+                    0, 1, 0, 1, AttachOptions(0));
   knob2_tbl->attach(*create_knob("Dec", e_shape_decay, 1, 1, 0),
-                  1, 2, 0, 1, AttachOptions(0));
+                    1, 2, 0, 1, AttachOptions(0));
   knob2_tbl->attach(*create_knob("Sus", e_shape_sustain, 0.3, 1, 0.3),
-                  0, 1, 1, 2, AttachOptions(0));
+                    0, 1, 1, 2, AttachOptions(0));
   knob2_tbl->attach(*create_knob("Rel", e_shape_release),
-                  1, 2, 1, 2, AttachOptions(0));
+                    1, 2, 1, 2, AttachOptions(0));
 
   return *shape_tbl;
 }
@@ -338,13 +336,13 @@ Widget& EuphoriaWidget::init_fx_controls() {
   chorus_tbl->set_spacings(3);
   chorus_tbl->attach(*manage(new ToggleButton("Chorus")), 0, 2, 0, 1);
   chorus_tbl->attach(*create_knob("Freq", e_chorus_freq, 0.75, 0.1, 0.25),
-                      0, 1, 1, 2, EXPAND);
+                     0, 1, 1, 2, EXPAND);
   chorus_tbl->attach(*create_knob("Depth", e_chorus_depth, 0.75, 0.1, 0.25),
-                      1, 2, 1, 2, EXPAND);
+                     1, 2, 1, 2, EXPAND);
   chorus_tbl->attach(*create_knob("Delay", e_chorus_delay, 0.75, 0.1, 0.25),
-                      0, 1, 2, 3, EXPAND);
+                     0, 1, 2, 3, EXPAND);
   chorus_tbl->attach(*create_knob("Mix", e_chorus_mix, 0.75, 0.1, 0.25),
-                      1, 2, 2, 3, EXPAND);
+                     1, 2, 2, 3, EXPAND);
   
   // echo
   Table* echo_tbl = manage(new Table(3, 2));
@@ -352,13 +350,13 @@ Widget& EuphoriaWidget::init_fx_controls() {
   echo_tbl->set_spacings(3);
   echo_tbl->attach(*manage(new ToggleButton("Echo")), 0, 2, 0, 1);
   echo_tbl->attach(*create_knob("Delay", e_echo_delay, 0.25, 0.2, 0.75),
-                    0, 1, 1, 2, EXPAND);
+                   0, 1, 1, 2, EXPAND);
   echo_tbl->attach(*create_knob("Fdback", e_echo_feedback, 0.25, 0.2, 0.75),
-                    1, 2, 1, 2, EXPAND);
+                   1, 2, 1, 2, EXPAND);
   echo_tbl->attach(*create_knob("Pan", e_echo_pan, 0.25, 0.2, 0.75),
-                    0, 1, 2, 3, EXPAND);
+                   0, 1, 2, 3, EXPAND);
   echo_tbl->attach(*create_knob("Mix", e_echo_mix, 0.25, 0.2, 0.75),
-                    1, 2, 2, 3, EXPAND);
+                   1, 2, 2, 3, EXPAND);
   
   // reverb
   Table* reverb_tbl = manage(new Table(3, 2));
@@ -368,7 +366,7 @@ Widget& EuphoriaWidget::init_fx_controls() {
   reverb_tbl->attach(*create_knob("Time", e_reverb_time), 0, 1, 1, 2, EXPAND);
   reverb_tbl->attach(*create_knob("Room", e_reverb_room), 1, 2, 1, 2, EXPAND);
   reverb_tbl->attach(*create_knob("Damp", e_reverb_damping),
-                      0, 1, 2, 3, EXPAND);
+                     0, 1, 2, 3, EXPAND);
   reverb_tbl->attach(*create_knob("Mix", e_reverb_mix), 1, 2, 2, 3, EXPAND);
   
   return *effect_hbox;
@@ -421,9 +419,9 @@ Widget& EuphoriaWidget::init_voice_controls() {
   HBox* unison_hbox = manage(new HBox(false, 3));
   voice_knob_table->attach(*unison_hbox, 2, 3, 1, 2, AttachOptions(0));
   unison_hbox->pack_start(*create_knob("Layers", e_unison_layers, 
-                                      0.4, 0.4, 0.4));
+                                       0.4, 0.4, 0.4));
   unison_hbox->pack_start(*create_knob("Spread", e_unison_spread, 
-                                      0.4, 0.4, 0.4));
+                                       0.4, 0.4, 0.4));
 
   Label* amp_lbl = manage(new Label("<small>Amp</small>"));
   amp_lbl->set_use_markup(true);
@@ -438,9 +436,9 @@ Widget& EuphoriaWidget::init_voice_controls() {
   voice_hbox->pack_end(*note_tbl, false, false);
   voice_hbox->pack_end(*manage(new VSeparator), false, false);
   note_tbl->attach(*manage(new ToggleButton("Poly")), 0, 1, 0, 1, 
-                    FILL, AttachOptions(0));
+                   FILL, AttachOptions(0));
   Label* voices_lbl = manage(new Label("<small>Number of Voices:</small>", 
-                                        ALIGN_RIGHT));
+                                       ALIGN_RIGHT));
   voices_lbl->set_use_markup(true);
   note_tbl->attach(*voices_lbl, 1, 2, 0, 1);
   SpinButton* voices_sbn = manage(new SpinButton);
@@ -449,9 +447,9 @@ Widget& EuphoriaWidget::init_voice_controls() {
   voices_sbn->set_digits(0);
   note_tbl->attach(*voices_sbn, 2, 3, 0, 1, AttachOptions(0));
   note_tbl->attach(*manage(new ToggleButton("Tie")), 0, 1, 1, 2, 
-                    FILL, AttachOptions(0));
+                   FILL, AttachOptions(0));
   Label* slide_lbl = manage(new Label("<small>Slide speed:</small>", 
-                                       ALIGN_RIGHT));
+                                      ALIGN_RIGHT));
   slide_lbl->set_use_markup(true);
   note_tbl->attach(*slide_lbl, 1, 2, 1, 2);
   SpinButton* slide_sbn = manage(new SpinButton);
