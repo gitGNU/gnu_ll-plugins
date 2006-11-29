@@ -63,6 +63,15 @@ protected:
   
   void program_selection_changed();
   
+  Gtk::Widget& init_pd_controls();
+  Gtk::Widget& init_shp_controls();
+  Gtk::Widget& init_fx_controls();
+  Gtk::Widget& init_voice_controls();
+  Gtk::Widget& init_program_controls();
+  Gtk::Widget& init_global_controls();
+  Gtk::Widget& init_bottom_buttons();
+  
+  
   Gtk::TreeView m_program_view;
   
   class ProgramColumns : public Gtk::TreeModel::ColumnRecord {

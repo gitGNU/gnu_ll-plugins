@@ -40,10 +40,10 @@ public:
   /** Set the current state of the process. */
   inline void set_state(unsigned int state);
   
-  /** Go to next (indeterministic) state. */
+  /** Go to next (nondeterministic) state. */
   inline unsigned int transition();
   
-  /** Set the transition probability from one state to another. */
+  /** Set the probability of transition from one state to another. */
   inline void set_probability(unsigned int from, unsigned int to, float prob);
   
 protected:
