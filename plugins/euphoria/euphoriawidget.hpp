@@ -56,8 +56,6 @@ public:
   
 protected:
   
-  //Gtk::VBox* create_knob(LV2UIClient& lv2, const std::string& label, int port,
-  //                       float red = 0, float green = 0.3, float blue = 1);
   Gtk::VBox* create_knob(const std::string& label, int port,
                          float red = 0, float green = 0.3, float blue = 1);
   

@@ -49,34 +49,34 @@ EuphoriaWidget::EuphoriaWidget()
   set_border_width(6);
   
   // initialise voice controls
-  Frame* voiceFrame = manage(new Frame("<b>Voice</b>"));
-  dynamic_cast<Label*>(voiceFrame->get_label_widget())->set_use_markup(true);
-  voiceFrame->set_shadow_type(SHADOW_IN);
-  voiceFrame->add(init_voice_controls());
+  Frame* voice_frame = manage(new Frame("<b>Voice</b>"));
+  dynamic_cast<Label*>(voice_frame->get_label_widget())->set_use_markup(true);
+  voice_frame->set_shadow_type(SHADOW_IN);
+  voice_frame->add(init_voice_controls());
   
   // initialise effect controls
-  Frame* effectsFrame = manage(new Frame("<b>Effects</b>"));
-  dynamic_cast<Label*>(effectsFrame->get_label_widget())->set_use_markup(true);
-  effectsFrame->set_shadow_type(SHADOW_IN);
-  effectsFrame->add(init_fx_controls());
+  Frame* effects_frame = manage(new Frame("<b>Effects</b>"));
+  dynamic_cast<Label*>(effects_frame->get_label_widget())->set_use_markup(true);
+  effects_frame->set_shadow_type(SHADOW_IN);
+  effects_frame->add(init_fx_controls());
   
   // initialise program list
-  Frame* progFrame = manage(new Frame("<b>Programs</b>"));
-  dynamic_cast<Label*>(progFrame->get_label_widget())->set_use_markup(true);
-  progFrame->set_shadow_type(SHADOW_NONE);
-  progFrame->add(init_program_controls());
+  Frame* prog_frame = manage(new Frame("<b>Programs</b>"));
+  dynamic_cast<Label*>(prog_frame->get_label_widget())->set_use_markup(true);
+  prog_frame->set_shadow_type(SHADOW_NONE);
+  prog_frame->add(init_program_controls());
   
   // main layout
-  HBox* mainHBox = manage(new HBox(false, 6));
-  VBox* mainVBox = manage(new VBox(false, 6));
-  pack_start(*voiceFrame, false, false);
-  pack_start(*mainHBox);
-  mainHBox->pack_start(*mainVBox, false, false);
-  mainHBox->pack_start(*progFrame);
-  mainVBox->pack_start(*effectsFrame, false, false);
-  mainVBox->pack_start(init_global_controls(), false, false);
-  mainVBox->pack_end(init_bottom_buttons(), false, false);
-  mainVBox->pack_end(*manage(new HSeparator), false, false);
+  HBox* main_hbox = manage(new HBox(false, 6));
+  VBox* main_vbox = manage(new VBox(false, 6));
+  pack_start(*voice_frame, false, false);
+  pack_start(*main_hbox);
+  main_hbox->pack_start(*main_vbox, false, false);
+  main_hbox->pack_start(*prog_frame);
+  main_vbox->pack_start(*effects_frame, false, false);
+  main_vbox->pack_start(init_global_controls(), false, false);
+  main_vbox->pack_end(init_bottom_buttons(), false, false);
+  main_vbox->pack_end(*manage(new HSeparator), false, false);
   
   // connect signals
   m_shaper.signal_apply.
@@ -179,208 +179,209 @@ void EuphoriaWidget::program_selection_changed() {
 
 Widget& EuphoriaWidget::init_pd_controls() {
 
-  Table* phaseTable = manage(new Table(1, 4));
-  phaseTable->set_border_width(6);
-  phaseTable->set_spacings(6);
+  Table* phase_tbl = manage(new Table(1, 4));
+  phase_tbl->set_border_width(6);
+  phase_tbl->set_spacings(6);
   
-  VBox* phaseEBox = manage(new VBox);
+  VBox* ed_box = manage(new VBox);
   Notebook* phase_ed_nbk = manage(new Notebook);
-  ScrolledWindow* phaseEScrw = manage(new ScrolledWindow);
-  phase_ed_nbk->append_page(*phaseEScrw, "Phase");
-  phaseEScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
-  phaseEScrw->set_shadow_type(SHADOW_IN);
-  phaseEScrw->add(m_phase);
-  phaseEBox->pack_start(*phase_ed_nbk, false, false);
-  HBox* phaseEHBox = manage(new HBox(true));
-  phaseEBox->pack_start(*phaseEHBox, false, false);
-  phaseTable->attach(*phaseEBox, 0, 1, 0, 1, 
+  ScrolledWindow* ed_scw = manage(new ScrolledWindow);
+  phase_ed_nbk->append_page(*ed_scw, "Phase");
+  ed_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  ed_scw->set_shadow_type(SHADOW_IN);
+  ed_scw->add(m_phase);
+  ed_box->pack_start(*phase_ed_nbk, false, false);
+  HBox* ed_hbox = manage(new HBox(true));
+  ed_box->pack_start(*ed_hbox, false, false);
+  phase_tbl->attach(*ed_box, 0, 1, 0, 1, 
                      AttachOptions(0), AttachOptions(0));
-  Table* phaseT1 = manage(new Table(2, 2));
-  phaseTable->attach(*phaseT1, 1, 2, 0, 1, AttachOptions(0), AttachOptions(0));
-  phaseT1->set_spacings(3);
-  phaseT1->attach(*create_knob("P.Dist", e_phase_dist), 
+  Table* knob1_tbl = manage(new Table(2, 2));
+  phase_tbl->attach(*knob1_tbl, 1, 2, 0, 1, AttachOptions(0), AttachOptions(0));
+  knob1_tbl->set_spacings(3);
+  knob1_tbl->attach(*create_knob("P.Dist", e_phase_dist), 
                   0, 1, 0, 1, AttachOptions(0));
-  phaseT1->attach(*create_knob("Env", e_pd_env_sens),
+  knob1_tbl->attach(*create_knob("Env", e_pd_env_sens),
                   0, 1, 1, 2, AttachOptions(0));
-  phaseT1->attach(*create_knob("Vel", e_pd_vel_sens)
+  knob1_tbl->attach(*create_knob("Vel", e_pd_vel_sens)
                   , 1, 2, 0, 1, AttachOptions(0));
   
-  HScrollbar* phaseBar = 
+  HScrollbar* env_bar = 
     manage(new HScrollbar(m_phase_env.get_adjustment()));
   for (int i = 0; i < 4; ++i) {
-    ToggleButton* phaseBtn = manage(new ToggleButton);
-    phaseBar->signal_size_allocate().connect(bind(&moo, phaseBtn));
-    phaseEHBox->pack_start(*phaseBtn);
+    ToggleButton* btn = manage(new ToggleButton);
+    env_bar->signal_size_allocate().connect(bind(&moo, btn));
+    ed_hbox->pack_start(*btn);
   }
   
-  VBox* phaseEnvBox = manage(new VBox(false, 0));
+  VBox* env_box = manage(new VBox(false, 0));
   Notebook* phase_nbk = manage(new Notebook);
-  phaseEnvBox->pack_start(*phase_nbk);
-  phaseTable->attach(*phaseEnvBox, 2, 3, 0, 1, 
+  env_box->pack_start(*phase_nbk);
+  phase_tbl->attach(*env_box, 2, 3, 0, 1, 
                      FILL|EXPAND, AttachOptions(0));
-  phaseEnvBox->pack_start(*phaseBar);
+  env_box->pack_start(*env_bar);
 
-  ScrolledWindow* phaseScrw = manage(new ScrolledWindow());
-  phase_nbk->append_page(*phaseScrw, "Phase distortion");
-  phaseScrw->set_shadow_type(SHADOW_IN);
-  phaseScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
-  phaseScrw->add(m_phase_env);
-  ScrolledWindow* phaseAmpScrw = manage(new ScrolledWindow());
-  phase_nbk->append_page(*phaseAmpScrw, "Gain");
-  phaseAmpScrw->set_shadow_type(SHADOW_IN);
-  phaseAmpScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
-  phaseAmpScrw->add(m_phase_amp_env);
+  ScrolledWindow* env_scw = manage(new ScrolledWindow());
+  phase_nbk->append_page(*env_scw, "Phase distortion");
+  env_scw->set_shadow_type(SHADOW_IN);
+  env_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  env_scw->add(m_phase_env);
+  ScrolledWindow* env_amp_scw = manage(new ScrolledWindow());
+  phase_nbk->append_page(*env_amp_scw, "Gain");
+  env_amp_scw->set_shadow_type(SHADOW_IN);
+  env_amp_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  env_amp_scw->add(m_phase_amp_env);
 
-  Table* phaseT2 = manage(new Table(2, 2));
-  phaseTable->attach(*phaseT2, 3, 4, 0, 1, AttachOptions(0), AttachOptions(0));
-  phaseT2->set_spacings(3);
-  phaseT2->attach(*create_knob("Att", e_pd_attack, 1, 0, 0), 
+  Table* knob2_tbl = manage(new Table(2, 2));
+  phase_tbl->attach(*knob2_tbl, 3, 4, 0, 1, AttachOptions(0), AttachOptions(0));
+  knob2_tbl->set_spacings(3);
+  knob2_tbl->attach(*create_knob("Att", e_pd_attack, 1, 0, 0), 
                   0, 1, 0, 1, AttachOptions(0));
-  phaseT2->attach(*create_knob("Dec", e_pd_decay, 1, 1, 0), 
+  knob2_tbl->attach(*create_knob("Dec", e_pd_decay, 1, 1, 0), 
                   1, 2, 0, 1, AttachOptions(0));
-  phaseT2->attach(*create_knob("Sus", e_pd_sustain, 0.3, 1, 0.3), 
+  knob2_tbl->attach(*create_knob("Sus", e_pd_sustain, 0.3, 1, 0.3), 
                   0, 1, 1, 2, AttachOptions(0));
-  phaseT2->attach(*create_knob("Rel", e_pd_release), 
+  knob2_tbl->attach(*create_knob("Rel", e_pd_release), 
                   1, 2, 1, 2, AttachOptions(0));
   
-  return *phaseTable;
+  return *phase_tbl;
 }
 
 
 Widget& EuphoriaWidget::init_shp_controls() {
-  Table* shapeTable = manage(new Table(1, 4));
-  shapeTable->set_border_width(6);
-  shapeTable->set_spacings(6);
-  VBox* shapeEBox = manage(new VBox);
+
+  Table* shape_tbl = manage(new Table(1, 4));
+  shape_tbl->set_border_width(6);
+  shape_tbl->set_spacings(6);
+  VBox* ed_box = manage(new VBox);
   m_shaper.set_size_request(91, 91);
   Notebook* shape_ed_nbk = manage(new Notebook);
-  ScrolledWindow* shapeEScrw = manage(new ScrolledWindow);
-  shape_ed_nbk->append_page(*shapeEScrw, "Shaper");
-  shapeEScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
-  shapeEScrw->set_shadow_type(SHADOW_IN);
-  shapeEScrw->add(m_shaper);
-  shapeEBox->pack_start(*shape_ed_nbk, false, false);
+  ScrolledWindow* ed_scw = manage(new ScrolledWindow);
+  shape_ed_nbk->append_page(*ed_scw, "Shaper");
+  ed_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  ed_scw->set_shadow_type(SHADOW_IN);
+  ed_scw->add(m_shaper);
+  ed_box->pack_start(*shape_ed_nbk, false, false);
 
-  HBox* shapeEHBox = manage(new HBox(true));
-  shapeEBox->pack_start(*shapeEHBox, false, false);
-  shapeTable->attach(*shapeEBox, 0, 1, 0, 1, 
+  HBox* ed_hbox = manage(new HBox(true));
+  ed_box->pack_start(*ed_hbox, false, false);
+  shape_tbl->attach(*ed_box, 0, 1, 0, 1, 
                      AttachOptions(0), AttachOptions(0));
   
-  Table* shapeT1 = manage(new Table(2, 2));
-  shapeTable->attach(*shapeT1, 1, 2, 0, 1, AttachOptions(0), AttachOptions(0));
-  shapeT1->set_spacings(3);
-  shapeT1->attach(*create_knob("Shape", e_shape), 
-                  0, 1, 0, 1, AttachOptions(0));
-  shapeT1->attach(*create_knob("Env", e_shape_env_sens),
-                  0, 1, 1, 2, AttachOptions(0));
-  shapeT1->attach(*create_knob("Vel", e_shape_vel_sens),
-                  1, 2, 0, 1, AttachOptions(0));
-  shapeT1->attach(*create_knob("Smooth", e_shape_smoothness),
-                  1, 2, 1, 2, AttachOptions(0));
+  Table* knob1_tbl = manage(new Table(2, 2));
+  shape_tbl->attach(*knob1_tbl, 1, 2, 0, 1, AttachOptions(0), AttachOptions(0));
+  knob1_tbl->set_spacings(3);
+  knob1_tbl->attach(*create_knob("Shape", e_shape), 
+                    0, 1, 0, 1, AttachOptions(0));
+  knob1_tbl->attach(*create_knob("Env", e_shape_env_sens),
+                    0, 1, 1, 2, AttachOptions(0));
+  knob1_tbl->attach(*create_knob("Vel", e_shape_vel_sens),
+                    1, 2, 0, 1, AttachOptions(0));
+  knob1_tbl->attach(*create_knob("Smooth", e_shape_smoothness),
+                    1, 2, 1, 2, AttachOptions(0));
   
-  VBox* shapeEnvBox = manage(new VBox(false, 0));
+  VBox* env_box = manage(new VBox(false, 0));
   Notebook* shape_env_nb = manage(new Notebook);
-  ScrolledWindow* shapeScrw = manage(new ScrolledWindow());
-  HScrollbar* shapeBar = manage(new HScrollbar(m_shape_env.get_adjustment()));
+  ScrolledWindow* env_scw = manage(new ScrolledWindow());
+  HScrollbar* env_scb = manage(new HScrollbar(m_shape_env.get_adjustment()));
   for (int i = 0; i < 4; ++i) {
-    ToggleButton* shapeBtn = manage(new ToggleButton);
-    shapeBar->signal_size_allocate().connect(bind(&moo, shapeBtn));
-    shapeEHBox->pack_start(*shapeBtn);
+    ToggleButton* btn = manage(new ToggleButton);
+    env_scb->signal_size_allocate().connect(bind(&moo, btn));
+    ed_hbox->pack_start(*btn);
   }
-  shapeEnvBox->pack_start(*shape_env_nb);
-  shape_env_nb->append_page(*shapeScrw, "Shaping amount");
-  shapeEnvBox->pack_start(*shapeBar);
-  shapeScrw->set_shadow_type(SHADOW_IN);
-  shapeScrw->set_policy(POLICY_NEVER, POLICY_NEVER);
-  shapeScrw->add(m_shape_env);
-  shapeTable->attach(*shapeEnvBox, 2, 3, 0, 1, 
+  env_box->pack_start(*shape_env_nb);
+  shape_env_nb->append_page(*env_scw, "Shaping amount");
+  env_box->pack_start(*env_scb);
+  env_scw->set_shadow_type(SHADOW_IN);
+  env_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  env_scw->add(m_shape_env);
+  shape_tbl->attach(*env_box, 2, 3, 0, 1, 
                      FILL|EXPAND, AttachOptions(0));
 
-  Table* shapeT2 = manage(new Table(2, 2));
-  shapeTable->attach(*shapeT2, 3, 4, 0, 1, AttachOptions(0), AttachOptions(0));
-  shapeT2->set_spacings(3);
-  shapeT2->attach(*create_knob("Att", e_shape_attack, 1, 0, 0), 
+  Table* knob2_tbl = manage(new Table(2, 2));
+  shape_tbl->attach(*knob2_tbl, 3, 4, 0, 1, AttachOptions(0), AttachOptions(0));
+  knob2_tbl->set_spacings(3);
+  knob2_tbl->attach(*create_knob("Att", e_shape_attack, 1, 0, 0), 
                   0, 1, 0, 1, AttachOptions(0));
-  shapeT2->attach(*create_knob("Dec", e_shape_decay, 1, 1, 0),
+  knob2_tbl->attach(*create_knob("Dec", e_shape_decay, 1, 1, 0),
                   1, 2, 0, 1, AttachOptions(0));
-  shapeT2->attach(*create_knob("Sus", e_shape_sustain, 0.3, 1, 0.3),
+  knob2_tbl->attach(*create_knob("Sus", e_shape_sustain, 0.3, 1, 0.3),
                   0, 1, 1, 2, AttachOptions(0));
-  shapeT2->attach(*create_knob("Rel", e_shape_release),
+  knob2_tbl->attach(*create_knob("Rel", e_shape_release),
                   1, 2, 1, 2, AttachOptions(0));
 
-  return *shapeTable;
+  return *shape_tbl;
 }
 
 
 Widget& EuphoriaWidget::init_fx_controls() {
 
-  HBox* effectHBox = manage(new HBox(true, 12));
-  effectHBox->set_border_width(6);
+  HBox* effect_hbox = manage(new HBox(true, 12));
+  effect_hbox->set_border_width(6);
   
   // distortion
-  Table* distTable = manage(new Table(3, 2));
-  effectHBox->pack_start(*distTable);
-  distTable->set_spacings(3);
-  distTable->attach(*manage(new ToggleButton("Distortion")), 0, 2, 0, 1);
-  distTable->attach(*create_knob("Drive", e_dist_drive, 1, 0, 0),
-                    0, 1, 1, 2, EXPAND);
-  distTable->attach(*create_knob("Set", e_dist_set, 1, 0, 0),
-                    1, 2, 1, 2, EXPAND);
-  distTable->attach(*create_knob("Tone", e_dist_tone, 1, 0, 0), 
-                    0, 1, 2, 3, EXPAND);
-  distTable->attach(*create_knob("Mix", e_dist_mix, 1, 0, 0), 
-                    1, 2, 2, 3, EXPAND);
+  Table* dist_tbl = manage(new Table(3, 2));
+  effect_hbox->pack_start(*dist_tbl);
+  dist_tbl->set_spacings(3);
+  dist_tbl->attach(*manage(new ToggleButton("Distortion")), 0, 2, 0, 1);
+  dist_tbl->attach(*create_knob("Drive", e_dist_drive, 1, 0, 0),
+                   0, 1, 1, 2, EXPAND);
+  dist_tbl->attach(*create_knob("Set", e_dist_set, 1, 0, 0),
+                   1, 2, 1, 2, EXPAND);
+  dist_tbl->attach(*create_knob("Tone", e_dist_tone, 1, 0, 0), 
+                   0, 1, 2, 3, EXPAND);
+  dist_tbl->attach(*create_knob("Mix", e_dist_mix, 1, 0, 0), 
+                   1, 2, 2, 3, EXPAND);
   
   // chorus
-  Table* chorusTable = manage(new Table(3, 2));
-  effectHBox->pack_start(*chorusTable);
-  chorusTable->set_spacings(3);
-  chorusTable->attach(*manage(new ToggleButton("Chorus")), 0, 2, 0, 1);
-  chorusTable->attach(*create_knob("Freq", e_chorus_freq, 0.75, 0.1, 0.25),
+  Table* chorus_tbl = manage(new Table(3, 2));
+  effect_hbox->pack_start(*chorus_tbl);
+  chorus_tbl->set_spacings(3);
+  chorus_tbl->attach(*manage(new ToggleButton("Chorus")), 0, 2, 0, 1);
+  chorus_tbl->attach(*create_knob("Freq", e_chorus_freq, 0.75, 0.1, 0.25),
                       0, 1, 1, 2, EXPAND);
-  chorusTable->attach(*create_knob("Depth", e_chorus_depth, 0.75, 0.1, 0.25),
+  chorus_tbl->attach(*create_knob("Depth", e_chorus_depth, 0.75, 0.1, 0.25),
                       1, 2, 1, 2, EXPAND);
-  chorusTable->attach(*create_knob("Delay", e_chorus_delay, 0.75, 0.1, 0.25),
+  chorus_tbl->attach(*create_knob("Delay", e_chorus_delay, 0.75, 0.1, 0.25),
                       0, 1, 2, 3, EXPAND);
-  chorusTable->attach(*create_knob("Mix", e_chorus_mix, 0.75, 0.1, 0.25),
+  chorus_tbl->attach(*create_knob("Mix", e_chorus_mix, 0.75, 0.1, 0.25),
                       1, 2, 2, 3, EXPAND);
   
   // echo
-  Table* echoTable = manage(new Table(3, 2));
-  effectHBox->pack_start(*echoTable);
-  echoTable->set_spacings(3);
-  echoTable->attach(*manage(new ToggleButton("Echo")), 0, 2, 0, 1);
-  echoTable->attach(*create_knob("Delay", e_echo_delay, 0.25, 0.2, 0.75),
+  Table* echo_tbl = manage(new Table(3, 2));
+  effect_hbox->pack_start(*echo_tbl);
+  echo_tbl->set_spacings(3);
+  echo_tbl->attach(*manage(new ToggleButton("Echo")), 0, 2, 0, 1);
+  echo_tbl->attach(*create_knob("Delay", e_echo_delay, 0.25, 0.2, 0.75),
                     0, 1, 1, 2, EXPAND);
-  echoTable->attach(*create_knob("Fdback", e_echo_feedback, 0.25, 0.2, 0.75),
+  echo_tbl->attach(*create_knob("Fdback", e_echo_feedback, 0.25, 0.2, 0.75),
                     1, 2, 1, 2, EXPAND);
-  echoTable->attach(*create_knob("Pan", e_echo_pan, 0.25, 0.2, 0.75),
+  echo_tbl->attach(*create_knob("Pan", e_echo_pan, 0.25, 0.2, 0.75),
                     0, 1, 2, 3, EXPAND);
-  echoTable->attach(*create_knob("Mix", e_echo_mix, 0.25, 0.2, 0.75),
+  echo_tbl->attach(*create_knob("Mix", e_echo_mix, 0.25, 0.2, 0.75),
                     1, 2, 2, 3, EXPAND);
   
   // reverb
-  Table* reverbTable = manage(new Table(3, 2));
-  effectHBox->pack_start(*reverbTable);
-  reverbTable->set_spacings(3);
-  reverbTable->attach(*manage(new ToggleButton("Reverb")), 0, 2, 0, 1);
-  reverbTable->attach(*create_knob("Time", e_reverb_time), 0, 1, 1, 2, EXPAND);
-  reverbTable->attach(*create_knob("Room", e_reverb_room), 1, 2, 1, 2, EXPAND);
-  reverbTable->attach(*create_knob("Damp", e_reverb_damping),
+  Table* reverb_tbl = manage(new Table(3, 2));
+  effect_hbox->pack_start(*reverb_tbl);
+  reverb_tbl->set_spacings(3);
+  reverb_tbl->attach(*manage(new ToggleButton("Reverb")), 0, 2, 0, 1);
+  reverb_tbl->attach(*create_knob("Time", e_reverb_time), 0, 1, 1, 2, EXPAND);
+  reverb_tbl->attach(*create_knob("Room", e_reverb_room), 1, 2, 1, 2, EXPAND);
+  reverb_tbl->attach(*create_knob("Damp", e_reverb_damping),
                       0, 1, 2, 3, EXPAND);
-  reverbTable->attach(*create_knob("Mix", e_reverb_mix), 1, 2, 2, 3, EXPAND);
+  reverb_tbl->attach(*create_knob("Mix", e_reverb_mix), 1, 2, 2, 3, EXPAND);
   
-  return *effectHBox;
+  return *effect_hbox;
 }
 
 
 Widget& EuphoriaWidget::init_voice_controls() {
 
   // voice controls
-  VBox* voiceVBox = manage(new VBox(false, 6));
-  voiceVBox->set_border_width(6);
+  VBox* voice_vbox = manage(new VBox(false, 6));
+  voice_vbox->set_border_width(6);
   Notebook* voice_nbk = manage(new Notebook);
-  voiceVBox->pack_start(*voice_nbk);
+  voice_vbox->pack_start(*voice_nbk);
 
   voice_nbk->append_page(init_pd_controls(), "Phase distortion");
 
@@ -389,86 +390,86 @@ Widget& EuphoriaWidget::init_voice_controls() {
 
   voice_nbk->append_page(*manage(new HBox), "Markov synthesis");
   
-  voiceVBox->pack_start(*manage(new HSeparator));
+  voice_vbox->pack_start(*manage(new HSeparator));
   
-  HBox* voiceHBox = manage(new HBox(false, 6));
-  voiceVBox->pack_start(*voiceHBox);
-  Table* voiceKnobTable = manage(new Table(2, 4));
-  voiceKnobTable->set_row_spacings(3);
-  voiceKnobTable->set_col_spacings(12);
-  voiceHBox->pack_start(*voiceKnobTable);
+  HBox* voice_hbox = manage(new HBox(false, 6));
+  voice_vbox->pack_start(*voice_hbox);
+  Table* voice_knob_table = manage(new Table(2, 4));
+  voice_knob_table->set_row_spacings(3);
+  voice_knob_table->set_col_spacings(12);
+  voice_hbox->pack_start(*voice_knob_table);
   
-  Label* vibratoLabel = manage(new Label("<small>Vibrato</small>"));
-  vibratoLabel->set_use_markup(true);
-  voiceKnobTable->attach(*vibratoLabel, 0, 1, 0, 1, AttachOptions(0));
-  HBox* vibratoHBox = manage(new HBox(false, 3));
-  voiceKnobTable->attach(*vibratoHBox, 0, 1, 1, 2, AttachOptions(0));
-  vibratoHBox->pack_start(*create_knob("Freq", e_vib_freq, 1.0, 0.5, 0));
-  vibratoHBox->pack_start(*create_knob("Depth", e_vib_depth, 1.0, 0.5, 0));
+  Label* vibrato_lbl = manage(new Label("<small>Vibrato</small>"));
+  vibrato_lbl->set_use_markup(true);
+  voice_knob_table->attach(*vibrato_lbl, 0, 1, 0, 1, AttachOptions(0));
+  HBox* vibrato_hbox = manage(new HBox(false, 3));
+  voice_knob_table->attach(*vibrato_hbox, 0, 1, 1, 2, AttachOptions(0));
+  vibrato_hbox->pack_start(*create_knob("Freq", e_vib_freq, 1.0, 0.5, 0));
+  vibrato_hbox->pack_start(*create_knob("Depth", e_vib_depth, 1.0, 0.5, 0));
   
-  Label* tremoloLabel = manage(new Label("<small>Tremolo</small>"));
-  tremoloLabel->set_use_markup(true);
-  voiceKnobTable->attach(*tremoloLabel, 1, 2, 0, 1, AttachOptions(0));
-  HBox* tremoloHBox = manage(new HBox(false, 3));
-  voiceKnobTable->attach(*tremoloHBox, 1, 2, 1, 2, AttachOptions(0));
-  tremoloHBox->pack_start(*create_knob("Freq", e_trem_freq, 1, 0, 1));
-  tremoloHBox->pack_start(*create_knob("Depth", e_trem_depth, 1, 0, 1));
+  Label* tremolo_lbl = manage(new Label("<small>Tremolo</small>"));
+  tremolo_lbl->set_use_markup(true);
+  voice_knob_table->attach(*tremolo_lbl, 1, 2, 0, 1, AttachOptions(0));
+  HBox* tremolo_hbox = manage(new HBox(false, 3));
+  voice_knob_table->attach(*tremolo_hbox, 1, 2, 1, 2, AttachOptions(0));
+  tremolo_hbox->pack_start(*create_knob("Freq", e_trem_freq, 1, 0, 1));
+  tremolo_hbox->pack_start(*create_knob("Depth", e_trem_depth, 1, 0, 1));
 
-  Label* unisonLabel = manage(new Label("<small>Unison</small>"));
-  unisonLabel->set_use_markup(true);
-  voiceKnobTable->attach(*unisonLabel, 2, 3, 0, 1, AttachOptions(0));
-  HBox* unisonHBox = manage(new HBox(false, 3));
-  voiceKnobTable->attach(*unisonHBox, 2, 3, 1, 2, AttachOptions(0));
-  unisonHBox->pack_start(*create_knob("Layers", e_unison_layers, 
+  Label* unison_lbl = manage(new Label("<small>Unison</small>"));
+  unison_lbl->set_use_markup(true);
+  voice_knob_table->attach(*unison_lbl, 2, 3, 0, 1, AttachOptions(0));
+  HBox* unison_hbox = manage(new HBox(false, 3));
+  voice_knob_table->attach(*unison_hbox, 2, 3, 1, 2, AttachOptions(0));
+  unison_hbox->pack_start(*create_knob("Layers", e_unison_layers, 
                                       0.4, 0.4, 0.4));
-  unisonHBox->pack_start(*create_knob("Spread", e_unison_spread, 
+  unison_hbox->pack_start(*create_knob("Spread", e_unison_spread, 
                                       0.4, 0.4, 0.4));
 
-  Label* ampLabel = manage(new Label("<small>Amp</small>"));
-  ampLabel->set_use_markup(true);
-  voiceKnobTable->attach(*ampLabel, 3, 4, 0, 1, AttachOptions(0));
-  HBox* ampHBox = manage(new HBox(false, 3));
-  voiceKnobTable->attach(*ampHBox, 3, 4, 1, 2, AttachOptions(0));
-  ampHBox->pack_start(*create_knob("Env", e_amp_env, 0, 1, 1));
-  ampHBox->pack_start(*create_knob("Vel", e_amp_vel_sens, 0, 1, 1));
+  Label* amp_lbl = manage(new Label("<small>Amp</small>"));
+  amp_lbl->set_use_markup(true);
+  voice_knob_table->attach(*amp_lbl, 3, 4, 0, 1, AttachOptions(0));
+  HBox* amp_hbox = manage(new HBox(false, 3));
+  voice_knob_table->attach(*amp_hbox, 3, 4, 1, 2, AttachOptions(0));
+  amp_hbox->pack_start(*create_knob("Env", e_amp_env, 0, 1, 1));
+  amp_hbox->pack_start(*create_knob("Vel", e_amp_vel_sens, 0, 1, 1));
   
-  Table* noteTable = manage(new Table(2, 3));
-  noteTable->set_spacings(3);
-  voiceHBox->pack_end(*noteTable, false, false);
-  voiceHBox->pack_end(*manage(new VSeparator), false, false);
-  noteTable->attach(*manage(new ToggleButton("Poly")), 0, 1, 0, 1, 
+  Table* note_tbl = manage(new Table(2, 3));
+  note_tbl->set_spacings(3);
+  voice_hbox->pack_end(*note_tbl, false, false);
+  voice_hbox->pack_end(*manage(new VSeparator), false, false);
+  note_tbl->attach(*manage(new ToggleButton("Poly")), 0, 1, 0, 1, 
                     FILL, AttachOptions(0));
-  Label* voicesLabel = manage(new Label("<small>Number of Voices:</small>", 
+  Label* voices_lbl = manage(new Label("<small>Number of Voices:</small>", 
                                         ALIGN_RIGHT));
-  voicesLabel->set_use_markup(true);
-  noteTable->attach(*voicesLabel, 1, 2, 0, 1);
-  SpinButton* voicesSpin = manage(new SpinButton);
-  voicesSpin->set_increments(1, 10);
-  voicesSpin->set_range(1, 10);
-  voicesSpin->set_digits(0);
-  noteTable->attach(*voicesSpin, 2, 3, 0, 1, AttachOptions(0));
-  noteTable->attach(*manage(new ToggleButton("Tie")), 0, 1, 1, 2, 
+  voices_lbl->set_use_markup(true);
+  note_tbl->attach(*voices_lbl, 1, 2, 0, 1);
+  SpinButton* voices_sbn = manage(new SpinButton);
+  voices_sbn->set_increments(1, 10);
+  voices_sbn->set_range(1, 10);
+  voices_sbn->set_digits(0);
+  note_tbl->attach(*voices_sbn, 2, 3, 0, 1, AttachOptions(0));
+  note_tbl->attach(*manage(new ToggleButton("Tie")), 0, 1, 1, 2, 
                     FILL, AttachOptions(0));
-  Label* slideLabel = manage(new Label("<small>Slide speed:</small>", 
+  Label* slide_lbl = manage(new Label("<small>Slide speed:</small>", 
                                        ALIGN_RIGHT));
-  slideLabel->set_use_markup(true);
-  noteTable->attach(*slideLabel, 1, 2, 1, 2);
-  SpinButton* slideSpin = manage(new SpinButton);
-  slideSpin->set_increments(0.01, 0.1);
-  slideSpin->set_range(0, 1);
-  slideSpin->set_digits(2);
-  noteTable->attach(*slideSpin, 2, 3, 1, 2, AttachOptions(0));
+  slide_lbl->set_use_markup(true);
+  note_tbl->attach(*slide_lbl, 1, 2, 1, 2);
+  SpinButton* slide_sbn = manage(new SpinButton);
+  slide_sbn->set_increments(0.01, 0.1);
+  slide_sbn->set_range(0, 1);
+  slide_sbn->set_digits(2);
+  note_tbl->attach(*slide_sbn, 2, 3, 1, 2, AttachOptions(0));
   
-  return *voiceVBox;
+  return *voice_vbox;
 }
 
 
 Widget& EuphoriaWidget::init_program_controls() {
-  ScrolledWindow* progScw = manage(new ScrolledWindow);
-  progScw->set_size_request(100, -1);
-  progScw->set_shadow_type(SHADOW_IN);
-  progScw->add(m_program_view);
-  progScw->set_policy(POLICY_NEVER, POLICY_ALWAYS);
+  ScrolledWindow* prog_scw = manage(new ScrolledWindow);
+  prog_scw->set_size_request(100, -1);
+  prog_scw->set_shadow_type(SHADOW_IN);
+  prog_scw->add(m_program_view);
+  prog_scw->set_policy(POLICY_NEVER, POLICY_ALWAYS);
   m_program_view.set_model(m_program_store);
   m_program_view.append_column("Number", m_program_columns.number);
   m_program_view.append_column("Name", m_program_columns.name);
@@ -478,32 +479,32 @@ Widget& EuphoriaWidget::init_program_controls() {
   m_program_view.get_selection()->signal_changed().
     connect(mem_fun(*this, &EuphoriaWidget::program_selection_changed));
   
-  return *progScw;
+  return *prog_scw;
 }
 
 
 Widget& EuphoriaWidget::init_global_controls() {
-  HBox* globalControlsBox = manage(new HBox(false, 6));
-  globalControlsBox->pack_start(*create_knob("Gain", e_gain), true, false);
-  globalControlsBox->pack_start(*create_knob("Octave", e_octave), true, false);
-  globalControlsBox->pack_start(*create_knob("Tune", e_tune), true, false);
-  globalControlsBox->pack_start(*create_knob("Pan", e_pan), true, false);
-  return *globalControlsBox;
+  HBox* global_controls_box = manage(new HBox(false, 6));
+  global_controls_box->pack_start(*create_knob("Gain", e_gain), true, false);
+  global_controls_box->pack_start(*create_knob("Octave", e_octave), true, false);
+  global_controls_box->pack_start(*create_knob("Tune", e_tune), true, false);
+  global_controls_box->pack_start(*create_knob("Pan", e_pan), true, false);
+  return *global_controls_box;
 }
 
 
 Widget& EuphoriaWidget::init_bottom_buttons() {
-  HBox* bottomBox = manage(new HBox(false, 6));
-  Button* saveProgButton = manage(new Button("Save program"));
-  Image* saveImage = manage(new Image);
-  saveImage->set(Stock::SAVE, ICON_SIZE_BUTTON);
-  saveProgButton->set_image(*saveImage);
-  bottomBox->pack_start(*saveProgButton, false, false);
-  Button* aboutButton = manage(new Button("About Euphoria"));
-  Image* aboutImage = manage(new Image);
-  aboutImage->set(Stock::ABOUT, ICON_SIZE_BUTTON);
-  aboutButton->set_image(*aboutImage);
-  bottomBox->pack_end(*aboutButton, false, false);
+  HBox* bottom_box = manage(new HBox(false, 6));
+  Button* save_prog_button = manage(new Button("Save program"));
+  Image* save_image = manage(new Image);
+  save_image->set(Stock::SAVE, ICON_SIZE_BUTTON);
+  save_prog_button->set_image(*save_image);
+  bottom_box->pack_start(*save_prog_button, false, false);
+  Button* about_button = manage(new Button("About Euphoria"));
+  Image* about_image = manage(new Image);
+  about_image->set(Stock::ABOUT, ICON_SIZE_BUTTON);
+  about_button->set_image(*about_image);
+  bottom_box->pack_end(*about_button, false, false);
   
-  return *bottomBox;
+  return *bottom_box;
 }
