@@ -75,6 +75,10 @@ public:
     m_euph.clear_programs();
   }
   
+  void set_program(unsigned char number) {
+    m_euph.set_program(number);
+  }
+  
 protected:
 
   EuphoriaWidget m_euph;

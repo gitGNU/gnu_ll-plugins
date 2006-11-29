@@ -127,6 +127,17 @@ void EuphoriaWidget::clear_programs() {
 }
 
 
+void EuphoriaWidget::set_program(int number) {
+  ListStore::iterator iter = m_program_store->children().begin();
+  for ( ; iter != m_program_store->children().end(); ++iter) {
+    if ((*iter)[m_program_columns.number] == number) {
+      m_program_view.get_selection()->select(iter);
+      break;
+    }
+  }
+}
+
+
 void EuphoriaWidget::set_control(uint32_t port, float value) {
   if (port < m_adj.size() && m_adj[port])
     m_adj[port]->set_value(value);

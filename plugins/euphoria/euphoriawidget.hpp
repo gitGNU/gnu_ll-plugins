@@ -43,6 +43,7 @@ public:
   void add_program(int number, const std::string& name);
   void remove_program(int number);
   void clear_programs();
+  void set_program(int number);
   
   void set_control(uint32_t port, float value);
   void configure(const std::string& key, const std::string& value);
