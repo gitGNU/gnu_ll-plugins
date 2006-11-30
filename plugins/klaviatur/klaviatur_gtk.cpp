@@ -41,7 +41,8 @@ public:
   KlaviaturGUI(LV2Controller& ctrl, const std::string& URI, 
                const std::string& bundle_path, Widget*& widget) 
     : m_cc(0, 128, 1),
-      m_pitch(-8192, 8192, 1) {
+      m_pitch(-8192, 8192, 1),
+      m_vel(1, 128, 1) {
 
     widget = &m_vbox;
     
@@ -49,23 +50,29 @@ public:
     m_kb.set_flags(m_kb.get_flags() | CAN_FOCUS);
     m_cc.set_digits(0);
     m_cc.set_draw_value(false);
+    m_cc.set_value(0);
     m_pitch.set_digits(0);
     m_pitch.set_draw_value(false);
+    m_pitch.set_value(0);
+    m_vel.set_digits(0);
+    m_vel.set_draw_value(false);
+    m_vel.set_value(64);
     m_cc_sbn.set_range(0, 127);
     m_cc_sbn.set_increments(1, 16);
     m_cc_sbn.set_digits(0);
     m_cc_sbn.set_snap_to_ticks(true);
     
     // layout
-    Table* table = manage(new Table(2, 3));
+    Table* table = manage(new Table(3, 3));
     table->set_border_width(6);
     table->set_spacings(6);
-    Label* cc_lbl = manage(new Label("CC:", ALIGN_LEFT));
-    table->attach(*cc_lbl, 0, 1, 0, 1, FILL); 
+    table->attach(*manage(new Label("CC:", ALIGN_LEFT)), 0, 1, 0, 1, FILL); 
     table->attach(m_cc_sbn, 1, 2, 0, 1, FILL);
     table->attach(m_cc, 2, 3, 0, 1);
     table->attach(*manage(new Label("Pitch:", ALIGN_LEFT)), 0, 2, 1, 2, FILL);
     table->attach(m_pitch, 2, 3, 1, 2);
+    table->attach(*manage(new Label("Velocity:", ALIGN_LEFT)),0, 2, 2, 3, FILL);
+    table->attach(m_vel, 2, 3, 2, 3);
     Expander* exp = manage(new Expander("Controls"));
     exp->add(*table);
     m_vbox.pack_start(*exp);
@@ -79,6 +86,8 @@ public:
       connect(bind(mem_fun(*this, &KlaviaturGUI::handle_keyrelease),ref(ctrl)));
     m_cc.signal_value_changed().
       connect(bind(mem_fun(*this, &KlaviaturGUI::handle_cc_change), ref(ctrl)));
+    m_cc_sbn.signal_value_changed().
+      connect(bind(mem_fun(*this, &KlaviaturGUI::handle_cc_change), ref(ctrl)));
     m_pitch.signal_value_changed().
       connect(bind(mem_fun(*this, &KlaviaturGUI::handle_pitch_change), 
                    ref(ctrl)));
@@ -87,7 +96,7 @@ public:
 protected:
 
   void handle_keypress(unsigned char key, LV2Controller& ctrl) {
-    unsigned char data[3] = { 0x90, key + 36, 64 };
+    unsigned char data[3] = { 0x90, key + 36, int(m_vel.get_value()) };
     ctrl.send_midi(k_midi_input, 3, data);
   }
   
@@ -114,6 +123,7 @@ protected:
   
   HScale m_pitch;
   HScale m_cc;
+  HScale m_vel;
   SpinButton m_cc_sbn;
   Keyboard m_kb;
   VBox m_vbox;
