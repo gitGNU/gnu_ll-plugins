@@ -32,6 +32,8 @@
 #include <pthread.h>
 #include <dlfcn.h>
 
+#include <sigc++/slot.h>
+
 #include "lv2-instrument.h"
 #include "ringbuffer.hpp"
 #include "eventqueue.hpp"
@@ -151,7 +153,28 @@ public:
   /** Returns all found presets. */
   const std::map<uint32_t, LV2Preset>& get_presets() const;
   
+  /** List all available plugins. */
+  static void list_plugins();
+  
 protected:
+  
+  static std::vector<std::string> get_search_dirs();
+  
+  typedef sigc::slot<bool, const std::string&, const std::string&, 
+                     const std::string&, const std::string&> 
+  scan_callback_t;
+  
+  static bool scan_manifests(const std::vector<std::string>& search_dirs, 
+                             scan_callback_t callback);
+                      
+  bool match_uri(const std::string& uri, const std::string& bundle,
+                 const std::string& rdf_file, const std::string& binary);
+  
+  static bool print_uri(const std::string& uri, const std::string& bundle,
+                        const std::string& rdf_file, const std::string& binary);
+  
+  void load_plugin(const std::string& rdf_file, const std::string& binary);
+  
   
   template <typename T, typename S> T nasty_cast(S ptr) {
     union {
@@ -177,7 +200,12 @@ protected:
     return func(a);
   }
   
-  static LV2Host* m_current_object;
+  
+  std::string m_uri;
+  std::string m_bundle;
+  std::string m_rdffile;
+  std::string m_binary;
+  uint32_t m_rate;
   
   void* m_libhandle;
   LV2_Handle m_handle;

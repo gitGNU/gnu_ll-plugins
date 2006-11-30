@@ -58,7 +58,11 @@ typedef void* LV2UI_Controller;
 
 
 /** This struct contains pointers to functions provided by the program which is
-    loading the GUI plugin. None of the members are allowed to be NULL. */
+    loading the GUI plugin. None of the members are allowed to be NULL. 
+    An object of this type will be created by the host and a pointer to it
+    will be passed to the instantiate() function in the LV2UI_UIDescriptor
+    struct. The GUI plugin can then use the function pointers in that object
+    to control the LV2 plugin instance through the host. */
 typedef struct {
 
   /** Change the value of one of the plugin's control rate float ports. If
@@ -118,16 +122,19 @@ typedef struct {
 
 
 /** Accessing a plugin GUI:
- *
- * A plugin programmer must include a function called "lv2ui_descriptor"
- * with the following function prototype within the shared object
- * file. This function will have C-style linkage (if you are using
- * C++ this is taken care of by the 'extern "C"' clause at the top of
- * the file).
- *
- * A host will find the plugin shared object file by one means or another,
- * find the lv2ui_descriptor() function, call it, and proceed from 
- * there. */
+    
+    A plugin programmer must include a function called "lv2ui_descriptor"
+    with the following function prototype within the shared object
+    file. This function will have C-style linkage (if you are using
+    C++ this is taken care of by the 'extern "C"' clause at the top of
+    the file).
+    
+    This function differs from the lv2_descriptor() function in lv2.h in the
+    parameter it takes - lv2_descriptor() takes an index and the host calls
+    the function with indices from 0 and upwards until it finds the plugin
+    descriptor it is looking for. lv2ui_descriptor() takes the plugin URI
+    as parameter and returns the LV2UI_UIDescriptor for that plugin, or 0
+    if it does not know anything about that plugin. */
 const LV2UI_UIDescriptor* lv2ui_descriptor(const char* URI);
 
 

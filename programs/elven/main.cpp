@@ -313,7 +313,9 @@ void sigchild(int signal) {
 
 
 void print_usage(const char* argv0) {
-  cerr<<"usage: "<<argv0<<" [-d DEBUGLEVEL] [-h] PLUGIN_URI"<<endl
+  cerr<<"usage:   "<<argv0<<" --help"<<endl
+      <<"         "<<argv0<<" --list"<<endl
+      <<"         "<<argv0<<" [--debug DEBUGLEVEL] PLUGIN_URI"<<endl<<endl
       <<"example: "<<argv0
       <<" 'http://ll-plugins.nongnu.org/lv2/euphoria/0.0.0'"<<endl;
 }
@@ -332,6 +334,7 @@ int main(int argc, char** argv) {
   int i;
   for (i = 1; i < argc; ++i) {
     
+    // print help
     if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
       cerr<<"Elven is an (E)xperimental (LV)2 (E)xecution e(N)vironment.\n\n"
           <<"(C) 2006 Lars Luthman <lars.luthman@gmail.com>\n"
@@ -341,6 +344,7 @@ int main(int argc, char** argv) {
       return 0;
     }
     
+    // set debugging level (higher level -> more messages)
     else if (!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug")) {
       if (i == argc - 1) {
         cerr<<"No debug level given!"<<endl;
@@ -348,6 +352,12 @@ int main(int argc, char** argv) {
       }
       DebugInfo::level() = atoi(argv[i + 1]);
       ++i;
+    }
+    
+    // list all available plugins
+    else if (!strcmp(argv[i], "-l") || !strcmp(argv[i], "--list")) {
+      LV2Host::list_plugins();
+      return 0;
     }
     
     else

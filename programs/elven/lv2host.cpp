@@ -44,6 +44,7 @@
 
 using namespace std;
 using namespace PAQ;
+using namespace sigc;
 
 
 namespace {
@@ -57,7 +58,9 @@ namespace {
 
 
 LV2Host::LV2Host(const string& uri, unsigned long frame_rate) 
-  : m_handle(0),
+  : m_uri(uri),
+    m_rate(frame_rate),
+    m_handle(0),
     m_inst_desc(0),
     m_midimap(128, -1),
     m_from_jack(0) {
@@ -67,441 +70,18 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   pthread_mutex_init(&m_mutex, 0);
   
   // get the directories to look in
-  vector<string> search_dirs;
-  const char* lv2p_c = getenv("LV2_PATH");
-  if (!lv2p_c) {
-    DBG1("LV2_PATH is not defined, will search default directories");
-    search_dirs.push_back(string(getenv("HOME")) + "/.lv2");
-    search_dirs.push_back("/usr/lib/lv2");
-    search_dirs.push_back("/usr/local/lib/lv2");
-  }
-  else {
-    string lv2_path = lv2p_c;
-    int split;
-    while ((split = lv2_path.find(':')) != string::npos) {
-      search_dirs.push_back(lv2_path.substr(0, split));
-      lv2_path = lv2_path.substr(split + 1);
-    }
-    search_dirs.push_back(lv2_path);
-  }
-  
-  string uriref = string("<") + uri + ">";
-  string library;
-  string ttlfile;
-  string plugindir;
-  bool isInstrument = false;
-
-  vector<QueryResult> qr;
+  vector<string> search_dirs = get_search_dirs();
   
   // iterate over all directories
-  for (unsigned i = 0; i < search_dirs.size(); ++i) {
-    
-    DBG2("Searching "<<search_dirs[i]);
-    
-    // open the directory
-    DIR* d = opendir(search_dirs[i].c_str());
-    if (d == 0) {
-      DBG1("Could not open "<<search_dirs[i]<<": "<<strerror(errno));
-      continue;
-    }
-    
-    // iterate over all directory entries
-    dirent* e;
-    while (e = readdir(d)) {
-      if (strlen(e->d_name) >= 4) {
-        
-        // is it named like an LV2 bundle?
-        if (strcmp(e->d_name + (strlen(e->d_name) - 4), ".lv2"))
-          continue;
-        
-        // is it actually a directory?
-        plugindir = search_dirs[i] + "/" + e->d_name;
-        struct stat stat_info;
-        if (stat(plugindir.c_str(), &stat_info)) {
-          DBG1("Could not get file information about "<<plugindir);
-          continue;
-        }
-        if (!S_ISDIR(stat_info.st_mode)) {
-          DBG1(plugindir<<" is not a directory");
-          continue;
-        }
-        
-        // parse the manifest to get the library filename and the data filename
-        ttlfile = plugindir + "/manifest.ttl";
-        {
-          
-          ifstream ifs((plugindir + "/manifest.ttl").c_str());
-          string text, line;
-          while (getline(ifs, line))
-            text += line + "\n";
-          TurtleParser tp;
-          RDFData data;
-          if (!tp.parse_ttl(text, data)) {
-            DBG1("Could not parse "<<plugindir<<"/manifest.ttl");
-            continue;
-          }
-          Variable binary, datafile;
-          Namespace lv2("<http://lv2plug.in/ontology#>");
-          qr = select(binary)
-            .where(uriref, lv2("binary"), binary)
-            .run(data);
-          if (qr.size() == 0) {
-            DBG2("Did not find an lv2:binary reference for "<<uriref
-                 <<" in "<<plugindir<<"/manifest.ttl");
-            continue;
-          }
-          else {
-            library = absolutise(qr[0][binary]->name, plugindir);
-            DBG2("Found shared object file "<<library);
-          }
-          qr = select(datafile)
-            .where(uriref, rdfs("seeAlso"), datafile)
-            .run(data);
-          if (qr.size() == 0) {
-            DBG2("Did not find an rdfs:seeAlso reference for "<<uriref
-                 <<" in "<<plugindir<<"/manifest.ttl");
-            continue;
-          }
-          ttlfile = absolutise(qr[0][datafile]->name, plugindir);
-          DBG2("Found RDF file "<<ttlfile);
-          break;
-        }
-      }
-    }
-    
-    closedir(d);
-    if (library != "")
-      break;
-  }
+  scan_manifests(search_dirs, mem_fun(*this, &LV2Host::match_uri));
   
-  if (library == "") {
-    DBG0("Could not find plugin "<<uri);
+  if (m_binary == "") {
+    DBG0("Could not find plugin <"<<m_uri<<">");
     return;
   }
-  
-  // parse the datafile to get port info
-  {
-    
-    ifstream ifs(ttlfile.c_str());
-    string text, line;
-    while (getline(ifs, line))
-      text += line + "\n";
-    TurtleParser tp;
-    RDFData data;
-    if (!tp.parse_ttl(text, data)) {
-      DBG0("Could not parse "<<ttlfile);
-      return;
-    }
-    Variable symbol, index, portclass, porttype, port;
-    Namespace lv2("<http://lv2plug.in/ontology#>");
-    Namespace ll("<http://ll-plugins.nongnu.org/lv2/namespace#>");
-    Namespace llext("<http://ll-plugins.nongnu.org/lv2/ext/>");
-    
-    qr = select(index, symbol, portclass, porttype)
-      .where(uriref, lv2("port"), port)
-      .where(port, rdf("type"), portclass)
-      .where(port, lv2("index"), index)
-      .where(port, lv2("symbol"), symbol)
-      .where(port, lv2("datatype"), porttype)
-      .run(data);
-    m_ports.resize(qr.size());
-    for (unsigned j = 0; j < qr.size(); ++j) {
-      
-      // index
-      size_t p = atoi(qr[j][index]->name.c_str());
-      if (p >= m_ports.size()) {
-        DBG0("Found port with index "<<p<<", but there are only "
-             <<m_ports.size()<<" ports in total");
-        return;
-      }
-      
-      // symbol
-      m_ports[p].symbol = qr[j][symbol]->name;
-      DBG2("Found port "<<m_ports[p].symbol);
-      
-      // direction and rate
-      string pclass = qr[j][portclass]->name;
-      DBG2(m_ports[p].symbol<<" is an "<<pclass);
-      if (pclass == lv2("ControlRateInputPort")) {
-        m_ports[p].direction = InputPort;
-        m_ports[p].rate = ControlRate;
-      }
-      else if (pclass == lv2("ControlRateOutputPort")) {
-        m_ports[p].direction = OutputPort;
-        m_ports[p].rate = ControlRate;
-      }
-      else if (pclass == lv2("AudioRateInputPort")) {
-        m_ports[p].direction = InputPort;
-        m_ports[p].rate = AudioRate;
-      }
-      else if (pclass == lv2("AudioRateOutputPort")) {
-        m_ports[p].direction = OutputPort;
-        m_ports[p].rate = AudioRate;
-      }
-      else {
-        DBG0("Unknown port class: "<<pclass);
-        return;
-      }
-      
-      // type
-      string type = qr[j][porttype]->name;
-      DBG2(m_ports[p].symbol<<" has the datatype "<<type);
-      if (type == lv2("float"))
-        m_ports[p].midi = false;
-      else if (type == llext("miditype"))
-        m_ports[p].midi = true;
-      else {
-        DBG0("Unknown datatype: "<<type);
-        return;
-      }
-      
-      m_ports[p].default_value = 0;
-      m_ports[p].min_value = 0;
-      m_ports[p].max_value = 1;
-    }
-    
-    // default values
-    Variable default_value;
-    qr = select(index, default_value)
-      .where(uriref, lv2("port"), port)
-      .where(port, lv2("index"), index)
-      .where(port, lv2("default"), default_value)
-      .run(data);
-    for (unsigned j = 0; j < qr.size(); ++j) {
-      unsigned p = atoi(qr[j][index]->name.c_str());
-      if (p >= m_ports.size())
-        return;
-      m_ports[p].default_value = 
-        atof(qr[j][default_value]->name.c_str());
-    }
-    
-    // minimum values
-    Variable min_value;
-    qr = select(index, min_value)
-      .where(uriref, lv2("port"), port)
-      .where(port, lv2("index"), index)
-      .where(port, lv2("minimum"), min_value)
-      .run(data);
-    for (unsigned j = 0; j < qr.size(); ++j) {
-      unsigned p = atoi(qr[j][index]->name.c_str());
-      if (p >= m_ports.size())
-        return;
-      m_ports[p].min_value = 
-        atof(qr[j][min_value]->name.c_str());
-    }
-    
-    // maximum values
-    Variable max_value;
-    qr = select(index, max_value)
-      .where(uriref, lv2("port"), port)
-      .where(port, lv2("index"), index)
-      .where(port, lv2("maximum"), max_value)
-      .run(data);
-    for (unsigned j = 0; j < qr.size(); ++j) {
-      unsigned p = atoi(qr[j][index]->name.c_str());
-      if (p >= m_ports.size())
-        return;
-      m_ports[p].max_value = 
-        atof(qr[j][max_value]->name.c_str());
-      DBG2(m_ports[p].symbol<<" has the range ["<<m_ports[p].min_value
-           <<", "<<m_ports[p].max_value<<"]");
-    }
-    
-    // check range sanity
-    for (unsigned long i = 0; i < m_ports.size(); ++i) {
-      if (m_ports[i].direction == OutputPort)
-        continue;
-      if (m_ports[i].min_value > m_ports[i].default_value)
-        m_ports[i].min_value = m_ports[i].default_value;
-      if (m_ports[i].max_value < m_ports[i].default_value)
-        m_ports[i].max_value = m_ports[i].default_value;
-      if (m_ports[i].max_value - m_ports[i].min_value <= 0)
-        m_ports[i].max_value = m_ports[i].min_value + 10;
-    }
-    
-    // MIDI controller bindings
-    Variable controller, cc_number;
-    qr = select(index, cc_number)
-      .where(uriref, lv2("port"), port)
-      .where(port, lv2("index"), index)
-      .where(port, ll("defaultMidiController"), controller)
-      .where(controller, ll("controllerType"), ll("CC"))
-      .where(controller, ll("controllerNumber"), cc_number)
-      .run(data);
-    for (unsigned j = 0; j < qr.size(); ++j) {
-      unsigned p = atoi(qr[j][index]->name.c_str());
-      unsigned cc = atoi(qr[j][cc_number]->name.c_str());
-      if (p < m_ports.size() && cc < 128)
-        m_midimap[cc] = p;
-    }
-    
-    // default MIDI port
-    qr = select(index)
-      .where(uriref, ll("defaultMidiPort"), index)
-      .run(data);
-    if (qr.size() > 0)
-      m_default_midi_port = atoi(qr[0][index]->name.c_str());
-    else {
-      m_default_midi_port = -1;
-      for (unsigned long i = 0; i < m_ports.size(); ++i) {
-        if (m_ports[i].midi && m_ports[i].direction == InputPort && 
-            m_ports[i].rate == ControlRate) {
-          m_default_midi_port = i;
-          break;
-        }
-      }
-    }
-    
-    // is the instrument extension used?
-    Variable extension_predicate;
-    qr = select(extension_predicate)
-      .where(uriref, extension_predicate, ll("instrument-ext"))
-      .run(data);
-    if (qr.size() > 0 && (qr[0][extension_predicate]->name == lv2("requiredHostFeature") ||
-                          qr[0][extension_predicate]->name == lv2("optionalHostFeature"))) {
-      isInstrument = true;
-      DBG2("This plugin uses the instrument extension");
-    }
-    
-    // standalone GUI path
-    Variable gui_path;
-    qr = select(gui_path)
-      .where(uriref, ll("gtk2Gui"), gui_path)
-      .run(data);
-    if (qr.size() > 0) {
-      m_plugingui = absolutise(qr[0][gui_path]->name, plugindir);
-      DBG2("Found GUI plugin file "<<m_plugingui);
-    }
-    
-    m_bundledir = plugindir;
-    
-    // plugin name
-    Variable name;
-    qr = select(name)
-      .where(uriref, doap("name"), name)
-      .run(data);
-    if (qr.size() > 0)
-      m_name = qr[0][name]->name;
-    
-    // default preset path
-    Variable preset_path;
-    qr = select(preset_path)
-      .where(uriref, ll("defaultPresets"), preset_path)
-      .run(data);
-    if (qr.size() > 0) {
-      string presetfile = absolutise(qr[0][preset_path]->name, plugindir);
-      DBG2("Found default preset file "<<presetfile);
-      ifstream ifs(presetfile.c_str());
-      string text, line;
-      while (getline(ifs, line))
-        text += line + "\n";
-      TurtleParser tp;
-      RDFData data;
-      if (!tp.parse_ttl(text, data)) {
-        DBG0("Could not parse presets from "<<presetfile);
-      }
-      else {
-        Variable bank;
-        qr = select(bank).where(uriref, ll("hasBank"), bank).run(data);
-        if (qr.size() > 0) {
-          string bankuri = qr[0][bank]->name;
-          DBG2("Found preset bank "<<bankuri);
-          Variable preset, name, program;
-          vector<QueryResult> qr2 = select(preset, name, program)
-            .where(uriref, ll("hasSetting"), preset)
-            .where(preset, doap("name"), name)
-            .where(preset, ll("midiProgram"), program)
-            .where(preset, ll("inBank"), bankuri)
-            .run(data);
-          for (int j = 0; j < qr2.size(); ++j) {
-            string preseturi = qr2[j][preset]->name;
-            DBG2("Found the preset \""<<qr2[j][name]->name<<"\" "
-                 <<" with MIDI program number "<<qr2[j][program]->name);
-            int pnum = atoi(qr2[j][program]->name.c_str());
-            m_presets[pnum].name = qr2[j][name]->name;
-            m_presets[pnum].values.clear();
-            Variable pv, port, value;
-            vector<QueryResult> qr3 = select(port, value)
-              .where(preseturi, ll("hasPortValue"), pv)
-              .where(pv, ll("forPort"), port)
-              .where(pv, rdf("value"), value)
-              .run(data);
-            for (int k = 0; k < qr3.size(); ++k) {
-              int p = atoi(qr3[k][port]->name.c_str());
-              float v = atof(qr3[k][value]->name.c_str());
-              //cerr<<p<<": "<<v<<endl;
-              m_presets[pnum].values[p] = v;
-            }
-          }
-        }
-      }
-    }
-
-  }
-  
-  // if we got this far the data is OK. time to load the library
-  m_libhandle = dlopen(library.c_str(), RTLD_NOW);
-  if (!m_libhandle) {
-    DBG0("Could not dlopen "<<library<<": "<<dlerror());
-    return;
-  }
-  
-  // get the descriptor
-  LV2_Descriptor_Function dfunc = get_symbol<LV2_Descriptor_Function>("lv2_descriptor");
-  if (!dfunc) {
-    DBG0(library<<" has no LV2 descriptor function");
-    dlclose(m_libhandle);
-    return;
-  }
-  for (unsigned long j = 0; m_desc = dfunc(j); ++j) {
-    if (uri == m_desc->URI)
-      break;
-  }
-  if (!m_desc) {
-    DBG0(library<<" does not contain the plugin "<<uri);
-    dlclose(m_libhandle);
-    return;
-  }
-  
-  // get the instrument descriptor (if it is an instrument)
-  if (isInstrument) {
-    m_inst_desc = 0;
-    if (m_desc->extension_data)
-      m_inst_desc = (LV2_InstrumentDescriptor*)(m_desc->extension_data("<http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>"));
-    if (!m_inst_desc) {
-      DBG0(library<<" does not contain the instrument "<<uri);
-      return;
-    }
-  }
-  
-  // instantiate the plugin
-  LV2_Host_Feature instrument_feature = {
-    "<http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>",
-    0
-  };
-  const LV2_Host_Feature* features[2];
-  memset(features, 0, 2 * sizeof(LV2_Host_Feature*));
-  if (isInstrument)
-    features[0] = &instrument_feature;
-  m_handle = m_desc->instantiate(m_desc, frame_rate, plugindir.c_str(), features);
-  
-  // list available programs
-  /*
-  bool default_program_set = false;
-  unsigned long default_program;
-  const LV2_ProgramDescriptor* pdesc;
-  for (unsigned long index = 0; (pdesc = get_program(index)); ++index) {
-    cerr<<"Program "<<pdesc->number<<": "<<pdesc->name<<endl;
-    if (!default_program_set) {
-      cerr<<"Queuing as default."<<endl;
-      queue_program(pdesc->number);
-      default_program_set = true;
-    }
-  }
-  */
   
   if (!m_handle) {
-    DBG0("Could not instantiate plugin "<<uri);
+    DBG0("Could not instantiate plugin <"<<m_uri<<">");
     dlclose(m_libhandle);
     return;
   }
@@ -515,6 +95,12 @@ LV2Host::~LV2Host() {
       m_desc->cleanup(m_handle);
     dlclose(m_libhandle);
   }
+}
+
+
+void LV2Host::list_plugins() {
+  vector<string> search_dirs = get_search_dirs();
+  scan_manifests(search_dirs, &LV2Host::print_uri);
 }
 
 
@@ -799,7 +385,469 @@ const std::map<uint32_t, LV2Preset>& LV2Host::get_presets() const {
 }
 
 
+std::vector<std::string> LV2Host::get_search_dirs() {
+  vector<string> search_dirs;
+  const char* lv2p_c = getenv("LV2_PATH");
+  if (!lv2p_c) {
+    DBG1("LV2_PATH is not defined, will search default directories");
+    search_dirs.push_back(string(getenv("HOME")) + "/.lv2");
+    search_dirs.push_back("/usr/lib/lv2");
+    search_dirs.push_back("/usr/local/lib/lv2");
+  }
+  else {
+    string lv2_path = lv2p_c;
+    int split;
+    while ((split = lv2_path.find(':')) != string::npos) {
+      search_dirs.push_back(lv2_path.substr(0, split));
+      lv2_path = lv2_path.substr(split + 1);
+    }
+    search_dirs.push_back(lv2_path);
+  }
+  
+  return search_dirs;
+}
 
-LV2Host* LV2Host::m_current_object(0);
+
+bool LV2Host::scan_manifests(const std::vector<std::string>& search_dirs, 
+                             scan_callback_t callback) {
+  
+  bool done = false;
+  
+  for (unsigned i = 0; i < search_dirs.size(); ++i) {
+    
+    DBG2("Searching "<<search_dirs[i]);
+    
+    // open the directory
+    DIR* d = opendir(search_dirs[i].c_str());
+    if (d == 0) {
+      DBG1("Could not open "<<search_dirs[i]<<": "<<strerror(errno));
+      continue;
+    }
+    
+    // iterate over all directory entries
+    dirent* e;
+    while (e = readdir(d)) {
+
+      std::string plugindir;
+      std::string ttlfile;
+      std::string library;
+      
+      vector<QueryResult> qr;
+
+      if (strlen(e->d_name) >= 4) {
+        
+        // is it named like an LV2 bundle?
+        if (strcmp(e->d_name + (strlen(e->d_name) - 4), ".lv2"))
+          continue;
+        
+        // is it actually a directory?
+        plugindir = search_dirs[i] + "/" + e->d_name;
+        struct stat stat_info;
+        if (stat(plugindir.c_str(), &stat_info)) {
+          DBG1("Could not get file information about "<<plugindir);
+          continue;
+        }
+        if (!S_ISDIR(stat_info.st_mode)) {
+          DBG1(plugindir<<" is not a directory");
+          continue;
+        }
+        
+        // parse the manifest to get the library filename and the data filename
+        ttlfile = plugindir + "/manifest.ttl";
+        {
+          
+          ifstream ifs((plugindir + "/manifest.ttl").c_str());
+          string text, line;
+          while (getline(ifs, line))
+            text += line + "\n";
+          TurtleParser tp;
+          RDFData data;
+          if (!tp.parse_ttl(text, data)) {
+            DBG1("Could not parse "<<plugindir<<"/manifest.ttl");
+            continue;
+          }
+          Variable uriref, binary, datafile;
+          Namespace lv2("<http://lv2plug.in/ontology#>");
+          qr = select(uriref, binary, datafile)
+            .where(uriref, lv2("binary"), binary)
+            .where(uriref, rdfs("seeAlso"), datafile)
+            .run(data);
+          if (qr.size() == 0) {
+            DBG1("Did not find any valid plugin in "
+                 <<plugindir<<"/manifest.ttl");
+            continue;
+          }
+          
+          for (int i = 0; i < qr.size(); ++i) {
+            library = absolutise(qr[i][binary]->name, plugindir);
+            DBG2("Found shared object file "<<library);
+            ttlfile = absolutise(qr[i][datafile]->name, plugindir);
+            DBG2("Found RDF file "<<ttlfile);
+            done = callback(qr[i][uriref]->name, plugindir, ttlfile, library);
+            if (done)
+              break;
+          }
+          
+          if (done)
+            break;
+        }
+      }
+    }
+    
+    closedir(d);
+    
+    if (done)
+      break;
+  }
+  
+}
+
+ 
+bool LV2Host::match_uri(const string& uri, const string& bundle,
+                        const string& rdf_file, const string& binary) {
+  if (uri != string("<") + m_uri + ">") {
+    DBG2(uri<<" is not the plugin we are looking for");
+    return false;
+  }
+  
+  m_bundle = bundle;
+  m_rdffile = rdf_file;
+  m_binary = binary;
+  
+  DBG2("Found <"<<m_uri<<"> in "<<bundle);
+  load_plugin(rdf_file, binary);
+  
+  return true;
+}
 
 
+void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
+  
+  bool isInstrument = false;
+  
+  DBG2(__PRETTY_FUNCTION__);
+  
+  // parse the datafile to get port info
+  {
+    
+    vector<QueryResult> qr;
+    string uriref = string("<") + m_uri + ">";
+    
+    ifstream ifs(rdf_file.c_str());
+    string text, line;
+    while (getline(ifs, line))
+      text += line + "\n";
+    TurtleParser tp;
+    RDFData data;
+    if (!tp.parse_ttl(text, data)) {
+      DBG0("Could not parse "<<rdf_file);
+      return;
+    }
+    Variable symbol, index, portclass, porttype, port;
+    Namespace lv2("<http://lv2plug.in/ontology#>");
+    Namespace ll("<http://ll-plugins.nongnu.org/lv2/namespace#>");
+    Namespace llext("<http://ll-plugins.nongnu.org/lv2/ext/>");
+    
+    qr = select(index, symbol, portclass, porttype)
+      .where(uriref, lv2("port"), port)
+      .where(port, rdf("type"), portclass)
+      .where(port, lv2("index"), index)
+      .where(port, lv2("symbol"), symbol)
+      .where(port, lv2("datatype"), porttype)
+      .run(data);
+
+    if (qr.size() == 0) {
+      DBG1("Can not find any ports for <"<<m_uri<<"> in "<<rdf_file);
+      return;
+    }
+    
+    m_ports.resize(qr.size());
+    
+    for (unsigned j = 0; j < qr.size(); ++j) {
+      
+      // index
+      size_t p = atoi(qr[j][index]->name.c_str());
+      if (p >= m_ports.size()) {
+        DBG0("Found port with index "<<p<<", but there are only "
+             <<m_ports.size()<<" ports in total");
+        return;
+      }
+      
+      // symbol
+      m_ports[p].symbol = qr[j][symbol]->name;
+      DBG2("Found port "<<m_ports[p].symbol);
+      
+      // direction and rate
+      string pclass = qr[j][portclass]->name;
+      DBG2(m_ports[p].symbol<<" is an "<<pclass);
+      if (pclass == lv2("ControlRateInputPort")) {
+        m_ports[p].direction = InputPort;
+        m_ports[p].rate = ControlRate;
+      }
+      else if (pclass == lv2("ControlRateOutputPort")) {
+        m_ports[p].direction = OutputPort;
+        m_ports[p].rate = ControlRate;
+      }
+      else if (pclass == lv2("AudioRateInputPort")) {
+        m_ports[p].direction = InputPort;
+        m_ports[p].rate = AudioRate;
+      }
+      else if (pclass == lv2("AudioRateOutputPort")) {
+        m_ports[p].direction = OutputPort;
+        m_ports[p].rate = AudioRate;
+      }
+      else {
+        DBG0("Unknown port class: "<<pclass);
+        return;
+      }
+      
+      // type
+      string type = qr[j][porttype]->name;
+      DBG2(m_ports[p].symbol<<" has the datatype "<<type);
+      if (type == lv2("float"))
+        m_ports[p].midi = false;
+      else if (type == llext("miditype"))
+        m_ports[p].midi = true;
+      else {
+        DBG0("Unknown datatype: "<<type);
+        return;
+      }
+      
+      m_ports[p].default_value = 0;
+      m_ports[p].min_value = 0;
+      m_ports[p].max_value = 1;
+    }
+    
+    // default values
+    Variable default_value;
+    qr = select(index, default_value)
+      .where(uriref, lv2("port"), port)
+      .where(port, lv2("index"), index)
+      .where(port, lv2("default"), default_value)
+      .run(data);
+    for (unsigned j = 0; j < qr.size(); ++j) {
+      unsigned p = atoi(qr[j][index]->name.c_str());
+      if (p >= m_ports.size())
+        return;
+      m_ports[p].default_value = 
+        atof(qr[j][default_value]->name.c_str());
+    }
+    
+    // minimum values
+    Variable min_value;
+    qr = select(index, min_value)
+      .where(uriref, lv2("port"), port)
+      .where(port, lv2("index"), index)
+      .where(port, lv2("minimum"), min_value)
+      .run(data);
+    for (unsigned j = 0; j < qr.size(); ++j) {
+      unsigned p = atoi(qr[j][index]->name.c_str());
+      if (p >= m_ports.size())
+        return;
+      m_ports[p].min_value = 
+        atof(qr[j][min_value]->name.c_str());
+    }
+    
+    // maximum values
+    Variable max_value;
+    qr = select(index, max_value)
+      .where(uriref, lv2("port"), port)
+      .where(port, lv2("index"), index)
+      .where(port, lv2("maximum"), max_value)
+      .run(data);
+    for (unsigned j = 0; j < qr.size(); ++j) {
+      unsigned p = atoi(qr[j][index]->name.c_str());
+      if (p >= m_ports.size())
+        return;
+      m_ports[p].max_value = 
+        atof(qr[j][max_value]->name.c_str());
+      DBG2(m_ports[p].symbol<<" has the range ["<<m_ports[p].min_value
+           <<", "<<m_ports[p].max_value<<"]");
+    }
+    
+    // check range sanity
+    for (unsigned long i = 0; i < m_ports.size(); ++i) {
+      if (m_ports[i].direction == OutputPort)
+        continue;
+      if (m_ports[i].min_value > m_ports[i].default_value)
+        m_ports[i].min_value = m_ports[i].default_value;
+      if (m_ports[i].max_value < m_ports[i].default_value)
+        m_ports[i].max_value = m_ports[i].default_value;
+      if (m_ports[i].max_value - m_ports[i].min_value <= 0)
+        m_ports[i].max_value = m_ports[i].min_value + 10;
+    }
+    
+    // MIDI controller bindings
+    Variable controller, cc_number;
+    qr = select(index, cc_number)
+      .where(uriref, lv2("port"), port)
+      .where(port, lv2("index"), index)
+      .where(port, ll("defaultMidiController"), controller)
+      .where(controller, ll("controllerType"), ll("CC"))
+      .where(controller, ll("controllerNumber"), cc_number)
+      .run(data);
+    for (unsigned j = 0; j < qr.size(); ++j) {
+      unsigned p = atoi(qr[j][index]->name.c_str());
+      unsigned cc = atoi(qr[j][cc_number]->name.c_str());
+      if (p < m_ports.size() && cc < 128)
+        m_midimap[cc] = p;
+    }
+    
+    // default MIDI port
+    qr = select(index)
+      .where(uriref, ll("defaultMidiPort"), index)
+      .run(data);
+    if (qr.size() > 0)
+      m_default_midi_port = atoi(qr[0][index]->name.c_str());
+    else {
+      m_default_midi_port = -1;
+      for (unsigned long i = 0; i < m_ports.size(); ++i) {
+        if (m_ports[i].midi && m_ports[i].direction == InputPort && 
+            m_ports[i].rate == ControlRate) {
+          m_default_midi_port = i;
+          break;
+        }
+      }
+    }
+    
+    // is the instrument extension used?
+    Variable extension_predicate;
+    qr = select(extension_predicate)
+      .where(uriref, extension_predicate, ll("instrument-ext"))
+      .run(data);
+    if (qr.size() > 0 && (qr[0][extension_predicate]->name == lv2("requiredHostFeature") ||
+                          qr[0][extension_predicate]->name == lv2("optionalHostFeature"))) {
+      isInstrument = true;
+      DBG2("This plugin uses the instrument extension");
+    }
+    
+    // standalone GUI path
+    Variable gui_path;
+    qr = select(gui_path)
+      .where(uriref, ll("gtk2Gui"), gui_path)
+      .run(data);
+    if (qr.size() > 0) {
+      m_plugingui = absolutise(qr[0][gui_path]->name, m_bundle);
+      DBG2("Found GUI plugin file "<<m_plugingui);
+    }
+    
+    m_bundledir = m_bundle;
+    
+    // plugin name
+    Variable name;
+    qr = select(name)
+      .where(uriref, doap("name"), name)
+      .run(data);
+    if (qr.size() > 0)
+      m_name = qr[0][name]->name;
+    
+    // default preset path
+    Variable preset_path;
+    qr = select(preset_path)
+      .where(uriref, ll("defaultPresets"), preset_path)
+      .run(data);
+    if (qr.size() > 0) {
+      string presetfile = absolutise(qr[0][preset_path]->name, m_bundle);
+      DBG2("Found default preset file "<<presetfile);
+      ifstream ifs(presetfile.c_str());
+      string text, line;
+      while (getline(ifs, line))
+        text += line + "\n";
+      TurtleParser tp;
+      RDFData data;
+      if (!tp.parse_ttl(text, data)) {
+        DBG0("Could not parse presets from "<<presetfile);
+      }
+      else {
+        Variable bank;
+        qr = select(bank).where(uriref, ll("hasBank"), bank).run(data);
+        if (qr.size() > 0) {
+          string bankuri = qr[0][bank]->name;
+          DBG2("Found preset bank "<<bankuri);
+          Variable preset, name, program;
+          vector<QueryResult> qr2 = select(preset, name, program)
+            .where(uriref, ll("hasSetting"), preset)
+            .where(preset, doap("name"), name)
+            .where(preset, ll("midiProgram"), program)
+            .where(preset, ll("inBank"), bankuri)
+            .run(data);
+          for (int j = 0; j < qr2.size(); ++j) {
+            string preseturi = qr2[j][preset]->name;
+            DBG2("Found the preset \""<<qr2[j][name]->name<<"\" "
+                 <<" with MIDI program number "<<qr2[j][program]->name);
+            int pnum = atoi(qr2[j][program]->name.c_str());
+            m_presets[pnum].name = qr2[j][name]->name;
+            m_presets[pnum].values.clear();
+            Variable pv, port, value;
+            vector<QueryResult> qr3 = select(port, value)
+              .where(preseturi, ll("hasPortValue"), pv)
+              .where(pv, ll("forPort"), port)
+              .where(pv, rdf("value"), value)
+              .run(data);
+            for (int k = 0; k < qr3.size(); ++k) {
+              int p = atoi(qr3[k][port]->name.c_str());
+              float v = atof(qr3[k][value]->name.c_str());
+              //cerr<<p<<": "<<v<<endl;
+              m_presets[pnum].values[p] = v;
+            }
+          }
+        }
+      }
+    }
+
+  }
+  
+  // if we got this far the data is OK. time to load the library
+  m_libhandle = dlopen(binary.c_str(), RTLD_NOW);
+  if (!m_libhandle) {
+    DBG0("Could not dlopen "<<binary<<": "<<dlerror());
+    return;
+  }
+  
+  // get the descriptor
+  LV2_Descriptor_Function dfunc = get_symbol<LV2_Descriptor_Function>("lv2_descriptor");
+  if (!dfunc) {
+    DBG0(binary<<" has no LV2 descriptor function");
+    dlclose(m_libhandle);
+    return;
+  }
+  for (unsigned long j = 0; m_desc = dfunc(j); ++j) {
+    if (m_uri == m_desc->URI)
+      break;
+  }
+  if (!m_desc) {
+    DBG0(binary<<" does not contain the plugin "<<m_uri);
+    dlclose(m_libhandle);
+    return;
+  }
+  
+  // get the instrument descriptor (if it is an instrument)
+  if (isInstrument) {
+    m_inst_desc = 0;
+    if (m_desc->extension_data)
+      m_inst_desc = (LV2_InstrumentDescriptor*)(m_desc->extension_data("<http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>"));
+    if (!m_inst_desc) {
+      DBG0(binary<<" does not contain the instrument "<<m_uri);
+      return;
+    }
+  }
+  
+  // instantiate the plugin
+  LV2_Host_Feature instrument_feature = {
+    "<http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>",
+    0
+  };
+  const LV2_Host_Feature* features[2];
+  memset(features, 0, 2 * sizeof(LV2_Host_Feature*));
+  if (isInstrument)
+    features[0] = &instrument_feature;
+  m_handle = m_desc->instantiate(m_desc, m_rate, m_bundle.c_str(), features);
+
+}
+
+
+bool LV2Host::print_uri(const string& uri, const string& bundle,
+                        const string& rdf_file, const string& binary) {
+  cout<<uri<<endl;
+  return false;
+}
