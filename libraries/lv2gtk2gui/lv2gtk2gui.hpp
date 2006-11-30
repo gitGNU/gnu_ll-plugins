@@ -108,12 +108,17 @@ public:
   /** Set the value of a control rate float port in the plugin instance. */
   void set_control(uint32_t port, float value);
   
+  /** Send a piece of configuration data to the plugin instance. */
   void configure(const std::string& key, const std::string& value);
   
+  /** Send a filename to the plugin instance. */
   void set_file(const std::string& key, const std::string& filename);
   
+  /** Tell the plugin host to switch to program @c number for the plugin
+      instance. */
   void set_program(unsigned char number);
   
+  /** Send a MIDI event to the plugin instance. */
   void send_midi(uint32_t port, uint32_t size, const unsigned char* data);
   
   /** Return data associated with an extension URI, or 0 if that extension
@@ -154,20 +159,36 @@ public:
   
   virtual ~LV2GTK2GUI() { delete m_controller; }
   
+  /** Override this if you want your GUI to do something when a control port
+      value changes in the plugin instance. */
   virtual void set_control(uint32_t port, float value) { }
-   
+  
+  /** Override this if you want your GUI to do something when a piece of
+      configuration data changes in the plugin instance. */
   virtual void configure(const char* key, const char* value) { }
   
+  /** Override this is you want your GUI to do something when a filename
+      changes in the plugin instance. */
   virtual void set_file(const char* key, const char* filename) { }
   
+  /** Override this if you want your GUI to do something when a program has
+      been added for the plugin instance. */
   virtual void add_program(unsigned char number, const char* name) { }
   
+  /** Override this if you want your GUI to do something when a program has
+      been removed for the plugin instance. */
   virtual void remove_program(unsigned char number) { }
   
+  /** Override this if you want your GUI to do something when the host
+      removes all programs for the plugin instance. */
   virtual void clear_programs() { }
   
+  /** Override this if you want your GUI to do something when the host
+      changes the program for the plugin instance. */
   virtual void set_program(unsigned char number) { }
   
+  /** Return data associated with an extension URI, or 0 if that extension
+      is not supported or does not have any data for use in plugin GUIs. */
   virtual void* extension_data(const std::string& URI) { return 0; }
 
 private:
