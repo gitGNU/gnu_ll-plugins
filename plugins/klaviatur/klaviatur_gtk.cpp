@@ -39,14 +39,49 @@ class KlaviaturGUI : public LV2GTK2GUI {
 public:
   
   KlaviaturGUI(LV2Controller& ctrl, const std::string& URI, 
-               const std::string& bundle_path, Widget*& widget) {
+               const std::string& bundle_path, Widget*& widget) 
+    : m_cc(0, 128, 1),
+      m_pitch(-8192, 8192, 1) {
 
+    widget = &m_vbox;
+    
+    // initialise control widgets
     m_kb.set_flags(m_kb.get_flags() | CAN_FOCUS);
+    m_cc.set_digits(0);
+    m_cc.set_draw_value(false);
+    m_pitch.set_digits(0);
+    m_pitch.set_draw_value(false);
+    m_cc_sbn.set_range(0, 127);
+    m_cc_sbn.set_increments(1, 16);
+    m_cc_sbn.set_digits(0);
+    m_cc_sbn.set_snap_to_ticks(true);
+    
+    // layout
+    Table* table = manage(new Table(2, 3));
+    table->set_border_width(6);
+    table->set_spacings(6);
+    Label* cc_lbl = manage(new Label("CC:", ALIGN_LEFT));
+    table->attach(*cc_lbl, 0, 1, 0, 1, FILL); 
+    table->attach(m_cc_sbn, 1, 2, 0, 1, FILL);
+    table->attach(m_cc, 2, 3, 0, 1);
+    table->attach(*manage(new Label("Pitch:", ALIGN_LEFT)), 0, 2, 1, 2, FILL);
+    table->attach(m_pitch, 2, 3, 1, 2);
+    Expander* exp = manage(new Expander("Controls"));
+    exp->add(*table);
+    m_vbox.pack_start(*exp);
+    m_vbox.pack_start(m_kb);
+    m_kb.grab_focus();
+    
+    // connect signals
     m_kb.signal_key_on().
       connect(bind(mem_fun(*this, &KlaviaturGUI::handle_keypress), ref(ctrl)));
     m_kb.signal_key_off().
       connect(bind(mem_fun(*this, &KlaviaturGUI::handle_keyrelease),ref(ctrl)));
-    widget = &m_kb;
+    m_cc.signal_value_changed().
+      connect(bind(mem_fun(*this, &KlaviaturGUI::handle_cc_change), ref(ctrl)));
+    m_pitch.signal_value_changed().
+      connect(bind(mem_fun(*this, &KlaviaturGUI::handle_pitch_change), 
+                   ref(ctrl)));
   }
   
 protected:
@@ -61,8 +96,27 @@ protected:
     unsigned char data[3] = { 0x80, key + 36, 64 };
     ctrl.send_midi(k_midi_input, 3, data);
   }
-
+  
+  
+  void handle_cc_change(LV2Controller& ctrl) {
+    unsigned char data[3] = { 0xB0, int(m_cc_sbn.get_value()),
+                              int(m_cc.get_value()) };
+    ctrl.send_midi(k_midi_input, 3, data);
+  }
+  
+  
+  void handle_pitch_change(LV2Controller& ctrl) {
+    int value = int(m_pitch.get_value()) + 8192;
+    unsigned char data[3] = { 0xE0, int(value & 127), int(value >> 7) };
+    ctrl.send_midi(k_midi_input, 3, data);
+  }
+  
+  
+  HScale m_pitch;
+  HScale m_cc;
+  SpinButton m_cc_sbn;
   Keyboard m_kb;
+  VBox m_vbox;
   
 };
 
