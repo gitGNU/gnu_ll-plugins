@@ -93,6 +93,14 @@ namespace PAQ {
   }
 
 
+  RDFData::~RDFData() {
+    for (int i = 0; i < terms.size(); ++i)
+      delete terms[i];
+    for (int i = 0; i < triples.size(); ++i)
+      delete triples[i];
+  }
+
+
   RDFTerm* RDFData::add_uriref(const std::string& name) {
     std::map<std::string, RDFTerm*>::const_iterator iter = urirefs.find(name);
     if (iter == urirefs.end()) {

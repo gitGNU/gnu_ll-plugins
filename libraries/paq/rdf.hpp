@@ -119,6 +119,8 @@ namespace PAQ {
     /** Create a new emtpy dataset. */
     RDFData();
     
+    ~RDFData();
+    
     /** Add an URI reference to the dataset. */
     RDFTerm* add_uriref(const std::string& name);
 
