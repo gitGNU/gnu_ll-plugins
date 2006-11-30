@@ -317,7 +317,7 @@ void print_usage(const char* argv0) {
       <<"         "<<argv0<<" --list"<<endl
       <<"         "<<argv0<<" [--debug DEBUGLEVEL] PLUGIN_URI"<<endl<<endl
       <<"example: "<<argv0
-      <<" 'http://ll-plugins.nongnu.org/lv2/euphoria/0.0.0'"<<endl;
+      <<" 'http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0'"<<endl;
 }
 
 
@@ -384,14 +384,7 @@ int main(int argc, char** argv) {
     if (has_map)
       DBG2("");
     
-    //cerr<<"Default MIDI port: "<<lv2h.get_default_midi_port()<<endl;
-    
-    /*
-      if (lv2h.get_gui_path().size())
-      cerr<<"Standalone GUI: "<<lv2h.get_gui_path()<<endl;
-      else
-      cerr<<"No standalone GUI"<<endl;
-    */
+    DBG2("Default MIDI port: "<<lv2h.get_default_midi_port());
     
     // initialise JACK client and plugin port buffers
     if (!(jack_client = jack_client_open(lv2h.get_name().c_str(), 
@@ -445,7 +438,6 @@ int main(int argc, char** argv) {
     still_running = true;
     OSCController osc(lv2h, still_running);
     osc.start();
-    //cerr<<"Listening on URL "<<osc.get_url()<<endl;
     
     // start the GUI
     string gui = lv2h.get_gui_path();
