@@ -133,5 +133,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  register_lv2gtk2gui<KlaviaturGUI>("http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0");
+  register_lv2gtk2gui<KlaviaturGUI>(k_uri);
 }

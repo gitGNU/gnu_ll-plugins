@@ -59,5 +59,5 @@ public:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  register_lv2<Klaviatur>("http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0");
+  register_lv2<Klaviatur>(k_uri);
 }
