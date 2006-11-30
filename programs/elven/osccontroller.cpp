@@ -28,7 +28,7 @@
 #include "lv2host.hpp"
 #include "osccontroller.hpp"
 #include "debug.hpp"
-
+#include "midiutils.hpp"
 
 using namespace std;
 
@@ -198,7 +198,8 @@ int OSCController::program_handler(const char*, const char*, lo_arg** argv,
 
 int OSCController::midi_handler(const char*, const char*, lo_arg** argv, 
                                    int argc, lo_message, void* cbdata) {
-  DBG2("Received /midi "<<argv[0]->i<<" "<<argv[1]->i<<" <DATA>");
+  DBG2("Received /midi "<<argv[0]->i<<" "<<argv[1]->i<<" <"
+       <<midi2str(argv[1]->i, (unsigned char*)&argv[2]->s)<<">");
   static_cast<CallbackData*>(cbdata)->
     host.queue_midi(argv[0]->i, argv[1]->i, 
                     (unsigned char*)(&argv[2]->s));

@@ -39,6 +39,7 @@
 #include "lv2host.hpp"
 #include "lv2-midifunctions.h"
 #include "debug.hpp"
+#include "midiutils.hpp"
 
 
 using namespace std;
@@ -593,7 +594,9 @@ void LV2Host::run(unsigned long nframes) {
       break;
       
     case EventQueue::Midi: {
-      DBG3("Received MIDI event from the main thread");
+      DBG3("Received MIDI event from the main thread for port "
+           <<m_ports[e.midi.port].symbol<<": "
+           <<midi2str(e.midi.size, e.midi.data));
       LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[e.midi.port].buffer);
       LV2_MIDIState state = { midi, nframes, 0 };
       // XXX DANGER! Can't set the timestamp to 0 since other events may

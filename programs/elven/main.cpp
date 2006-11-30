@@ -36,10 +36,11 @@
 
 #include "lv2host.hpp"
 #include "lv2-miditype.h"
-
+#include "lv2-midifunctions.h"
 #include "osccontroller.hpp"
 #include "eventqueue.hpp"
 #include "debug.hpp"
+#include "midiutils.hpp"
 
 
 using namespace std;
@@ -133,32 +134,31 @@ void lv2midi2jackmidi(LV2Port& port, jack_port_t* jack_port,
                       jack_nframes_t nframes) {
   
   DBG4("Translating MIDI events from LV2 to JACK for port "<<port.symbol);
+
   
-  jack_nframes_t timestamp;
-  size_t data_size;
+  double timestamp;
+  uint32_t data_size;
+  unsigned char* data = 0;
   void* output_buf = jack_port_get_buffer(jack_port, nframes);
   LV2_MIDI* input_buf = static_cast<LV2_MIDI*>(port.buffer);
+  LV2_MIDIState in = { static_cast<LV2_MIDI*>(port.buffer), nframes, 0 };
   
   jack_midi_clear_buffer(output_buf, nframes);
   
   // iterate over all MIDI events and write them to the JACK port
-  unsigned char* data = input_buf->data;
-  
   for (size_t i = 0; i < input_buf->event_count; ++i) {
     
-    DBG3("Received MIDI event from the plugin on port "<<port.symbol);
-    
     // retrieve LV2 MIDI event
-    timestamp = static_cast<jack_nframes_t>(*reinterpret_cast<double*>(data));
-    data += sizeof(double);
-    data_size = *reinterpret_cast<size_t*>(data);
-    data += sizeof(size_t);
+    lv2midi_get_event(&in, &timestamp, &data_size, &data);
+    lv2midi_step(&in);
+    
+    DBG3("Received MIDI event from the plugin on port "<<port.symbol
+         <<": "<<midi2str(data_size, data));
     
     // write JACK MIDI event
-    jack_midi_event_write(output_buf, timestamp, 
+    jack_midi_event_write(output_buf, jack_nframes_t(timestamp), 
                           reinterpret_cast<jack_midi_data_t*>(data),
                           data_size, nframes);
-    data += data_size;
   }
 }
 
@@ -184,10 +184,14 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
   unsigned char* data = output_buf->data;
   for (unsigned int i = 0; i < input_event_count; ++i) {
     
-    DBG3("Received MIDI event from JACK on port "<<port.symbol);
-    
     // retrieve JACK MIDI event
     jack_midi_event_get(&input_event, input_buf, i, nframes);
+    
+    DBG3("Received MIDI event from JACK on port "<<port.symbol
+         <<": "<<midi2str(input_event.size, input_event.buffer));
+        
+
+    
     if ((data - output_buf->data) + sizeof(double) + 
         sizeof(size_t) + input_event.size >= output_buf->capacity)
       break;
