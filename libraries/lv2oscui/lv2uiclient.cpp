@@ -21,6 +21,7 @@
 
 ****************************************************************************/
 
+#include <cassert>
 #include <iostream>
 #include <sstream>
 
@@ -207,12 +208,12 @@ void LV2UIClient::send_filename(const string& key, const string& filename) {
 
 
 void LV2UIClient::send_midi(int port, int size, const unsigned char* event) {
+  assert(size <= 4);
   if (m_valid) {
-    unsigned char* data = new unsigned char[size + 1];
-    memcpy(data, event, size);
-    data[size] = 0;
-    lo_send(m_plugin_address, (m_plugin_path + "/midi").c_str(), "iis", 
-            port, size, data);
+    uint8_t ievent[4];
+    memcpy(ievent, event, size);
+    lo_send(m_plugin_address, (m_plugin_path + "/midi").c_str(), "iim", 
+            port, size, ievent);
   }
 }
 

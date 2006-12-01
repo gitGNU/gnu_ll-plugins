@@ -56,7 +56,7 @@ OSCController::OSCController(LV2Host& host, bool& still_running)
                        &OSCController::configure_handler, &m_cbdata);
   lo_server_add_method(m_server, "/lv2/program", "i", 
                        &OSCController::program_handler, &m_cbdata);
-  lo_server_add_method(m_server, "/lv2/midi", "iis", 
+  lo_server_add_method(m_server, "/lv2/midi", "iim", 
                        &OSCController::midi_handler, &m_cbdata);
   
   DBG2("OSC server created, listening on "<<m_url);
@@ -70,7 +70,7 @@ OSCController::OSCController(LV2Host& host, bool& still_running)
 
 
 OSCController::~OSCController() {
-  lo_server_thread_free(m_server);
+  lo_server_free(m_server);
   pthread_cancel(m_sender);
   pthread_join(m_sender, 0);
   pthread_mutex_destroy(&m_clients_mutex);
@@ -201,12 +201,12 @@ int OSCController::program_handler(const char*, const char*, lo_arg** argv,
 
 
 int OSCController::midi_handler(const char*, const char*, lo_arg** argv, 
-                                   int argc, lo_message, void* cbdata) {
+                                int argc, lo_message, void* cbdata) {
   DBG2("Received /midi "<<argv[0]->i<<" "<<argv[1]->i<<" <"
        <<midi2str(argv[1]->i, (unsigned char*)&argv[2]->s)<<">");
   static_cast<CallbackData*>(cbdata)->
     host.queue_midi(argv[0]->i, argv[1]->i, 
-                    (unsigned char*)(&argv[2]->s));
+                    (unsigned char*)(argv[2]->m));
 }
 
 

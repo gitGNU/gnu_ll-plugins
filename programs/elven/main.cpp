@@ -575,5 +575,7 @@ int main(int argc, char** argv) {
     return 1;
   }
   
+  DBG2("Exiting");
+  
   return 0;
 }
