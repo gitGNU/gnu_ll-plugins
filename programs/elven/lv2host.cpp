@@ -220,6 +220,7 @@ char* LV2Host::configure(const char* key, const char* value) {
       }
       else
         m_configuration[key] = value;
+      signal_configure(key, value);
     }
     else {
       DBG0("ERROR CONFIGURING PLUGIN: "<<result);
@@ -247,6 +248,7 @@ char* LV2Host::set_file(const char* key, const char* filename) {
       }
       else
         m_filenames[key] = filename;
+      signal_filename(key, filename);
     }
     else {
       DBG0("ERROR SETTING FILE: "<<result);

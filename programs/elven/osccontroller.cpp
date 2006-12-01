@@ -39,27 +39,27 @@ OSCController::OSCController(LV2Host& host, bool& still_running)
     m_still_running(still_running) {
   
   pthread_mutex_init(&m_clients_mutex, 0);
-  m_server = lo_server_thread_new(0, 0);
+  m_server = lo_server_new(0, 0);
   
-  char* url_c = lo_server_thread_get_url(m_server);
+  char* url_c = lo_server_get_url(m_server);
   m_url = url_c;
   free(url_c);
   m_url += "lv2/";
   
-  lo_server_thread_add_method(m_server, "/lv2/update", "s", 
-                              &OSCController::update_handler, &m_cbdata);
-  lo_server_thread_add_method(m_server, "/lv2/exiting", "", 
-                              &OSCController::exiting_handler, &m_cbdata);
-  lo_server_thread_add_method(m_server, "/lv2/control", "if", 
-                              &OSCController::control_handler, &m_cbdata);
-  lo_server_thread_add_method(m_server, "/lv2/configure", "ss", 
-                              &OSCController::configure_handler, &m_cbdata);
-  lo_server_thread_add_method(m_server, "/lv2/program", "i", 
-                              &OSCController::program_handler, &m_cbdata);
-  lo_server_thread_add_method(m_server, "/lv2/midi", "iis", 
-                              &OSCController::midi_handler, &m_cbdata);
+  lo_server_add_method(m_server, "/lv2/update", "s", 
+                       &OSCController::update_handler, &m_cbdata);
+  lo_server_add_method(m_server, "/lv2/exiting", "", 
+                       &OSCController::exiting_handler, &m_cbdata);
+  lo_server_add_method(m_server, "/lv2/control", "if", 
+                       &OSCController::control_handler, &m_cbdata);
+  lo_server_add_method(m_server, "/lv2/configure", "ss", 
+                       &OSCController::configure_handler, &m_cbdata);
+  lo_server_add_method(m_server, "/lv2/program", "i", 
+                       &OSCController::program_handler, &m_cbdata);
+  lo_server_add_method(m_server, "/lv2/midi", "iis", 
+                       &OSCController::midi_handler, &m_cbdata);
   
-  DBG2("OSC server created");
+  DBG2("OSC server created, listening on "<<m_url);
   
   if (pthread_create(&m_sender, 0, &OSCController::sender_thread, this))
     exit(-1);
@@ -70,7 +70,6 @@ OSCController::OSCController(LV2Host& host, bool& still_running)
 
 
 OSCController::~OSCController() {
-  stop();
   lo_server_thread_free(m_server);
   pthread_cancel(m_sender);
   pthread_join(m_sender, 0);
@@ -83,6 +82,7 @@ OSCController::~OSCController() {
 }
 
 
+/*
 void OSCController::start() {
   DBG2("OSC server listening on "<<m_url);
   lo_server_thread_start(m_server);
@@ -92,6 +92,12 @@ void OSCController::start() {
 void OSCController::stop() {
   DBG2("OSC server shutting down");
   lo_server_thread_stop(m_server);
+}
+*/
+
+
+bool OSCController::run() {
+  return lo_server_recv_noblock(m_server, 1) != 0;
 }
 
 
@@ -127,8 +133,6 @@ const string& OSCController::get_url() const {
 int OSCController::update_handler(const char*, const char*, lo_arg** argv, 
                                   int argc, lo_message, void* cbdata) {
   
-  DebugInfo::thread_prefix()[pthread_self()] = "R ";
-  
   DBG2("Received /update from "<<(&argv[0]->s));
 
   CallbackData* data = static_cast<CallbackData*>(cbdata);
@@ -149,7 +153,7 @@ int OSCController::update_handler(const char*, const char*, lo_arg** argv,
   
   pthread_mutex_lock(&data->me.m_clients_mutex);
   for (iter = config.begin(); iter != config.end(); ++iter)
-    data->me.send_configure(iter->first, iter->second, ci);
+    data->me.send_one_configure(iter->first, iter->second, ci);
   pthread_mutex_unlock(&data->me.m_clients_mutex);
 
   data->host.queue_config_request(&data->me.m_queue);
@@ -176,7 +180,7 @@ int OSCController::control_handler(const char*, const char*, lo_arg** argv,
 
 int OSCController::configure_handler(const char*, const char*, lo_arg** argv, 
                                      int argc, lo_message, void* cbdata) {
-  DBG2("Received /configure "<<argv[0]->s<<" "<<argv[1]->s);
+  DBG2("Received /configure "<<&argv[0]->s<<" "<<&argv[1]->s);
   static_cast<CallbackData*>(cbdata)->host.configure(&argv[0]->s, &argv[1]->s);
 }
 
@@ -206,8 +210,8 @@ int OSCController::midi_handler(const char*, const char*, lo_arg** argv,
 }
 
 
-void OSCController::send_configure(const std::string& key, const std::string& value, 
-                                   ClientInfo* ci) {
+void OSCController::send_one_configure(const std::string& key, const std::string& value, 
+                                       ClientInfo* ci) {
   lo_send(ci->address, (ci->path + "configure").c_str(), "ss",
           key.c_str(), value.c_str());
 }

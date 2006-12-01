@@ -44,6 +44,7 @@
 
 
 using namespace std;
+using namespace sigc;
 
 
 vector<jack_port_t*> jack_ports;
@@ -437,7 +438,7 @@ int main(int argc, char** argv) {
     
     still_running = true;
     OSCController osc(lv2h, still_running);
-    osc.start();
+    //osc.start();
     
     // start the GUI
     string gui = lv2h.get_gui_path();
@@ -453,14 +454,20 @@ int main(int argc, char** argv) {
         exit(-1);
       }
       else if (gui_pid > 0)
-        signal(SIGCHLD, &sigchild);
+        ::signal(SIGCHLD, &sigchild);
     }
+    
+    lv2h.signal_configure.connect(mem_fun(osc, &OSCController::send_configure));
+    lv2h.signal_filename.connect(mem_fun(osc, &OSCController::send_filename));
     
     // queue that the host can pass configurations to
     EventQueue conf_q;
     
     // wait until we are killed
     while (still_running) {
+      
+      while (osc.run());
+      
       lash_event_t* event;
       while ((event = lash_get_event(lash_client))) {
         
@@ -549,7 +556,7 @@ int main(int argc, char** argv) {
         
         lash_event_destroy(event);
       }
-
+      
       usleep(100000);
     }
     
@@ -559,7 +566,7 @@ int main(int argc, char** argv) {
       waitpid(gui_pid, 0, 0);
     }
     
-    osc.stop();
+    //osc.stop();
     jack_client_close(jack_client);
     lv2h.deactivate();
   }

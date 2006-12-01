@@ -44,8 +44,10 @@ public:
   void send_filename(const std::string& key, const std::string& filename);
   void send_quit();
   
-  void start();
-  void stop();
+  //void start();
+  //void stop();
+  
+  bool run();
   
   const std::string& get_url() const;
   
@@ -71,7 +73,7 @@ protected:
   
   LV2Host& m_host;
   
-  lo_server_thread m_server;
+  lo_server m_server;
 
   std::string m_url;
   
@@ -87,7 +89,7 @@ protected:
     std::string path;
   };
 
-  void send_configure(const std::string& key, const std::string& value, ClientInfo* ci);
+  void send_one_configure(const std::string& key, const std::string& value, ClientInfo* ci);
   
   bool& m_still_running;
   

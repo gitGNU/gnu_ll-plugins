@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
   DBG2("Loading "<<filename);
   void* module = dlopen(filename, RTLD_LAZY);
   if (!module) {
-    DBG0("Could not load "<<filename);
+    DBG0("Could not load "<<filename<<": "<<dlerror());
     return 1;
   }
   

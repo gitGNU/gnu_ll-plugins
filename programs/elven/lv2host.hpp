@@ -33,6 +33,7 @@
 #include <dlfcn.h>
 
 #include <sigc++/slot.h>
+#include <sigc++/signal.h>
 
 #include "lv2-instrument.h"
 #include "ringbuffer.hpp"
@@ -155,6 +156,10 @@ public:
   
   /** List all available plugins. */
   static void list_plugins();
+  
+  sigc::signal<void, const std::string&, const std::string&> signal_configure;
+
+  sigc::signal<void, const std::string&, const std::string&> signal_filename;
   
 protected:
   
