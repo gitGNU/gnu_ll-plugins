@@ -78,18 +78,26 @@ EuphoriaWidget::EuphoriaWidget()
   main_vbox->pack_end(*manage(new HSeparator), false, false);
   
   // connect signals
+  slot<void, const std::string&, const std::string&> configure = 
+    signal_configure;
   m_shaper.signal_apply.
-    connect(compose(signal_shape_changed, 
+    connect(compose(bind<0>(configure, "shape"), 
                     mem_fun(m_shaper, &ShaperEditor::get_string)));
-  m_shape_env.signal_apply.
-    connect(compose(signal_shape_envelope_changed,
-                    mem_fun(m_shape_env, &EnvelopeEditor::get_string)));
+  m_shp_amount_env.signal_apply.
+    connect(compose(bind<0>(configure, "shp_amount_env"), 
+                    mem_fun(m_shp_amount_env, &EnvelopeEditor::get_string)));
+  m_shp_amp_env.signal_apply.
+    connect(compose(bind<0>(configure, "shp_amp_env"), 
+                    mem_fun(m_shp_amp_env, &EnvelopeEditor::get_string)));
   m_phase.signal_apply.
-    connect(compose(signal_phase_changed, 
+    connect(compose(bind<0>(configure, "phase"), 
                     mem_fun(m_phase, &PDEditor::get_string)));
-  m_phase_env.signal_apply.
-    connect(compose(signal_phase_envelope_changed,
-                    mem_fun(m_phase_env, &EnvelopeEditor::get_string)));
+  m_pd_dist_env.signal_apply.
+    connect(compose(bind<0>(configure, "pd_dist_env"), 
+                    mem_fun(m_pd_dist_env, &EnvelopeEditor::get_string)));
+  m_pd_amp_env.signal_apply.
+    connect(compose(bind<0>(configure, "pd_amp_env"), 
+                    mem_fun(m_pd_amp_env, &EnvelopeEditor::get_string)));
   
   show_all();
 }
@@ -149,11 +157,11 @@ void EuphoriaWidget::configure(const std::string& key,
   if (key == "phase")
     m_phase.set_string(value);
   else if (key == "phase_env")
-    m_phase_env.set_string(value);
+    m_pd_dist_env.set_string(value);
   else if (key == "shape")
     m_shaper.set_string(value);
   else if (key == "shape_env")
-    m_shape_env.set_string(value);
+    m_shp_amount_env.set_string(value);
 }
 
 
@@ -215,7 +223,7 @@ Widget& EuphoriaWidget::init_pd_controls() {
                     , 1, 2, 0, 1, AttachOptions(0));
   
   HScrollbar* env_bar = 
-    manage(new HScrollbar(m_phase_env.get_adjustment()));
+    manage(new HScrollbar(m_pd_dist_env.get_adjustment()));
   for (int i = 0; i < 4; ++i) {
     ToggleButton* btn = manage(new ToggleButton);
     env_bar->signal_size_allocate().connect(bind(&moo, btn));
@@ -233,12 +241,13 @@ Widget& EuphoriaWidget::init_pd_controls() {
   phase_nbk->append_page(*env_scw, "Phase distortion");
   env_scw->set_shadow_type(SHADOW_IN);
   env_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
-  env_scw->add(m_phase_env);
+  env_scw->add(m_pd_dist_env);
+  
   ScrolledWindow* env_amp_scw = manage(new ScrolledWindow());
   phase_nbk->append_page(*env_amp_scw, "Gain");
   env_amp_scw->set_shadow_type(SHADOW_IN);
   env_amp_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
-  env_amp_scw->add(m_phase_amp_env);
+  env_amp_scw->add(m_pd_amp_env);
 
   Table* knob2_tbl = manage(new Table(2, 2));
   phase_tbl->attach(*knob2_tbl, 3, 4, 0, 1, AttachOptions(0), AttachOptions(0));
@@ -290,19 +299,30 @@ Widget& EuphoriaWidget::init_shp_controls() {
   
   VBox* env_box = manage(new VBox(false, 0));
   Notebook* shape_env_nb = manage(new Notebook);
-  ScrolledWindow* env_scw = manage(new ScrolledWindow());
-  HScrollbar* env_scb = manage(new HScrollbar(m_shape_env.get_adjustment()));
+  HScrollbar* env_scb = manage(new HScrollbar(m_shp_amount_env.
+                                              get_adjustment()));
   for (int i = 0; i < 4; ++i) {
     ToggleButton* btn = manage(new ToggleButton);
     env_scb->signal_size_allocate().connect(bind(&moo, btn));
     ed_hbox->pack_start(*btn);
   }
   env_box->pack_start(*shape_env_nb);
+  
+  ScrolledWindow* env_scw = manage(new ScrolledWindow());
   shape_env_nb->append_page(*env_scw, "Shaping amount");
-  env_box->pack_start(*env_scb);
   env_scw->set_shadow_type(SHADOW_IN);
   env_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
-  env_scw->add(m_shape_env);
+  env_scw->add(m_shp_amount_env);
+
+  ScrolledWindow* env_amp_scw = manage(new ScrolledWindow());
+  shape_env_nb->append_page(*env_amp_scw, "Gain");
+  env_amp_scw->set_shadow_type(SHADOW_IN);
+  env_amp_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  env_amp_scw->add(m_shp_amp_env);
+
+
+
+  env_box->pack_start(*env_scb);
   shape_tbl->attach(*env_box, 2, 3, 0, 1, 
                     FILL|EXPAND, AttachOptions(0));
 

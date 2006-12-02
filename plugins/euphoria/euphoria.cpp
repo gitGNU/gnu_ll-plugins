@@ -43,13 +43,18 @@ public:
   
   EuphoriaVoice(uint32_t rate)
     : m_shaper(rate),
-      m_shape_env(rate),
+      m_shp_amount_env(rate),
+      m_shp_amp_env(rate),
       m_pdosc(rate),
-      m_phase_env(rate),
+      m_pd_dist_env(rate),
+      m_pd_amp_env(rate),
       m_state(OFF),
       m_inv_rate(1.0 / rate),
       m_freq(0),
-      m_phase(0) {
+      m_phase(0),
+      m_phase2(0),
+      m_phase3(0),
+      m_phase4(0) {
 
     m_shaper.set_string("-1 -1 0 1 0.5 -1 1 1");
     
@@ -58,27 +63,33 @@ public:
   
   void reset() {
     m_state = OFF;
-    m_phase = 0;
+    m_phase = m_phase2 = m_phase3 = m_phase4 = 0;
   }
   
 
   void on(unsigned char key, unsigned char velocity) {
     m_state = ON;
     m_freq = 0.125 * m_table[key];
-    m_shape_env.on();
-    m_phase_env.on();
+    m_shp_amount_env.on();
+    m_shp_amp_env.on();
+    m_pd_dist_env.on();
+    m_pd_amp_env.on();
   }
   
   void off(unsigned char velocity) {
     m_state = OFF;
-    m_shape_env.off();
-    m_phase_env.off();
+    m_shp_amount_env.off();
+    m_shp_amp_env.off();
+    m_pd_dist_env.off();
+    m_pd_amp_env.off();
   }
 
   void fast_off() {
     m_state = OFF;
-    m_shape_env.fast_off();
-    m_shape_env.fast_off();
+    m_shp_amount_env.fast_off();
+    m_shp_amp_env.fast_off();
+    m_pd_dist_env.fast_off();
+    m_pd_amp_env.fast_off();
   }
 
   void bend(int value) {
@@ -89,28 +100,41 @@ public:
   void run(float& left, float& right, float& shape, float& smoothness,
            float& attack, float& decay, float& release) {
     
-    float shape_env = m_shape_env.run(attack, decay, 0.5, release);
-    float phase_env = m_phase_env.run(attack, decay, 0.5, release);
-    left += 0.25 * m_shaper.run(shape * shape_env * sin(m_phase), 
-                                m_freq + smoothness * 7000);
+    float shp_amount_env = m_shp_amount_env.run(attack, decay, 0.5, release);
+    float shp_amp_env = m_shp_amp_env.run(attack, decay, 0.5, release);
+    float pd_dist_env = m_pd_dist_env.run(attack, decay, 0.5, release);
+    float pd_amp_env = m_pd_amp_env.run(attack, decay, 0.5, release);
+    float left_input = 0.80 * sin(m_phase) + 0.2 * sin(m_phase2);
+    float right_input = 0.80 * sin(m_phase2) + 0.2 * sin(m_phase);
+    left += shp_amp_env * m_shaper.run(shape * shp_amount_env * left_input, 
+                                       m_freq + smoothness * 2000);
+    right += shp_amp_env * m_shaper.run(shape * shp_amount_env * right_input, 
+                                        m_freq + smoothness * 2000);
     //left = 0.5 * m_pdosc.run(m_freq, phase_env) * phase_env;
-    left = 0.25 * m_pdosc.run(m_freq * 4, phase_env) * phase_env;
-    right = left;
+    //left = 0.25 * m_pdosc.run(m_freq * 4, phase_env) * phase_env;
+    //right = left;
     m_phase += m_freq * 2 * M_PI * m_inv_rate;
-    m_phase = (m_phase > 1 ? m_phase - 1 : m_phase);
+    m_phase2 += m_freq * 0.99 * 2 * M_PI * m_inv_rate;
+    m_phase = (m_phase > 2 * M_PI ? m_phase - 2 * M_PI : m_phase);
+    m_phase2 = (m_phase2 > 2 * M_PI ? m_phase2 - 2 * M_PI : m_phase2);
   }
   
   //protected:
   
   Shaper m_shaper;
-  Envelope m_shape_env;
+  Envelope m_shp_amount_env;
+  Envelope m_shp_amp_env;
   PDOscillator m_pdosc;
-  Envelope m_phase_env;
+  Envelope m_pd_dist_env;
+  Envelope m_pd_amp_env;
   
   State m_state;
   float m_inv_rate;
   float m_freq;
   float m_phase;
+  float m_phase2;
+  float m_phase3;
+  float m_phase4;
   
   static FrequencyTable m_table;
 };
@@ -157,7 +181,8 @@ public:
           run(left[i], right[i], shape, shape_smoothness, 
               attack, decay, release);
       }
-      
+      left[i] *= *p(e_gain);
+      right[i] *= *p(e_gain);
     }
   }
   
@@ -166,21 +191,27 @@ public:
     if (!strcmp(key, "shape"))
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
         m_handler.get_voices()[j].voice->m_shaper.set_string(value);
-    else if (!strcmp(key, "shape_env"))
+    else if (!strcmp(key, "shp_amount_env"))
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_shape_env.set_string(value);
+        m_handler.get_voices()[j].voice->m_shp_amount_env.set_string(value);
+    else if (!strcmp(key, "shp_amp_env"))
+      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
+        m_handler.get_voices()[j].voice->m_shp_amp_env.set_string(value);
     else if (!strcmp(key, "phase"))
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
         m_handler.get_voices()[j].voice->m_pdosc.set_string(value);
-    else if (!strcmp(key, "phase_env"))
+    else if (!strcmp(key, "pd_dist_env"))
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_phase_env.set_string(value);
+        m_handler.get_voices()[j].voice->m_pd_dist_env.set_string(value);
+    else if (!strcmp(key, "pd_amp_env"))
+      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
+        m_handler.get_voices()[j].voice->m_pd_amp_env.set_string(value);
     else
       return strdup("Unknown configure key");
     return 0;
   }
   
-
+  
 protected:
   
   VoiceHandler<EuphoriaVoice> m_handler;

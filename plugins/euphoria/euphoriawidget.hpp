@@ -47,10 +47,11 @@ public:
   void configure(const std::string& key, const std::string& value);
   
   sigc::signal<void, int> signal_program_selected;
-  sigc::signal<void, std::string> signal_shape_changed;
-  sigc::signal<void, std::string> signal_shape_envelope_changed;
-  sigc::signal<void, std::string> signal_phase_changed;
-  sigc::signal<void, std::string> signal_phase_envelope_changed;
+  //sigc::signal<void, std::string> signal_shape_changed;
+  //sigc::signal<void, std::string> signal_shape_envelope_changed;
+  //sigc::signal<void, std::string> signal_phase_changed;
+  //sigc::signal<void, std::string> signal_phase_envelope_changed;
+  sigc::signal<void, const std::string&, const std::string&> signal_configure;
   sigc::signal<void, uint32_t, float> signal_control_changed;
   
 protected:
@@ -68,7 +69,7 @@ protected:
   Gtk::Widget& init_global_controls();
   Gtk::Widget& init_bottom_buttons();
   
-  
+
   Gtk::TreeView m_program_view;
   
   class ProgramColumns : public Gtk::TreeModel::ColumnRecord {
@@ -81,11 +82,11 @@ protected:
   Glib::RefPtr<Gtk::ListStore> m_program_store;
   
   PDEditor m_phase;
-  EnvelopeEditor m_phase_env;
-  EnvelopeEditor m_phase_amp_env;
+  EnvelopeEditor m_pd_dist_env;
+  EnvelopeEditor m_pd_amp_env;
   ShaperEditor m_shaper;
-  EnvelopeEditor m_shape_env;
-  EnvelopeEditor m_shape_amp_env;
+  EnvelopeEditor m_shp_amount_env;
+  EnvelopeEditor m_shp_amp_env;
   
   std::vector<Gtk::Adjustment*> m_adj;
 };

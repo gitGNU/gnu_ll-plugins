@@ -39,20 +39,14 @@ public:
   
   EuphoriaGUI(LV2Controller& ctrl, const std::string& URI, 
               const std::string& bundle_path, Widget*& widget) {
+    
     widget = &m_euph;
+
     m_euph.signal_control_changed.
       connect(mem_fun(ctrl, &LV2Controller::set_control));
-    m_euph.signal_phase_changed.
-      connect(bind<0>(mem_fun(ctrl, &LV2Controller::configure), "phase"));
-    m_euph.signal_shape_changed.
-      connect(bind<0>(mem_fun(ctrl, &LV2Controller::configure), "shape"));
-    m_euph.signal_phase_envelope_changed.
-      connect(bind<0>(mem_fun(ctrl, &LV2Controller::configure), "phase_env"));
-    m_euph.signal_shape_envelope_changed.
-      connect(bind<0>(mem_fun(ctrl, &LV2Controller::configure), "shape_env"));
+    m_euph.signal_configure.connect(mem_fun(ctrl, &LV2Controller::configure));
     m_euph.signal_program_selected.
       connect(mem_fun(ctrl, &LV2Controller::set_program));
-    
   }
   
   void set_control(uint32_t port, float value) {
