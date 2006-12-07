@@ -56,7 +56,7 @@ public:
       m_phase3(0),
       m_phase4(0) {
 
-    m_shaper.set_string("-1 -1 0 1 0.5 -1 1 1");
+    m_shaper.set_string("-1 -1 1 1");
     
   }
   
@@ -69,7 +69,7 @@ public:
 
   void on(unsigned char key, unsigned char velocity) {
     m_state = ON;
-    m_freq = 0.125 * m_table[key];
+    m_freq = m_table[key];
     m_shp_amount_env.on();
     m_shp_amp_env.on();
     m_pd_dist_env.on();

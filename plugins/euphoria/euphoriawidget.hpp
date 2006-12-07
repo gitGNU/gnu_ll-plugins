@@ -30,6 +30,7 @@
 
 #include "shapereditor.hpp"
 #include "pdeditor.hpp"
+#include "transitioneditor.hpp"
 #include "envelopeeditor.hpp"
 
 
@@ -63,6 +64,7 @@ protected:
   
   Gtk::Widget& init_pd_controls();
   Gtk::Widget& init_shp_controls();
+  Gtk::Widget& init_markov_controls();
   Gtk::Widget& init_fx_controls();
   Gtk::Widget& init_voice_controls();
   Gtk::Widget& init_program_controls();
@@ -84,9 +86,12 @@ protected:
   PDEditor m_phase;
   EnvelopeEditor m_pd_dist_env;
   EnvelopeEditor m_pd_amp_env;
+
   ShaperEditor m_shaper;
   EnvelopeEditor m_shp_amount_env;
   EnvelopeEditor m_shp_amp_env;
+  
+  TransitionEditor m_trans;
   
   std::vector<Gtk::Adjustment*> m_adj;
 };

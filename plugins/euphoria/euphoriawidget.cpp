@@ -342,6 +342,29 @@ Widget& EuphoriaWidget::init_shp_controls() {
 }
 
 
+Widget& EuphoriaWidget::init_markov_controls() {
+
+  Table* tbl = manage(new Table(1, 4));
+  tbl->set_border_width(6);
+  tbl->set_spacings(6);
+  
+  VBox* ed_box = manage(new VBox);
+  Notebook* ed_nbk = manage(new Notebook);
+  ScrolledWindow* ed_scw = manage(new ScrolledWindow);
+  ed_nbk->append_page(*ed_scw, "Transitions");
+  ed_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  ed_scw->set_shadow_type(SHADOW_IN);
+  ed_scw->add(m_trans);
+  ed_box->pack_start(*ed_nbk, false, false);
+
+  HBox* ed_hbox = manage(new HBox(true));
+  ed_box->pack_start(*ed_hbox, false, false);
+  tbl->attach(*ed_box, 0, 1, 0, 1, AttachOptions(0), AttachOptions(0));
+  
+  return *tbl;
+}
+
+
 Widget& EuphoriaWidget::init_fx_controls() {
 
   HBox* effect_hbox = manage(new HBox(true, 12));
@@ -416,8 +439,8 @@ Widget& EuphoriaWidget::init_voice_controls() {
 
   voice_nbk->append_page(init_shp_controls(), "Waveshaping");
 
+  voice_nbk->append_page(init_markov_controls(), "Markov synthesis");
 
-  voice_nbk->append_page(*manage(new HBox), "Markov synthesis");
   
   voice_vbox->pack_start(*manage(new HSeparator));
   
