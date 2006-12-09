@@ -104,8 +104,8 @@ public:
     float shp_amp_env = m_shp_amp_env.run(attack, decay, 0.5, release);
     float pd_dist_env = m_pd_dist_env.run(attack, decay, 0.5, release);
     float pd_amp_env = m_pd_amp_env.run(attack, decay, 0.5, release);
-    float left_input = 0.80 * sin(m_phase) + 0.2 * sin(m_phase2);
-    float right_input = 0.80 * sin(m_phase2) + 0.2 * sin(m_phase);
+    float left_input = 0.90 * sin(m_phase) + 0.1 * sin(m_phase2);
+    float right_input = 0.90 * sin(m_phase2) + 0.1 * sin(m_phase);
     left += shp_amp_env * m_shaper.run(shape * shp_amount_env * left_input, 
                                        m_freq + smoothness * 2000);
     right += shp_amp_env * m_shaper.run(shape * shp_amount_env * right_input, 
@@ -114,7 +114,7 @@ public:
     //left = 0.25 * m_pdosc.run(m_freq * 4, phase_env) * phase_env;
     //right = left;
     m_phase += m_freq * 2 * M_PI * m_inv_rate;
-    m_phase2 += m_freq * 0.99 * 2 * M_PI * m_inv_rate;
+    m_phase2 += m_freq * 0.999 * 2 * M_PI * m_inv_rate;
     m_phase = (m_phase > 2 * M_PI ? m_phase - 2 * M_PI : m_phase);
     m_phase2 = (m_phase2 > 2 * M_PI ? m_phase2 - 2 * M_PI : m_phase2);
   }

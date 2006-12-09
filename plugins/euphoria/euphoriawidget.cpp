@@ -360,7 +360,69 @@ Widget& EuphoriaWidget::init_markov_controls() {
   HBox* ed_hbox = manage(new HBox(true));
   ed_box->pack_start(*ed_hbox, false, false);
   tbl->attach(*ed_box, 0, 1, 0, 1, AttachOptions(0), AttachOptions(0));
+  HScrollbar* env_bar = 
+    manage(new HScrollbar(m_mrk_01_env.get_adjustment()));
+  for (int i = 0; i < 4; ++i) {
+    ToggleButton* btn = manage(new ToggleButton);
+    env_bar->signal_size_allocate().connect(bind(&moo, btn));
+    ed_hbox->pack_start(*btn);
+  }
   
+  Table* knob1_tbl = manage(new Table(2, 2));
+  tbl->attach(*knob1_tbl, 1, 2, 0, 1, AttachOptions(0), AttachOptions(0));
+  knob1_tbl->set_spacings(3);
+  knob1_tbl->attach(*create_knob("Max freq", e_mrk_max_freq), 
+                    0, 1, 0, 1, AttachOptions(0));
+  knob1_tbl->attach(*create_knob("Min freq", e_mrk_min_freq),
+                    0, 1, 1, 2, AttachOptions(0));
+  knob1_tbl->attach(*create_knob("Key", e_mrk_key),
+                    1, 2, 0, 1, AttachOptions(0));
+  knob1_tbl->attach(*create_knob("Vel", e_mrk_vel_sens),
+                    1, 2, 1, 2, AttachOptions(0));
+  
+  VBox* env_box = manage(new VBox(false, 0));
+  Notebook* mrk_nbk = manage(new Notebook);
+  env_box->pack_start(*mrk_nbk);
+  tbl->attach(*env_box, 2, 3, 0, 1, 
+              FILL|EXPAND, AttachOptions(0));
+  env_box->pack_start(*env_bar);
+
+  ScrolledWindow* env_scw = manage(new ScrolledWindow());
+  mrk_nbk->append_page(*env_scw, "0 -> 1");
+  env_scw->set_shadow_type(SHADOW_IN);
+  env_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  env_scw->add(m_mrk_01_env);
+  
+  env_scw = manage(new ScrolledWindow());
+  mrk_nbk->append_page(*env_scw, "1 -> 0");
+  env_scw->set_shadow_type(SHADOW_IN);
+  env_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  env_scw->add(m_mrk_10_env);
+
+  env_scw = manage(new ScrolledWindow());
+  mrk_nbk->append_page(*env_scw, "Frequency");
+  env_scw->set_shadow_type(SHADOW_IN);
+  env_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  env_scw->add(m_mrk_freq_env);
+
+  env_scw = manage(new ScrolledWindow());
+  mrk_nbk->append_page(*env_scw, "Gain");
+  env_scw->set_shadow_type(SHADOW_IN);
+  env_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  env_scw->add(m_mrk_amp_env);
+
+  Table* knob2_tbl = manage(new Table(2, 2));
+  tbl->attach(*knob2_tbl, 3, 4, 0, 1, AttachOptions(0), AttachOptions(0));
+  knob2_tbl->set_spacings(3);
+  knob2_tbl->attach(*create_knob("Att", e_mrk_attack, 1, 0, 0), 
+                    0, 1, 0, 1, AttachOptions(0));
+  knob2_tbl->attach(*create_knob("Dec", e_mrk_decay, 1, 1, 0),
+                    1, 2, 0, 1, AttachOptions(0));
+  knob2_tbl->attach(*create_knob("Sus", e_mrk_sustain, 0.3, 1, 0.3),
+                    0, 1, 1, 2, AttachOptions(0));
+  knob2_tbl->attach(*create_knob("Rel", e_mrk_release),
+                    1, 2, 1, 2, AttachOptions(0));
+
   return *tbl;
 }
 

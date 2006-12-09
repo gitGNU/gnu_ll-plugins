@@ -48,10 +48,6 @@ public:
   void configure(const std::string& key, const std::string& value);
   
   sigc::signal<void, int> signal_program_selected;
-  //sigc::signal<void, std::string> signal_shape_changed;
-  //sigc::signal<void, std::string> signal_shape_envelope_changed;
-  //sigc::signal<void, std::string> signal_phase_changed;
-  //sigc::signal<void, std::string> signal_phase_envelope_changed;
   sigc::signal<void, const std::string&, const std::string&> signal_configure;
   sigc::signal<void, uint32_t, float> signal_control_changed;
   
@@ -92,6 +88,10 @@ protected:
   EnvelopeEditor m_shp_amp_env;
   
   TransitionEditor m_trans;
+  EnvelopeEditor m_mrk_01_env;
+  EnvelopeEditor m_mrk_10_env;
+  EnvelopeEditor m_mrk_freq_env;
+  EnvelopeEditor m_mrk_amp_env;
   
   std::vector<Gtk::Adjustment*> m_adj;
 };
