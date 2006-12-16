@@ -1,8 +1,8 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.178
+PACKAGE_VERSION = 0.1.179
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2 gsl>=1.8
 
-ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a liblv2_gtk2gui.a libkeyboard.a libvgknob.a libenvelopeeditor.a libshapereditor.a libpdeditor.a libtransitioneditor.a
+ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a liblv2_gtk2gui.a libkeyboard.a libvgknob.a libenvelopeeditor.a libshapereditor.a libpdeditor.a libtransitioneditor.a libpatternwidget.a
 
 liblv2_plugin_a_SOURCES = \
 	lv2plugin.hpp lv2plugin.cpp \
@@ -50,6 +50,10 @@ libtransitioneditor_a_SOURCES = transitioneditor.hpp transitioneditor.cpp
 libtransitioneditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
 libtransitioneditor_a_SOURCEDIR = libraries/widgets
 
+libpatternwidget_a_SOURCES = patternwidget.hpp patternwidget.cpp
+libpatternwidget_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
+libpatternwidget_a_SOURCEDIR = libraries/widgets
+
 
 PROGRAMS = lv2peg elven elven_guiloader sockettest paqtest
 
@@ -82,7 +86,7 @@ paqtest_LDFLAGS = libraries/paq/libpaq.a
 paqtest_SOURCEDIR = libraries/paq
 
 
-LV2_PLUGINS = control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 phase-distortion-osc.lv2 euphoria.lv2 sineshaper.lv2 klaviatur.lv2 audio_identity.lv2 azr3.lv2
+LV2_PLUGINS = control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 phase-distortion-osc.lv2 euphoria.lv2 sineshaper.lv2 klaviatur.lv2 audio_identity.lv2 azr3.lv2 trilobyte.lv2
 
 PLUGINFLAGS = -Wl,-whole-archive libraries/lv2plugin/liblv2_plugin.a -Wl,-no-whole-archive
 INSTRUMENTFLAGS = -Wl,-whole-archive libraries/lv2plugin/liblv2_plugin.a -Wl,-no-whole-archive
@@ -113,6 +117,19 @@ klaviatur_gtk_so_SOURCES = klaviatur_gtk.cpp
 klaviatur_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/lv2gtk2gui -Ilibraries/widgets -I.
 klaviatur_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libkeyboard.a
 klaviatur_gtk_so_SOURCEDIR = plugins/klaviatur
+
+# Trilobyte
+trilobyte_lv2_SOURCES = trilobyte.cpp
+trilobyte_lv2_DATA = manifest.ttl trilobyte.ttl
+trilobyte_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype -Ilibraries/components -I.
+trilobyte_lv2_LDFLAGS = $(PLUGINFLAGS)
+trilobyte_lv2_PEGFILES = trilobyte.peg
+trilobyte_lv2_SOURCEDIR = plugins/trilobyte
+trilobyte_lv2_MODULES = trilobyte_gtk.so
+trilobyte_gtk_so_SOURCES = trilobyte_gtk.cpp
+trilobyte_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/lv2gtk2gui -Ilibraries/widgets -I.
+trilobyte_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libpatternwidget.a
+trilobyte_gtk_so_SOURCEDIR = plugins/trilobyte
 
 # Euphoria
 euphoria_lv2_SOURCES = euphoria.cpp shaper.hpp shaper.cpp envelope.hpp pdoscillator.hpp

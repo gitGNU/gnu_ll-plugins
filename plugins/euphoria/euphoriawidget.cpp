@@ -496,14 +496,29 @@ Widget& EuphoriaWidget::init_voice_controls() {
   voice_vbox->set_border_width(6);
   Notebook* voice_nbk = manage(new Notebook);
   voice_vbox->pack_start(*voice_nbk);
-
-  voice_nbk->append_page(init_pd_controls(), "Phase distortion");
-
-  voice_nbk->append_page(init_shp_controls(), "Waveshaping");
-
-  voice_nbk->append_page(init_markov_controls(), "Markov synthesis");
-
   
+  CheckButton* pd_cbox = manage(new CheckButton);
+  HBox* pd_hbox = manage(new HBox(false, 3));
+  pd_hbox->pack_start(*manage(new Label("Phase distortion")));
+  pd_hbox->pack_start(*pd_cbox);
+  pd_hbox->show_all();
+  voice_nbk->append_page(init_pd_controls(), *pd_hbox);
+
+  CheckButton* shp_cbox = manage(new CheckButton);
+  HBox* shp_hbox = manage(new HBox(false, 3));
+  shp_hbox->pack_start(*manage(new Label("Waveshaping")));
+  shp_hbox->pack_start(*shp_cbox);
+  shp_hbox->show_all();
+  voice_nbk->append_page(init_shp_controls(), *shp_hbox);
+
+  CheckButton* mrk_cbox = manage(new CheckButton);
+  HBox* mrk_hbox = manage(new HBox(false, 3));
+  mrk_hbox->pack_start(*manage(new Label("Markov synthesis")));
+  mrk_hbox->pack_start(*mrk_cbox);
+  mrk_hbox->show_all();
+  voice_nbk->append_page(init_markov_controls(), *mrk_hbox);
+
+
   voice_vbox->pack_start(*manage(new HSeparator));
   
   HBox* voice_hbox = manage(new HBox(false, 6));
