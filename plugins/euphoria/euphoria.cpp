@@ -48,6 +48,9 @@ public:
       m_pdosc(rate),
       m_pd_dist_env(rate),
       m_pd_amp_env(rate),
+      m_mrk_01_env(rate),
+      m_mrk_10_env(rate),
+      m_mrk_amp_env(rate),
       m_state(OFF),
       m_inv_rate(1.0 / rate),
       m_freq(0),
@@ -74,6 +77,9 @@ public:
     m_shp_amp_env.on();
     m_pd_dist_env.on();
     m_pd_amp_env.on();
+    m_mrk_01_env.on();
+    m_mrk_10_env.on();
+    m_mrk_amp_env.on();
   }
   
   void off(unsigned char velocity) {
@@ -82,6 +88,9 @@ public:
     m_shp_amp_env.off();
     m_pd_dist_env.off();
     m_pd_amp_env.off();
+    m_mrk_01_env.off();
+    m_mrk_10_env.off();
+    m_mrk_amp_env.off();
   }
 
   void fast_off() {
@@ -90,6 +99,9 @@ public:
     m_shp_amp_env.fast_off();
     m_pd_dist_env.fast_off();
     m_pd_amp_env.fast_off();
+    m_mrk_01_env.fast_off();
+    m_mrk_10_env.fast_off();
+    m_mrk_amp_env.fast_off();
   }
 
   void bend(int value) {
@@ -100,23 +112,25 @@ public:
   void run(float& left, float& right, float& shape, float& smoothness,
            float& attack, float& decay, float& release) {
     
+    // run shaper engine
     float shp_amount_env = m_shp_amount_env.run(attack, decay, 0.5, release);
     float shp_amp_env = m_shp_amp_env.run(attack, decay, 0.5, release);
-    float pd_dist_env = m_pd_dist_env.run(attack, decay, 0.5, release);
-    float pd_amp_env = m_pd_amp_env.run(attack, decay, 0.5, release);
     float left_input = 0.90 * sin(m_phase) + 0.1 * sin(m_phase2);
     float right_input = 0.90 * sin(m_phase2) + 0.1 * sin(m_phase);
-    left += shp_amp_env * m_shaper.run(shape * shp_amount_env * left_input, 
-                                       m_freq + smoothness * 2000);
-    right += shp_amp_env * m_shaper.run(shape * shp_amount_env * right_input, 
-                                        m_freq + smoothness * 2000);
-    //left = 0.5 * m_pdosc.run(m_freq, phase_env) * phase_env;
-    //left = 0.25 * m_pdosc.run(m_freq * 4, phase_env) * phase_env;
-    //right = left;
     m_phase += m_freq * 2 * M_PI * m_inv_rate;
     m_phase2 += m_freq * 0.999 * 2 * M_PI * m_inv_rate;
     m_phase = (m_phase > 2 * M_PI ? m_phase - 2 * M_PI : m_phase);
     m_phase2 = (m_phase2 > 2 * M_PI ? m_phase2 - 2 * M_PI : m_phase2);
+    left += shp_amp_env * m_shaper.run(shape * shp_amount_env * left_input, 
+                                       m_freq + smoothness * 2000);
+    right += shp_amp_env * m_shaper.run(shape * shp_amount_env * right_input, 
+                                        m_freq + smoothness * 2000);
+    
+    // run Markov engine
+    float mrk_01_env = m_mrk_01_env.run(attack, decay, 0.5, release);
+    float mrk_10_env = m_mrk_10_env.run(attack, decay, 0.5, release);
+    float mrk_amp_env = m_mrk_amp_env.run(attack, decay, 0.5, release);
+    
   }
   
   //protected:
@@ -124,9 +138,14 @@ public:
   Shaper m_shaper;
   Envelope m_shp_amount_env;
   Envelope m_shp_amp_env;
+
   PDOscillator m_pdosc;
   Envelope m_pd_dist_env;
   Envelope m_pd_amp_env;
+  
+  Envelope m_mrk_01_env;
+  Envelope m_mrk_10_env;
+  Envelope m_mrk_amp_env;
   
   State m_state;
   float m_inv_rate;
