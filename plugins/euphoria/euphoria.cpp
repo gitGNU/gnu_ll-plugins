@@ -31,6 +31,7 @@
 #include "shaper.hpp"
 #include "envelope.hpp"
 #include "pdoscillator.hpp"
+#include "markov.hpp"
 
 
 class EuphoriaVoice {
@@ -54,11 +55,11 @@ public:
       m_state(OFF),
       m_inv_rate(1.0 / rate),
       m_freq(0),
-      m_phase(0),
-      m_phase2(0),
-      m_phase3(0),
-      m_phase4(0) {
-
+      m_shp_phase(0),
+      m_shp_phase2(0),
+      m_mrk_phase(0),
+      m_markov(2) {
+    
     m_shaper.set_string("-1 -1 1 1");
     
   }
@@ -66,7 +67,7 @@ public:
   
   void reset() {
     m_state = OFF;
-    m_phase = m_phase2 = m_phase3 = m_phase4 = 0;
+    m_shp_phase = m_shp_phase2 = 0;
   }
   
 
@@ -110,27 +111,43 @@ public:
 
   
   void run(float& left, float& right, float& shape, float& smoothness,
-           float& attack, float& decay, float& release) {
+           float& attack, float& decay, float& release, float& mrk_freq) {
     
     // run shaper engine
+    /*
     float shp_amount_env = m_shp_amount_env.run(attack, decay, 0.5, release);
     float shp_amp_env = m_shp_amp_env.run(attack, decay, 0.5, release);
-    float left_input = 0.90 * sin(m_phase) + 0.1 * sin(m_phase2);
-    float right_input = 0.90 * sin(m_phase2) + 0.1 * sin(m_phase);
-    m_phase += m_freq * 2 * M_PI * m_inv_rate;
-    m_phase2 += m_freq * 0.999 * 2 * M_PI * m_inv_rate;
-    m_phase = (m_phase > 2 * M_PI ? m_phase - 2 * M_PI : m_phase);
-    m_phase2 = (m_phase2 > 2 * M_PI ? m_phase2 - 2 * M_PI : m_phase2);
+    float left_input = 0.90 * sin(m_shp_phase) + 0.1 * sin(m_shp_phase2);
+    float right_input = 0.90 * sin(m_shp_phase2) + 0.1 * sin(m_shp_phase);
+    m_shp_phase += m_freq * 2 * M_PI * m_inv_rate;
+    m_shp_phase2 += m_freq * 0.999 * 2 * M_PI * m_inv_rate;
+    m_shp_phase = (m_shp_phase > 2 * M_PI ? 
+                   m_shp_phase - 2 * M_PI : m_shp_phase);
+    m_shp_phase2 = (m_shp_phase2 > 2 * M_PI ? 
+                    m_shp_phase2 - 2 * M_PI : m_shp_phase2);
     left += shp_amp_env * m_shaper.run(shape * shp_amount_env * left_input, 
                                        m_freq + smoothness * 2000);
     right += shp_amp_env * m_shaper.run(shape * shp_amount_env * right_input, 
                                         m_freq + smoothness * 2000);
-    
+    */                                    
+                                        
     // run Markov engine
     float mrk_01_env = m_mrk_01_env.run(attack, decay, 0.5, release);
     float mrk_10_env = m_mrk_10_env.run(attack, decay, 0.5, release);
     float mrk_amp_env = m_mrk_amp_env.run(attack, decay, 0.5, release);
-    
+    m_markov.set_probability(0, 1, mrk_01_env);
+    m_markov.set_probability(0, 0, 1 - mrk_01_env);
+    m_markov.set_probability(1, 0, mrk_10_env);
+    m_markov.set_probability(1, 1, 1 - mrk_10_env);
+    float mrk_sound = sin(m_mrk_phase);
+    m_mrk_phase += mrk_freq * 2 * M_PI * m_inv_rate * (1 +m_markov.get_state());
+    if (m_mrk_phase > 2 * M_PI * (1 + m_markov.get_state())) {
+      m_markov.transition();
+      m_mrk_phase -= 2 * M_PI;
+    }
+    mrk_sound *= mrk_amp_env * 0.5;
+    left += mrk_sound;
+    right += mrk_sound;
   }
   
   //protected:
@@ -138,22 +155,22 @@ public:
   Shaper m_shaper;
   Envelope m_shp_amount_env;
   Envelope m_shp_amp_env;
+  float m_shp_phase;
+  float m_shp_phase2;
 
   PDOscillator m_pdosc;
   Envelope m_pd_dist_env;
   Envelope m_pd_amp_env;
   
+  Markov m_markov;
   Envelope m_mrk_01_env;
   Envelope m_mrk_10_env;
   Envelope m_mrk_amp_env;
+  float m_mrk_phase;
   
   State m_state;
   float m_inv_rate;
   float m_freq;
-  float m_phase;
-  float m_phase2;
-  float m_phase3;
-  float m_phase4;
   
   static FrequencyTable m_table;
 };
@@ -198,7 +215,7 @@ public:
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j) {
         m_handler.get_voices()[j].voice->
           run(left[i], right[i], shape, shape_smoothness, 
-              attack, decay, release);
+              attack, decay, release, *p(e_mrk_max_freq));
       }
       left[i] *= *p(e_gain);
       right[i] *= *p(e_gain);
@@ -225,6 +242,15 @@ public:
     else if (!strcmp(key, "pd_amp_env"))
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
         m_handler.get_voices()[j].voice->m_pd_amp_env.set_string(value);
+    else if (!strcmp(key, "mrk_01_env"))
+      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
+        m_handler.get_voices()[j].voice->m_mrk_01_env.set_string(value);
+    else if (!strcmp(key, "mrk_10_env"))
+      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
+        m_handler.get_voices()[j].voice->m_mrk_10_env.set_string(value);
+    else if (!strcmp(key, "mrk_amp_env"))
+      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
+        m_handler.get_voices()[j].voice->m_mrk_amp_env.set_string(value);
     else
       return strdup("Unknown configure key");
     return 0;

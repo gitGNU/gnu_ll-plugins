@@ -40,6 +40,9 @@ public:
   /** Set the current state of the process. */
   inline void set_state(unsigned int state);
   
+  /** Get the current state. */
+  inline unsigned int get_state() const;
+  
   /** Go to next (nondeterministic) state. */
   inline unsigned int transition();
   
@@ -56,12 +59,12 @@ protected:
 
 
 Markov::Markov(unsigned int nstates)
-  m_prob(new float[nstates * nstates]),
-  m_nstates(nstates),
-  m_state(0) {
+  : m_prob(new float[nstates * nstates]),
+    m_nstates(nstates),
+    m_state(0) {
 
   for (unsigned int i = 0; i < m_nstates; ++i)
-    for (unsigned int j = 0; j < m_nstates; ++i)
+    for (unsigned int j = 0; j < m_nstates; ++j)
       m_prob[i * m_nstates + j] = 1;
 }
 
@@ -73,6 +76,11 @@ Markov::~Markov() {
 
 void Markov::set_state(unsigned int state) {
   m_state = state;
+}
+
+
+unsigned int Markov::get_state() const {
+  return m_state;
 }
 
 
@@ -90,6 +98,11 @@ unsigned int Markov::transition() {
     }
   }
   return m_nstates - 1;
+}
+
+
+void Markov::set_probability(unsigned int from, unsigned int to, float prob) {
+  m_prob[from * m_nstates + to] = prob;
 }
 
 

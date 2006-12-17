@@ -98,6 +98,15 @@ EuphoriaWidget::EuphoriaWidget()
   m_pd_amp_env.signal_apply.
     connect(compose(bind<0>(configure, "pd_amp_env"), 
                     mem_fun(m_pd_amp_env, &EnvelopeEditor::get_string)));
+  m_mrk_01_env.signal_apply.
+    connect(compose(bind<0>(configure, "mrk_01_env"), 
+                    mem_fun(m_mrk_01_env, &EnvelopeEditor::get_string)));
+  m_mrk_10_env.signal_apply.
+    connect(compose(bind<0>(configure, "mrk_10_env"), 
+                    mem_fun(m_mrk_10_env, &EnvelopeEditor::get_string)));
+  m_mrk_amp_env.signal_apply.
+    connect(compose(bind<0>(configure, "mrk_amp_env"), 
+                    mem_fun(m_mrk_amp_env, &EnvelopeEditor::get_string)));
   
   show_all();
 }

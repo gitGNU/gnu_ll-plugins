@@ -45,10 +45,13 @@ protected:
   virtual bool on_button_press_event(GdkEventButton* event);
   virtual bool on_button_release_event(GdkEventButton* event);
   virtual bool on_motion_notify_event(GdkEventMotion* event);
+  virtual bool on_scroll_event(GdkEventScroll* event);
   virtual void on_realize();
   virtual bool on_expose_event(GdkEventExpose* event);
   // @}
   
+  int x2step(double x);
+  int y2line(double y);
   
   Glib::RefPtr<Gdk::GC> m_gc;
   Glib::RefPtr<Gdk::Window> m_win;
@@ -57,6 +60,10 @@ protected:
   unsigned int m_steps;
   unsigned int m_sheight;
   unsigned int m_swidth;
+  
+  std::vector<unsigned char> m_notes;
+  std::vector<bool> m_on;
+  std::vector<bool> m_slide;
 };
 
 
