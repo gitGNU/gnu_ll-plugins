@@ -46,7 +46,6 @@ public:
       m_invrate(1.0 / rate),
       m_rate(rate),
       m_step(0),
-      m_key(255),
       m_playing(128, false) {
     
   }
@@ -76,8 +75,7 @@ public:
       ++step;
       step %= 32;
       if ((!m_seq[step].on || (step > 0 && !m_seq[step - 1].slide) || 
-           step == 0) && m_key != 255) {
-        m_key = 255;
+           step == 0)) {
         for (int i = 0; i < 128; ++i) {
           if (m_playing[i]) {
             off[1] = i;
@@ -89,8 +87,6 @@ public:
       if (m_seq[step].on) {
         on[1] = m_seq[step].note;
         on[2] = m_seq[step].velocity;
-        if (m_key == 255)
-          m_key = on[1];
         lv2midi_put_event(&out, next_event, 3, on);
         m_playing[on[1]] = true;
       }
@@ -133,7 +129,6 @@ protected:
   float m_invrate;
   float m_rate;
   double m_step;
-  unsigned char m_key;
   std::vector<bool> m_playing;
 };
 
