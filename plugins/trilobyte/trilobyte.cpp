@@ -67,11 +67,7 @@ public:
     out.midi->size = 0;
     out.midi->event_count = 0;
 
-    //cerr<<"spm = "<<spm<<", fpb = "<<fpb<<", m_step = "<<m_step
-    //    <<", next_event = "<<next_event<<endl;
-    
     while (next_event < nframes) {
-      //cerr<<"next_event = "<<next_event<<endl;
       ++step;
       step %= 32;
       if ((!m_seq[step].on || (step > 0 && !m_seq[step - 1].slide) || 
@@ -100,8 +96,6 @@ public:
   
   char* configure(const char* key, const char* value) {
     
-    cerr<<key<<": "<<value<<endl;
-    
     if (!strcmp(key, "seq")) {
       istringstream iss(value);
       int n;
@@ -115,7 +109,6 @@ public:
         m_seq[i].note = note;
         m_seq[i].slide = slide;
         m_seq[i].velocity = velocity;
-        //cerr<<i<<": "<<m_seq[i].on<<" "<<int(m_seq[i].note)<<" "<<m_seq[i].slide<<endl;
       }
       return 0;
     }
