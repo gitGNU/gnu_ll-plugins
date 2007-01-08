@@ -30,11 +30,17 @@
 #include <gtkmm/drawingarea.h>
 #include <sigc++/signal.h>
 
+#include "monostep.hpp"
+
 
 class PatternWidget : public Gtk::DrawingArea {
 public:
   
   PatternWidget(unsigned int steps, unsigned int sheight, unsigned int swidth);
+  
+  std::string get_string() const;
+  
+  sigc::signal<void> signal_sequence_changed;
   
 protected:
   
@@ -55,15 +61,18 @@ protected:
   
   Glib::RefPtr<Gdk::GC> m_gc;
   Glib::RefPtr<Gdk::Window> m_win;
-  Gdk::Color m_white, m_black, m_grey1, m_grey2, m_green1, m_green2;
+  Gdk::Color m_white, m_black, m_grey1, m_grey2, m_grey3, m_green1, m_green2, m_purple;
   
   unsigned int m_steps;
   unsigned int m_sheight;
   unsigned int m_swidth;
   
-  std::vector<unsigned char> m_notes;
-  std::vector<bool> m_on;
-  std::vector<bool> m_slide;
+  //std::vector<unsigned char> m_notes;
+  //std::vector<bool> m_on;
+  //std::vector<bool> m_slide;
+  std::vector<MonoStep> m;
+  
+  std::vector<unsigned char> m_vel_table;
 };
 
 
