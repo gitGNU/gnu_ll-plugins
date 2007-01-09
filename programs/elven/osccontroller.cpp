@@ -54,6 +54,8 @@ OSCController::OSCController(LV2Host& host, bool& still_running)
                        &OSCController::control_handler, &m_cbdata);
   lo_server_add_method(m_server, "/lv2/configure", "ss", 
                        &OSCController::configure_handler, &m_cbdata);
+  lo_server_add_method(m_server, "/lv2/set_file", "ss", 
+                       &OSCController::set_file_handler, &m_cbdata);
   lo_server_add_method(m_server, "/lv2/program", "i", 
                        &OSCController::program_handler, &m_cbdata);
   lo_server_add_method(m_server, "/lv2/midi", "iim", 
@@ -150,10 +152,15 @@ int OSCController::update_handler(const char*, const char*, lo_arg** argv,
   
   const map<string, string>& config = data->host.get_config();
   map<string, string>::const_iterator iter;
-  
   pthread_mutex_lock(&data->me.m_clients_mutex);
   for (iter = config.begin(); iter != config.end(); ++iter)
     data->me.send_one_configure(iter->first, iter->second, ci);
+  pthread_mutex_unlock(&data->me.m_clients_mutex);
+
+  const map<string, string>& filenames = data->host.get_filenames();
+  pthread_mutex_lock(&data->me.m_clients_mutex);
+  for (iter = filenames.begin(); iter != filenames.end(); ++iter)
+    data->me.send_one_filename(iter->first, iter->second, ci);
   pthread_mutex_unlock(&data->me.m_clients_mutex);
 
   data->host.queue_config_request(&data->me.m_queue);
@@ -213,6 +220,13 @@ int OSCController::midi_handler(const char*, const char*, lo_arg** argv,
 void OSCController::send_one_configure(const std::string& key, const std::string& value, 
                                        ClientInfo* ci) {
   lo_send(ci->address, (ci->path + "configure").c_str(), "ss",
+          key.c_str(), value.c_str());
+}
+
+
+void OSCController::send_one_filename(const std::string& key, const std::string& value, 
+                                      ClientInfo* ci) {
+  lo_send(ci->address, (ci->path + "set_file").c_str(), "ss",
           key.c_str(), value.c_str());
 }
 

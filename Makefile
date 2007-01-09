@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.187
+PACKAGE_VERSION = 0.1.188
 PKG_DEPS = jack>=0.102.6 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2 gsl>=1.8
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a liblv2_gtk2gui.a libkeyboard.a libvgknob.a libenvelopeeditor.a libshapereditor.a libpdeditor.a libtransitioneditor.a libpatternwidget.a
@@ -86,7 +86,7 @@ paqtest_LDFLAGS = libraries/paq/libpaq.a
 paqtest_SOURCEDIR = libraries/paq
 
 
-LV2_PLUGINS = control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 phase-distortion-osc.lv2 euphoria.lv2 sineshaper.lv2 klaviatur.lv2 audio_identity.lv2 azr3.lv2 trilobyte.lv2
+LV2_PLUGINS = control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 phase-distortion-osc.lv2 euphoria.lv2 sineshaper.lv2 klaviatur.lv2 audio_identity.lv2 azr3.lv2 trilobyte.lv2 trilobeat.lv2
 
 PLUGINFLAGS = -Wl,-whole-archive libraries/lv2plugin/liblv2_plugin.a -Wl,-no-whole-archive
 INSTRUMENTFLAGS = -Wl,-whole-archive libraries/lv2plugin/liblv2_plugin.a -Wl,-no-whole-archive
@@ -131,6 +131,20 @@ trilobyte_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -I
 trilobyte_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4`
 trilobyte_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libpatternwidget.a
 trilobyte_gtk_so_SOURCEDIR = plugins/trilobyte
+
+# Trilobeat
+trilobeat_lv2_SOURCES = trilobeat.cpp
+trilobeat_lv2_DATA = manifest.ttl trilobeat.ttl patternbg.png
+trilobeat_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype -Iextensions/instrument -Ilibraries/components -I.
+trilobeat_lv2_LDFLAGS = $(INSTRUMENTFLAGS)
+trilobeat_lv2_PEGFILES = trilobeat.peg
+trilobeat_lv2_SOURCEDIR = plugins/trilobeat
+#trilobeat_lv2_MODULES = trilobeat_gtk.so
+#trilobeat_gtk_so_SOURCES = trilobeat_gtk.cpp
+#trilobeat_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/lv2gtk2gui -Ilibraries/widgets -Ilibraries/components -I.
+#trilobeat_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4`
+#trilobeat_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libpatternwidget.a
+#trilobeat_gtk_so_SOURCEDIR = plugins/trilobeat
 
 # Euphoria
 euphoria_lv2_SOURCES = euphoria.cpp shaper.hpp shaper.cpp envelope.hpp pdoscillator.hpp

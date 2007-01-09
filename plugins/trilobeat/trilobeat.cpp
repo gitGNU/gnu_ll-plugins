@@ -1,6 +1,6 @@
 /****************************************************************************
     
-    trilobyte.cpp - The plugin part for a MIDI keyboard plugin
+    trilobeat.cpp - The plugin part for a MIDI keyboard plugin
     
     Copyright (C) 2006  Lars Luthman <lars.luthman@gmail.com>
     
@@ -28,7 +28,7 @@
 #include <iostream>
 
 #include "lv2instrument.hpp"
-#include "trilobyte.peg"
+#include "trilobeat.peg"
 #include "lv2-midifunctions.h"
 #include "monostep.hpp"
 #include "frequencytable.hpp"
@@ -37,10 +37,10 @@
 using namespace std;
 
 
-class Trilobyte : public LV2Instrument {
+class Trilobeat : public LV2Instrument {
 public:
 
-  Trilobyte(uint32_t rate, const char* bundle, const LV2_Host_Feature** f)
+  Trilobeat(uint32_t rate, const char* bundle, const LV2_Host_Feature** f)
     : LV2Instrument(k_n_ports),
       m_seq(32),
       m_invrate(1.0 / rate),
@@ -70,22 +70,9 @@ public:
     while (next_event < nframes) {
       ++step;
       step %= 32;
-      if ((!m_seq[step].on || (step > 0 && !m_seq[step - 1].slide) || 
-           step == 0)) {
-        for (int i = 0; i < 128; ++i) {
-          if (m_playing[i]) {
-            off[1] = i;
-            lv2midi_put_event(&out, next_event, 3, off);
-            m_playing[i] = false;
-          }
-        }
-      }
-      if (m_seq[step].on) {
-        on[1] = m_seq[step].note;
-        on[2] = m_seq[step].velocity;
-        lv2midi_put_event(&out, next_event, 3, on);
-        m_playing[on[1]] = true;
-      }
+      
+      // write events here
+
       next_event += fpb;
     }
     
@@ -96,7 +83,10 @@ public:
   
   char* configure(const char* key, const char* value) {
     
-    if (!strcmp(key, "seq")) {
+    if (!strncmp(key, "seq", 3)) {
+      int s = atoi(key + 3);
+      if (s < 0 || s > 127)
+        return strdup("INCORRECT SEQUENCE NUMBER");
       istringstream iss(value);
       int n;
       iss>>n;
@@ -128,5 +118,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  register_lv2_inst<Trilobyte>(k_uri);
+  register_lv2_inst<Trilobeat>(k_uri);
 }

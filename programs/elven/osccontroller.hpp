@@ -90,6 +90,7 @@ protected:
   };
 
   void send_one_configure(const std::string& key, const std::string& value, ClientInfo* ci);
+  void send_one_filename(const std::string& key, const std::string& value, ClientInfo* ci);
   
   bool& m_still_running;
   
