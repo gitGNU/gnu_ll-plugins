@@ -32,14 +32,14 @@
 class Control2MIDI : public LV2Plugin {
 public:
   
-  Control2MIDI(unsigned long, const char*, const LV2_Host_Feature**) 
+  Control2MIDI(uint32_t, const char*, const LV2_Host_Feature**) 
     : LV2Plugin(5),
       m_last_value(0),
       m_last_cc(0) { 
     
   }
   
-  void run(unsigned long sample_count) {
+  void run(uint32_t sample_count) {
     
     float value = *static_cast<float*>(m_ports[0]);
     float min = *static_cast<float*>(m_ports[1]);

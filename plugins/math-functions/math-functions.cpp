@@ -55,14 +55,14 @@ namespace {
 template <unary_f F, bool A>
 class Unary : public LV2Plugin {
 public:
-  Unary(unsigned long, const char*, const LV2_Host_Feature**) 
+  Unary(uint32_t, const char*, const LV2_Host_Feature**) 
     : LV2Plugin(2) {
     
   }
-  void run(unsigned long sample_count) {
+  void run(uint32_t sample_count) {
     float* input = static_cast<float*>(m_ports[0]);
     float* output = static_cast<float*>(m_ports[1]);
-    for (unsigned long i = 0; i < (A ? sample_count : 1); ++i)
+    for (uint32_t i = 0; i < (A ? sample_count : 1); ++i)
       output[i] = F(input[i]);
   }
 };
@@ -71,14 +71,14 @@ public:
 template <unary_f F, bool A>
 class UnaryGuard : public LV2Plugin {
 public:
-  UnaryGuard(unsigned long, const char*, const LV2_Host_Feature**) 
+  UnaryGuard(uint32_t, const char*, const LV2_Host_Feature**) 
     : LV2Plugin(2) {
     
   }
-  void run(unsigned long sample_count) {
+  void run(uint32_t sample_count) {
     float* input = static_cast<float*>(m_ports[0]);
     float* output = static_cast<float*>(m_ports[1]);
-    for (unsigned long i = 0; i < (A ? sample_count : 1); ++i) {
+    for (uint32_t i = 0; i < (A ? sample_count : 1); ++i) {
       output[i] = F(input[i]);
       if (!isnormal(output[i]))
         output[i] = 0;
@@ -90,14 +90,14 @@ public:
 template <unary_f F, bool A, float& MIN, float& MAX>
 class UnaryRange : public LV2Plugin {
 public:
-  UnaryRange(unsigned long, const char*, const LV2_Host_Feature**) 
+  UnaryRange(uint32_t, const char*, const LV2_Host_Feature**) 
     : LV2Plugin(2) {
     
   }
-  void run(unsigned long sample_count) {
+  void run(uint32_t sample_count) {
     float* input = static_cast<float*>(m_ports[0]);
     float* output = static_cast<float*>(m_ports[1]);
-    for (unsigned long i = 0; i < (A ? sample_count : 1); ++i) {
+    for (uint32_t i = 0; i < (A ? sample_count : 1); ++i) {
       float this_input = input[i] < MIN ? MIN : input[i];
       this_input = this_input > MAX ? MAX : this_input;
       output[i] = F(this_input);
@@ -109,14 +109,14 @@ public:
 template <unary_f F, bool A, float& MIN>
 class UnaryMin : public LV2Plugin {
 public:
-  UnaryMin(unsigned long, const char*, const LV2_Host_Feature**) 
+  UnaryMin(uint32_t, const char*, const LV2_Host_Feature**) 
     : LV2Plugin(2) {
     
   }
-  void run(unsigned long sample_count) {
+  void run(uint32_t sample_count) {
     float* input = static_cast<float*>(m_ports[0]);
     float* output = static_cast<float*>(m_ports[1]);
-    for (unsigned long i = 0; i < (A ? sample_count : 1); ++i) {
+    for (uint32_t i = 0; i < (A ? sample_count : 1); ++i) {
       float this_input = input[i] < MIN ? MIN : input[i];
       output[i] = F(this_input);
     }
@@ -127,15 +127,15 @@ public:
 template <binary_f F, bool A>
 class Binary : public LV2Plugin {
 public:
-  Binary(unsigned long, const char*, const LV2_Host_Feature**) 
+  Binary(uint32_t, const char*, const LV2_Host_Feature**) 
     : LV2Plugin(3) {
     
   }
-  void run(unsigned long sample_count) {
+  void run(uint32_t sample_count) {
     float* input1 = static_cast<float*>(m_ports[0]);
     float* input2 = static_cast<float*>(m_ports[1]);
     float* output = static_cast<float*>(m_ports[2]);
-    for (unsigned long i = 0; i < (A ? sample_count : 1); ++i)
+    for (uint32_t i = 0; i < (A ? sample_count : 1); ++i)
       output[i] = F(input1[i], input2[i]);
   }
 };
@@ -144,15 +144,15 @@ public:
 template <binary_f F, bool A>
 class BinaryGuard : public LV2Plugin {
 public:
-  BinaryGuard(unsigned long, const char*, const LV2_Host_Feature**) 
+  BinaryGuard(uint32_t, const char*, const LV2_Host_Feature**) 
     : LV2Plugin(3) {
     
   }
-  void run(unsigned long sample_count) {
+  void run(uint32_t sample_count) {
     float* input1 = static_cast<float*>(m_ports[0]);
     float* input2 = static_cast<float*>(m_ports[1]);
     float* output = static_cast<float*>(m_ports[2]);
-    for (unsigned long i = 0; i < (A ? sample_count : 1); ++i) {
+    for (uint32_t i = 0; i < (A ? sample_count : 1); ++i) {
       output[i] = F(input1[i], input2[i]);
       if (!isnormal(output[i]))
         output[i] = 0;
@@ -164,15 +164,15 @@ public:
 template <bool A>
 class Modf : public LV2Plugin {
 public:
-  Modf(unsigned long, const char*, const LV2_Host_Feature**) 
+  Modf(uint32_t, const char*, const LV2_Host_Feature**) 
     : LV2Plugin(3) {
     
   }
-  void run(unsigned long sample_count) {
+  void run(uint32_t sample_count) {
     float* input = static_cast<float*>(m_ports[0]);
     float* output1 = static_cast<float*>(m_ports[1]);
     float* output2 = static_cast<float*>(m_ports[2]);
-    for (unsigned long i = 0; i < (A ? sample_count : 1); ++i)
+    for (uint32_t i = 0; i < (A ? sample_count : 1); ++i)
       output2[i] = modf(input[i], output1 + i);
   }
 };

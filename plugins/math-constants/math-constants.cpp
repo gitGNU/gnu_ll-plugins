@@ -52,11 +52,11 @@ namespace {
 template <float& Output>
 class Constant : public LV2Plugin {
 public:
-  Constant(unsigned long, const char*, const LV2_Host_Feature**) 
+  Constant(uint32_t, const char*, const LV2_Host_Feature**) 
     : LV2Plugin(1) {
     
   }
-  void run(unsigned long sample_count) {
+  void run(uint32_t sample_count) {
     *static_cast<float*>(m_ports[0]) = Output;
   }
 };

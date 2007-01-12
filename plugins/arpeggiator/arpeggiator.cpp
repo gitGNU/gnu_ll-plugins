@@ -36,7 +36,7 @@ using namespace std;
 class Arpeggiator : public LV2Plugin {
 public:
   
-  Arpeggiator(unsigned long, const char*, const LV2_Host_Feature**) 
+  Arpeggiator(uint32_t, const char*, const LV2_Host_Feature**) 
     : LV2Plugin(5),
       m_num_keys(0),
       m_frame_counter(0),
@@ -52,7 +52,7 @@ public:
   }
 
   
-  void run(unsigned long nframes) {
+  void run(uint32_t nframes) {
     
     float& npb = *static_cast<float*>(m_ports[0]);
     float& plength = *static_cast<float*>(m_ports[1]);

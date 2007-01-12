@@ -105,7 +105,7 @@ public:
   
   /** This is the process callback which should fill all output port buffers. 
       You most likely want to override it. */
-  virtual void run(uint32_t sample_count) { }
+  virtual void run(uint32_t sample_count) = 0;
   
   /** Override this function if you need to do anything on deactivation. 
       The host calls this when it does not plan to make any more calls to 
