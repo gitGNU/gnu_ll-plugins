@@ -38,7 +38,7 @@ public:
   }
   
   
-  void run(unsigned long nframes) {
+  void run(uint32_t nframes) {
     
     LV2_MIDIState in = { static_cast<LV2_MIDI*>(m_ports[0]), nframes, 0 };
     LV2_MIDIState out = { static_cast<LV2_MIDI*>(m_ports[1]), nframes, 0 };

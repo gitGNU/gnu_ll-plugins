@@ -114,7 +114,6 @@ public:
            float& attack, float& decay, float& release, float& mrk_freq) {
     
     // run shaper engine
-    /*
     float shp_amount_env = m_shp_amount_env.run(attack, decay, 0.5, release);
     float shp_amp_env = m_shp_amp_env.run(attack, decay, 0.5, release);
     float left_input = 0.90 * sin(m_shp_phase) + 0.1 * sin(m_shp_phase2);
@@ -129,9 +128,9 @@ public:
                                        m_freq + smoothness * 2000);
     right += shp_amp_env * m_shaper.run(shape * shp_amount_env * right_input, 
                                         m_freq + smoothness * 2000);
-    */                                    
                                         
     // run Markov engine
+    /*
     float mrk_01_env = m_mrk_01_env.run(attack, decay, 0.5, release);
     float mrk_10_env = m_mrk_10_env.run(attack, decay, 0.5, release);
     float mrk_amp_env = m_mrk_amp_env.run(attack, decay, 0.5, release);
@@ -148,6 +147,7 @@ public:
     mrk_sound *= mrk_amp_env * 0.5;
     left += mrk_sound;
     right += mrk_sound;
+    */
   }
   
   //protected:
