@@ -549,6 +549,7 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     Namespace lv2("<http://lv2plug.in/ontology#>");
     Namespace ll("<http://ll-plugins.nongnu.org/lv2/namespace#>");
     Namespace llext("<http://ll-plugins.nongnu.org/lv2/ext/>");
+    Namespace mm("<http://ll-plugins.nongnu.org/lv2/ext/midimap#>");
     
     qr = select(index, symbol, portclass, porttype)
       .where(uriref, lv2("port"), port)
@@ -684,9 +685,9 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     qr = select(index, cc_number)
       .where(uriref, lv2("port"), port)
       .where(port, lv2("index"), index)
-      .where(port, ll("defaultMidiController"), controller)
-      .where(controller, ll("controllerType"), ll("CC"))
-      .where(controller, ll("controllerNumber"), cc_number)
+      .where(port, mm("defaultMidiController"), controller)
+      .where(controller, mm("controllerType"), mm("CC"))
+      .where(controller, mm("controllerNumber"), cc_number)
       .run(data);
     for (unsigned j = 0; j < qr.size(); ++j) {
       unsigned p = atoi(qr[j][index]->name.c_str());
@@ -697,7 +698,7 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     
     // default MIDI port
     qr = select(index)
-      .where(uriref, ll("defaultMidiPort"), index)
+      .where(uriref, mm("defaultMidiPort"), index)
       .run(data);
     if (qr.size() > 0)
       m_default_midi_port = atoi(qr[0][index]->name.c_str());

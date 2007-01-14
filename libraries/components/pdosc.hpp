@@ -1,6 +1,6 @@
 /****************************************************************************
     
-    pdosc.hpp - Simple phase distortion oscillatorx
+    pdosc.hpp - Simple phase distortion oscillator
     
     Copyright (C) 2006 Lars Luthman <lars.luthman@gmail.com>
     
