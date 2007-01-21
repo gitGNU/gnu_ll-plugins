@@ -25,6 +25,8 @@
 #include <iostream>
 #include <valarray>
 
+#include <cairomm/cairomm.h>
+
 #include "transitioneditor.hpp"
 
 
@@ -73,7 +75,7 @@ bool TransitionEditor::on_expose_event(GdkEventExpose* event) {
   
   Glib::RefPtr<Gdk::Window> win = get_window();
   Glib::RefPtr<Gdk::GC> gc = Gdk::GC::create(win);
-  Cairo::RefPtr<Cairo::Context> cc = win->create_cairo_context();
+  Cairo::RefPtr<Cairo::Context> cc(new Cairo::Context(gdk_cairo_create(win->gobj())));
   cc->set_line_join(Cairo::LINE_JOIN_ROUND);
   
   int width = get_width();

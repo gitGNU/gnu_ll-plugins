@@ -25,6 +25,8 @@
 #include <sstream>
 #include <valarray>
 
+#include <cairomm/cairomm.h>
+
 #include "envelopeeditor.hpp"
 
 
@@ -203,7 +205,7 @@ bool EnvelopeEditor::on_expose_event(GdkEventExpose* event) {
   
   Glib::RefPtr<Gdk::Window> win = get_window();
   Glib::RefPtr<Gdk::GC> gc = Gdk::GC::create(win);
-  Cairo::RefPtr<Cairo::Context> cc = win->create_cairo_context();
+  Cairo::RefPtr<Cairo::Context> cc(new Cairo::Context(gdk_cairo_create(win->gobj())));
   cc->set_line_join(Cairo::LINE_JOIN_ROUND);
   cc->translate(-m_adj.get_value(), 0);
   
@@ -295,7 +297,7 @@ bool EnvelopeEditor::on_expose_event(GdkEventExpose* event) {
       cc->stroke();
       cc->restore();
     }
-    cc->begin_new_path();
+    cc->clear_path();
     
 
     xoffset += l;

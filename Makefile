@@ -1,6 +1,6 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.192
-PKG_DEPS = jack>=0.102.27 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.10.1 libglademm-2.4>=2.6.2 gsl>=1.8
+PACKAGE_VERSION = 0.1.193
+PKG_DEPS = jack>=0.102.27 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.8.8 cairomm-1.0>=0.6.0 libglademm-2.4>=2.6.2 gsl>=1.8
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a liblv2_gtk2gui.a libkeyboard.a libvgknob.a libenvelopeeditor.a libshapereditor.a libpdeditor.a libtransitioneditor.a libpatternwidget.a
 
@@ -31,23 +31,23 @@ libkeyboard_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
 libkeyboard_a_SOURCEDIR = libraries/widgets
 
 libvgknob_a_SOURCES = vgknob.hpp vgknob.cpp
-libvgknob_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
+libvgknob_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
 libvgknob_a_SOURCEDIR = libraries/widgets
 
 libenvelopeeditor_a_SOURCES = envelopeeditor.hpp envelopeeditor.cpp
-libenvelopeeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
+libenvelopeeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
 libenvelopeeditor_a_SOURCEDIR = libraries/widgets
 
 libshapereditor_a_SOURCES = shapereditor.hpp shapereditor.cpp
-libshapereditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
+libshapereditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
 libshapereditor_a_SOURCEDIR = libraries/widgets
 
 libpdeditor_a_SOURCES = pdeditor.hpp pdeditor.cpp
-libpdeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
+libpdeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
 libpdeditor_a_SOURCEDIR = libraries/widgets
 
 libtransitioneditor_a_SOURCES = transitioneditor.hpp transitioneditor.cpp
-libtransitioneditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
+libtransitioneditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
 libtransitioneditor_a_SOURCEDIR = libraries/widgets
 
 libpatternwidget_a_SOURCES = patternwidget.hpp patternwidget.cpp
@@ -59,7 +59,7 @@ PROGRAMS = lv2peg elven elven_guiloader sockettest paqtest
 
 lv2peg_SOURCES = lv2peg.cpp
 lv2peg_CFLAGS = -Ilibraries/paq -DVERSION=\"$(PACKAGE_VERSION)\"
-lv2peg_LDFLAGS = libraries/paq/libpaq.a
+lv2peg_ARCHIVES = libraries/paq/libpaq.a
 lv2peg_SOURCEDIR = programs/lv2peg
 
 elven_SOURCES = \
@@ -157,8 +157,8 @@ euphoria_lv2_MODULES = euphoria_gtk.so
 euphoria_gtk_so_SOURCES = \
 	euphoria_gtk.cpp \
 	euphoriawidget.cpp euphoriawidget.hpp
-euphoria_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
-euphoria_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` libraries/widgets/libvgknob.a libraries/widgets/libenvelopeeditor.a libraries/widgets/libshapereditor.a libraries/widgets/libpdeditor.a libraries/widgets/libtransitioneditor.a libraries/lv2gtk2gui/liblv2_gtk2gui.a
+euphoria_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0` -Iextensions/gtkgui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
+euphoria_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 cairomm-1.0` libraries/widgets/libvgknob.a libraries/widgets/libenvelopeeditor.a libraries/widgets/libshapereditor.a libraries/widgets/libpdeditor.a libraries/widgets/libtransitioneditor.a libraries/lv2gtk2gui/liblv2_gtk2gui.a
 euphoria_gtk_so_SOURCEDIR = plugins/euphoria
 
 # Sineshaper

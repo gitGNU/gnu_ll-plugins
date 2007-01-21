@@ -25,6 +25,7 @@
 #define VGKNOB_HPP
 
 #include <gtkmm.h>
+#include <cairomm/cairomm.h>
 
 
 class VGKnob : public Gtk::DrawingArea {
