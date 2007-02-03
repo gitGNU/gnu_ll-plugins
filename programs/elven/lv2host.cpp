@@ -82,7 +82,8 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   
   if (!m_handle) {
     DBG0("Could not instantiate plugin <"<<m_uri<<">");
-    dlclose(m_libhandle);
+    if (m_libhandle)
+      dlclose(m_libhandle);
     return;
   }
 }
@@ -607,7 +608,7 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
       // type
       string type = qr[j][porttype]->name;
       DBG2(m_ports[p].symbol<<" has the datatype "<<type);
-      if (type == lv2("float"))
+      if (type == lv2("Float"))
         m_ports[p].midi = false;
       else if (type == llext("miditype"))
         m_ports[p].midi = true;
