@@ -345,6 +345,12 @@ int main(int argc, char** argv) {
       return 0;
     }
     
+    // list all available plugins
+    else if (!strcmp(argv[i], "-l") || !strcmp(argv[i], "--list")) {
+      LV2Host::list_plugins();
+      return 0;
+    }
+    
     // set debugging level (higher level -> more messages)
     else if (!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug")) {
       if (i == argc - 1) {
@@ -355,16 +361,15 @@ int main(int argc, char** argv) {
       ++i;
     }
     
-    // list all available plugins
-    else if (!strcmp(argv[i], "-l") || !strcmp(argv[i], "--list")) {
-      LV2Host::list_plugins();
-      return 0;
-    }
-    
     else
       break;
   }
   
+  if (i >= argc) {
+    print_usage(argv[0]);
+    return 1;
+  }
+    
   // load plugin
   LV2Host lv2h(argv[i], 48000);
   

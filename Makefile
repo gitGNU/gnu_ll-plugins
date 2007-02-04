@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.195
+PACKAGE_VERSION = 0.1.196
 PKG_DEPS = jack>=0.102.27 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.8.8 cairomm-1.0>=0.6.0 libglademm-2.4>=2.6.2 gsl>=1.8
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a liblv2_gtk2gui.a libkeyboard.a libvgknob.a libenvelopeeditor.a libshapereditor.a libpdeditor.a libtransitioneditor.a libpatternwidget.a
