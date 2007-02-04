@@ -519,14 +519,15 @@ Widget& EuphoriaWidget::init_voice_controls() {
   shp_hbox->pack_start(*shp_cbox);
   shp_hbox->show_all();
   voice_nbk->append_page(init_shp_controls(), *shp_hbox);
-
+  
+  /*
   CheckButton* mrk_cbox = manage(new CheckButton);
   HBox* mrk_hbox = manage(new HBox(false, 3));
   mrk_hbox->pack_start(*manage(new Label("Markov synthesis")));
   mrk_hbox->pack_start(*mrk_cbox);
   mrk_hbox->show_all();
   voice_nbk->append_page(init_markov_controls(), *mrk_hbox);
-
+  */
 
   voice_vbox->pack_start(*manage(new HSeparator));
   

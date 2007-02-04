@@ -32,6 +32,9 @@
 #include <stdint.h>
 
 
+namespace {
+
+
 class Envelope {
 public:
   
@@ -225,6 +228,9 @@ bool Envelope::set_string(const std::string& str) {
   m_loop_end = loop_end;
   
   return true;
+}
+
+
 }
 
 

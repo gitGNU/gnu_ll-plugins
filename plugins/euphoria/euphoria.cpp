@@ -32,6 +32,12 @@
 #include "envelope.hpp"
 #include "pdoscillator.hpp"
 #include "markov.hpp"
+#include "wsvoice.hpp"
+#include "pdvoice.hpp"
+#include "distortion.hpp"
+#include "chorus.hpp"
+#include "echo.hpp"
+#include "reverb.hpp"
 
 
 class EuphoriaVoice {
@@ -43,66 +49,38 @@ public:
   };
   
   EuphoriaVoice(uint32_t rate)
-    : m_shaper(rate),
-      m_shp_amount_env(rate),
-      m_shp_amp_env(rate),
-      m_pdosc(rate),
-      m_pd_dist_env(rate),
-      m_pd_amp_env(rate),
-      m_mrk_01_env(rate),
-      m_mrk_10_env(rate),
-      m_mrk_amp_env(rate),
+    : m_wsvoice(rate),
+      m_pdvoice(rate),
       m_state(OFF),
       m_inv_rate(1.0 / rate),
-      m_freq(0),
-      m_shp_phase(0),
-      m_shp_phase2(0),
-      m_mrk_phase(0),
-      m_markov(2) {
-    
-    m_shaper.set_string("-1 -1 1 1");
-    
+      m_freq(0) {
   }
   
   
   void reset() {
     m_state = OFF;
-    m_shp_phase = m_shp_phase2 = 0;
+    m_wsvoice.reset();
+    m_pdvoice.reset();
   }
   
 
   void on(unsigned char key, unsigned char velocity) {
     m_state = ON;
     m_freq = m_table[key];
-    m_shp_amount_env.on();
-    m_shp_amp_env.on();
-    m_pd_dist_env.on();
-    m_pd_amp_env.on();
-    m_mrk_01_env.on();
-    m_mrk_10_env.on();
-    m_mrk_amp_env.on();
+    m_wsvoice.on(key, velocity);
+    m_pdvoice.on(key, velocity);
   }
   
   void off(unsigned char velocity) {
     m_state = OFF;
-    m_shp_amount_env.off();
-    m_shp_amp_env.off();
-    m_pd_dist_env.off();
-    m_pd_amp_env.off();
-    m_mrk_01_env.off();
-    m_mrk_10_env.off();
-    m_mrk_amp_env.off();
+    m_wsvoice.off();
+    m_pdvoice.off();
   }
 
   void fast_off() {
     m_state = OFF;
-    m_shp_amount_env.fast_off();
-    m_shp_amp_env.fast_off();
-    m_pd_dist_env.fast_off();
-    m_pd_amp_env.fast_off();
-    m_mrk_01_env.fast_off();
-    m_mrk_10_env.fast_off();
-    m_mrk_amp_env.fast_off();
+    m_wsvoice.fast_off();
+    m_pdvoice.fast_off();
   }
 
   void bend(int value) {
@@ -113,60 +91,15 @@ public:
   void run(float& left, float& right, float& shape, float& smoothness,
            float& attack, float& decay, float& release, float& mrk_freq) {
     
-    // run shaper engine
-    float shp_amount_env = m_shp_amount_env.run(attack, decay, 0.5, release);
-    float shp_amp_env = m_shp_amp_env.run(attack, decay, 0.5, release);
-    float left_input = 0.90 * sin(m_shp_phase) + 0.1 * sin(m_shp_phase2);
-    float right_input = 0.90 * sin(m_shp_phase2) + 0.1 * sin(m_shp_phase);
-    m_shp_phase += m_freq * 2 * M_PI * m_inv_rate;
-    m_shp_phase2 += m_freq * 0.999 * 2 * M_PI * m_inv_rate;
-    m_shp_phase = (m_shp_phase > 2 * M_PI ? 
-                   m_shp_phase - 2 * M_PI : m_shp_phase);
-    m_shp_phase2 = (m_shp_phase2 > 2 * M_PI ? 
-                    m_shp_phase2 - 2 * M_PI : m_shp_phase2);
-    left += shp_amp_env * m_shaper.run(shape * shp_amount_env * left_input, 
-                                       m_freq + smoothness * 2000);
-    right += shp_amp_env * m_shaper.run(shape * shp_amount_env * right_input, 
-                                        m_freq + smoothness * 2000);
-                                        
-    // run Markov engine
-    /*
-    float mrk_01_env = m_mrk_01_env.run(attack, decay, 0.5, release);
-    float mrk_10_env = m_mrk_10_env.run(attack, decay, 0.5, release);
-    float mrk_amp_env = m_mrk_amp_env.run(attack, decay, 0.5, release);
-    m_markov.set_probability(0, 1, mrk_01_env);
-    m_markov.set_probability(0, 0, 1 - mrk_01_env);
-    m_markov.set_probability(1, 0, mrk_10_env);
-    m_markov.set_probability(1, 1, 1 - mrk_10_env);
-    float mrk_sound = sin(m_mrk_phase);
-    m_mrk_phase += mrk_freq * 2 * M_PI * m_inv_rate * (1 +m_markov.get_state());
-    if (m_mrk_phase > 2 * M_PI * (1 + m_markov.get_state())) {
-      m_markov.transition();
-      m_mrk_phase -= 2 * M_PI;
-    }
-    mrk_sound *= mrk_amp_env * 0.5;
-    left += mrk_sound;
-    right += mrk_sound;
-    */
+    m_wsvoice.run(&left, &right, 1, shape, smoothness, attack, decay, 0.5,
+		  release, m_freq);
+    m_pdvoice.run(&left, &right, 1);
   }
   
   //protected:
   
-  Shaper m_shaper;
-  Envelope m_shp_amount_env;
-  Envelope m_shp_amp_env;
-  float m_shp_phase;
-  float m_shp_phase2;
-
-  PDOscillator m_pdosc;
-  Envelope m_pd_dist_env;
-  Envelope m_pd_amp_env;
-  
-  Markov m_markov;
-  Envelope m_mrk_01_env;
-  Envelope m_mrk_10_env;
-  Envelope m_mrk_amp_env;
-  float m_mrk_phase;
+  WSVoice m_wsvoice;
+  PDVoice m_pdvoice;
   
   State m_state;
   float m_inv_rate;
@@ -185,7 +118,11 @@ public:
   Euphoria(uint32_t rate, const char*, const LV2_Host_Feature**) 
     : LV2Instrument(e_n_ports),
       m_handler(3, rate),
-      m_trigger(0) {
+      m_trigger(0),
+      m_dist(rate),
+      m_chorus(rate),
+      m_echo(rate),
+      m_reverb(rate) {
     
   }
   
@@ -207,6 +144,7 @@ public:
     float* left = p(e_left);
     float* right = p(e_right);
     
+    // render voices
     m_handler.set_midi_port(midi);
     for (uint32_t i = 0; i < nframes; ++i) {
       m_handler.run(i);
@@ -217,6 +155,21 @@ public:
           run(left[i], right[i], shape, shape_smoothness, 
               attack, decay, release, *p(e_mrk_max_freq));
       }
+    }
+    
+    // apply effects
+    if (*p(e_dist_switch) > 0)
+      m_dist.run(left, right, nframes, *p(e_dist_drive), *p(e_dist_set),
+		 *p(e_dist_tone), *p(e_dist_mix));
+    if (*p(e_chorus_switch) > 0)
+      m_chorus.run(left, right, nframes);
+    if (*p(e_echo_switch) > 0)
+      m_echo.run(left, right, nframes);
+    if (*p(e_reverb_switch) > 0)
+      m_reverb.run(left, right, nframes);
+    
+    // gain
+    for (uint32_t i = 0; i < nframes; ++i) {
       left[i] *= *p(e_gain);
       right[i] *= *p(e_gain);
     }
@@ -226,31 +179,22 @@ public:
   char* configure(const char* key, const char* value) {
     if (!strcmp(key, "shape"))
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_shaper.set_string(value);
+        m_handler.get_voices()[j].voice->m_wsvoice.set_shape(value);
     else if (!strcmp(key, "shp_amount_env"))
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_shp_amount_env.set_string(value);
+        m_handler.get_voices()[j].voice->m_wsvoice.set_amount_env(value);
     else if (!strcmp(key, "shp_amp_env"))
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_shp_amp_env.set_string(value);
+        m_handler.get_voices()[j].voice->m_wsvoice.set_gain_env(value);
     else if (!strcmp(key, "phase"))
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_pdosc.set_string(value);
+        m_handler.get_voices()[j].voice->m_pdvoice.set_phase(value);
     else if (!strcmp(key, "pd_dist_env"))
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_pd_dist_env.set_string(value);
+        m_handler.get_voices()[j].voice->m_pdvoice.set_dist_env(value);
     else if (!strcmp(key, "pd_amp_env"))
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_pd_amp_env.set_string(value);
-    else if (!strcmp(key, "mrk_01_env"))
-      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_mrk_01_env.set_string(value);
-    else if (!strcmp(key, "mrk_10_env"))
-      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_mrk_10_env.set_string(value);
-    else if (!strcmp(key, "mrk_amp_env"))
-      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_mrk_amp_env.set_string(value);
+        m_handler.get_voices()[j].voice->m_pdvoice.set_gain_env(value);
     else
       return strdup("Unknown configure key");
     return 0;
@@ -262,10 +206,15 @@ protected:
   VoiceHandler<EuphoriaVoice> m_handler;
   int m_trigger;
   
+  Distortion m_dist;
+  Chorus m_chorus;
+  Echo m_echo;
+  Reverb m_reverb;
+  
 };
 
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  register_lv2_inst<Euphoria>("http://ll-plugins.nongnu.org/lv2/dev/euphoria/0.0.0", true);
+  register_lv2_inst<Euphoria>(e_uri, true);
 }

@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.194
+PACKAGE_VERSION = 0.1.195
 PKG_DEPS = jack>=0.102.27 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.8.8 cairomm-1.0>=0.6.0 libglademm-2.4>=2.6.2 gsl>=1.8
 
 ARCHIVES = liblv2_plugin.a libpaq.a liblv2_oscui.a liblv2_gtk2gui.a libkeyboard.a libvgknob.a libenvelopeeditor.a libshapereditor.a libpdeditor.a libtransitioneditor.a libpatternwidget.a
@@ -147,7 +147,7 @@ trilobeat_lv2_SOURCEDIR = plugins/trilobeat
 #trilobeat_gtk_so_SOURCEDIR = plugins/trilobeat
 
 # Euphoria
-euphoria_lv2_SOURCES = euphoria.cpp shaper.hpp shaper.cpp envelope.hpp pdoscillator.hpp
+euphoria_lv2_SOURCES = euphoria.cpp shaper.hpp shaper.cpp envelope.hpp pdoscillator.hpp wsvoice.cpp wsvoice.hpp pdvoice.hpp pdvoice.cpp distortion.hpp distortion.cpp chorus.hpp chorus.cpp echo.hpp echo.cpp reverb.hpp reverb.cpp
 euphoria_lv2_DATA = manifest.ttl euphoria.ttl presets.ttl
 euphoria_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/instrument -Iextensions/miditype -I. `pkg-config --cflags gsl`
 euphoria_lv2_LDFLAGS = $(INSTRUMENTFLAGS) `pkg-config --libs gsl`
