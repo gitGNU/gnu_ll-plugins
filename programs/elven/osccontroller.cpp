@@ -39,6 +39,8 @@ OSCController::OSCController(LV2Host& host, bool& still_running)
     m_still_running(still_running) {
   
   pthread_mutex_init(&m_clients_mutex, 0);
+
+  DBG2("Creating OSC server...");
   m_server = lo_server_new(0, 0);
   
   char* url_c = lo_server_get_url(m_server);

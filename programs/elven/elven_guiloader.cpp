@@ -171,6 +171,7 @@ int main(int argc, char** argv) {
   }
   
   // create an OSC server
+  DBG2("Creating OSC server...");
   LV2UIClient osc(osc_url, bundle_path, uri, name, true);
   if (!osc.is_valid()) {
     DBG0("Could not start an OSC server");
