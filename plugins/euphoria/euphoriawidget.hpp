@@ -55,6 +55,9 @@ protected:
   
   Gtk::VBox* create_knob(const std::string& label, int port,
                          float red = 0, float green = 0.3, float blue = 1);
+  Gtk::ToggleButton* create_toggle(const std::string& label, int port);
+  static float toggle2float(bool active);
+  static bool float2toggle(float value);
   
   void program_selection_changed();
   

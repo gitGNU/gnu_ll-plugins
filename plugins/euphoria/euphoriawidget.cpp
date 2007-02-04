@@ -195,6 +195,38 @@ VBox* EuphoriaWidget::create_knob(const string& label, int port,
 }
 
 
+ToggleButton* EuphoriaWidget::create_toggle(const std::string& label, 
+					    int port) {
+  ToggleButton* tbtn = manage(new ToggleButton(label));
+  Adjustment* adj = manage(new Adjustment(0, 0, 1));
+  assert(m_adj[port] == 0);
+  m_adj[port] = adj;
+  adj->signal_value_changed().
+    connect(compose(bind<0>(signal_control_changed, port),
+		    mem_fun(*adj, &Adjustment::get_value)));
+  tbtn->signal_toggled().
+    connect(compose(mem_fun(*adj, &Adjustment::set_value),
+		    compose(&EuphoriaWidget::toggle2float,
+			    mem_fun(*tbtn, &ToggleButton::get_active))));
+  adj->signal_value_changed().
+    connect(compose(mem_fun(*tbtn, &ToggleButton::set_active),
+		    compose(&EuphoriaWidget::float2toggle,
+			    mem_fun(*adj, &Adjustment::get_value))));
+  
+  return tbtn;
+}
+
+
+float EuphoriaWidget::toggle2float(bool active) {
+  return active ? 1 : 0;
+}
+
+
+bool EuphoriaWidget::float2toggle(float value) {
+  return value > 0 ? true : false;
+}
+
+
 void EuphoriaWidget::program_selection_changed() {
   TreeModel::iterator iter = m_program_view.get_selection()->get_selected();
   if (iter == m_program_store->children().end())
@@ -445,7 +477,7 @@ Widget& EuphoriaWidget::init_fx_controls() {
   Table* dist_tbl = manage(new Table(3, 2));
   effect_hbox->pack_start(*dist_tbl);
   dist_tbl->set_spacings(3);
-  dist_tbl->attach(*manage(new ToggleButton("Distortion")), 0, 2, 0, 1);
+  dist_tbl->attach(*create_toggle("Distortion", e_dist_switch), 0, 2, 0, 1);
   dist_tbl->attach(*create_knob("Drive", e_dist_drive, 1, 0, 0),
                    0, 1, 1, 2, EXPAND);
   dist_tbl->attach(*create_knob("Set", e_dist_set, 1, 0, 0),
@@ -459,7 +491,7 @@ Widget& EuphoriaWidget::init_fx_controls() {
   Table* chorus_tbl = manage(new Table(3, 2));
   effect_hbox->pack_start(*chorus_tbl);
   chorus_tbl->set_spacings(3);
-  chorus_tbl->attach(*manage(new ToggleButton("Chorus")), 0, 2, 0, 1);
+  chorus_tbl->attach(*create_toggle("Chorus", e_chorus_switch), 0, 2, 0, 1);
   chorus_tbl->attach(*create_knob("Freq", e_chorus_freq, 0.75, 0.1, 0.25),
                      0, 1, 1, 2, EXPAND);
   chorus_tbl->attach(*create_knob("Depth", e_chorus_depth, 0.75, 0.1, 0.25),
@@ -473,7 +505,7 @@ Widget& EuphoriaWidget::init_fx_controls() {
   Table* echo_tbl = manage(new Table(3, 2));
   effect_hbox->pack_start(*echo_tbl);
   echo_tbl->set_spacings(3);
-  echo_tbl->attach(*manage(new ToggleButton("Echo")), 0, 2, 0, 1);
+  echo_tbl->attach(*create_toggle("Echo", e_echo_switch), 0, 2, 0, 1);
   echo_tbl->attach(*create_knob("Delay", e_echo_delay, 0.25, 0.2, 0.75),
                    0, 1, 1, 2, EXPAND);
   echo_tbl->attach(*create_knob("Fdback", e_echo_feedback, 0.25, 0.2, 0.75),
@@ -487,7 +519,7 @@ Widget& EuphoriaWidget::init_fx_controls() {
   Table* reverb_tbl = manage(new Table(3, 2));
   effect_hbox->pack_start(*reverb_tbl);
   reverb_tbl->set_spacings(3);
-  reverb_tbl->attach(*manage(new ToggleButton("Reverb")), 0, 2, 0, 1);
+  reverb_tbl->attach(*create_toggle("Reverb", e_reverb_switch), 0, 2, 0, 1);
   reverb_tbl->attach(*create_knob("Time", e_reverb_time), 0, 1, 1, 2, EXPAND);
   reverb_tbl->attach(*create_knob("Room", e_reverb_room), 1, 2, 1, 2, EXPAND);
   reverb_tbl->attach(*create_knob("Damp", e_reverb_damping),
