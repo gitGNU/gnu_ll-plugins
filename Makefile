@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.205
+PACKAGE_VERSION = 0.1.206
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -22,6 +22,9 @@ ARCHIVES = \
 	libpdeditor.a \
 	libtransitioneditor.a \
 	libpatternwidget.a
+
+
+# Archives with useful code bits
 
 liblv2_plugin_a_SOURCES = lv2plugin.hpp lv2plugin.cpp
 liblv2_plugin_a_CFLAGS = -I.
@@ -76,6 +79,8 @@ libpatternwidget_a_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Ilibraries/componen
 libpatternwidget_a_SOURCEDIR = libraries/widgets
 
 
+# Executable programs
+
 PROGRAMS = lv2peg elven elven_guiloader sockettest paqtest
 
 lv2peg_SOURCES = lv2peg.cpp
@@ -108,6 +113,8 @@ paqtest_SOURCES = main.cpp
 paqtest_LDFLAGS = libraries/paq/libpaq.a
 paqtest_SOURCEDIR = libraries/paq
 
+
+# The plugins
 
 LV2_PLUGINS = \
 	control2midi.lv2 \
@@ -266,6 +273,7 @@ math-functions_lv2_CFLAGS = -Ilibraries/lv2plugin -I.
 math-functions_lv2_ARCHIVES = $(PLUGINARCHIVES)
 math-functions_lv2_SOURCEDIR = plugins/math-functions
 
+#AZR-3
 azr3_lv2_SOURCES = \
 	azr3.cpp azr3.hpp \
 	Globals.h \
