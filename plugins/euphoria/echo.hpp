@@ -22,6 +22,9 @@ private:
   float* m_data_r;
   uint32_t m_counter;
   bool m_active;
+  float m_l1;
+  float m_r1;
+  float m_p;
   
 };
 
