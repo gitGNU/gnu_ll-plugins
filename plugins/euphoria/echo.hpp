@@ -21,7 +21,8 @@ private:
   float* m_data_l;
   float* m_data_r;
   uint32_t m_counter;
-  uint32_t m_clean;
+  bool m_active;
+  
 };
 
 
