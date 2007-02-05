@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.206
+PACKAGE_VERSION = 0.1.207
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -232,6 +232,13 @@ sineshaper_lv2_DATA = manifest.ttl sineshaper.ttl sineshaper.glade dial.png sine
 sineshaper_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/miditype -Iextensions/instrument -I.
 sineshaper_lv2_ARCHIVES = $(PLUGINARCHIVES)
 sineshaper_lv2_SOURCEDIR = plugins/sineshaper
+sineshaper_lv2_MODULES = sineshaper_gtk.so
+sineshaper_gtk_so_SOURCES = \
+	sineshaper_gtk.cpp \
+	sineshaperwidget.cpp sineshaperwidget.hpp
+sineshaper_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
+sineshaper_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` 
+sineshaper_gtk_so_SOURCEDIR = plugins/sineshaper
 #sineshaper_lv2_PROGRAMS = sineshaper_gtk
 #sineshaper_gtk_SOURCES = sineshapergui.cpp sineshapergui.hpp main.cpp skindial_gtkmm.hpp skindial_gtkmm.cpp
 #sineshaper_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 libglademm-2.4 liblo` -Ilibraries/lv2oscui -Ilibraries/components -Iextensions/instrument -I.
