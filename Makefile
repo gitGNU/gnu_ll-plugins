@@ -1,16 +1,33 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.204
-PKG_DEPS = jack>=0.102.27 lash-1.0>=0.5.1 liblo>=0.22 gtkmm-2.4>=2.8.8 cairomm-1.0>=0.6.0 libglademm-2.4>=2.6.2 gsl>=1.8
+PACKAGE_VERSION = 0.1.205
+PKG_DEPS = \
+	jack>=0.102.27 \
+	lash-1.0>=0.5.1 \
+	liblo>=0.22 \
+	gtkmm-2.4>=2.8.8 \
+	cairomm-1.0>=0.6.0 \
+	libglademm-2.4>=2.6.2 \
+	gsl>=1.8
 
-ARCHIVES = liblv2_plugin.a liblv2_instrument.a libpaq.a liblv2_oscui.a liblv2_gtk2gui.a libkeyboard.a libvgknob.a libenvelopeeditor.a libshapereditor.a libpdeditor.a libtransitioneditor.a libpatternwidget.a
+ARCHIVES = \
+	liblv2_plugin.a \
+	liblv2_instrument.a \
+	libpaq.a \
+	liblv2_oscui.a \
+	liblv2_gtk2gui.a \
+	libkeyboard.a \
+	libvgknob.a \
+	libenvelopeeditor.a \
+	libshapereditor.a \
+	libpdeditor.a \
+	libtransitioneditor.a \
+	libpatternwidget.a
 
-liblv2_plugin_a_SOURCES = \
-	lv2plugin.hpp lv2plugin.cpp
+liblv2_plugin_a_SOURCES = lv2plugin.hpp lv2plugin.cpp
 liblv2_plugin_a_CFLAGS = -I.
 liblv2_plugin_a_SOURCEDIR = libraries/lv2plugin
 
-liblv2_instrument_a_SOURCES = \
-	lv2instrument.hpp lv2instrument.cpp
+liblv2_instrument_a_SOURCES = lv2instrument.hpp lv2instrument.cpp
 liblv2_instrument_a_CFLAGS = -Iextensions/instrument -I.
 liblv2_instrument_a_SOURCEDIR = libraries/lv2plugin
 
@@ -92,7 +109,20 @@ paqtest_LDFLAGS = libraries/paq/libpaq.a
 paqtest_SOURCEDIR = libraries/paq
 
 
-LV2_PLUGINS = control2midi.lv2 midi_identity.lv2 arpeggiator.lv2 math-constants.lv2 math-functions.lv2 phase-distortion-osc.lv2 euphoria.lv2 sineshaper.lv2 klaviatur.lv2 audio_identity.lv2 azr3.lv2 trilobyte.lv2 trilobeat.lv2
+LV2_PLUGINS = \
+	control2midi.lv2 \
+	midi_identity.lv2 \
+	arpeggiator.lv2 \
+	math-constants.lv2 \
+	math-functions.lv2 \
+	phase-distortion-osc.lv2 \
+	euphoria.lv2 \
+	sineshaper.lv2 \
+	klaviatur.lv2 \
+	audio_identity.lv2 \
+	azr3.lv2 \
+	trilobyte.lv2 \
+	trilobeat.lv2
 
 PLUGINARCHIVES = libraries/lv2plugin/liblv2_plugin.a
 INSTRUMENTARCHIVES = libraries/lv2plugin/liblv2_plugin.a libraries/lv2plugin/liblv2_instrument.a
@@ -154,7 +184,17 @@ trilobeat_lv2_SOURCEDIR = plugins/trilobeat
 #trilobeat_gtk_so_SOURCEDIR = plugins/trilobeat
 
 # Euphoria
-euphoria_lv2_SOURCES = euphoria.cpp shaper.hpp shaper.cpp envelope.hpp pdoscillator.hpp wsvoice.cpp wsvoice.hpp pdvoice.hpp pdvoice.cpp distortion.hpp distortion.cpp chorus.hpp chorus.cpp echo.hpp echo.cpp reverb.hpp reverb.cpp
+euphoria_lv2_SOURCES = \
+	euphoria.cpp \
+	shaper.hpp shaper.cpp \
+	envelope.hpp \
+	pdoscillator.hpp \
+	wsvoice.cpp wsvoice.hpp \
+	pdvoice.hpp pdvoice.cpp \
+	distortion.hpp distortion.cpp \
+	chorus.hpp chorus.cpp \
+	echo.hpp echo.cpp \
+	reverb.hpp reverb.cpp
 euphoria_lv2_DATA = manifest.ttl euphoria.ttl presets.ttl
 euphoria_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/instrument -Iextensions/miditype -I. `pkg-config --cflags gsl`
 euphoria_lv2_ARCHIVES = $(INSTRUMENTARCHIVES)
@@ -167,7 +207,13 @@ euphoria_gtk_so_SOURCES = \
 	euphoriawidget.cpp euphoriawidget.hpp
 euphoria_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0` -Iextensions/gtkgui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
 euphoria_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 cairomm-1.0` 
-euphoria_gtk_so_ARCHIVES = libraries/widgets/libvgknob.a libraries/widgets/libenvelopeeditor.a libraries/widgets/libshapereditor.a libraries/widgets/libpdeditor.a libraries/widgets/libtransitioneditor.a libraries/lv2gtk2gui/liblv2_gtk2gui.a
+euphoria_gtk_so_ARCHIVES = \
+	libraries/widgets/libvgknob.a \
+	libraries/widgets/libenvelopeeditor.a \
+	libraries/widgets/libshapereditor.a \
+	libraries/widgets/libpdeditor.a \
+	libraries/widgets/libtransitioneditor.a \
+	libraries/lv2gtk2gui/liblv2_gtk2gui.a
 euphoria_gtk_so_SOURCEDIR = plugins/euphoria
 
 # Sineshaper
@@ -232,7 +278,12 @@ azr3_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/miditype -Iextensions/instr
 azr3_lv2_ARCHIVES = $(INSTRUMENTARCHIVES)
 azr3_lv2_SOURCEDIR = plugins/azr3
 azr3_lv2_MODULES = azr3_gtk.so
-azr3_gtk_so_SOURCES = azr3_gtk.cpp knob.hpp knob.cpp switch.hpp switch.cpp drawbar.hpp drawbar.cpp textbox.hpp textbox.cpp
+azr3_gtk_so_SOURCES = \
+	azr3_gtk.cpp \
+	knob.hpp knob.cpp \
+	switch.hpp switch.cpp \
+	drawbar.hpp drawbar.cpp \
+	textbox.hpp textbox.cpp
 azr3_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -I. -Ilibraries/lv2gtk2gui
 azr3_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` 
 azr3_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a
