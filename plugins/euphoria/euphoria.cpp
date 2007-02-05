@@ -160,8 +160,9 @@ public:
     // apply effects
     m_dist.run(left, right, nframes, *p(e_dist_switch), *p(e_dist_drive), 
 	       *p(e_dist_set), *p(e_dist_tone), *p(e_dist_mix));
-    if (*p(e_chorus_switch) > 0)
-      m_chorus.run(left, right, nframes);
+    m_chorus.run(left, right, nframes, *p(e_chorus_switch), *p(e_chorus_freq),
+		 *p(e_chorus_depth) * 0.001, *p(e_chorus_delay) * 0.001, 
+		 *p(e_chorus_mix));
     m_echo.run(left, right, nframes, *p(e_echo_switch), *p(e_echo_delay),
 	       *p(e_echo_feedback), *p(e_echo_pan), *p(e_echo_mix));
     if (*p(e_reverb_switch) > 0)

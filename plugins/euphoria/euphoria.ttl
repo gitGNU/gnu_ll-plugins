@@ -23,7 +23,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 1;
     lv2:symbol "phase_dist";
     lv2:name "Phase distortion";
@@ -38,7 +38,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 2;
     lv2:symbol "pd_vel_sens";
     lv2:name "PD velocity sensitivity";
@@ -53,7 +53,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 3;
     lv2:symbol "pd_env_sens";
     lv2:name "PD envelope sensitivity";
@@ -68,7 +68,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 4;
     lv2:symbol "pd_attack";
     lv2:name "PD attack";
@@ -84,7 +84,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 5;
     lv2:symbol "pd_decay";
     lv2:name "PD decay";
@@ -100,7 +100,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 6;
     lv2:symbol "pd_sustain";
     lv2:name "PD sustain";
@@ -115,7 +115,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 7;
     lv2:symbol "pd_release";
     lv2:name "PD release";
@@ -131,7 +131,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 8;
     lv2:symbol "shape";
     lv2:name "Shape";
@@ -146,7 +146,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 9;
     lv2:symbol "shape_vel_sens";
     lv2:name "Shape velocity sensitivity";
@@ -161,7 +161,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 10;
     lv2:symbol "shape_env_sens";
     lv2:name "Shape envelope sensitivity";
@@ -176,7 +176,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 11;
     lv2:symbol "shape_smoothness";
     lv2:name "Shape smoothness";
@@ -191,7 +191,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 12;
     lv2:symbol "shape_attack";
     lv2:name "Shape attack";
@@ -207,7 +207,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 13;
     lv2:symbol "shape_decay";
     lv2:name "Shape decay";
@@ -223,7 +223,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 14;
     lv2:symbol "shape_sustain";
     lv2:name "Shape sustain";
@@ -238,7 +238,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 15;
     lv2:symbol "shape_release";
     lv2:name "Shape release";
@@ -254,7 +254,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 16;
     lv2:symbol "mrk_01";
     lv2:name "0->1 transition";
@@ -269,7 +269,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 17;
     lv2:symbol "mrk_10";
     lv2:name "1->0 transition";
@@ -284,7 +284,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 18;
     lv2:symbol "mrk_min_freq";
     lv2:name "Markov min frequency";
@@ -300,7 +300,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 19;
     lv2:symbol "mrk_max_freq";
     lv2:name "Markov max frequency";
@@ -316,7 +316,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 20;
     lv2:symbol "mrk_key";
     lv2:name "Markov key sensitivity";
@@ -331,7 +331,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 21;
     lv2:symbol "mrk_vel_sens";
     lv2:name "Markov velocity sensitivity";
@@ -346,7 +346,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 22;
     lv2:symbol "mrk_attack";
     lv2:name "Markov attack";
@@ -362,7 +362,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 23;
     lv2:symbol "mrk_decay";
     lv2:name "Markov decay";
@@ -378,7 +378,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 24;
     lv2:symbol "mrk_sustain";
     lv2:name "Markov sustain";
@@ -393,7 +393,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 25;
     lv2:symbol "mrk_release";
     lv2:name "Markov release";
@@ -409,7 +409,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 26;
     lv2:symbol "vib_freq";
     lv2:name "Vibrato frequency";
@@ -424,7 +424,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 27;
     lv2:symbol "vib_depth";
     lv2:name "Vibrato depth";
@@ -439,7 +439,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 28;
     lv2:symbol "trem_freq";
     lv2:name "Tremolo frequency";
@@ -454,7 +454,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 29;
     lv2:symbol "trem_depth";
     lv2:name "Tremolo depth";
@@ -469,7 +469,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 30;
     lv2:symbol "unison_layers";
     lv2:name "Unison layers";
@@ -485,7 +485,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 31;
     lv2:symbol "unison_spread";
     lv2:name "Unison spread";
@@ -501,7 +501,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 32;
     lv2:symbol "amp_env";
     lv2:name "Amplitude envelope";
@@ -517,7 +517,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 33;
     lv2:symbol "amp_vel_sens";
     lv2:name "Amplitude velocity sensitivity";
@@ -532,7 +532,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 34;
     lv2:symbol "poly";
     lv2:name "Polyphonic operation";
@@ -548,7 +548,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 35;
     lv2:symbol "poly_voices";
     lv2:name "Number of voices";
@@ -564,7 +564,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 36;
     lv2:symbol "tie";
     lv2:name "Tie overlapping notes";
@@ -580,7 +580,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 37;
     lv2:symbol "slide_speed";
     lv2:name "Slide speed";
@@ -595,7 +595,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 38;
     lv2:symbol "dist_switch";
     lv2:name "Distortion";
@@ -611,7 +611,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 39;
     lv2:symbol "dist_drive";
     lv2:name "Distortion: Drive";
@@ -626,7 +626,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 40;
     lv2:symbol "dist_set";
     lv2:name "Distortion: Set";
@@ -641,7 +641,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 41;
     lv2:symbol "dist_tone";
     lv2:name "Distortion: Tone";
@@ -656,7 +656,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 42;
     lv2:symbol "dist_mix";
     lv2:name "Distortion: Mix";
@@ -671,7 +671,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 43;
     lv2:symbol "chorus_switch";
     lv2:name "Chorus";
@@ -687,7 +687,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 44;
     lv2:symbol "chorus_freq";
     lv2:name "Chorus: Frequency";
@@ -702,12 +702,12 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 45;
     lv2:symbol "chorus_depth";
     lv2:name "Chorus: Depth";
     lv2:minimum 0;
-    lv2:maximum 1;
+    lv2:maximum 20;
     lv2:default 0.5;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -717,12 +717,12 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 46;
     lv2:symbol "chorus_delay";
     lv2:name "Chorus: Delay";
     lv2:minimum 20;
-    lv2:maximum 30;
+    lv2:maximum 40;
     lv2:default 25;
     ll:defaultMidiController [
       ll:controllerType ll:CC;
@@ -732,7 +732,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 47;
     lv2:symbol "chorus_mix";
     lv2:name "Chorus: Mix";
@@ -747,7 +747,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 48;
     lv2:symbol "echo_switch";
     lv2:name "Echo";
@@ -763,7 +763,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 49;
     lv2:symbol "echo_delay";
     lv2:name "Echo: Delay";
@@ -779,7 +779,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 50;
     lv2:symbol "echo_feedback";
     lv2:name "Echo: Feedback";
@@ -794,7 +794,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 51;
     lv2:symbol "echo_pan";
     lv2:name "Echo: Pan";
@@ -809,7 +809,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 52;
     lv2:symbol "echo_mix";
     lv2:name "Echo: Mix";
@@ -824,7 +824,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 53;
     lv2:symbol "reverb_switch";
     lv2:name "Reverb";
@@ -840,7 +840,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 54;
     lv2:symbol "reverb_time";
     lv2:name "Reverb: Time";
@@ -856,7 +856,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 55;
     lv2:symbol "reverb_room";
     lv2:name "Reverb: Room size";
@@ -872,7 +872,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 56;
     lv2:symbol "reverb_damping";
     lv2:name "Reverb: Damping";
@@ -887,7 +887,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 57;
     lv2:symbol "reverb_mix";
     lv2:name "Reverb: Mix";
@@ -902,7 +902,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 58;
     lv2:symbol "gain";
     lv2:name "Gain";
@@ -917,7 +917,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 59;
     lv2:symbol "octave";
     lv2:name "Octave";
@@ -933,7 +933,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 60;
     lv2:symbol "tune";
     lv2:name "Tune";
@@ -949,7 +949,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 61;
     lv2:symbol "pan";
     lv2:name "pan";
@@ -964,7 +964,7 @@
 
   [
     a lv2:AudioRateOutputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 62;
     lv2:symbol "left";
     lv2:name "Left";
@@ -972,7 +972,7 @@
 
   [
     a lv2:AudioRateOutputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 63;
     lv2:symbol "right";
     lv2:name "Right";

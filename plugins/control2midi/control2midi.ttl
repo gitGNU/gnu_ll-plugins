@@ -9,7 +9,7 @@
 
   lv2:port [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 0;
     lv2:symbol "input";
     lv2:name "Input";
@@ -18,7 +18,7 @@
   
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 1;
     lv2:symbol "min";
     lv2:name "Min value";
@@ -27,7 +27,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 2;
     lv2:symbol "max";
     lv2:name "Max value";
@@ -36,7 +36,7 @@
 
   [
     a lv2:ControlRateInputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 3;
     lv2:symbol "cc";
     lv2:name "Controller";

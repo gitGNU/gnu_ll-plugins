@@ -5,7 +5,7 @@
 # This is used for all plugins
 _:controlOutputPort
     a lv2:ControlRateOutputPort;
-    lv2:datatype lv2:Float;
+    lv2:datatype lv2:float;
     lv2:index 0;
     lv2:symbol "output";
     lv2:name "Output".

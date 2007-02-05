@@ -608,7 +608,7 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
       // type
       string type = qr[j][porttype]->name;
       DBG2(m_ports[p].symbol<<" has the datatype "<<type);
-      if (type == lv2("Float"))
+      if (type == lv2("float"))
         m_ports[p].midi = false;
       else if (type == llext("miditype"))
         m_ports[p].midi = true;
