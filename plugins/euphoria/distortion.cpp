@@ -30,68 +30,75 @@
 #include "distortion.hpp"
 
 
-filt1::filt1() {
-  m_l=m_h=m_b=m_f=q=0;
+filt1::filt1()
+  : m_l(0),
+    m_h(0),
+    m_b(0),
+    m_f(0),
+    q(0) {
+
 }
 
 
 void filt1::clock(float input) {
-  float   in;
-  in=DENORMALIZE(input);
-  m_l=DENORMALIZE(m_l);
-  m_b=DENORMALIZE(m_b);
+  float in;
+  in = DENORMALIZE(input);
+  m_l = DENORMALIZE(m_l);
+  m_b = DENORMALIZE(m_b);
         
-  m_h = in - m_l - q*m_b;
-  m_b += m_f*m_h;
-  m_l += m_f*m_b;
+  m_h = in - m_l - q * m_b;
+  m_b += m_f * m_h;
+  m_l += m_f * m_b;
 }
 
 
 float filt1::lp() {
-  return(m_l);
+  return m_l;
 }
 
 
 float filt1::bp() {
-  return(m_b);
+  return m_b;
 }
 
 
 float filt1::hp() {
-  return(m_h);
+  return m_h;
 }
 
 
 void filt1::set_samplerate(float samplerate) {
-  fs=samplerate;
-  m_l=m_h=m_b=0;
-  setparam(fc,q,fs);
+  fs = samplerate;
+  m_l = m_h = m_b = 0;
+  setparam(fc, q, fs);
 }
 
 
-void filt1::setparam(float cutoff,float mq,float samplerate) {
-  fc=cutoff;
-  q=mq;
-  fs=samplerate;
-  m_f=2.0f*sinf(PI*fc/fs);
+void filt1::setparam(float cutoff, float mq, float samplerate) {
+  fc = cutoff;
+  q = mq;
+  fs = samplerate;
+  m_f = 2.0f * sinf(PI * fc / fs);
 }
 
 
-filt_lp::filt_lp() : filt1() {
+filt_lp::filt_lp() 
+  : filt1() {
+
 }
 
 
 float filt_lp::clock(float input) {
-  float   in;
-  in=DENORMALIZE(input);
-  m_l=DENORMALIZE(m_l);
-  m_b=DENORMALIZE(m_b);
+  float in;
+  in = DENORMALIZE(input);
+  m_l = DENORMALIZE(m_l);
+  m_b = DENORMALIZE(m_b);
         
-  m_h = in - m_l - q*m_b;
-  m_b += m_f*m_h;
-  m_l += m_f*m_b;
+  m_h = in - m_l - q * m_b;
+  m_b += m_f * m_h;
+  m_l += m_f * m_b;
 
-  return(m_l);
+  return m_l;
 }
 
   

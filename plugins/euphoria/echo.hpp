@@ -10,11 +10,18 @@ public:
   Echo(uint32_t rate);
   ~Echo();
 
-  void run(float* left, float* right, uint32_t nframes);
+  void run(float* left, float* right, uint32_t nframes, float toggle,
+	   float delay, float feedback, float pan, float mix);
 
 private:
   
-
+  
+  uint32_t m_rate;
+  uint32_t m_linesize;
+  float* m_data_l;
+  float* m_data_r;
+  uint32_t m_counter;
+  uint32_t m_clean;
 };
 
 

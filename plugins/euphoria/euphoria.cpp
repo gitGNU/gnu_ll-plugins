@@ -162,8 +162,8 @@ public:
 	       *p(e_dist_set), *p(e_dist_tone), *p(e_dist_mix));
     if (*p(e_chorus_switch) > 0)
       m_chorus.run(left, right, nframes);
-    if (*p(e_echo_switch) > 0)
-      m_echo.run(left, right, nframes);
+    m_echo.run(left, right, nframes, *p(e_echo_switch), *p(e_echo_delay),
+	       *p(e_echo_feedback), *p(e_echo_pan), *p(e_echo_mix));
     if (*p(e_reverb_switch) > 0)
       m_reverb.run(left, right, nframes);
     
