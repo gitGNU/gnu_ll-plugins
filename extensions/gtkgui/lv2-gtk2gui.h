@@ -27,14 +27,15 @@
  *
  ***********************************************************************/
 
-/** This extension defines an interface that can be used in LV2 plugins and
+/** @file
+    This extension defines an interface that can be used in LV2 plugins and
     hosts to create GTK2 GUIs for plugins. The GUIs will be plugins that
     will reside in shared object files in a LV2 bundle and be referenced in 
     the RDF file using the triples
-<code>    
-    <http://my.plugin> <http://ll-plugins.nongnu.org/lv2/dev/gtk2gui> <http://my.plugingui>
-    <http://my.plugingui> <http://ll-plugins.nongnu.org/lv2/dev/gtk2binary> <mygui.so>
-</code>
+<pre>    
+    <http://my.plugin> <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui#gui> <http://my.plugingui>
+    <http://my.plugingui> <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui#binary> <mygui.so>
+</pre>
     where <http://my.plugin> is the URI of the plugin, <http://my.plugingui> is
     the URI of the plugin GUI and <mygui.so> is the relative URI to the shared 
     object file. While it is possible to have the plugin GUI and the plugin in 
@@ -61,12 +62,16 @@
     new types of data and configuration parameters that plugin authors may 
     want to control with a GUI, this extension allows for meta-extensions that
     can extend the interface between the GUI and the host. See the
-    extension_data() callback pointers for more details.
+    instantiate() and extension_data() callback pointers for more details.
     
     Note that this extension is NOT a Host Feature. There is no way for a plugin
     to know whether the host that loads it supports GUIs or not, and the plugin
     must ALWAYS work without the GUI (although it may be rather useless unless
     it has been configured using the GUI in a previous session).
+    
+    GUIs written to this specification do not need to be threadsafe - the 
+    functions defined below may only be called in the same thread as the GTK
+    main loop is running in.
 */
 
 #ifndef LV2_GTK2GUI_H
@@ -81,8 +86,24 @@ extern "C" {
 #endif
 
 
+/** This handle indicates a particular instance of a GUI.
+    It is valid to compare this to NULL (0 for C++) but otherwise the 
+    host MUST not attempt to interpret it. The GUI plugin may use it to 
+    reference internal instance data. */
 typedef void* LV2UI_Handle;
+
+
+/** This handle indicates a particular plugin instance, provided by the host.
+    It is valid to compare this to NULL (0 for C++) but otherwise the 
+    GUI plugin MUST not attempt to interpret it. The host may use it to 
+    reference internal instance data. */
 typedef void* LV2UI_Controller;
+
+
+/** This is the type of the host-provided function that changes the value
+    of a control rate float input port in a plugin instance. A function
+    pointer of this type will be provided to the GUI bu the host in the
+    instantiate() function. */
 typedef void (*LV2UI_Set_Control_Function)(LV2UI_Controller controller,
 					   uint32_t port,
 					   float value);
@@ -104,13 +125,13 @@ typedef struct _LV2UI_Descriptor {
       
       The features array works like the one in the instantiate() member
       in LV2_Descriptor, except that the URIs should be denoted with the triples
-      <code>
+      <pre>
       <http://my.plugingui> <http://ll-plugins.nongnu.org/lv2/dev/gtk2gui#optionalFeature> <http://my.guifeature>
-      </code>
+      </pre>
       or 
-      <code>
+      <pre>
       <http://my.plugingui> <http://ll-plugins.nongnu.org/lv2/dev/gtk2gui#requiredFeature> <http://my.guifeature>
-      </code>
+      </pre>
       in the RDF file, instead of the lv2:optionalFeature or lv2:requiredFeature
       that is used by host features. These features are associated with the GUI,
       not with the plugin - they are not actually LV2 Host Features, they just
@@ -148,13 +169,13 @@ typedef struct _LV2UI_Descriptor {
       to the extension_data() member in LV2_Descriptor.
   */
   void* (*extension_data)(LV2UI_Handle    gui,
-                          const char*     URI);
+                          const char*     uri);
 
 } LV2UI_Descriptor;
 
 
 
-/** Accessing a plugin GUI:
+/** Accessing a plugin GUI.
     
     A plugin programmer must include a function called "lv2ui_descriptor"
     with the following function prototype within the shared object
@@ -167,11 +188,13 @@ typedef struct _LV2UI_Descriptor {
     Just like lv2_descriptor(), this function takes an index parameter. The
     index should only be used for enumeration and not as any sort of ID number -
     the host should just iterate from 0 and upwards until the function returns
-    NULL, or a descriptor with an URI matching the one the host is looking for.
+    NULL, or a descriptor with an URI matching the one the host is looking for
+    is returned.
 */
 const LV2UI_Descriptor* lv2ui_descriptor(uint32_t index);
 
 
+/** This is the type of the lv2ui_descriptor() function. */
 typedef const LV2UI_Descriptor* (*LV2UI_DescriptorFunction)(uint32_t index);
 
 
