@@ -597,5 +597,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  register_lv2gtk2gui<AZR3GUI>("http://ll-plugins.nongnu.org/lv2/dev/azr3/0.0.0");
+  register_lv2gtk2gui<AZR3GUI>("http://ll-plugins.nongnu.org/lv2/dev/azr3/0.0.0/gui");
 }

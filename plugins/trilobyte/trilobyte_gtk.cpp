@@ -77,5 +77,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  register_lv2gtk2gui<TrilobyteGUI>(k_uri);
+  register_lv2gtk2gui<TrilobyteGUI>(std::string(k_uri) + "/gui");
 }

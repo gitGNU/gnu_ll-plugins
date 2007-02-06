@@ -4,12 +4,13 @@
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 @prefix llext: <http://ll-plugins.nongnu.org/lv2/ext/>.
 @prefix mm: <http://ll-plugins.nongnu.org/lv2/ext/midimap#>.
+@prefix gg: <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui#>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/azr3/0.0.0>
   a lv2:Plugin;
   doap:name "AZR3";
   doap:licence <http://usefulinc.com/doap/licenses/gpl>;
-  ll:gtk2Gui <azr3_gtk.so>;
+  gg:gui <http://ll-plugins.nongnu.org/lv2/dev/azr3/0.0.0/gui>;
   ll:defaultPresets <presets.ttl>;
       
   lv2:port [
@@ -994,3 +995,4 @@
     lv2:name "Right output";
   ].
 
+<http://ll-plugins.nongnu.org/lv2/dev/azr3/0.0.0/gui> gg:binary <azr3_gtk.so>.

@@ -732,9 +732,10 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     
     // standalone GUI path
     Variable gui_uri, gui_path;
+    Namespace gg("<http://ll-plugins.nongnu.org/lv2/ext/gtk2gui#>");
     qr = select(gui_uri, gui_path)
-      .where(uriref, ll("gtk2Gui"), gui_uri)
-      .where(gui_uri, ll("gtk2binary"), gui_path)
+      .where(uriref, gg("gui"), gui_uri)
+      .where(gui_uri, gg("binary"), gui_path)
       .run(data);
     if (qr.size() > 0) {
       m_guiuri = qr[0][gui_uri]->name.

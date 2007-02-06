@@ -27,6 +27,7 @@
 
 #include "lv2gtk2gui.hpp"
 #include "euphoriawidget.hpp"
+#include "euphoria.peg"
 
 
 using namespace std;
@@ -82,5 +83,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  register_lv2gtk2gui<EuphoriaGUI>("http://ll-plugins.nongnu.org/lv2/dev/euphoria/0.0.0");
+  register_lv2gtk2gui<EuphoriaGUI>(string(e_uri) + "/gui");
 }
