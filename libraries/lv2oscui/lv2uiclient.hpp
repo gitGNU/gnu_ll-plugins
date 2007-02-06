@@ -50,8 +50,7 @@ public:
       request to the plugin host. The parameters should be the @c argc and
       @c argv from the main() function. */
   LV2UIClient(const std::string& osc_url, const std::string& bundle,
-              const std::string& plugin_uri, const std::string& identifier,
-              bool wait = false);
+              const std::string& identifier, bool wait = false);
 
   /** This destructor will mark any allocated shared memory for destruction,
       send an /exiting message to the plugin host, and stop and deallocate

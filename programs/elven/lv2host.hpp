@@ -118,6 +118,9 @@ public:
   /** Return the path to the GUI plugin module. */
   const std::string& get_gui_path() const;
   
+  /** Return the URI for the GUI plugin. */
+  const std::string& get_gui_uri() const;
+  
   /** Return the path to the plugin bundle. */
   const std::string& get_bundle_dir() const;
   
@@ -221,6 +224,7 @@ protected:
   std::vector<int> m_midimap;
   long m_default_midi_port;
   std::string m_plugingui;
+  std::string m_guiuri;
   std::string m_bundledir;
   std::string m_name;
   

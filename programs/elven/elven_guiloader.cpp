@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
   // initialise GTK
   Gtk::Main kit(argc, argv);
   
-  if (argc < 7) {
+  if (argc < 8) {
     DBG0("Not enough parameters.");
     return 1;
   }
@@ -137,17 +137,15 @@ int main(int argc, char** argv) {
   
   const char* filename = argv[2];
   const char* osc_url = argv[3];
-  const char* uri = argv[4];
-  const char* bundle_path = argv[5];
-  const char* name = argv[6];
+  const char* gui_uri = argv[4];
+  const char* plugin_uri = argv[5];
+  const char* bundle_path = argv[6];
+  const char* name = argv[7];
   int socket_id = -1;
-  if (argc > 7)
-    socket_id = atoi(argv[7]);
+  if (argc > 8)
+    socket_id = atoi(argv[8]);
   
-  LV2UI_ControllerDescriptor cdesc = {
-    &set_control,
-    &extension_data
-  };
+  LV2UI_Set_Control_Function cfunc = &set_control;
   
   // open the module
   DBG2("Loading "<<filename);
@@ -158,30 +156,62 @@ int main(int argc, char** argv) {
   }
   
   // get the GUI descriptor
-  LV2UI_UIDescriptorFunction func = 
-    (LV2UI_UIDescriptorFunction)dlsym(module, "lv2ui_descriptor");
+  LV2UI_DescriptorFunction func = 
+    (LV2UI_DescriptorFunction)dlsym(module, "lv2ui_descriptor");
   if (!func) {
     DBG0("Could not find symbol lv2ui_descriptor in "<<filename);
     return 1;
   }
-  const LV2UI_UIDescriptor* desc = func(uri);
+  const LV2UI_Descriptor* desc = 0;
+  for (unsigned i = 0; (desc = func(i)); ++i) {
+    DBG2("Found GUI "<<desc->URI);
+    if (!strcmp(gui_uri, desc->URI))
+      break;
+    DBG2(desc->URI<<" does not match "<<gui_uri);
+  }
   if (!desc) {
-    DBG0("lv2ui_descriptor() returned NULL");
+    DBG0(filename<<" did not contain the plugin GUI "<<gui_uri);
     return 1;
   }
   
   // create an OSC server
   DBG2("Creating OSC server...");
-  LV2UIClient osc(osc_url, bundle_path, uri, name, true);
+  LV2UIClient osc(osc_url, bundle_path, name, true);
   if (!osc.is_valid()) {
     DBG0("Could not start an OSC server");
     return 1;
   }
   
+  // build the feature list
+  LV2_Host_Feature** features = new LV2_Host_Feature*[4];
+  features[0] = new LV2_Host_Feature;
+  features[0]->URI = strdup("http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext");
+  static LV2_InstrumentControllerDescriptor instcdesc = {
+    &configure,
+    &set_file
+  };
+  features[0]->data = &instcdesc;
+  features[1] = new LV2_Host_Feature;
+  features[1]->URI = strdup("http://ll-plugins.nongnu.org/lv2/namespace#program");
+  static LV2_ProgramControllerDescriptor progcdesc = {
+    &set_program
+  };
+  features[1]->data = &progcdesc;
+  features[2] = new LV2_Host_Feature;
+  features[2]->URI = strdup("http://ll-plugins.nongnu.org/lv2/ext/miditype");
+  static LV2_MIDIControllerDescriptor midicdesc = {
+    &send_midi
+  };
+  features[2]->data = &midicdesc;
+  features[3] = 0;
+
+  
   // create a GUI instance
   GtkWidget* cwidget;
   LV2UI_Controller ctrl = static_cast<LV2UI_Controller>(&osc);
-  LV2UI_Handle ui = desc->instantiate(&cdesc, ctrl, uri, bundle_path, &cwidget);
+  LV2UI_Handle ui = desc->instantiate(desc, plugin_uri, bundle_path, cfunc, 
+				      ctrl, &cwidget, 
+				      const_cast<const LV2_Host_Feature**>(features));
   if (!ui || !cwidget) {
     DBG0("Could not create an UI instance");
     return 1;

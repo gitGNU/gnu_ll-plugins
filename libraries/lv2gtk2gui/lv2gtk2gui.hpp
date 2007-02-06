@@ -44,24 +44,28 @@ class LV2Controller;
    Doxygen comment syntax. */
 namespace LV2G2GSupportFunctions {
   
-  typedef std::map<std::string, LV2UI_UIDescriptor*> DescMap;
+  typedef std::vector<LV2UI_Descriptor*> DescList;
   
   /* This function returns the list of LV2 descriptors. It should only be 
      used internally. */
-  DescMap& get_lv2g2g_descriptors();
+  DescList& get_lv2g2g_descriptors();
 
   /* This template function creates an instance of a plugin GUI. It is used 
      as the instantiate() callback in the LV2 descriptor. You should not use
      it directly. */
   template <class T>
-  LV2UI_Handle create_ui_instance(LV2UI_ControllerDescriptor* cdesc,
-                                  LV2UI_Controller ctrl,
-                                  const char* URI,
-                                  const char* bundle_path,
-                                  GtkWidget** widget) {
-    LV2Controller* controller = new LV2Controller(cdesc, ctrl);
+  LV2UI_Handle create_ui_instance(const struct _LV2UI_Descriptor* descriptor,
+				  const char*                     plugin_uri,
+				  const char*                     bundle_path,
+				  LV2UI_Set_Control_Function      ctrl_function,
+				  LV2UI_Controller                ctrl,
+				  GtkWidget**                     widget,
+				  const LV2_Host_Feature**        features) {
+    
+    LV2Controller* controller = new LV2Controller(ctrl_function, 
+						  ctrl, features);
     Gtk::Widget* widgetmm;
-    T* t = new T(*controller, URI, bundle_path, widgetmm);
+    T* t = new T(*controller, plugin_uri, bundle_path, widgetmm);
     t->m_controller = controller;
     *widget = widgetmm->gobj();
     return reinterpret_cast<LV2UI_Handle>(t);
@@ -127,15 +131,20 @@ public:
   
 protected:
   
-  template <class T> friend LV2UI_Handle 
-  LV2G2GSupportFunctions::create_ui_instance(LV2UI_ControllerDescriptor*,
-                                             LV2UI_Controller,
-                                             const char*, const char*, 
-                                             GtkWidget**);
+  template <class T> friend
+  LV2UI_Handle LV2G2GSupportFunctions::
+  create_ui_instance(const struct _LV2UI_Descriptor* descriptor,
+		     const char*                     plugin_uri,
+		     const char*                     bundle_path,
+		     LV2UI_Set_Control_Function      ctrl_function,
+		     LV2UI_Controller                ctrl,
+		     GtkWidget**                     widget,
+		     const LV2_Host_Feature**        features);
 
-  LV2Controller(LV2UI_ControllerDescriptor* cdesc, LV2UI_Controller ctrl);
+  LV2Controller(LV2UI_Set_Control_Function fcn, LV2UI_Controller ctrl,
+		const LV2_Host_Feature** features);
   
-  LV2UI_ControllerDescriptor* m_cdesc;
+  LV2UI_Set_Control_Function m_cfunc;
   LV2UI_Controller m_ctrl;
   LV2_InstrumentControllerDescriptor* m_instdesc;
   LV2_ProgramControllerDescriptor* m_progdesc;
@@ -193,12 +202,16 @@ public:
 
 private:
   
-  template <class T> friend LV2UI_Handle 
-  LV2G2GSupportFunctions::create_ui_instance(LV2UI_ControllerDescriptor*,
-                                             LV2UI_Controller,
-                                             const char*, const char*, 
-                                             GtkWidget**);
-  
+  template <class T> friend
+  LV2UI_Handle LV2G2GSupportFunctions::
+  create_ui_instance(const struct _LV2UI_Descriptor* descriptor,
+		     const char*                     plugin_uri,
+		     const char*                     bundle_path,
+		     LV2UI_Set_Control_Function      ctrl_function,
+		     LV2UI_Controller                ctrl,
+		     GtkWidget**                     widget,
+		     const LV2_Host_Feature**        features);
+
   friend void* LV2G2GSupportFunctions::extension_data(LV2UI_Handle instance, 
                                                       const char* URI);
 
@@ -212,13 +225,14 @@ private:
 
 template <typename T> void register_lv2gtk2gui(const std::string& URI) {
   using namespace LV2G2GSupportFunctions;
-  LV2UI_UIDescriptor* desc = new LV2UI_UIDescriptor;
-  std::memset(desc, 0, sizeof(LV2UI_UIDescriptor));
+  LV2UI_Descriptor* desc = new LV2UI_Descriptor;
+  std::memset(desc, 0, sizeof(LV2UI_Descriptor));
+  desc->URI = strdup(URI.c_str());
   desc->instantiate = &create_ui_instance<T>;
   desc->cleanup = &delete_ui_instance;
   desc->set_control = &set_control;
   desc->extension_data = &extension_data;
-  get_lv2g2g_descriptors()[URI] = desc;
+  get_lv2g2g_descriptors().push_back(desc);
 }
 
 

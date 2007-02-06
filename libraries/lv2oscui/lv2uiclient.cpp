@@ -38,8 +38,7 @@ using namespace Glib;
 
 
 LV2UIClient::LV2UIClient(const string& osc_url, const string& bundle,
-                         const string& plugin_uri, const string& identifier, 
-                         bool wait)
+                         const string& identifier, bool wait)
   : m_valid(false), 
     m_blocking(false),
     m_identifier(identifier),

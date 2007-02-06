@@ -74,7 +74,8 @@ AZR3::AZR3(uint32_t rate, const char* bundle_path,
     splitpoint(0),
     last_shape(-1),
     mute(true),
-    pedal(false) {
+    pedal(false),
+    odchanged(true) {
   
   pthread_mutex_init(&m_notemaster_lock, 0);
   

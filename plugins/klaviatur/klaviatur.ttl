@@ -8,7 +8,7 @@
   a lv2:Plugin;
   doap:name "Klaviatur";
   doap:licence <http://usefulinc.com/doap/licenses/gpl>;
-  ll:gtk2Gui <klaviatur_gtk.so>;
+  ll:gtk2Gui <http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0/gui>;
   ll:pegName "k";  
   
   lv2:port [
@@ -26,3 +26,6 @@
     lv2:symbol "midi_output";
     lv2:name "MIDI output";
   ].
+
+<http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0/gui> 
+  ll:gtk2binary <klaviatur_gtk.so>.

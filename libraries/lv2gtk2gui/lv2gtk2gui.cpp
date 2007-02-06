@@ -22,6 +22,7 @@
 
 ****************************************************************************/
 
+#include <cstring>
 #include <iostream>
 
 #include "lv2gtk2gui.hpp"
@@ -31,7 +32,7 @@ using namespace std;
 
 
 LV2Controller::LV2Controller()
-  : m_cdesc(0),
+  : m_cfunc(0),
     m_ctrl(0),
     m_instdesc(0),
     m_progdesc(0),
@@ -41,61 +42,64 @@ LV2Controller::LV2Controller()
 
 
 void LV2Controller::set_control(uint32_t port, float value) {
-  if (m_cdesc)
-    m_cdesc->set_control(m_ctrl, port, value);
+  if (m_cfunc)
+    m_cfunc(m_ctrl, port, value);
 }
 
 
 void LV2Controller::configure(const string& key, const string& value) {
-  if (m_cdesc && m_instdesc)
+  if (m_instdesc)
     m_instdesc->configure(m_ctrl, key.c_str(), value.c_str());
 }
 
 
 void LV2Controller::set_file(const string& key, const string& filename) {
-  if (m_cdesc && m_instdesc)
+  if (m_instdesc)
     m_instdesc->set_file(m_ctrl, key.c_str(), filename.c_str());
 }
   
 
 void LV2Controller::set_program(unsigned char number) {
-  if (m_cdesc && m_progdesc)
+  if (m_progdesc)
     m_progdesc->set_program(m_ctrl, number);
 }
 
 
 void LV2Controller::send_midi(uint32_t port, uint32_t size, 
                               const unsigned char* data) {
-  if (m_cdesc && m_mididesc)
+  if (m_mididesc)
     m_mididesc->send_midi(m_ctrl, port, size, data);
 }
 
 
-void* LV2Controller::extension_data(const std::string& URI) {
-  if (m_cdesc)
-    return m_cdesc->extension_data(m_ctrl, URI.c_str());
-  return 0;
-}
-
-
-LV2Controller::LV2Controller(LV2UI_ControllerDescriptor* cdesc, 
-                             LV2UI_Controller ctrl)
-  : m_cdesc(cdesc),
+LV2Controller::LV2Controller(LV2UI_Set_Control_Function cfunc, 
+                             LV2UI_Controller ctrl,
+			     const LV2_Host_Feature** features)
+  : m_cfunc(cfunc),
     m_ctrl(ctrl),
     m_instdesc(0),
     m_progdesc(0),
     m_mididesc(0) {
-  m_instdesc = static_cast<LV2_InstrumentControllerDescriptor*>(m_cdesc->extension_data(m_ctrl, "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext"));
-  m_progdesc = static_cast<LV2_ProgramControllerDescriptor*>(m_cdesc->extension_data(m_ctrl, "http://ll-plugins.nongnu.org/lv2/namespace#program"));
-  m_mididesc = static_cast<LV2_MIDIControllerDescriptor*>(m_cdesc->extension_data(m_ctrl, "http://ll-plugins.nongnu.org/lv2/ext/miditype"));
+  
+  for (int i = 0; features[i]; ++i) {
+    if (!strcmp(features[i]->URI, "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext")) {
+      m_instdesc = static_cast<LV2_InstrumentControllerDescriptor*>(features[i]->data);
+    }
+    else if (!strcmp(features[i]->URI, "http://ll-plugins.nongnu.org/lv2/namespace#program")) {
+      m_progdesc = static_cast<LV2_ProgramControllerDescriptor*>(features[i]->data);
+    }
+    else if (!strcmp(features[i]->URI, "http://ll-plugins.nongnu.org/lv2/ext/miditype")) {
+      m_mididesc = static_cast<LV2_MIDIControllerDescriptor*>(features[i]->data);
+    }
+  }
 }
 
 
 namespace LV2G2GSupportFunctions {
   
 
-  DescMap& get_lv2g2g_descriptors() {
-    static DescMap list;
+  DescList& get_lv2g2g_descriptors() {
+    static DescList list;
     return list;
   }
 
@@ -173,13 +177,12 @@ LV2_ProgramUIDescriptor LV2GTK2GUI::m_program_ui_desc = {
 
 extern "C" {
 
-  const LV2UI_UIDescriptor* lv2ui_descriptor(const char* URI) {
+  const LV2UI_Descriptor* lv2ui_descriptor(uint32_t index) {
     using namespace LV2G2GSupportFunctions;
-    DescMap descs = get_lv2g2g_descriptors();
-    DescMap::const_iterator iter = descs.find(URI);
-    if (iter == descs.end())
+    DescList descs = get_lv2g2g_descriptors();
+    if (index >= descs.size())
       return 0;
-    return iter->second;
+    return descs[index];
   }
 
 }

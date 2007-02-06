@@ -291,6 +291,11 @@ const std::string& LV2Host::get_gui_path() const {
 }
 
 
+const std::string& LV2Host::get_gui_uri() const {
+  return m_guiuri;
+}
+
+
 const std::string& LV2Host::get_bundle_dir() const {
   return m_bundledir;
 }
@@ -726,11 +731,14 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     }
     
     // standalone GUI path
-    Variable gui_path;
-    qr = select(gui_path)
-      .where(uriref, ll("gtk2Gui"), gui_path)
+    Variable gui_uri, gui_path;
+    qr = select(gui_uri, gui_path)
+      .where(uriref, ll("gtk2Gui"), gui_uri)
+      .where(gui_uri, ll("gtk2binary"), gui_path)
       .run(data);
     if (qr.size() > 0) {
+      m_guiuri = qr[0][gui_uri]->name.
+	substr(1, qr[0][gui_uri]->name.length() - 2);
       m_plugingui = absolutise(qr[0][gui_path]->name, m_bundle);
       DBG2("Found GUI plugin file "<<m_plugingui);
     }
