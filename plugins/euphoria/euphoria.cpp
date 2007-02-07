@@ -206,7 +206,7 @@ protected:
   VoiceHandler<EuphoriaVoice> m_handler;
   int m_trigger;
   
-  Distortion m_dist;
+  StereoDistortion m_dist;
   Chorus m_chorus;
   Echo m_echo;
   Reverb m_reverb;

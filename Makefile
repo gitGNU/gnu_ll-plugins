@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.211
+PACKAGE_VERSION = 0.1.212
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -117,19 +117,20 @@ paqtest_SOURCEDIR = libraries/paq
 # The plugins
 
 LV2_PLUGINS = \
-	control2midi.lv2 \
-	midi_identity.lv2 \
 	arpeggiator.lv2 \
-	math-constants.lv2 \
-	math-functions.lv2 \
-	phase-distortion-osc.lv2 \
-	euphoria.lv2 \
-	sineshaper.lv2 \
-	klaviatur.lv2 \
 	audio_identity.lv2 \
 	azr3.lv2 \
-	trilobyte.lv2 \
-	trilobeat.lv2
+	control2midi.lv2 \
+	euphoria.lv2 \
+	klaviatur.lv2 \
+	midi_identity.lv2 \
+	math-constants.lv2 \
+	math-functions.lv2 \
+	mrvalve.lv2 \
+	phase-distortion-osc.lv2 \
+	sineshaper.lv2 \
+	trilobeat.lv2 \
+	trilobyte.lv2
 
 PLUGINARCHIVES = libraries/lv2plugin/liblv2_plugin.a
 INSTRUMENTARCHIVES = libraries/lv2plugin/liblv2_plugin.a libraries/lv2plugin/liblv2_instrument.a
@@ -161,6 +162,14 @@ klaviatur_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -I
 klaviatur_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` 
 klaviatur_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libkeyboard.a
 klaviatur_gtk_so_SOURCEDIR = plugins/klaviatur
+
+# Mr Valve
+mrvalve_lv2_SOURCES = mrvalve.cpp
+mrvalve_lv2_DATA = manifest.ttl mrvalve.ttl
+mrvalve_lv2_PEGFILES = mrvalve.peg
+mrvalve_lv2_CFLAGS = -Ilibraries/lv2plugin -I. -Ilibraries/components
+mrvalve_lv2_ARCHIVES = $(PLUGINARCHIVES)
+mrvalve_lv2_SOURCEDIR = plugins/mrvalve
 
 # Trilobyte
 trilobyte_lv2_SOURCES = trilobyte.cpp
@@ -198,7 +207,6 @@ euphoria_lv2_SOURCES = \
 	pdoscillator.hpp \
 	wsvoice.cpp wsvoice.hpp \
 	pdvoice.hpp pdvoice.cpp \
-	distortion.hpp distortion.cpp \
 	chorus.hpp chorus.cpp \
 	echo.hpp echo.cpp \
 	reverb.hpp reverb.cpp
