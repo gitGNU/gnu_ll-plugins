@@ -3,6 +3,7 @@
 @prefix doap: <http://usefulinc.com/ns/doap#>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/audio_identity/0.0.0>
+  a lv2:Plugin;
   lv2:binary <audio_identity.so>;
   rdfs:seeAlso <audio_identity.ttl>.
 

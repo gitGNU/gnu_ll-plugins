@@ -3,5 +3,6 @@
 @prefix doap: <http://usefulinc.com/ns/doap#>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/trilobeat/0.0.0>
+  a lv2:Plugin;
   lv2:binary <trilobeat.so>;
   rdfs:seeAlso <trilobeat.ttl>.
