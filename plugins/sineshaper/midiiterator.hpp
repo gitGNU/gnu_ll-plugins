@@ -61,14 +61,14 @@ public:
   }
   
   
-  inline const size_t& size() const {
-    return *(size_t*)(m_data->data + m_offset + sizeof(double));
+  inline const uint32_t& size() const {
+    return *(uint32_t*)(m_data->data + m_offset + sizeof(double));
   }
   
   
   inline MIDIEventType type() const {
     unsigned char* data = (m_data->data + m_offset + 
-                           sizeof(double) + sizeof(size_t));
+                           sizeof(double) + sizeof(uint32_t));
     if (data[0] < 0xF0) {
       if ((data[0] & 0xF0) == 0x80 || 
           ((data[0] & 0x90) && data[2] == 0))
@@ -120,7 +120,7 @@ public:
   
   
   const unsigned char* data() const {
-    return m_data->data + m_offset + sizeof(double) + sizeof(size_t);
+    return m_data->data + m_offset + sizeof(double) + sizeof(uint32_t);
   }
   
 protected:
@@ -160,7 +160,7 @@ public:
   }
   
   inline MIDIIterator& operator++() {
-    m_wrapper.m_offset += sizeof(double) + sizeof(size_t) + m_wrapper.size();
+    m_wrapper.m_offset += sizeof(double) + sizeof(uint32_t) + m_wrapper.size();
     ++m_event;
     return *this;
   }
