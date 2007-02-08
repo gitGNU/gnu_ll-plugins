@@ -8,8 +8,7 @@
   doap:licence <http://usefulinc.com/doap/licenses/gpl>;
 
   lv2:port [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 0;
     lv2:symbol "notes_per_beat";
     lv2:name "Notes per beat";
@@ -17,8 +16,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 1;
     lv2:symbol "pattern_length";
     lv2:name "Pattern length";
@@ -26,8 +24,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 2;
     lv2:symbol "direction";
     lv2:name "Direction";
@@ -35,16 +32,14 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype <http://ll-plugins.nongnu.org/lv2/ext/miditype>;
+    a lv2:InputPort, <http://ll-plugins.nongnu.org/lv2/ext/MidiPort>;
     lv2:index 3;
     lv2:symbol "input";
     lv2:name "MIDI input";
   ],
 
   [
-    a lv2:ControlRateOutputPort;
-    lv2:datatype <http://ll-plugins.nongnu.org/lv2/ext/miditype>;
+    a lv2:OutputPort, <http://ll-plugins.nongnu.org/lv2/ext/MidiPort>;
     lv2:index 4;
     lv2:symbol "output";
     lv2:name "MIDI output";

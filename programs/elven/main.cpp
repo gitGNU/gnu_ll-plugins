@@ -35,7 +35,7 @@
 #include <lash/lash.h>
 
 #include "lv2host.hpp"
-#include "lv2-miditype.h"
+#include "lv2-midiport.h"
 #include "lv2-midifunctions.h"
 #include "osccontroller.hpp"
 #include "eventqueue.hpp"
@@ -268,11 +268,11 @@ int process(jack_nframes_t nframes, void* arg) {
       LV2Port& port = host->get_ports()[i];
       
       // audio port, just copy the buffer pointer.
-      if (!port.midi)
+      if (port.type == AudioType)
         port.buffer = jack_port_get_buffer(jack_ports[i], nframes);
       
       // MIDI input port, copy the events one by one
-      else if (port.rate == ControlRate && port.direction == InputPort)
+      else if (port.type == MidiType && port.direction == InputPort)
         jackmidi2lv2midi(jack_ports[i], port, *host, nframes);
       
     }
@@ -285,7 +285,7 @@ int process(jack_nframes_t nframes, void* arg) {
   for (size_t i = 0; i < host->get_ports().size(); ++i) {
     if (jack_ports[i]) {
       LV2Port& port = host->get_ports()[i];
-      if (port.midi && port.direction == OutputPort && port.rate== ControlRate)
+      if (port.type == MidiType && port.direction == OutputPort)
         lv2midi2jackmidi(port, jack_ports[i], nframes);
     }
   }
@@ -402,7 +402,7 @@ int main(int argc, char** argv) {
       LV2Port& lv2port = lv2h.get_ports()[p];
       
       // add JACK MIDI port and allocate internal MIDI buffer
-      if (lv2port.midi) {
+      if (lv2port.type == MidiType) {
         port = jack_port_register(jack_client, lv2port.symbol.c_str(),
                                   JACK_DEFAULT_MIDI_TYPE,
                                   (lv2port.direction == InputPort ?
@@ -414,7 +414,7 @@ int main(int argc, char** argv) {
       }
       
       // add JACK audio port
-      else if (lv2port.rate == AudioRate) {
+      else if (lv2port.type == AudioType) {
         port = jack_port_register(jack_client, lv2port.symbol.c_str(),
                                   JACK_DEFAULT_AUDIO_TYPE,
                                   (lv2port.direction == InputPort ?
@@ -422,7 +422,7 @@ int main(int argc, char** argv) {
       }
       
       // for control ports, just create buffers consisting of a single float
-      else if (lv2port.rate == ControlRate) {
+      else if (lv2port.type == ControlType) {
         lv2port.buffer = new float;
         *static_cast<float*>(lv2port.buffer) = lv2port.default_value;
       }

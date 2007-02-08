@@ -8,8 +8,7 @@
   doap:licence <http://usefulinc.com/doap/licenses/gpl>;
 
   lv2:port [
-    a lv2:AudioRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:AudioPort, lv2:InputPort;
     lv2:index 0;
     lv2:symbol "frequency";
     lv2:name "Frequency (Hz)";
@@ -19,8 +18,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 1;
     lv2:symbol "shape";
     lv2:name "Shape";
@@ -30,8 +28,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 2;
     lv2:symbol "amount";
     lv2:name "Amount";
@@ -41,8 +38,7 @@
   ],
 
   [
-    a lv2:AudioRateOutputPort;
-    lv2:datatype lv2:float;
+    a lv2:AudioPort, lv2:OutputPort;
     lv2:index 3;
     lv2:symbol "output";
     lv2:name "Output";

@@ -24,7 +24,7 @@
 #include <iostream>
 
 #include "lv2plugin.hpp"
-#include "lv2-miditype.h"
+#include "lv2-midiport.h"
 
 
 /** This is the class that contains all the code and data for the Sineshaper

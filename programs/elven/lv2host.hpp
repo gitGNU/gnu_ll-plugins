@@ -42,13 +42,16 @@
 
 enum PortDirection {
   InputPort,
-  OutputPort
+  OutputPort,
+  NoDirection
 };
 
 
-enum PortRate {
-  ControlRate,
-  AudioRate
+enum PortType {
+  AudioType,
+  ControlType,
+  MidiType,
+  NoType
 };
 
 
@@ -57,11 +60,12 @@ struct LV2Port {
   void* buffer;
   std::string symbol;
   PortDirection direction;
-  PortRate rate;
+  PortType type;
+  //PortRate rate;
   float default_value;
   float min_value;
   float max_value;
-  bool midi;
+  //bool midi;
 };
 
 

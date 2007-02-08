@@ -14,8 +14,7 @@
   ll:defaultPresets <presets.ttl>;
       
   lv2:port [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 0;
     lv2:symbol "mono";
     lv2:name "Mono";
@@ -30,8 +29,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 1;
     lv2:symbol "click";
     lv2:name "Click";
@@ -45,8 +43,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 2;
     lv2:symbol "bender";
     lv2:name "Bender";
@@ -60,8 +57,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 3;
     lv2:symbol "shape";
     lv2:name "Shape";
@@ -75,8 +71,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 4;
     lv2:symbol "vperc";
     lv2:name "Perc";
@@ -90,8 +85,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 5;
     lv2:symbol "percvol";
     lv2:name "Perc vol";
@@ -105,8 +99,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 6;
     lv2:symbol "percfade";
     lv2:name "Perc fade";
@@ -120,8 +113,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 7;
     lv2:symbol "vol1";
     lv2:name "Vol 1";
@@ -135,8 +127,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 8;
     lv2:symbol "vol2";
     lv2:name "Vol 2";
@@ -150,8 +141,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 9;
     lv2:symbol "vol3";
     lv2:name "Vol 3";
@@ -165,8 +155,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 10;
     lv2:symbol "master";
     lv2:name "Master";
@@ -180,8 +169,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 11;
     lv2:symbol "perc1";
     lv2:name "Perc 1";
@@ -196,8 +184,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 12;
     lv2:symbol "db1_1";
     lv2:name "DB1, 1";
@@ -211,8 +198,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 13;
     lv2:symbol "db2_1";
     lv2:name "DB2, 1";
@@ -226,8 +212,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 14;
     lv2:symbol "db3_1";
     lv2:name "DB3, 1";
@@ -241,8 +226,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 15;
     lv2:symbol "db4_1";
     lv2:name "DB4, 1";
@@ -256,8 +240,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 16;
     lv2:symbol "db5_1";
     lv2:name "DB5, 1";
@@ -271,8 +254,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 17;
     lv2:symbol "db6_1";
     lv2:name "DB6, 1";
@@ -286,8 +268,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 18;
     lv2:symbol "db7_1";
     lv2:name "DB7, 1";
@@ -301,8 +282,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 19;
     lv2:symbol "db8_1";
     lv2:name "DB8, 1";
@@ -316,8 +296,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 20;
     lv2:symbol "db9_1";
     lv2:name "DB9, 1";
@@ -331,8 +310,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 21;
     lv2:symbol "vibrato1";
     lv2:name "Vibrato 1";
@@ -347,8 +325,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 22;
     lv2:symbol "vstrength1";
     lv2:name "VStrength 1";
@@ -362,8 +339,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 23;
     lv2:symbol "vmix1";
     lv2:name "VMix 1";
@@ -377,8 +353,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 24;
     lv2:symbol "perc2";
     lv2:name "Perc 2";
@@ -393,8 +368,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 25;
     lv2:symbol "db1_2";
     lv2:name "DB1, 2";
@@ -408,8 +382,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 26;
     lv2:symbol "db2_2";
     lv2:name "DB2, 2";
@@ -423,8 +396,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 27;
     lv2:symbol "db3_2";
     lv2:name "DB3, 2";
@@ -438,8 +410,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 28;
     lv2:symbol "db4_2";
     lv2:name "DB4, 2";
@@ -453,8 +424,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 29;
     lv2:symbol "db5_2";
     lv2:name "DB5, 2";
@@ -468,8 +438,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 30;
     lv2:symbol "db6_2";
     lv2:name "DB6, 2";
@@ -483,8 +452,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 31;
     lv2:symbol "db7_2";
     lv2:name "DB7, 2";
@@ -498,8 +466,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 32;
     lv2:symbol "db8_2";
     lv2:name "DB8, 2";
@@ -513,8 +480,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 33;
     lv2:symbol "db9_2";
     lv2:name "DB9, 2";
@@ -528,8 +494,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 34;
     lv2:symbol "vibrato2";
     lv2:name "Vibrato 2";
@@ -544,8 +509,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 35;
     lv2:symbol "vstrength2";
     lv2:name "VStrength 2";
@@ -559,8 +523,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 36;
     lv2:symbol "vmix2";
     lv2:name "VMix 2";
@@ -574,8 +537,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 37;
     lv2:symbol "perc3";
     lv2:name "Perc 3";
@@ -590,8 +552,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 38;
     lv2:symbol "db1_2";
     lv2:name "DB1, 2";
@@ -605,8 +566,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 39;
     lv2:symbol "db2_2";
     lv2:name "DB2, 2";
@@ -620,8 +580,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 40;
     lv2:symbol "db3_2";
     lv2:name "DB3, 2";
@@ -635,8 +594,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 41;
     lv2:symbol "db4_2";
     lv2:name "DB4, 2";
@@ -650,8 +608,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 42;
     lv2:symbol "db5_2";
     lv2:name "DB5, 2";
@@ -665,8 +622,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 43;
     lv2:symbol "mrvalve";
     lv2:name "Mr Valve";
@@ -681,8 +637,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 44;
     lv2:symbol "drive";
     lv2:name "Drive";
@@ -696,8 +651,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 45;
     lv2:symbol "set";
     lv2:name "Set";
@@ -711,8 +665,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 46;
     lv2:symbol "tone";
     lv2:name "Tone";
@@ -726,8 +679,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 47;
     lv2:symbol "mix";
     lv2:name "Mix";
@@ -741,8 +693,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 48;
     lv2:symbol "speakers";
     lv2:name "Speakers";
@@ -757,8 +708,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 49;
     lv2:symbol "speed";
     lv2:name "Speed";
@@ -773,8 +723,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 50;
     lv2:symbol "l_slow";
     lv2:name "Lower slow";
@@ -788,8 +737,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 51;
     lv2:symbol "l_fast";
     lv2:name "Lower fast";
@@ -803,8 +751,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 52;
     lv2:symbol "u_slow";
     lv2:name "Upper slow";
@@ -818,8 +765,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 53;
     lv2:symbol "u_fast";
     lv2:name "Upper fast";
@@ -833,8 +779,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 54;
     lv2:symbol "belt";
     lv2:name "Belt";
@@ -848,8 +793,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 55;
     lv2:symbol "spread";
     lv2:name "Spread";
@@ -863,8 +807,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 56;
     lv2:symbol "splitpoint";
     lv2:name "Splitpoint";
@@ -878,8 +821,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 57;
     lv2:symbol "complex";
     lv2:name "Complex";
@@ -893,8 +835,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 58;
     lv2:symbol "pedalspeed";
     lv2:name "Pedal speed";
@@ -909,8 +850,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 59;
     lv2:symbol "sustain";
     lv2:name "Sustain";
@@ -924,8 +864,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 60;
     lv2:symbol "sustain1";
     lv2:name "Sustain 1";
@@ -940,8 +879,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 61;
     lv2:symbol "sustain2";
     lv2:name "Sustain 2";
@@ -956,8 +894,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:InputPort, lv2:ControlPort;
     lv2:index 62;
     lv2:symbol "sustain3";
     lv2:name "Sustain 3";
@@ -972,24 +909,21 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype llext:miditype;
+    a lv2:InputPort, llext:MidiPort;
     lv2:index 63;
     lv2:symbol "midi";
     lv2:name "MIDI input";
   ],
   
   [
-    a lv2:AudioRateOutputPort;
-    lv2:datatype lv2:float;
+    a lv2:OutputPort, lv2:AudioPort;
     lv2:index 64;
     lv2:symbol "left";
     lv2:name "Left output";
   ],
 
   [
-    a lv2:AudioRateOutputPort;
-    lv2:datatype lv2:float;
+    a lv2:OutputPort, lv2:AudioPort;
     lv2:index 65;
     lv2:symbol "right";
     lv2:name "Right output";

@@ -5,36 +5,31 @@
 
 # audio ports
 _:audioInputPort0
-    a lv2:AudioRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:AudioPort, lv2:InputPort;
     lv2:index 0;
     lv2:symbol "input";
     lv2:name "Input".
 
 _:audioInputPortX
-    a lv2:AudioRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:AudioPort, lv2:InputPort;
     lv2:index 0;
     lv2:symbol "x";
     lv2:name "x".
 
 _:audioInputPortY
-    a lv2:AudioRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:AudioPort, lv2:InputPort;
     lv2:index 1;
     lv2:symbol "y";
     lv2:name "y".
 
 _:audioOutputPort1
-    a lv2:AudioRateOutputPort;
-    lv2:datatype lv2:float;
+    a lv2:AudioPort, lv2:OutputPort;
     lv2:index 1;
     lv2:symbol "output";
     lv2:name "Output".
 
 _:audioOutputPort2
-    a lv2:AudioRateOutputPort;
-    lv2:datatype lv2:float;
+    a lv2:AudioPort, lv2:OutputPort;
     lv2:index 2;
     lv2:symbol "output";
     lv2:name "Output".
@@ -42,36 +37,31 @@ _:audioOutputPort2
 
 # control ports
 _:controlInputPort0
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 0;
     lv2:symbol "input";
     lv2:name "Input".
 
 _:controlInputPortX
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 0;
     lv2:symbol "x";
     lv2:name "x".
 
 _:controlInputPortY
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 1;
     lv2:symbol "y";
     lv2:name "y".
 
 _:controlOutputPort1
-    a lv2:ControlRateOutputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:OutputPort;
     lv2:index 1;
     lv2:symbol "output";
     lv2:name "Output".
 
 _:controlOutputPort2
-    a lv2:ControlRateOutputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:OutputPort;
     lv2:index 2;
     lv2:symbol "output";
     lv2:name "Output".
@@ -268,22 +258,19 @@ _:controlOutputPort2
   doap:name "Function modf (A)";
   doap:licence <http://usefulinc.com/doap/licenses/gpl>;
   lv2:port [
-    a lv2:AudioRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:AudioPort, lv2:InputPort;
     lv2:index 0;
     lv2:symbol "input";
     lv2:name "Input";
   ],
   [
-    a lv2:AudioRateOutputPort;
-    lv2:datatype lv2:float;
+    a lv2:AudioPort, lv2:OutputPort;
     lv2:index 1;
     lv2:symbol "integer";
     lv2:name "Integer";
   ],
   [
-    a lv2:AudioRateOutputPort;
-    lv2:datatype lv2:float;
+    a lv2:AudioPort, lv2:OutputPort;
     lv2:index 2;
     lv2:symbol "fraction";
     lv2:name "Fraction";
@@ -294,22 +281,19 @@ _:controlOutputPort2
   doap:name "Function modf (C)";
   doap:licence <http://usefulinc.com/doap/licenses/gpl>;
   lv2:port [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 0;
     lv2:symbol "input";
     lv2:name "Input";
   ],
   [
-    a lv2:ControlRateOutputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:OutputPort;
     lv2:index 1;
     lv2:symbol "integer";
     lv2:name "Integer";
   ],
   [
-    a lv2:ControlRateOutputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:OutputPort;
     lv2:index 2;
     lv2:symbol "fraction";
     lv2:name "Fraction";

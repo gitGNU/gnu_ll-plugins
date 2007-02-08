@@ -165,8 +165,8 @@ void LV2Host::run(unsigned long nframes) {
         //if (m_program_is_valid)
         //  e.config.sender->write_program(m_program);
         for (unsigned long p = 0; p < m_ports.size(); ++p) {
-          if (!m_ports[p].midi && m_ports[p].rate == ControlRate &&
-              m_ports[p].direction == InputPort) {
+          if (m_ports[p].type == ControlType &&
+	      m_ports[p].direction == InputPort) {
             e.config.sender->
               write_control(p, *static_cast<float*>(m_ports[p].buffer));
           }
@@ -335,7 +335,8 @@ void LV2Host::queue_control(unsigned long port, float value, bool to_jack) {
 
 void LV2Host::queue_midi(uint32_t port, uint32_t size, 
                          const unsigned char* midi) {
-  if (port < m_ports.size() && m_ports[port].midi) {
+  if (port < m_ports.size() && m_ports[port].type == MidiType && 
+      m_ports[port].direction == InputPort) {
     if (size <= 4) {
       DBG2("Queueing MIDI event for port "<<port);
       pthread_mutex_lock(&m_mutex);
@@ -559,10 +560,8 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     
     qr = select(index, symbol, portclass, porttype)
       .where(uriref, lv2("port"), port)
-      .where(port, rdf("type"), portclass)
       .where(port, lv2("index"), index)
       .where(port, lv2("symbol"), symbol)
-      .where(port, lv2("datatype"), porttype)
       .run(data);
 
     if (qr.size() == 0) {
@@ -586,42 +585,42 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
       m_ports[p].symbol = qr[j][symbol]->name;
       DBG2("Found port "<<m_ports[p].symbol);
       
-      // direction and rate
-      string pclass = qr[j][portclass]->name;
-      DBG2(m_ports[p].symbol<<" is an "<<pclass);
-      if (pclass == lv2("ControlRateInputPort")) {
-        m_ports[p].direction = InputPort;
-        m_ports[p].rate = ControlRate;
-      }
-      else if (pclass == lv2("ControlRateOutputPort")) {
-        m_ports[p].direction = OutputPort;
-        m_ports[p].rate = ControlRate;
-      }
-      else if (pclass == lv2("AudioRateInputPort")) {
-        m_ports[p].direction = InputPort;
-        m_ports[p].rate = AudioRate;
-      }
-      else if (pclass == lv2("AudioRateOutputPort")) {
-        m_ports[p].direction = OutputPort;
-        m_ports[p].rate = AudioRate;
-      }
-      else {
-        DBG0("Unknown port class: "<<pclass);
-        return;
+      // direction and type
+      m_ports[p].direction = NoDirection;
+      m_ports[p].type = NoType;
+      vector<QueryResult> qr2 = select(portclass)
+	.where(uriref, lv2("port"), port)
+	.where(port, lv2("index"), qr[j][index]->name)
+	.where(port, rdf("type"), portclass)
+	.run(data);
+      
+      for (int k = 0; k < qr2.size(); ++k) {
+	string pclass = qr2[k][portclass]->name;
+	DBG2(m_ports[p].symbol<<" is an "<<pclass);
+	if (pclass == lv2("InputPort"))
+	  m_ports[p].direction = InputPort;
+	else if (pclass == lv2("OutputPort"))
+	  m_ports[p].direction = OutputPort;
+	else if (pclass == lv2("AudioPort"))
+	  m_ports[p].type = AudioType;
+	else if (pclass == llext("MidiPort"))
+	  m_ports[p].type = MidiType;
+	else if (pclass == lv2("ControlPort"))
+	  m_ports[p].type = ControlType;
+	else
+	  DBG1("Unknown port class: "<<pclass);
       }
       
-      // type
-      string type = qr[j][porttype]->name;
-      DBG2(m_ports[p].symbol<<" has the datatype "<<type);
-      if (type == lv2("float"))
-        m_ports[p].midi = false;
-      else if (type == llext("miditype"))
-        m_ports[p].midi = true;
-      else {
-        DBG0("Unknown datatype: "<<type);
-        return;
+      if (m_ports[p].direction == NoDirection) {
+	DBG0("No direction given for port "<<m_ports[p].symbol);
+	return;
       }
-      
+	
+      if (m_ports[p].type == NoType) {
+	DBG0("No known data type given for port "<<m_ports[p].symbol);
+	return;
+      }
+	
       m_ports[p].default_value = 0;
       m_ports[p].min_value = 0;
       m_ports[p].max_value = 1;
@@ -711,8 +710,7 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     else {
       m_default_midi_port = -1;
       for (unsigned long i = 0; i < m_ports.size(); ++i) {
-        if (m_ports[i].midi && m_ports[i].direction == InputPort && 
-            m_ports[i].rate == ControlRate) {
+        if (m_ports[i].type == MidiType && m_ports[i].direction == InputPort) {
           m_default_midi_port = i;
           break;
         }

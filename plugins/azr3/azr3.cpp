@@ -27,7 +27,7 @@
 #include <sstream>
 
 #include "azr3.hpp"
-#include "lv2-miditype.h"
+#include "lv2-midiport.h"
 #include "voice_classes.h"
 
 

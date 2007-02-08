@@ -27,7 +27,7 @@
 #include <iostream>
 #include <vector>
 
-#include "lv2-miditype.h"
+#include "lv2-midiport.h"
 
 
 template <typename V> class VoiceHandler {

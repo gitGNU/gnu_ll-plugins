@@ -14,8 +14,7 @@
   ll:defaultPresets <presets.ttl>;
   
   lv2:port [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 0;
     lv2:symbol "tun";
     lv2:name "Tune";
@@ -29,8 +28,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 1;
     lv2:symbol "oct";
     lv2:name "Octave";
@@ -44,8 +42,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 2;
     lv2:symbol "sub_tun";
     lv2:name "Sub oscillator tune";
@@ -59,8 +56,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 3;
     lv2:symbol "sub_oct";
     lv2:name "Sub oscillator octave";
@@ -74,8 +70,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 4;
     lv2:symbol "osc_mix";
     lv2:name "Oscillator mix";
@@ -89,8 +84,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 5;
     lv2:symbol "prt_on";
     lv2:name "Portamento on";
@@ -104,8 +98,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 6;
     lv2:symbol "prt_tim";
     lv2:name "Portamento time";
@@ -119,8 +112,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 7;
     lv2:symbol "prt_tie";
     lv2:name "Tie overlapping notes";
@@ -134,8 +126,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 8;
     lv2:symbol "vib_frq";
     lv2:name "Vibrato frequency";
@@ -149,8 +140,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 9;
     lv2:symbol "vib_dpt";
     lv2:name "Vibrato depth";
@@ -164,8 +154,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 10;
     lv2:symbol "trm_frq";
     lv2:name "Tremolo frequency";
@@ -179,8 +168,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 11;
     lv2:symbol "trm_dpt";
     lv2:name "Tremolo depth";
@@ -194,8 +182,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 12;
     lv2:symbol "shp_env";
     lv2:name "Shaper envelope sensitivity";
@@ -209,8 +196,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 13;
     lv2:symbol "shp_tot";
     lv2:name "Shape amount";
@@ -224,8 +210,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 14;
     lv2:symbol "shp_spl";
     lv2:name "Shape split";
@@ -239,8 +224,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 15;
     lv2:symbol "shp_shf";
     lv2:name "Shape shift";
@@ -254,8 +238,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 16;
     lv2:symbol "lfo_frq";
     lv2:name "Shaper LFO frequency";
@@ -269,8 +252,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 17;
     lv2:symbol "lfo_dpt";
     lv2:name "Shaper LFO depth";
@@ -284,8 +266,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 18;
     lv2:symbol "att";
     lv2:name "Attack";
@@ -299,8 +280,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 19;
     lv2:symbol "dec";
     lv2:name "Decay";
@@ -314,8 +294,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 20;
     lv2:symbol "sus";
     lv2:name "Sustain";
@@ -329,8 +308,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 21;
     lv2:symbol "rel";
     lv2:name "Release";
@@ -344,8 +322,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 22;
     lv2:symbol "amp_env";
     lv2:name "Amp envelope sensitivity";
@@ -359,8 +336,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 23;
     lv2:symbol "drive";
     lv2:name "Drive";
@@ -374,8 +350,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 24;
     lv2:symbol "gain";
     lv2:name "Gain";
@@ -389,8 +364,7 @@
   ],
   
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 25;
     lv2:symbol "del_tim";
     lv2:name "Delay time";
@@ -404,8 +378,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 26;
     lv2:symbol "del_fb";
     lv2:name "Delay feedback";
@@ -419,8 +392,7 @@
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype lv2:float;
+    a lv2:ControlPort, lv2:InputPort;
     lv2:index 27;
     lv2:symbol "del_mix";
     lv2:name "Delay mix";
@@ -434,16 +406,14 @@
   ],
   
   [
-    a lv2:AudioRateOutputPort;
-    lv2:datatype lv2:float;
+    a lv2:AudioPort, lv2:OutputPort;
     lv2:index 28;
     lv2:symbol "out";
     lv2:name "Output";
   ],
 
   [
-    a lv2:ControlRateInputPort;
-    lv2:datatype <http://ll-plugins.nongnu.org/lv2/ext/miditype>;
+    a llext:MidiPort, lv2:InputPort;
     lv2:index 29;
     lv2:symbol "midi";
     lv2:name "MIDI input";
