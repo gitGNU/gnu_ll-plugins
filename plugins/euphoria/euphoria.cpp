@@ -166,7 +166,7 @@ public:
     m_echo.run(left, right, nframes, *p(e_echo_switch), *p(e_echo_delay),
 	       *p(e_echo_feedback), *p(e_echo_pan), *p(e_echo_mix));
     if (*p(e_reverb_switch) > 0)
-      m_reverb.run(left, right, nframes);
+      m_reverb.run(left, right, nframes, *p(e_reverb_mix));
     
     // gain
     for (uint32_t i = 0; i < nframes; ++i) {

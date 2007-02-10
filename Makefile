@@ -122,6 +122,7 @@ LV2_PLUGINS = \
 	azr3.lv2 \
 	control2midi.lv2 \
 	euphoria.lv2 \
+	hhfdn.lv2 \
 	klaviatur.lv2 \
 	midi_identity.lv2 \
 	math-constants.lv2 \
@@ -260,6 +261,13 @@ midi_identity_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/MidiPort -Ilibrari
 midi_identity_lv2_ARCHIVES = $(PLUGINARCHIVES)
 midi_identity_lv2_SOURCEDIR = plugins/midi_identity
 
+# Householder FDN
+hhfdn_lv2_SOURCES = hhfdn.cpp
+hhfdn_lv2_DATA = manifest.ttl hhfdn.ttl
+hhfdn_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/MidiPort -Ilibraries/components -I.
+hhfdn_lv2_ARCHIVES = $(PLUGINARCHIVES)
+hhfdn_lv2_SOURCEDIR = plugins/householderfdn
+
 # AudioIdentity
 audio_identity_lv2_SOURCES = audio_identity.cpp
 audio_identity_lv2_DATA = manifest.ttl audio_identity.ttl
@@ -321,11 +329,13 @@ EXTRA_DIST = \
 	libraries/components/chebyshevshaper.hpp \
 	libraries/components/dcblocker.hpp \
 	libraries/components/delay.hpp \
+	libraries/components/distortion.hpp \
 	libraries/components/envelopegenerator.hpp \
 	libraries/components/frequencytable.hpp \
 	libraries/components/ladspawrapper.hpp \
 	libraries/components/lv2-midifunctions.h \
 	libraries/components/monophonicmidinote.hpp \
+	libraries/components/monostep.hpp \
 	libraries/components/mooglpf.hpp \
 	libraries/components/pdosc.hpp \
 	libraries/components/polyphonicmidinote.hpp \
