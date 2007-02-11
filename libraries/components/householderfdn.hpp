@@ -15,12 +15,12 @@ namespace {
     
     HouseholderFDN(uint32_t rate);
     
-    void run(float* input, uint32_t nframes, float mix);
+    void run(float* left, float* right, uint32_t nframes, 
+	     float time, float mix, float damp);
     
   protected:
     
-    static const int N = 8;
-    
+    uint32_t m_rate;
     DelayLine m_d1;
     DelayLine m_d2;
     DelayLine m_d3;
@@ -34,12 +34,16 @@ namespace {
     Filter m_f3;
     Filter m_f4;
     Filter m_f5;
+    Filter m_f6;
+    Filter m_f7;
+    Filter m_f8;
         
   };
   
   
   HouseholderFDN::HouseholderFDN(uint32_t rate)
-    : m_d1(2473),
+    : m_rate(rate),
+      m_d1(2473),
       m_d2(2767),
       m_d3(3217),
       m_d4(3557),
@@ -47,16 +51,26 @@ namespace {
       m_d6(4127),
       m_d7(2143),
       m_d8(1933),
-      m_f1(rate, 5000),
-      m_f2(rate, 3000),
-      m_f3(rate, 5000),
-      m_f4(rate, 5000),
-      m_f5(rate, 5000) {
+      m_f1(rate),
+      m_f2(rate),
+      m_f3(rate),
+      m_f4(rate),
+      m_f5(rate),
+      m_f6(rate),
+      m_f7(rate),
+      m_f8(rate) {
     
   }
   
   
-  void HouseholderFDN::run(float* input, uint32_t nframes, float mix) {
+  void HouseholderFDN::run(float* left, float* right, uint32_t nframes, 
+			   float time, float mix, float damp) {
+    
+    damp = damp < 0 ? 0 : damp;
+    damp = damp > m_rate / 2.0 ? m_rate / 2.0 : damp;
+    float f = time;
+    f = f < 0 ? 0 : f;
+    f = f > 1 ? 1 : f;
     
     for (uint32_t i = 0; i < nframes; ++i) {
       
@@ -69,21 +83,33 @@ namespace {
       float u6 = m_d6.read();
       float u7 = m_d7.read();
       float u8 = m_d8.read();
-      float output = u1 + u2 + u3 + u4 + u5 + u6 + u7 + u8;
+      float output_l = u1 + u3 + u5 + u7;
+      float output_r = u2 + u4 + u6 + u8;
+      
+      // set filter coefficients
+      m_f1.set_cutoff(damp);
+      m_f2.set_cutoff(damp);
+      m_f3.set_cutoff(damp);
+      m_f4.set_cutoff(damp);
+      m_f5.set_cutoff(damp);
+      m_f6.set_cutoff(damp);
+      m_f7.set_cutoff(damp);
+      m_f8.set_cutoff(damp);
       
       // write to delay lines
-      float u = input[i] - output * 2.0 / N;
-      float f = 0.9;
-      m_d1.write(f * (u + u1));
-      m_d2.write(f * (u + u2));
-      m_d3.write(f * (u + u3));
-      m_d4.write(f * (u + u4));
-      m_d5.write(f * (u + u5));
-      m_d6.write(f * (u + u6));
-      m_d7.write(f * (u + u7));
-      m_d8.write(f * (u + u8));
+      float ul = left[i] - output_l * 2.0 / 4;
+      float ur = right[i] - output_r * 2.0 / 4;
+      m_d1.write(f * m_f1.run1(ul + u1));
+      m_d2.write(f * m_f2.run1(ur + u2));
+      m_d3.write(f * m_f3.run1(ul + u3));
+      m_d4.write(f * m_f4.run1(ur + u4));
+      m_d5.write(f * m_f5.run1(ul + u5));
+      m_d6.write(f * m_f6.run1(ur + u6));
+      m_d7.write(f * m_f7.run1(ul + u7));
+      m_d8.write(f * m_f8.run1(ur + u8));
     
-      input[i] = (1 - mix) * input[i] + mix * output;
+      left[i] = (1 - mix) * left[i] + mix * output_l;
+      right[i] = (1 - mix) * right[i] + mix * output_r;
       
     }
     

@@ -57,7 +57,7 @@ Gtk::Adjustment& Drawbar::get_adjustment() {
 void Drawbar::on_realize() {
   DrawingArea::on_realize();
   unsigned pixsize = 22 * 150;
-  char bits[pixsize];
+  char bits[22 * 150];
   memset(bits, 0, sizeof(char) * pixsize);
   m_bitmap = Bitmap::create(bits, 22, 150);
   char** xpm = dbblack;

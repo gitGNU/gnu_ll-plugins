@@ -45,7 +45,7 @@ public:
   
   enum State {
     ON,
-    OFF,
+    OFF
   };
   
   EuphoriaVoice(uint32_t rate)
@@ -141,6 +141,7 @@ public:
     float& attack = *p(e_shape_attack);
     float& decay = *p(e_shape_decay);
     float& release = *p(e_shape_release);
+    float& reverb_damp = *p(e_reverb_damping);
     float* left = p(e_left);
     float* right = p(e_right);
     
@@ -166,7 +167,8 @@ public:
     m_echo.run(left, right, nframes, *p(e_echo_switch), *p(e_echo_delay),
 	       *p(e_echo_feedback), *p(e_echo_pan), *p(e_echo_mix));
     if (*p(e_reverb_switch) > 0)
-      m_reverb.run(left, right, nframes, *p(e_reverb_mix));
+      m_reverb.run(left, right, nframes, *p(e_reverb_time), 
+		   *p(e_reverb_mix), reverb_damp*20000);
     
     // gain
     for (uint32_t i = 0; i < nframes; ++i) {

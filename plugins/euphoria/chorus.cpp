@@ -22,8 +22,8 @@ void LFO3::run(float freq, float& p1, float& p2, float& p3) {
   
 Chorus::Chorus(uint32_t rate)
   : m_rate(rate),
-    m_maxfdelay(0.04 * m_rate),
-    m_maxfdepth(0.02 * m_rate),
+    m_maxfdelay(uint32_t(0.04 * m_rate)),
+    m_maxfdepth(uint32_t(0.02 * m_rate)),
     m_linesize(m_maxfdelay + m_maxfdepth + 10),
     m_data_l(new float[m_linesize]),
     m_data_r(new float[m_linesize]),
@@ -46,10 +46,10 @@ void Chorus::run(float* left, float* right, uint32_t nframes, float toggle,
   
   if (toggle > 0) {
     
-    int fdelay = delay * m_rate;
+    int fdelay = int(delay * m_rate);
     fdelay = fdelay < 0 ? 0 : fdelay;
     fdelay = fdelay > m_maxfdelay ? m_maxfdelay : fdelay;
-    int fdepth = depth * m_rate;
+    int fdepth = int(depth * m_rate);
     fdepth = fdepth < 0 ? 0 : fdepth;
     fdepth = fdepth > m_maxfdepth ? m_maxfdepth : fdepth;
     fdepth /= 2;

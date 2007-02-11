@@ -60,7 +60,7 @@ public:
     double fpb = 60 * m_rate / spm;
     double ipart, fpart;
     fpart = modf(m_step, &ipart);
-    int step = ipart;
+    int step = int(ipart);
     step -= (fpart == 0 ? 1 : 0);
     double next_event = fpart * fpb;
     LV2_MIDIState out = { p<LV2_MIDI>(k_midi_out), nframes, 0 };

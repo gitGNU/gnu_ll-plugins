@@ -44,7 +44,7 @@ enum
 	evt_modulation,
 	evt_volume,
 	evt_channel_volume,
-	evt_drawbar,
+	evt_drawbar
 };
 
 

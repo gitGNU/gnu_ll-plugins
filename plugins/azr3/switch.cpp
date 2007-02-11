@@ -69,7 +69,7 @@ Gtk::Adjustment& Switch::get_adjustment() {
 void Switch::on_realize() {
   DrawingArea::on_realize();
   unsigned pixsize = (m_width * m_height * 2 + 1) / 8;
-  char bits[pixsize];
+  char* bits = new char[pixsize];
   memset(bits, 0, sizeof(char) * pixsize);
   RefPtr<Bitmap> bitmap = Bitmap::create(bits, m_width, m_height * 2);
   char** xpm = 0;
@@ -80,6 +80,7 @@ void Switch::on_realize() {
   else if (m_type == Mini)
     xpm = minioffon;
   m_pixmap = Pixmap::create_from_xpm(Colormap::get_system(), bitmap, xpm);
+  delete [] bits;
 }
 
 

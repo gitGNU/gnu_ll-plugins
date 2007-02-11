@@ -62,8 +62,8 @@ Gtk::Adjustment& Knob::get_adjustment() {
 
 void Knob::on_realize() {
   DrawingArea::on_realize();
-  unsigned pixsize = (44 * 1804 + 1) / 8;
-  char bits[pixsize];
+  const unsigned pixsize = (44 * 1804 + 1) / 8;
+  char bits[(44 * 1804 + 1) / 8];
   memset(bits, 0, sizeof(char) * pixsize);
   m_bitmap = Bitmap::create(bits, 44, 1804);
   m_pixmap = Pixmap::create_from_xpm(Colormap::get_system(), m_bitmap, cknob);

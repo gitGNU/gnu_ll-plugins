@@ -84,7 +84,7 @@ enum	// bitmap indices
 	b_vonoff,
 	b_yellow,
 	b_vu,
-	kNumBitmaps,
+	kNumBitmaps
 };
 
 enum

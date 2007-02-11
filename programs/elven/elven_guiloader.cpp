@@ -41,6 +41,18 @@ using namespace Gtk;
 using namespace sigc;
 
 
+/** This is needed to cast void* (returned by dlsym()) to a function
+    pointer. */
+template <typename A, typename B> A nasty_cast(B b) {
+  union {
+    A a;
+    B b;
+  } u;
+  u.b = b;
+  return u.a;
+}
+
+
 /** Change a control port value in the plugin. This function is exposed to
     the plugin GUI. */
 void set_control(LV2UI_Controller c, uint32_t port, float value) {
@@ -157,7 +169,7 @@ int main(int argc, char** argv) {
   
   // get the GUI descriptor
   LV2UI_DescriptorFunction func = 
-    (LV2UI_DescriptorFunction)dlsym(module, "lv2ui_descriptor");
+    nasty_cast<LV2UI_DescriptorFunction>(dlsym(module, "lv2ui_descriptor"));
   if (!func) {
     DBG0("Could not find symbol lv2ui_descriptor in "<<filename);
     return 1;
