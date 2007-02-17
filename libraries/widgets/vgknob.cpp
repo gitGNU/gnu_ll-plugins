@@ -346,7 +346,7 @@ void VGKnob::draw_string(Cairo::RefPtr<Cairo::Context>& cc,
                          const std::string& str, float x, float y) {
   cc->move_to(x, y);
   int xoffset = 0;
-  for (int i = 0; i < str.length(); ++i) {
+  for (unsigned i = 0; i < str.length(); ++i) {
     xoffset += draw_digit(cc, str[i]);
     cc->move_to(x + xoffset, y);
   }

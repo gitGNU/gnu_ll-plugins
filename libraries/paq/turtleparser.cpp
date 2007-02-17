@@ -368,7 +368,7 @@ namespace PAQ {
   multimap<RDFTerm*,RDFTerm*> TurtleParser::do_predicateObjectList(iter_t iter) {
     multimap<RDFTerm*, RDFTerm*> result;
     iter_t child;
-    RDFTerm* current_verb;
+    RDFTerm* current_verb = 0;
     for (child = iter->children.begin(); 
          child != iter->children.end(); ++child) {
       if (child->value.id() == parser_id(&verb))

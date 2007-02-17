@@ -161,6 +161,7 @@ bool TransitionEditor::on_button_release_event(GdkEventButton* event) {
   if (event->button == 1)
     m_dragging = false;
   queue_draw();
+  return true;
 }
 
 

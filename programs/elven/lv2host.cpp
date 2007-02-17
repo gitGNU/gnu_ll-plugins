@@ -37,6 +37,7 @@
 #include <namespaces.hpp>
 
 #include "lv2host.hpp"
+#include "lv2-midiport.h"
 #include "lv2-midifunctions.h"
 #include "debug.hpp"
 #include "midiutils.hpp"
@@ -406,7 +407,7 @@ std::vector<std::string> LV2Host::get_search_dirs() {
   else {
     string lv2_path = lv2p_c;
     int split;
-    while ((split = lv2_path.find(':')) != string::npos) {
+    while ((split = lv2_path.find(':')) != (int)string::npos) {
       search_dirs.push_back(lv2_path.substr(0, split));
       lv2_path = lv2_path.substr(split + 1);
     }
@@ -435,7 +436,7 @@ bool LV2Host::scan_manifests(const std::vector<std::string>& search_dirs,
     
     // iterate over all directory entries
     dirent* e;
-    while (e = readdir(d)) {
+    while ((e = readdir(d))) {
 
       std::string plugindir;
       std::string ttlfile;
@@ -487,7 +488,7 @@ bool LV2Host::scan_manifests(const std::vector<std::string>& search_dirs,
             continue;
           }
           
-          for (int i = 0; i < qr.size(); ++i) {
+          for (unsigned i = 0; i < qr.size(); ++i) {
             library = absolutise(qr[i][binary]->name, plugindir);
             DBG2("Found shared object file "<<library);
             ttlfile = absolutise(qr[i][datafile]->name, plugindir);
@@ -509,6 +510,7 @@ bool LV2Host::scan_manifests(const std::vector<std::string>& search_dirs,
       break;
   }
   
+  return true;
 }
 
  
@@ -594,7 +596,7 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
 	.where(port, rdf("type"), portclass)
 	.run(data);
       
-      for (int k = 0; k < qr2.size(); ++k) {
+      for (unsigned k = 0; k < qr2.size(); ++k) {
 	string pclass = qr2[k][portclass]->name;
 	DBG2(m_ports[p].symbol<<" is an "<<pclass);
 	if (pclass == lv2("InputPort"))
@@ -782,7 +784,7 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
             .where(preset, ll("midiProgram"), program)
             .where(preset, ll("inBank"), bankuri)
             .run(data);
-          for (int j = 0; j < qr2.size(); ++j) {
+          for (unsigned j = 0; j < qr2.size(); ++j) {
             string preseturi = qr2[j][preset]->name;
             DBG2("Found the preset \""<<qr2[j][name]->name<<"\" "
                  <<" with MIDI program number "<<qr2[j][program]->name);
@@ -795,7 +797,7 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
               .where(pv, ll("forPort"), port)
               .where(pv, rdf("value"), value)
               .run(data);
-            for (int k = 0; k < qr3.size(); ++k) {
+            for (unsigned k = 0; k < qr3.size(); ++k) {
               int p = atoi(qr3[k][port]->name.c_str());
               float v = atof(qr3[k][value]->name.c_str());
               //cerr<<p<<": "<<v<<endl;
@@ -822,7 +824,7 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     dlclose(m_libhandle);
     return;
   }
-  for (unsigned long j = 0; m_desc = dfunc(j); ++j) {
+  for (unsigned long j = 0; (m_desc = dfunc(j)); ++j) {
     if (m_uri == m_desc->URI)
       break;
   }

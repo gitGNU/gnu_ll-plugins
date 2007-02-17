@@ -93,7 +93,7 @@ bool ShaperEditor::set_string(const std::string& str) {
 
 std::string ShaperEditor::get_string() const {
   ostringstream oss;
-  for (int i = 0; i < m_points.size(); ++i) {
+  for (unsigned i = 0; i < m_points.size(); ++i) {
     if (i > 0)
       oss<<" ";
     oss<<m_points[i].x<<" "<<m_points[i].y;
@@ -160,7 +160,7 @@ bool ShaperEditor::on_expose_event(GdkEventExpose* event) {
     
     // curve
     cc->set_line_width(2);
-      for (int i = 0; i < m_points.size() - 1; ++i) {
+    for (unsigned i = 0; i < m_points.size() - 1; ++i) {
       cc->move_to(x2p(m_points[i].x), y2p(m_points[i].y));
       cc->line_to(x2p(m_points[i + 1].x), y2p(m_points[i + 1].y));
       cc->set_source_rgb(1, 1, 1);
@@ -168,7 +168,7 @@ bool ShaperEditor::on_expose_event(GdkEventExpose* event) {
     }
     
     // points
-    for (int i = 0; i < m_points.size(); ++i) {
+    for (unsigned i = 0; i < m_points.size(); ++i) {
       cc->arc(x2p(m_points[i].x), y2p(m_points[i].y), 3, 0, 2 * M_PI);
       cc->set_line_width(2);
       cc->set_source_rgb(0.30, 0.3, 0.6);
@@ -187,7 +187,7 @@ bool ShaperEditor::on_motion_notify_event(GdkEventMotion* event) {
   
   if (m_dragging) {
     
-    if (m_active_point > 0 && m_active_point < m_points.size() - 1) {
+    if (m_active_point > 0 && m_active_point < (int)m_points.size() - 1) {
       double xdiff = (event->x - m_pix_drag_x) / (get_width() / 2.0- m_margin);
       m_points[m_active_point].x = m_drag_x + xdiff;
       if (m_points[m_active_point].x < m_points[m_active_point - 1].x)
@@ -215,6 +215,7 @@ bool ShaperEditor::on_button_release_event(GdkEventButton* event) {
     m_dragging = false;
   m_wave = false;
   queue_draw();
+  return true;
 }
 
 
@@ -227,7 +228,7 @@ bool ShaperEditor::on_button_press_event(GdkEventButton* event) {
     return true;
   }
   
-  int point;
+  unsigned point;
   for (point = 0; point < m_points.size(); ++point) {
     if (pow(event->x - x2p(m_points[point].x), 2) + 
         pow(event->y - y2p(m_points[point].y), 2) < 25)
@@ -337,7 +338,7 @@ void ShaperEditor::new_point() {
   if (m_click_x > 1) m_click_x = 1;
   if (m_click_y < -1) m_click_y = -1;
   if (m_click_y > 1) m_click_y = 1;
-  for (int i = 0; i < m_points.size() - 1; ++i) {
+  for (unsigned i = 0; i < m_points.size() - 1; ++i) {
     if (m_click_x <= m_points[i + 1].x) {
       Point s(m_click_x, m_click_y);
       m_points.insert(m_points.begin() + i + 1, s);
@@ -350,7 +351,7 @@ void ShaperEditor::new_point() {
 
 
 void ShaperEditor::delete_point() {
-  if (m_active_point > 0 && m_active_point < m_points.size() - 1) {
+  if (m_active_point > 0 && m_active_point < (int)m_points.size() - 1) {
     m_points.erase(m_points.begin() + m_active_point);
     set_dirty();
     queue_draw();
@@ -381,7 +382,7 @@ double ShaperEditor::p2y(int p) {
 double ShaperEditor::shape(double y) {
   if (y == -1)
     return m_points[0].y;
-  for (int i = 1; i < m_points.size(); ++i) {
+  for (unsigned i = 1; i < m_points.size(); ++i) {
     if (y <= m_points[i].x) {
       return m_points[i - 1].y + (y - m_points[i - 1].x) * 
         (m_points[i].y - m_points[i - 1].y) / (m_points[i].x - m_points[i - 1].x);

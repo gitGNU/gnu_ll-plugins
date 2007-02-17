@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.216
+PACKAGE_VERSION = 0.1.217
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -7,7 +7,8 @@ PKG_DEPS = \
 	gtkmm-2.4>=2.8.8 \
 	cairomm-1.0>=0.6.0 \
 	libglademm-2.4>=2.6.2 \
-	gsl>=1.8
+	gsl>=1.8 \
+	sndfile>=1.0.16
 
 ARCHIVES = \
 	liblv2_plugin.a \
@@ -122,7 +123,7 @@ LV2_PLUGINS = \
 	azr3.lv2 \
 	control2midi.lv2 \
 	euphoria.lv2 \
-	hhfdn.lv2 \
+	horizon.lv2 \
 	klaviatur.lv2 \
 	midi_identity.lv2 \
 	math-constants.lv2 \
@@ -232,6 +233,22 @@ euphoria_gtk_so_ARCHIVES = \
 	libraries/lv2gtk2gui/liblv2_gtk2gui.a
 euphoria_gtk_so_SOURCEDIR = plugins/euphoria
 
+# Horizon
+horizon_lv2_SOURCES = \
+	actiontrigger.hpp actiontrigger.cpp \
+	effectstack.hpp effectstack.cpp \
+	horizon.cpp \
+	mixer.hpp mixer.cpp \
+	sample.hpp sample.cpp \
+	samplebuffer.hpp samplebuffer.cpp \
+	segmentation.hpp segmentation.cpp
+horizon_lv2_DATA = manifest.ttl horizon.ttl
+horizon_lv2_CFLAGS = `pkg-config --cflags sndfile` -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/instrument -Iextensions/MidiPort -I.
+horizon_lv2_ARCHIVES = $(INSTRUMENTARCHIVES)
+horizon_lv2_LDFLAGS = `pkg-config --libs sndfile`
+horizon_lv2_PEGFILES = horizon.peg
+horizon_lv2_SOURCEDIR = plugins/horizon
+
 # Sineshaper
 sineshaper_lv2_SOURCES = \
 	sineshaper.hpp sineshaper.cpp \
@@ -262,11 +279,11 @@ midi_identity_lv2_ARCHIVES = $(PLUGINARCHIVES)
 midi_identity_lv2_SOURCEDIR = plugins/midi_identity
 
 # Householder FDN
-hhfdn_lv2_SOURCES = hhfdn.cpp
-hhfdn_lv2_DATA = manifest.ttl hhfdn.ttl
-hhfdn_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/MidiPort -Ilibraries/components -I.
-hhfdn_lv2_ARCHIVES = $(PLUGINARCHIVES)
-hhfdn_lv2_SOURCEDIR = plugins/householderfdn
+#hhfdn_lv2_SOURCES = hhfdn.cpp
+#hhfdn_lv2_DATA = manifest.ttl hhfdn.ttl
+#hhfdn_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/MidiPort -Ilibraries/components -I.
+#hhfdn_lv2_ARCHIVES = $(PLUGINARCHIVES)
+#hhfdn_lv2_SOURCEDIR = plugins/householderfdn
 
 # AudioIdentity
 audio_identity_lv2_SOURCES = audio_identity.cpp

@@ -44,13 +44,12 @@ pair<unsigned int, unsigned int> decode_utf8(ScannerT const& scan) {
   if (scan.at_end())
     return make_pair(0, 0);
   
-  iterator_t save(scan.first);
   iterator_t iter(scan.first);
   
   value_t ch = *scan.first;
   
   unsigned int size;
-  unsigned int codepoint;
+  unsigned int codepoint = 0;
   
   // one byte char
   if ((unsigned char)ch < 0x80) {
@@ -59,7 +58,7 @@ pair<unsigned int, unsigned int> decode_utf8(ScannerT const& scan) {
   }
   
   // two byte char
-  if ((unsigned char)ch >= 192 && (unsigned char)ch < 224) {
+  else if ((unsigned char)ch >= 192 && (unsigned char)ch < 224) {
     codepoint = ((unsigned char)ch && 0x1F) << 6;
     ++iter;
     if (iter == scan.last)
@@ -69,7 +68,7 @@ pair<unsigned int, unsigned int> decode_utf8(ScannerT const& scan) {
   }
   
   // three byte char
-  if ((unsigned char)ch >= 224 && (unsigned char)ch < 240) {
+  else if ((unsigned char)ch >= 224 && (unsigned char)ch < 240) {
     codepoint = ((unsigned char)ch && 0x0F) << 12;
     ++iter;
     if (iter == scan.last)
@@ -83,7 +82,7 @@ pair<unsigned int, unsigned int> decode_utf8(ScannerT const& scan) {
   }
   
   // four byte char
-  if ((unsigned char)ch >= 240 && (unsigned char)ch < 248) {
+  else if ((unsigned char)ch >= 240 && (unsigned char)ch < 248) {
     codepoint = ((unsigned char)ch && 0x07) << 18;
     ++iter;
     if (iter == scan.last)
@@ -98,6 +97,11 @@ pair<unsigned int, unsigned int> decode_utf8(ScannerT const& scan) {
       return make_pair(0, 0);
     codepoint += ((unsigned char)(*iter) && 0x3F);
     size = 4;
+  }
+  
+  // this is not allowed in Turtle!
+  else {
+    assert(!"Unexpected parse error");
   }
   
   return make_pair(size, codepoint);

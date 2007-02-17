@@ -40,9 +40,9 @@ using namespace Glib;
 LV2UIClient::LV2UIClient(const string& osc_url, const string& bundle,
                          const string& identifier, bool wait)
   : m_valid(false), 
-    m_blocking(false),
     m_identifier(identifier),
-    m_bundle(bundle) {
+    m_bundle(bundle), 
+    m_blocking(false) {
   
   /*
   cerr<<"Plugin OSC URL: "<<argv[1]<<endl
@@ -136,14 +136,14 @@ void LV2UIClient::connect_adjustment(Adjustment* adj, int port) {
 
 
 Adjustment* LV2UIClient::get_adjustment(int port) {
-  if (port >= 0 && port < m_adjustments.size())
+  if (port >= 0 && port < (int)m_adjustments.size())
     return m_adjustments[port];
   return 0;
 }
 
 
 float LV2UIClient::get_adjustment_value(int port) {
-  if (port >= 0 && port < m_adjustments.size() && m_adjustments[port]) {
+  if (port >= 0 && port < (int)m_adjustments.size() && m_adjustments[port]) {
     return m_adjustments[port]->get_value();
   }
   return 0;

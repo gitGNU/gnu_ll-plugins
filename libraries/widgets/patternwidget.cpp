@@ -83,7 +83,7 @@ PatternWidget::PatternWidget(unsigned int steps,
 string PatternWidget::get_string() const {
   ostringstream oss;
   oss<<m.size();
-  for (int i = 0; i < m.size(); ++i) {
+  for (unsigned i = 0; i < m.size(); ++i) {
     oss<<" "
        <<(m[i].on ? 1 : 0)<<" "
        <<int(m[i].note)<<" "
@@ -107,7 +107,7 @@ bool PatternWidget::on_key_release_event(GdkEventKey* event) {
 bool PatternWidget::on_button_press_event(GdkEventButton* event) {
   int step = x2step(event->x);
   int line = y2line(event->y);
-  if (step >= 0 && step < m_steps && line >= 0 && line < 12) {
+  if (step >= 0 && step < (int)m_steps && line >= 0 && line < 12) {
     if (event->button == 1) {
       if (m[step].on && m[step].note % 12 == line) {
         m[step].on = false;
@@ -149,7 +149,7 @@ bool PatternWidget::on_motion_notify_event(GdkEventMotion* event) {
 bool PatternWidget::on_scroll_event(GdkEventScroll* event) {
   int step = x2step(event->x);
 
-  if (step >= 0 && step < m_steps && m[step].on && event->y > 228) {
+  if (step >= 0 && step < (int)m_steps && m[step].on && event->y > 228) {
     if (event->direction == GDK_SCROLL_UP && m[step].velocity < 10) {
       m[step].velocity += 1;
       signal_sequence_changed();
@@ -161,7 +161,7 @@ bool PatternWidget::on_scroll_event(GdkEventScroll* event) {
     queue_draw();
   }
   
-  else if (step >= 0 && step < m_steps && m[step].on && event->y > 192) {
+  else if (step >= 0 && step < (int)m_steps && m[step].on && event->y > 192) {
     if (event->direction == GDK_SCROLL_UP && m[step].note < 120) {
       m[step].note += 12;
       signal_sequence_changed();

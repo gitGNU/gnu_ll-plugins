@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
     .where(plugin, rdf("type"), lv2("Plugin"))
     .run(data);
   map<string, string> plugins;
-  for (int i = 0; i < qr.size(); ++i)
+  for (unsigned i = 0; i < qr.size(); ++i)
     plugins[qr[i][plugin]->name] = qr[i][pegname]->name;
   
   // iterate over all plugins
@@ -146,7 +146,7 @@ int main(int argc, char** argv) {
       .where(port, lv2("index"), index)
       .where(port, lv2("minimum"), value)
       .run(data);
-    for (int i = 0; i < qr.size(); ++i)
+    for (unsigned i = 0; i < qr.size(); ++i)
       ports[atoi(qr[i][index]->name.c_str())].min = 
         atof(qr[i][value]->name.c_str());
 
@@ -156,7 +156,7 @@ int main(int argc, char** argv) {
       .where(port, lv2("index"), index)
       .where(port, lv2("maximum"), value)
       .run(data);
-    for (int i = 0; i < qr.size(); ++i)
+    for (unsigned i = 0; i < qr.size(); ++i)
       ports[atoi(qr[i][index]->name.c_str())].max = 
         atof(qr[i][value]->name.c_str());
     
@@ -166,7 +166,7 @@ int main(int argc, char** argv) {
       .where(port, lv2("index"), index)
       .where(port, lv2("default"), value)
       .run(data);
-    for (int i = 0; i < qr.size(); ++i)
+    for (unsigned i = 0; i < qr.size(); ++i)
       ports[atoi(qr[i][index]->name.c_str())].default_value = 
         atof(qr[i][value]->name.c_str());
     
@@ -177,7 +177,7 @@ int main(int argc, char** argv) {
       .where(port, lv2("index"), index)
       .where(port, lv2("portHint"), hint)
       .run(data);
-    for (int i = 0; i < qr.size(); ++i) {
+    for (unsigned i = 0; i < qr.size(); ++i) {
       if (qr[i][hint]->name == lv2("toggled"))
         ports[atoi(qr[i][index]->name.c_str())].toggled = true;
       if (qr[i][hint]->name == lv2("integer"))

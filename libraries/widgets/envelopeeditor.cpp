@@ -144,8 +144,8 @@ bool EnvelopeEditor::set_string(const std::string& str) {
   }
   
   if (new_segments.size() == 0 || new_segments[0].start != 0 ||
-      (loop_start != -1 && loop_start >= new_segments.size()) ||
-      (loop_end != -1 && loop_end > new_segments.size()))
+      (loop_start != -1 && loop_start >= (int)new_segments.size()) ||
+      (loop_end != -1 && loop_end > (int)new_segments.size()))
     return false;
   
   m_segments = new_segments;
@@ -165,7 +165,7 @@ std::string EnvelopeEditor::get_string() const {
   else
     oss<<"-1 -1 ";
   
-  for (int i = 0; i < m_segments.size(); ++i) {
+  for (unsigned i = 0; i < m_segments.size(); ++i) {
     const Segment& s = m_segments[i];
     oss<<s.start<<" "<<s.length<<" "<<s.sustain_sens<<" ";
     if (s.type == Constant)
@@ -209,7 +209,7 @@ bool EnvelopeEditor::on_expose_event(GdkEventExpose* event) {
   cc->set_line_join(Cairo::LINE_JOIN_ROUND);
   cc->translate(-m_adj.get_value(), 0);
   
-  int width = get_width();
+  //int width = get_width();
   int height = get_height();
   double top = m_margin;
   double h = height - m_ruler_height - top - top;
@@ -239,7 +239,7 @@ bool EnvelopeEditor::on_expose_event(GdkEventExpose* event) {
   // curve
   cc->set_line_width(2);
   double xoffset = top;
-  for (int i = 0; i < m_segments.size(); ++i) {
+  for (unsigned i = 0; i < m_segments.size(); ++i) {
     cc->move_to(xoffset, h * (1 - m_segments[i].start) + top);
     double l = m_xscale * m_segments[i].length;
 
@@ -288,7 +288,7 @@ bool EnvelopeEditor::on_expose_event(GdkEventExpose* event) {
     else
       cc->set_source_rgb(1, 1, 1);
     cc->stroke_preserve();
-    if (i >= m_loop_start && i < m_loop_end) {
+    if ((int)i >= m_loop_start && (int)i < m_loop_end) {
       cc->save();
       cc->set_source_rgb(0, 0.7, 0);
       valarray<double> dashes(1);
@@ -305,7 +305,7 @@ bool EnvelopeEditor::on_expose_event(GdkEventExpose* event) {
   
   // points and sustain bars
   xoffset = 4;
-  for (int i = 0; i < m_segments.size(); ++i) {
+  for (unsigned i = 0; i < m_segments.size(); ++i) {
 
     if (m_segments[i].sustain_sens > 0) {
       double min = (1 - m_segments[i].sustain_sens) * m_segments[i].start;
@@ -330,9 +330,9 @@ bool EnvelopeEditor::on_expose_event(GdkEventExpose* event) {
     else
       cc->set_source_rgb(0.30, 0.3, 0.6);
     cc->fill_preserve();
-    if (i == m_loop_start)
+    if ((int)i == m_loop_start)
       cc->set_source_rgb(0, 0.7, 0);
-    else if (i == m_loop_end)
+    else if ((int)i == m_loop_end)
       cc->set_source_rgb(1, 0.5, 0);
     else
       cc->set_source_rgb(1, 1, 1);
@@ -341,7 +341,7 @@ bool EnvelopeEditor::on_expose_event(GdkEventExpose* event) {
   cc->arc(xoffset, h * (1 - m_segments[0].start) + top, 3, 0, 2 * M_PI);
   cc->set_source_rgb(0.30, 0.30, 0.60);
   cc->fill_preserve();
-  if (m_segments.size() == m_loop_end)
+  if ((int)m_segments.size() == m_loop_end)
     cc->set_source_rgb(1, 0.5, 0);
   else
     cc->set_source_rgb(1, 1, 1);
@@ -360,12 +360,12 @@ bool EnvelopeEditor::on_motion_notify_event(GdkEventMotion* event) {
     double xdiff = (eventx - m_pix_drag_x) / m_xscale;
     double ydiff = (m_pix_drag_y - event->y) / 
       (get_height() - 2 * m_margin - m_ruler_height);
-    double total;
+    //double total;
     
     if (xdiff < -m_drag_length + 0.001)
       xdiff = -m_drag_length + 0.001;
     
-    if (m_active_segment < m_segments.size()) {
+    if (m_active_segment < (int)m_segments.size()) {
       double total = m_segments[m_active_segment - 1].length + 
         m_segments[m_active_segment].length;
       
@@ -375,7 +375,7 @@ bool EnvelopeEditor::on_motion_notify_event(GdkEventMotion* event) {
       if (!m_move)
         m_segments[m_active_segment].length = (total - m_drag_length) - xdiff;
       if ((m_active_segment == m_loop_start && 
-           m_loop_end == m_segments.size() ||
+           m_loop_end == (int)m_segments.size() ||
            (m_active_segment == m_loop_end && m_loop_start == 0)))
         ydiff = 0;
       m_segments[m_active_segment].start = m_drag_y + ydiff;
@@ -384,7 +384,7 @@ bool EnvelopeEditor::on_motion_notify_event(GdkEventMotion* event) {
       if (m_segments[m_active_segment].start < 0)
         m_segments[m_active_segment].start = 0;
       if (m_active_segment == m_loop_start && m_loop_start < m_loop_end &&
-          m_loop_end < m_segments.size())
+          m_loop_end < (int)m_segments.size())
         m_segments[m_loop_end].start = m_segments[m_active_segment].start;
       if (m_active_segment == m_loop_end && m_loop_start < m_loop_end)
         m_segments[m_loop_start].start = m_segments[m_active_segment].start;
@@ -402,6 +402,7 @@ bool EnvelopeEditor::on_motion_notify_event(GdkEventMotion* event) {
 bool EnvelopeEditor::on_button_release_event(GdkEventButton* event) {
   if (event->button == 1 || event->button == 2)
     m_dragging = false;
+  return true;
 }
 
 
@@ -409,7 +410,7 @@ bool EnvelopeEditor::on_button_press_event(GdkEventButton* event) {
 
   double eventx = event->x + m_adj.get_value();
 
-  int segment;
+  unsigned segment;
   double xoffset = m_margin;
   for (segment = 0; segment < m_segments.size(); ++segment) {
     xoffset += m_xscale * m_segments[segment].length;
@@ -493,7 +494,7 @@ bool EnvelopeEditor::on_scroll_event(GdkEventScroll* event) {
   }
   
   // find the active segment
-  int segment;
+  unsigned segment;
   double xoffset = 0;
   for (segment = 0; segment < m_segments.size(); ++segment) {
     xoffset += m_xscale * m_segments[segment].length;
@@ -518,13 +519,13 @@ bool EnvelopeEditor::on_scroll_event(GdkEventScroll* event) {
   }
   
   // sync the loop boundaries
-  if (segment == m_loop_start && m_loop_start < m_loop_end) {
-    if (m_loop_end < m_segments.size())
+  if ((int)segment == m_loop_start && m_loop_start < m_loop_end) {
+    if (m_loop_end < (int)m_segments.size())
       m_segments[m_loop_end].sustain_sens = m_segments[segment].sustain_sens;
     else
       m_segments[segment].sustain_sens = 0;
   }
-  else if (segment == m_loop_end && m_loop_start < m_loop_end) {
+  else if ((int)segment == m_loop_end && m_loop_start < m_loop_end) {
     if (m_loop_start > 0)
       m_segments[m_loop_start].sustain_sens = 
         m_segments[segment].sustain_sens;
@@ -541,7 +542,7 @@ bool EnvelopeEditor::on_scroll_event(GdkEventScroll* event) {
 
 void EnvelopeEditor::update_adjustment() {
   double length = m_margin * 2 + 20;
-  for (int i = 0; i < m_segments.size(); ++i)
+  for (unsigned i = 0; i < m_segments.size(); ++i)
     length += m_segments[i].length * m_xscale;
   m_adj.set_upper(ceil(length) > get_width() ? ceil(length) : get_width());
   if (m_adj.get_value() + m_adj.get_page_size() > m_adj.get_upper())
@@ -603,7 +604,7 @@ double EnvelopeEditor::p2y(int p) {
 void EnvelopeEditor::set_loop_start() {
   m_loop_start = m_active_segment;
   if (m_loop_end > 0 && m_loop_start < m_loop_end) {
-    if (m_loop_end < m_segments.size()) {
+    if (m_loop_end < (int)m_segments.size()) {
       m_segments[m_loop_end].start = m_segments[m_loop_start].start;
       m_segments[m_loop_end].sustain_sens = 
         m_segments[m_loop_start].sustain_sens;
@@ -621,7 +622,7 @@ void EnvelopeEditor::set_loop_start() {
 void EnvelopeEditor::set_loop_end() {
   m_loop_end = m_active_segment + 1;
   if (m_loop_start >= 0 && m_loop_start < m_loop_end) {
-    if (m_loop_end < m_segments.size()) {
+    if (m_loop_end < (int)m_segments.size()) {
       m_segments[m_loop_end].start = m_segments[m_loop_start].start;
       m_segments[m_loop_end].sustain_sens = 
         m_segments[m_loop_start].sustain_sens;
