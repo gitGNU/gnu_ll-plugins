@@ -1,12 +1,11 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.217
+PACKAGE_VERSION = 0.1.218
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
 	liblo>=0.22 \
 	gtkmm-2.4>=2.8.8 \
 	cairomm-1.0>=0.6.0 \
-	libglademm-2.4>=2.6.2 \
 	gsl>=1.8 \
 	sndfile>=1.0.16
 
