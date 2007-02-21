@@ -336,6 +336,13 @@ _:controlOutputPort2
   lv2:port _:audioInputPort0;
   lv2:port _:audioOutputPort1.
 
+<http://ll-plugins.nongnu.org/lv2/dev/math-function-sinh-ctrl/0.0.0>
+  a lv2:Plugin;
+  doap:name "Function sinh (C)";
+  doap:license <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:port _:controlInputPort0;
+  lv2:port _:controlOutputPort1.
+
 <http://ll-plugins.nongnu.org/lv2/dev/math-function-sqrt/0.0.0>
   a lv2:Plugin;
   doap:name "Function sqrt (A)";
