@@ -8,7 +8,7 @@
 <http://ll-plugins.nongnu.org/lv2/dev/trilobyte/0.0.0>
   a lv2:Plugin;
   doap:name "Trilobyte";
-  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  doap:license <http://usefulinc.com/doap/licenses/gpl>;
   lv2:requiredHostFeature ll:instrument-ext;
   ll:gtk2Gui <trilobyte_gtk.so>;
   ll:pegName "k";  

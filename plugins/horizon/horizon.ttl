@@ -7,7 +7,7 @@
 <http://ll-plugins.nongnu.org/lv2/dev/horizon/0.0.0>
   a lv2:Plugin;
   doap:name "Horizon";
-  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  doap:license <http://usefulinc.com/doap/licenses/gpl>;
   lv2:requiredHostFeature ll:instrument-ext;
   ll:pegName "h";  
 

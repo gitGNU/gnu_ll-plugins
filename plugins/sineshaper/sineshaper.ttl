@@ -9,7 +9,7 @@
 <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0>
   a lv2:Plugin;
   doap:name "Sineshaper";
-  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  doap:license <http://usefulinc.com/doap/licenses/gpl>;
   ll:standaloneGui <sineshaper_gtk>;
   ll:defaultPresets <presets.ttl>;
   

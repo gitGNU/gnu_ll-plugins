@@ -5,7 +5,7 @@
 <http://ll-plugins.nongnu.org/lv2/dev/control2midi/0.0.0>
   a lv2:Plugin;
   doap:name "Control2MIDI";
-  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  doap:license <http://usefulinc.com/doap/licenses/gpl>;
 
   lv2:port [
     a lv2:ControlPort, lv2:InputPort;

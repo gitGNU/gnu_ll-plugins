@@ -5,7 +5,7 @@
 <http://ll-plugins.nongnu.org/lv2/dev/phase-distortion-osc/0.0.0>
   a lv2:Plugin;
   doap:name "Phase distortion oscillator";
-  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  doap:license <http://usefulinc.com/doap/licenses/gpl>;
 
   lv2:port [
     a lv2:AudioPort, lv2:InputPort;

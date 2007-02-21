@@ -6,7 +6,7 @@
 <http://ll-plugins.nongnu.org/lv2/dev/mrvalve/0.0.0>
   a lv2:Plugin;
   doap:name "Mr Valve";
-  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  doap:license <http://usefulinc.com/doap/licenses/gpl>;
   ll:pegName "v";
   	
   lv2:port [

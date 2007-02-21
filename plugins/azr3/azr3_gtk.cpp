@@ -101,13 +101,9 @@ public:
     m_adj[n_splitpoint] = splitpoint_adj;
     splitpoint_adj->signal_value_changed().
       connect(mem_fun(*this, &AZR3GUI::splitpoint_changed));
-    //splitpoint_adj->signal_value_changed().
-    //  connect(compose(&splitpoint_changed, 
-    //                  mem_fun(*splitpoint_adj, &Adjustment::get_value)));
   
     // keyboard split switch
-    // XXX n_split is not a port number
-    splitswitch = add_switch(fbox, n_split, 537, 49, Switch::Mini);
+    splitswitch = add_switch(fbox, -1, 537, 49, Switch::Mini);
     splitswitch->get_adjustment().signal_value_changed().
       connect(mem_fun(*this, &AZR3GUI::splitbox_clicked));
   
@@ -349,7 +345,6 @@ protected:
                       mem_fun(knob->get_adjustment(), &Adjustment::get_value)));
     assert(m_adj[port] == 0);
     m_adj[port] = &knob->get_adjustment();
-    //lv2.connect_adjustment(&knob->get_adjustment(), port);
     return knob;
   }
 
@@ -371,23 +366,23 @@ protected:
     assert(m_adj[port] == 0);
     m_adj[port] = &db->get_adjustment();
 
-    //lv2.connect_adjustment(&db->get_adjustment(), port);
     return db;
   }
 
 
-  Switch* add_switch(Fixed& fbox, unsigned long port,
+  Switch* add_switch(Fixed& fbox, long port,
                      int xoffset, int yoffset, Switch::Type type) {
     Switch* sw = manage(new Switch(type));
     fbox.put(*sw, xoffset, yoffset);
-    sw->get_adjustment().signal_value_changed().
-      connect(compose(bind<0>(signal_control_changed, port),
-                      mem_fun(sw->get_adjustment(), &Adjustment::get_value)));
-    if (port < m_adj.size()) {
-      assert(m_adj[port] == 0);
-      m_adj[port] = &sw->get_adjustment();
+    if (port >= 0) {
+      sw->get_adjustment().signal_value_changed().
+	connect(compose(bind<0>(signal_control_changed, port),
+			mem_fun(sw->get_adjustment(), &Adjustment::get_value)));
+      if (port < m_adj.size()) {
+	assert(m_adj[port] == 0);
+	m_adj[port] = &sw->get_adjustment();
+      }
     }
-    //lv2.connect_adjustment(&sw->get_adjustment(), port);
     return sw;
   }
 
@@ -467,8 +462,6 @@ protected:
       oss<<setw(2)<<setfill('0')<<iter->first<<' '<<iter->second.substr(0, 23);
       MenuItem* item = manage(new MenuItem(oss.str()));
       item->signal_activate().connect(bind(signal_set_program, iter->first));
-      //item->signal_activate().
-      //  connect(bind(mem_fun(lv2, &LV2UIClient::send_program), iter->first));
       program_menu->items().push_back(*item);
       item->show();
       item->get_child()->modify_fg(STATE_NORMAL, menu_fg);
@@ -511,6 +504,7 @@ protected:
 
   bool popup_menu(GdkEventButton* event, Menu* menu) {
     menu->popup(event->button, event->time);
+    return true;
   }
 
   

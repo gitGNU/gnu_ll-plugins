@@ -7,7 +7,7 @@
 <http://ll-plugins.nongnu.org/lv2/dev/trilobeat/0.0.0>
   a lv2:Plugin;
   doap:name "Trilobeat";
-  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  doap:license <http://usefulinc.com/doap/licenses/gpl>;
   lv2:requiredHostFeature ll:instrument-ext;
   ll:gtk2Gui <trilobeat_gtk.so>;
   ll:pegName "k";  

@@ -5,7 +5,7 @@
 <http://ll-plugins.nongnu.org/lv2/dev/midi_identity/0.0.0>
   a lv2:Plugin;
   doap:name "Identity (MIDI)";
-  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  doap:license <http://usefulinc.com/doap/licenses/gpl>;
 
   lv2:port [
     a <http://ll-plugins.nongnu.org/lv2/ext/MidiPort>, lv2:InputPort;

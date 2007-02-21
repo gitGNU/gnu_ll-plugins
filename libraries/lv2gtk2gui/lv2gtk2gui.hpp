@@ -166,6 +166,10 @@ protected:
 class LV2GTK2GUI {
 public:
   
+  /** This is needed to avoid strange bugs caused by gtkmm not being initialised
+      properly (if the host uses some other language). */
+  LV2GTK2GUI() { Gtk::Main::init_gtkmm_internals(); }
+  
   virtual ~LV2GTK2GUI() { delete m_controller; }
   
   /** Override this if you want your GUI to do something when a control port

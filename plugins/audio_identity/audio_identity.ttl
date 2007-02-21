@@ -5,7 +5,7 @@
 <http://ll-plugins.nongnu.org/lv2/dev/audio_identity/0.0.0>
   a lv2:Plugin;
   doap:name "Identity (Audio)";
-  doap:licence <http://usefulinc.com/doap/licenses/gpl>;
+  doap:license <http://usefulinc.com/doap/licenses/gpl>;
 
   lv2:port [
     a lv2:InputPort, lv2:AudioPort;
