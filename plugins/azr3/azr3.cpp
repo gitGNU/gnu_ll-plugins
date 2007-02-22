@@ -63,6 +63,7 @@ AZR3::AZR3(uint32_t rate, const char* bundle_path,
     uspeed(0),
     er_r(0),
     er_l(0),
+    er_r_before(0),
     llfo_out(0),
     llfo_nout(0),
     llfo_d_out(0),
@@ -75,7 +76,9 @@ AZR3::AZR3(uint32_t rate, const char* bundle_path,
     last_shape(-1),
     mute(true),
     pedal(false),
-    odchanged(true) {
+    odchanged(true),
+    last_r(0),
+    last_l(0) {
   
   pthread_mutex_init(&m_notemaster_lock, 0);
   
@@ -572,7 +575,7 @@ void AZR3::run(uint32_t sampleFrames) {
 	fuzz_filt.clock(mono);
 	mono = fuzz_filt.lp() * odmix75 + mono * n25_odmix * i_dist;
       }
-      mono = warmth.clock(mono);                      
+      mono = warmth.clock(mono);
     }
                 
     // Speakers

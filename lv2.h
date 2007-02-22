@@ -1,9 +1,9 @@
 /* LV2 - LADSPA (Linux Audio Developer's Simple Plugin API) Version 2.0
  * *** PROVISIONAL ***
  *
- * Copyright (C) 2000-2002 Richard W.E. Furse, Paul Barton-Davis, Stefan
- * Westerfeld
- * Copyright (C) 2006 Steve Harris, Dave Robillard.
+ * Copyright (C) 2000-2002 Richard W.E. Furse, Paul Barton-Davis,
+ *                         Stefan Westerfeld
+ * Copyright (C) 2006-2007 Steve Harris, Dave Robillard.
  *
  * This header is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -34,7 +34,11 @@ extern "C" {
 /* ************************************************************************* */
 
 
-/* Overview: 
+/** @file lv2.h
+ *
+ * Revision: 1.0beta1
+ *
+ * == Overview ==
  *
  * There are a large number of open source and free software synthesis
  * packages in use or development at this time. This API ('LV2')
@@ -67,10 +71,12 @@ extern "C" {
  * by dlopen() and family. The file will provide a number of 'plugin
  * types' that can be used to instantiate actual plugins (sometimes known
  * as 'plugin instances') that can be connected together to perform tasks.
+ * The host can access these plugin types using the lv2_descriptor() 
+ * function.
  *
  * This API contains very limited error-handling.
  *
- * Threading rules:
+ * == Threading rules ==
  *
  * Certain hosts may need to call the functions provided by a plugin from
  * multiple threads. For this to be safe, the plugin must be written so that
@@ -78,9 +84,9 @@ extern "C" {
  * To facilitate this, the functions provided by a plugin are divided into
  * classes:
  *
- * Audio class:           run(), connect_port()
- * Instantiation class:   instantiate(), cleanup(), 
- *                        activate(), deactivate()
+ *  - Audio class:           run(), connect_port()
+ *  - Instantiation class:   instantiate(), cleanup(), 
+ *                           activate(), deactivate()
  *
  * Extensions to this specification which add new functions MUST declare in
  * which of these classes the functions belong, or define new classes for them.
@@ -173,8 +179,10 @@ typedef struct _LV2_Descriptor {
    * as the plugin descriptor from which this instantiate function was
    * found. This function must return NULL if instantiation fails.
    *
-   * BundlePath is a string of the path to the plugin's .lv2 bundle
-   * directory, it MUST NOT include the trailing /.
+   * BundlePath is a string of the path to the LV2 bundle which contains
+   * this plugin binary.  It MUST include the trailing directory separator
+   * (e.g. '/') so that BundlePath + filename gives the path to a file
+   * in the bundle.
    *
    * HostFeatures is a NULL terminated array of the URIs of the LV2
    * features that the host supports. Plugins may refuse to instantiate
@@ -187,27 +195,28 @@ typedef struct _LV2_Descriptor {
    * Note that instance initialisation should generally occur in
    * activate() rather than here.  If a host calls instantiate, it MUST
    * call cleanup() at some point in the future. */
-  LV2_Handle (*instantiate)(const struct _LV2_Descriptor * Descriptor,
-                            uint32_t                       SampleRate,
-                            const char *                   BundlePath,
-                            const LV2_Host_Feature**       HostFeatures);
+  LV2_Handle (*instantiate)(const struct _LV2_Descriptor *  Descriptor,
+                            uint32_t                        SampleRate,
+                            const char *                    BundlePath,
+                            const LV2_Host_Feature *const * HostFeatures);
 
   /** Function pointer that connects a port on a plugin instance to a memory
    * location where the block of data for the port will be read/written.
    *
-   * The data location is expected to be an array of void * (typically
-   * float *) for audio ports or a single void * value for control
-   * ports. Memory issues are managed by the host. The plugin must
-   * read/write the data at these locations every time run() is called
-   * and the data present at the time of this connection call MUST NOT
-   * be considered meaningful.
+   * The data location is expected to be of the type defined in the
+   * plugin's data file (e.g. an array of float for an lv2:AudioPort).
+   * Memory issues are managed by the host. The plugin must read/write
+   * the data at these locations every time run() is called, data
+   * present at the time of this connection call MUST NOT be
+   * considered meaningful.
    *
    * connect_port() may be called more than once for a plugin instance
    * to allow the host to change the buffers that the plugin is reading
    * or writing. These calls may be made before or after activate()
-   * or deactivate() calls.
+   * or deactivate() calls.  Note that there may be realtime constraints
+   * on connect_port (see lv2:hardRTCapable in lv2.ttl).
    *
-   * connect_port() must be called at least once for each port before
+   * connect_port() MUST be called at least once for each port before
    * run() is called.  The plugin must pay careful attention to the block
    * size passed to the run function as the block allocated may only just
    * be large enough to contain the block of data (typically samples), and
@@ -215,16 +224,16 @@ typedef struct _LV2_Descriptor {
    *
    * Plugin writers should be aware that the host may elect to use the
    * same buffer for more than one port and even use the same buffer for
-   * both input and output (see LV2_PROPERTY_INPLACE_BROKEN (FIXME)).
+   * both input and output (see lv2:inPlaceBroken in lv2.ttl).
    * However, overlapped buffers or use of a single buffer for both
    * audio and control data may result in unexpected behaviour.
    *
    * If the plugin has the property lv2:hardRTCapable then there are 
    * various things that the plugin MUST NOT do within the connect_port()
    * function (see lv2.ttl). */
-  void (*connect_port)(LV2_Handle    Instance,
-                       uint32_t      Port,
-                       void *        DataLocation);
+  void (*connect_port)(LV2_Handle Instance,
+                       uint32_t   Port,
+                       void *     DataLocation);
 
   /** Function pointer that initialises a plugin instance and activates
    * it for use.
@@ -264,8 +273,8 @@ typedef struct _LV2_Descriptor {
    * If the plugin has the property lv2:hardRTCapable then there are 
    * various things that the plugin MUST NOT do within the run()
    * function (see lv2.ttl). */
-  void (*run)(LV2_Handle    Instance,
-              uint32_t      SampleCount);
+  void (*run)(LV2_Handle Instance,
+              uint32_t   SampleCount);
 
   /** This is the counterpart to activate() (see above). If there is
    * nothing for deactivate() to do then the plugin writer may provide
@@ -326,7 +335,7 @@ typedef struct _LV2_Descriptor {
 /* ****************************************************************** */
 
 
-/** Accessing a Plugin:
+/** Accessing Plugin Types.
  *
  * The exact mechanism by which plugins are loaded is host-dependent,
  * however all most hosts will need to know is the URI of the plugin they

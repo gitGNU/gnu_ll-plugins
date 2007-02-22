@@ -105,38 +105,33 @@ public:
 	float	clock(float input);
 };
 
-class	filt_allpass
-{
-public:
-	filt_allpass() : a1(0.f), zm1(0.f)
-	{
-		a1=zm1=my_delay=y=0;
-	}
-
-	void	reset()
-	{
-		a1=zm1=y=0;
-		set_delay(my_delay);
-	}
-
-	void	set_delay(float delay)
-	{
-		my_delay=delay;
-		a1=(1-delay)/(1+delay);
-		a1=DENORMALIZE(a1);
-	}
-
-	float	clock(float input)
-	{
-		if(input<.00000001f && input>-.00000001f)	// prevent Pentium FPU Normalizing
-			return(0);
-
-		y=-a1*input + zm1;
-		zm1=y*a1+input;
-		return(y);
-	}
-private:
-	float	a1,zm1,my_delay,y;
+class filt_allpass {
+ public:
+  filt_allpass() : a1(0.f), zm1(0.f) {
+    a1=zm1=my_delay=y=0;
+  }
+    
+    void reset() {
+      a1=zm1=y=0;
+      set_delay(my_delay);
+    }
+    
+    void set_delay(float delay) {
+      my_delay=delay;
+      a1=(1-delay)/(1+delay);
+      a1=DENORMALIZE(a1);
+    }
+    
+    float clock(float input) {
+      if(input<.00000001f && input>-.00000001f)	// prevent Pentium FPU Normalizing
+	return(0);
+      
+      y=-a1*input + zm1;
+      zm1=y*a1+input;
+      return(y);
+    }
+ private:
+    float a1,zm1,my_delay,y;
 };
 
 #endif
