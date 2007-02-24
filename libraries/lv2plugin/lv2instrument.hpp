@@ -80,7 +80,7 @@ namespace LV2SupportFunctions {
   LV2_Handle create_instrument_instance(const LV2_Descriptor* descriptor,
                                         uint32_t sample_rate,
                                         const char* bundle_path,
-                                        const LV2_Host_Feature** host_features) {
+                                        const LV2_Host_Feature* const* host_features) {
     // check that the host supports the Instrument extension
     size_t i;
     for (i = 0; host_features[i]; ++i) {
@@ -105,7 +105,7 @@ namespace LV2SupportFunctions {
   LV2_Handle create_optional_instrument_instance(const LV2_Descriptor* descriptor,
                                         uint32_t sample_rate,
                                         const char* bundle_path,
-                                        const LV2_Host_Feature** host_features) {
+                                        const LV2_Host_Feature* const* host_features) {
     // create and return an instance of the plugin
     T* t = new T(sample_rate, bundle_path, host_features);
     return reinterpret_cast<LV2_Handle>(t);

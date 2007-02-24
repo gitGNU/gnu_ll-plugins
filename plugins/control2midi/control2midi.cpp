@@ -32,7 +32,7 @@
 class Control2MIDI : public LV2Plugin {
 public:
   
-  Control2MIDI(uint32_t, const char*, const LV2_Host_Feature**) 
+  Control2MIDI(uint32_t, const char*, const LV2_Host_Feature* const*) 
     : LV2Plugin(5),
       m_last_value(0),
       m_last_cc(0) { 

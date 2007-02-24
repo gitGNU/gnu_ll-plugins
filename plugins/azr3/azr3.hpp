@@ -58,7 +58,7 @@ struct PortChange {
 class AZR3 : public LV2Plugin {
 public:
   
-  AZR3(uint32_t rate, const char* bundle_path, const LV2_Host_Feature**);
+  AZR3(uint32_t rate, const char* bundle_path, const LV2_Host_Feature* const*);
   
   ~AZR3();
   

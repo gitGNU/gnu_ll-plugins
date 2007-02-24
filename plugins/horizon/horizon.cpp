@@ -14,7 +14,8 @@ class Horizon : public LV2Instrument {
 public:
   
   
-  Horizon(uint32_t rate, const char* bundle_path, const LV2_Host_Feature** f)
+  Horizon(uint32_t rate, const char* bundle_path, 
+	  const LV2_Host_Feature* const* f)
     : LV2Instrument(h_n_ports),
       m_trigger(m_mixer),
       m_sample("/home/ll/div/loops/us10phase.wav"),

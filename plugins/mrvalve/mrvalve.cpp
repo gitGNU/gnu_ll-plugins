@@ -46,7 +46,7 @@ static inline float clamp(float v, float l, float u) {
 class MrValve : public LV2Plugin {
 public:
   
-  MrValve(uint32_t rate, const char*, const LV2_Host_Feature**) 
+  MrValve(uint32_t rate, const char*, const LV2_Host_Feature* const*) 
     : LV2Plugin(6),
       m_dist(rate) {
     

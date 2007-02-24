@@ -36,7 +36,7 @@ using namespace std;
 class Arpeggiator : public LV2Plugin {
 public:
   
-  Arpeggiator(uint32_t, const char*, const LV2_Host_Feature**) 
+  Arpeggiator(uint32_t, const char*, const LV2_Host_Feature* const*) 
     : LV2Plugin(5),
       m_num_keys(0),
       m_frame_counter(0),

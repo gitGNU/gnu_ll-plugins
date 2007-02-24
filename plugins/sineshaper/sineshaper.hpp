@@ -39,7 +39,7 @@ class SineShaper : public LV2Plugin {
 public:
   
   SineShaper(uint32_t frame_rate, const char* bundle_path, 
-             const LV2_Host_Feature** host_features);
+             const LV2_Host_Feature* const* host_features);
   
   void run(uint32_t sample_count);
   

@@ -36,7 +36,7 @@ void initialise() __attribute__((constructor));
 
 
 SineShaper::SineShaper(uint32_t frame_rate, const char* bundle_path,
-                       const LV2_Host_Feature** host_features) 
+                       const LV2_Host_Feature* const* host_features) 
   : LV2Plugin(SINESHAPER_PORT_COUNT),
     m_vibrato_lfo(frame_rate),
     m_tremolo_lfo(frame_rate),

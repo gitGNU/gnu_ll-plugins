@@ -51,7 +51,7 @@ using namespace sigc;
 namespace {
   
   string absolutise(const string& reluri, const string& baseuri) {
-    string result = baseuri + "/" + reluri.substr(1, reluri.length() - 2);
+    string result = baseuri + reluri.substr(1, reluri.length() - 2);
     return result;
   }
   
@@ -451,7 +451,7 @@ bool LV2Host::scan_manifests(const std::vector<std::string>& search_dirs,
           continue;
         
         // is it actually a directory?
-        plugindir = search_dirs[i] + "/" + e->d_name;
+        plugindir = search_dirs[i] + "/" + e->d_name + "/";
         struct stat stat_info;
         if (stat(plugindir.c_str(), &stat_info)) {
           DBG1("Could not get file information about "<<plugindir);
@@ -463,17 +463,17 @@ bool LV2Host::scan_manifests(const std::vector<std::string>& search_dirs,
         }
         
         // parse the manifest to get the library filename and the data filename
-        ttlfile = plugindir + "/manifest.ttl";
+        ttlfile = plugindir + "manifest.ttl";
         {
           
-          ifstream ifs((plugindir + "/manifest.ttl").c_str());
+          ifstream ifs((plugindir + "manifest.ttl").c_str());
           string text, line;
           while (getline(ifs, line))
             text += line + "\n";
           TurtleParser tp;
           RDFData data;
           if (!tp.parse_ttl(text, data)) {
-            DBG1("Could not parse "<<plugindir<<"/manifest.ttl");
+            DBG1("Could not parse "<<plugindir<<"manifest.ttl");
             continue;
           }
           Variable uriref, binary, datafile;
@@ -484,10 +484,11 @@ bool LV2Host::scan_manifests(const std::vector<std::string>& search_dirs,
             .run(data);
           if (qr.size() == 0) {
             DBG1("Did not find any valid plugin in "
-                 <<plugindir<<"/manifest.ttl");
+		 <<plugindir<<"manifest.ttl");
             continue;
           }
-          
+          ifs.close();
+	  
           for (unsigned i = 0; i < qr.size(); ++i) {
             library = absolutise(qr[i][binary]->name, plugindir);
             DBG2("Found shared object file "<<library);

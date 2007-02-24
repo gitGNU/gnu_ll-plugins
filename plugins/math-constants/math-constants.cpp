@@ -52,7 +52,7 @@ namespace {
 template <float& Output>
 class Constant : public LV2Plugin {
 public:
-  Constant(uint32_t, const char*, const LV2_Host_Feature**) 
+  Constant(uint32_t, const char*, const LV2_Host_Feature* const*) 
     : LV2Plugin(1) {
     
   }

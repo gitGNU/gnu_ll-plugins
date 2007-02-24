@@ -156,7 +156,7 @@ namespace LV2SupportFunctions {
   LV2_Handle create_plugin_instance(const LV2_Descriptor* descriptor,
                                     uint32_t sample_rate,
                                     const char* bundle_path,
-                                    const LV2_Host_Feature** host_features) {
+                                    const LV2_Host_Feature* const* host_features) {
     T* t = new T(sample_rate, bundle_path, host_features);
     return reinterpret_cast<LV2_Handle>(t);
   }

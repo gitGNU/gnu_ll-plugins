@@ -198,7 +198,7 @@ typedef struct _LV2_Descriptor {
   LV2_Handle (*instantiate)(const struct _LV2_Descriptor *  Descriptor,
                             uint32_t                        SampleRate,
                             const char *                    BundlePath,
-                            const LV2_Host_Feature *const * HostFeatures);
+                            const LV2_Host_Feature * const* HostFeatures);
 
   /** Function pointer that connects a port on a plugin instance to a memory
    * location where the block of data for the port will be read/written.

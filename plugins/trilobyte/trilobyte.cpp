@@ -40,7 +40,7 @@ using namespace std;
 class Trilobyte : public LV2Instrument {
 public:
 
-  Trilobyte(uint32_t rate, const char* bundle, const LV2_Host_Feature** f)
+  Trilobyte(uint32_t rate, const char* bundle, const LV2_Host_Feature* const* f)
     : LV2Instrument(k_n_ports),
       m_seq(32),
       m_invrate(1.0 / rate),

@@ -35,7 +35,7 @@ using namespace std;
 
 
 AZR3::AZR3(uint32_t rate, const char* bundle_path, 
-           const LV2_Host_Feature**)
+           const LV2_Host_Feature* const*)
   : LV2Plugin(kNumParams + 3),
     n1(NUMOFVOICES),
     samplerate(rate),

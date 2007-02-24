@@ -29,7 +29,7 @@ class PhaseDistortionOscillator : public LV2Plugin {
 public:
   
   PhaseDistortionOscillator(uint32_t rate, const char*, 
-                            const LV2_Host_Feature**) 
+                            const LV2_Host_Feature* const*) 
     : LV2Plugin(4),
       m_osc(rate) {
 
