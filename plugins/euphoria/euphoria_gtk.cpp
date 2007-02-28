@@ -39,9 +39,9 @@ class EuphoriaGUI : public LV2GTK2GUI {
 public:
   
   EuphoriaGUI(LV2Controller& ctrl, const std::string& URI, 
-              const std::string& bundle_path, Widget*& widget) {
+              const std::string& bundle_path) {
     
-    widget = &m_euph;
+    pack_start(m_euph);
 
     m_euph.signal_control_changed.
       connect(mem_fun(ctrl, &LV2Controller::set_control));

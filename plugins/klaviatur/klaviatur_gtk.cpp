@@ -39,12 +39,12 @@ class KlaviaturGUI : public LV2GTK2GUI {
 public:
   
   KlaviaturGUI(LV2Controller& ctrl, const std::string& URI, 
-               const std::string& bundle_path, Widget*& widget) 
+               const std::string& bundle_path) 
     : m_cc(0, 128, 1),
       m_pitch(-8192, 8192, 1),
       m_vel(1, 128, 1) {
 
-    widget = &m_vbox;
+    pack_start(m_vbox);
     
     // initialise control widgets
     m_kb.set_flags(m_kb.get_flags() | CAN_FOCUS);

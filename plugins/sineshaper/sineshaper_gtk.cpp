@@ -38,9 +38,9 @@ class SineshaperGUI : public LV2GTK2GUI {
 public:
   
   SineshaperGUI(LV2Controller& ctrl, const std::string& URI, 
-              const std::string& bundle_path, Widget*& widget) {
+              const std::string& bundle_path) {
     
-    widget = &m_sshp;
+    pack_start(m_sshp);
 
     //m_sshp.signal_control_changed.
     //  connect(mem_fun(ctrl, &LV2Controller::set_control));

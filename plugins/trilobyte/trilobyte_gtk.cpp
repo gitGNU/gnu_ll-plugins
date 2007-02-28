@@ -41,7 +41,7 @@ class TrilobyteGUI : public LV2GTK2GUI {
 public:
   
   TrilobyteGUI(LV2Controller& ctrl, const std::string& URI, 
-               const std::string& bundle_path, Widget*& widget)
+               const std::string& bundle_path)
     : m_pat(32, 15, 15),
       m_ctrl(ctrl) {
     
@@ -65,7 +65,7 @@ public:
     s->set_bg_pixmap(STATE_INSENSITIVE, pixmap);
     m_pat.set_style(s);
     
-    widget = &m_pat;
+    pack_start(m_pat);
   }
   
 protected:

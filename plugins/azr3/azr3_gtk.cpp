@@ -50,7 +50,7 @@ class AZR3GUI : public LV2GTK2GUI {
 public:
   
   AZR3GUI(LV2Controller& ctrl, const std::string& URI, 
-          const std::string& bundle_path, Widget*& widget)
+          const std::string& bundle_path)
     : showing_fx_controls(true),
       current_program(0),
       splitkey(0),
@@ -161,8 +161,8 @@ public:
     // mode switcher
     Widget* eb = add_clickbox(fbox, 14, 319, 14, 44);
     eb->signal_button_press_event().
-      connect(hide(bind(bind(mem_fun(*this, &AZR3GUI::change_mode), 
-                                     ref(fbox)), false)));
+      connect(sigc::hide(bind(bind(mem_fun(*this, &AZR3GUI::change_mode), 
+				   ref(fbox)), false)));
     fx_widgets.push_back(eb);
   
     // Mr Valve controls
@@ -201,8 +201,8 @@ public:
     // mode switcher 2
     Widget* eb2 = add_clickbox(vbox, 14, 53, 14, 44);
     eb2->signal_button_press_event().
-      connect(hide(bind(bind(mem_fun(*this, &AZR3GUI::change_mode), 
-                                     ref(fbox)), true)));
+      connect(sigc::hide(bind(bind(mem_fun(*this, &AZR3GUI::change_mode), 
+				   ref(fbox)), true)));
 
     // vibrato controls
     add_switch(vbox, n_1_vibrato, 39, 17, Switch::Green);
@@ -214,7 +214,7 @@ public:
              352, 37, 0, 100, false);
     add_knob(vbox, n_2_vmix, 0, 1, 0.5, voicepxm, 440, 37, 0, 100, false);
   
-    widget = &fbox;
+    pack_start(fbox);
     
     signal_control_changed.
       connect(mem_fun(ctrl, &LV2Controller::set_control));
@@ -236,7 +236,7 @@ public:
 
 
   void remove_program(unsigned char number) {
-    map<int, string>::iterator iter = programs.find(number);
+    std::map<int, string>::iterator iter = programs.find(number);
     if (iter != programs.end()) {
       programs.erase(iter);
       update_program_menu();
@@ -245,7 +245,7 @@ public:
   
   
   void set_program(unsigned char number) {
-    map<int, string>::const_iterator iter = programs.find(number);
+    std::map<int, string>::const_iterator iter = programs.find(number);
     ostringstream oss;
     oss<<"AZR-3 LV2 P"<<setw(2)<<setfill('0')<<int(number);
     tbox->set_string(0, oss.str());
@@ -456,7 +456,7 @@ protected:
 
   void update_program_menu() {
     program_menu->items().clear();
-    map<int, string>::const_iterator iter;
+    std::map<int, string>::const_iterator iter;
     for (iter = programs.begin(); iter != programs.end(); ++iter) {
       ostringstream oss;
       oss<<setw(2)<<setfill('0')<<iter->first<<' '<<iter->second.substr(0, 23);
@@ -510,7 +510,7 @@ protected:
   
   void display_scroll(int line, GdkEventScroll* e) {
     if (line < 2) {
-      map<int, string>::const_iterator iter = programs.find(current_program);
+      std::map<int, string>::const_iterator iter = programs.find(current_program);
       if (iter == programs.end())
         iter = programs.begin();
       if (iter != programs.end()) {
@@ -574,7 +574,7 @@ protected:
   bool showing_fx_controls;
   vector<Widget*> fx_widgets;
   vector<Widget*> voice_widgets;
-  map<int, string> programs;
+  std::map<int, string> programs;
   int current_program;
   int splitkey;
   Textbox* tbox;

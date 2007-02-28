@@ -62,12 +62,15 @@ namespace LV2G2GSupportFunctions {
 				  GtkWidget**                     widget,
 				  const LV2_Host_Feature**        features) {
     
+    // this is needed to initialise gtkmm stuff in case we're running in
+    // a Gtk+ or PyGtk host or some other language
+    Gtk::Main::init_gtkmm_internals();
+    
     LV2Controller* controller = new LV2Controller(ctrl_function, 
 						  ctrl, features);
-    Gtk::Widget* widgetmm;
-    T* t = new T(*controller, plugin_uri, bundle_path, widgetmm);
+    T* t = new T(*controller, plugin_uri, bundle_path);
     t->m_controller = controller;
-    *widget = widgetmm->gobj();
+    *widget = static_cast<Gtk::Widget*>(t)->gobj();
     return reinterpret_cast<LV2UI_Handle>(t);
   }
   
@@ -163,12 +166,8 @@ protected:
     and @c UI_widget should be set to point to a widget that the host will
     display to the user. The plugin is responsible for deallocating the 
     widget when the destructor for the LV2GTK2GUI subclass is called. */
-class LV2GTK2GUI {
+class LV2GTK2GUI : public Gtk::HBox {
 public:
-  
-  /** This is needed to avoid strange bugs caused by gtkmm not being initialised
-      properly (if the host uses some other language). */
-  LV2GTK2GUI() { Gtk::Main::init_gtkmm_internals(); }
   
   virtual ~LV2GTK2GUI() { delete m_controller; }
   
