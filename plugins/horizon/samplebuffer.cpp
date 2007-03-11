@@ -24,7 +24,7 @@ SampleBuffer::SampleBuffer(const std::string& filename)
   
   // allocate temporary buffer and read interleaved data into it
   float* tmp_data = new float[s_info.channels * s_info.frames];
-  if (sf_read_float(s_file, tmp_data, s_info.frames) != s_info.frames) {
+  if (sf_readf_float(s_file, tmp_data, s_info.frames) != s_info.frames) {
     sf_close(s_file);
     delete [] tmp_data;
     return;

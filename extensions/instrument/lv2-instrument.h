@@ -25,7 +25,7 @@
 #ifndef LV2_INSTRUMENT_H
 #define LV2_INSTRUMENT_H
 
-#include <lv2.h>
+#include "lv2.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -77,8 +77,8 @@
 #ifndef LV2_GTK2GUI_H
 #define LV2_GTK2GUI_H
 
-#include <lv2.h>
 #include <gtk/gtkwidget.h>
+#include "lv2.h"
 
 
 #ifdef __cplusplus

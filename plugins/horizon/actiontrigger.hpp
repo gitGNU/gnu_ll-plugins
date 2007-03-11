@@ -17,6 +17,12 @@ public:
   
   void run(const LV2_MIDI* midi_port, uint32_t nframes);
   
+  bool add_action(Action* action);
+  
+  std::vector<Action*> get_actions();
+  
+  bool map_action(Action* action, unsigned char key);
+  
 protected:
   
   struct ActionInfo {

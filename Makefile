@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.223
+PACKAGE_VERSION = 0.1.224
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -234,13 +234,16 @@ euphoria_gtk_so_SOURCEDIR = plugins/euphoria
 
 # Horizon
 horizon_lv2_SOURCES = \
+	action.hpp action.cpp \
 	actiontrigger.hpp actiontrigger.cpp \
+	chunk.hpp chunk.cpp \
 	effectstack.hpp effectstack.cpp \
 	horizon.cpp \
 	mixer.hpp mixer.cpp \
 	sample.hpp sample.cpp \
 	samplebuffer.hpp samplebuffer.cpp \
-	segmentation.hpp segmentation.cpp
+	segmentation.hpp segmentation.cpp \
+	voice.hpp voice.cpp
 horizon_lv2_DATA = manifest.ttl horizon.ttl
 horizon_lv2_CFLAGS = `pkg-config --cflags sndfile` -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/instrument -Iextensions/MidiPort -I.
 horizon_lv2_ARCHIVES = $(INSTRUMENTARCHIVES)
