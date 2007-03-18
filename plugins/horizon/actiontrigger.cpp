@@ -27,13 +27,15 @@ void ActionTrigger::run(const LV2_MIDI* midi_port, uint32_t nframes) {
     lv2midi_get_event(&state, &timestamp, &size, &data);
     lv2midi_step(&state);
     
-    // do the audio processing for (timestamp - pos) frames here
+    // do the audio processing for (timestamp - pos) frames
     m_mixer.run(uint32_t(timestamp - pos));
     
     if (timestamp < nframes && size == 3) {
       unsigned char type = data[0] & 0xF0;
       unsigned char key = data[1] & keymask;
       if (type == 0x90 && m_key_table[key].action) {
+	for (unsigned i = 0; i < m_key_table.size(); ++i)
+	  m_key_table[i].running = false;
 	m_mixer.play_chunk(&m_key_table[key].action->get_chunk());
 	m_key_table[key].running = true;
 	// Note On, start the action!
