@@ -8,7 +8,7 @@ using namespace std;
 
 
 Mixer::Mixer()
-  : m_sample("/home/ll/div/loops/us10phase.wav"),
+  : m_sample("/home/ll/div/loops/tomsphases.wav"),
     m_left(0),
     m_right(0),
     m_gain(0) {
