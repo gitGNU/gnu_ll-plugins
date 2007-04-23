@@ -554,8 +554,8 @@
   [
     a lv2:InputPort, lv2:ControlPort;
     lv2:index 38;
-    lv2:symbol "db1_2";
-    lv2:name "DB1, 2";
+    lv2:symbol "db1_3";
+    lv2:name "DB1, 3";
     lv2:minimum 0;
     lv2:default 0;
     lv2:maximum 1;
@@ -568,8 +568,8 @@
   [
     a lv2:InputPort, lv2:ControlPort;
     lv2:index 39;
-    lv2:symbol "db2_2";
-    lv2:name "DB2, 2";
+    lv2:symbol "db2_3";
+    lv2:name "DB2, 3";
     lv2:minimum 0;
     lv2:default 0;
     lv2:maximum 1;
@@ -582,8 +582,8 @@
   [
     a lv2:InputPort, lv2:ControlPort;
     lv2:index 40;
-    lv2:symbol "db3_2";
-    lv2:name "DB3, 2";
+    lv2:symbol "db3_3";
+    lv2:name "DB3, 3";
     lv2:minimum 0;
     lv2:default 0;
     lv2:maximum 1;
@@ -596,8 +596,8 @@
   [
     a lv2:InputPort, lv2:ControlPort;
     lv2:index 41;
-    lv2:symbol "db4_2";
-    lv2:name "DB4, 2";
+    lv2:symbol "db4_3";
+    lv2:name "DB4, 3";
     lv2:minimum 0;
     lv2:default 0;
     lv2:maximum 1;
@@ -610,8 +610,8 @@
   [
     a lv2:InputPort, lv2:ControlPort;
     lv2:index 42;
-    lv2:symbol "db5_2";
-    lv2:name "DB5, 2";
+    lv2:symbol "db5_3";
+    lv2:name "DB5, 3";
     lv2:minimum 0;
     lv2:default 0;
     lv2:maximum 1;

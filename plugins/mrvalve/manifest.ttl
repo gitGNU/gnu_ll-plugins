@@ -3,7 +3,7 @@
 @prefix doap: <http://usefulinc.com/ns/doap#>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/mrvalve/0.0.0>
-  a lv2:Plugin;
+  a lv2:Plugin, lv2:DistortionPlugin;
   lv2:binary <mrvalve.so>;
   rdfs:seeAlso <mrvalve.ttl>.
 

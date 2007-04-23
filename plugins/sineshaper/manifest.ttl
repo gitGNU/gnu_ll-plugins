@@ -3,7 +3,7 @@
 @prefix doap: <http://usefulinc.com/ns/doap#>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0>
-  a lv2:Plugin;
+  a lv2:Plugin, lv2:InstrumentPlugin;
   lv2:binary <sineshaper.so>;
   rdfs:seeAlso <sineshaper.ttl>.
 
