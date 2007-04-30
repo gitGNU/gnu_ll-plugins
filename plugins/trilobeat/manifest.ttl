@@ -4,7 +4,7 @@
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 
 ll:SequencerPlugin a rdfs:Class ;
-    rdfs:subClassOf :Plugin ;
+    rdfs:subClassOf lv2:Plugin ;
     rdfs:label "Sequencers" ;
     rdfs:comment """
 Plugins that can be used to sequence instruments and other plugins

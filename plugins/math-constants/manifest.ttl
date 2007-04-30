@@ -4,7 +4,7 @@
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 
 ll:MathConstantPlugin a rdfs:Class ;
-    rdfs:subClassOf :UtilityPlugin ;
+    rdfs:subClassOf lv2:UtilityPlugin ;
     rdfs:label "Math constants" ;
     rdfs:comment """
 Mathematical constants from the standard C library

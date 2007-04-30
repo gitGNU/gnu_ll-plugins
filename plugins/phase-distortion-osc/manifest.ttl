@@ -3,7 +3,7 @@
 @prefix doap: <http://usefulinc.com/ns/doap#>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/phase-distortion-osc/0.0.0>
-  a lv2:Plugin;
+  a lv2:Plugin, lv2:OscillatorPlugin;
   lv2:binary <phase-distortion-osc.so>;
   rdfs:seeAlso <phase-distortion-osc.ttl>.
 

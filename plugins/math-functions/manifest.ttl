@@ -4,7 +4,7 @@
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 
 ll:MathFunctionPlugin a rdfs:Class ;
-    rdfs:subClassOf :UtilityPlugin ;
+    rdfs:subClassOf lv2:UtilityPlugin ;
     rdfs:label "Math functions" ;
     rdfs:comment """
 Mathematical functions from the standard C library
