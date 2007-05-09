@@ -44,7 +44,7 @@ int main() {
     text += line + "\n";
   //cout<<text;
     
-  if (tp.parse_ttl(text, data)) {
+  if (tp.parse_ttl(text, data, "")) {
     cout << "-------------------------\n";
     cout << "Parsing succeeded\n";
     cout << "-------------------------\n";

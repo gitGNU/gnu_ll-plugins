@@ -81,16 +81,7 @@ int main(int argc, char** argv) {
   // parse turtle file
   TurtleParser tp;
   RDFData data;
-  string text;
-  string line;
-  ifstream fin(argv[1]);
-  if (!fin.good()) {
-    cerr<<"Could not open "<<argv[1]<<"."<<endl;
-    return -1;
-  }
-  while (getline(fin, line))
-    text += line + "\n";
-  if (!tp.parse_ttl(text, data)) {
+  if (!tp.parse_ttl_file(argv[1], data)) {
     cerr<<"Could not parse input. Not valid Turtle syntax."<<endl;
     return -1;
   }

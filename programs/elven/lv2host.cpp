@@ -48,16 +48,6 @@ using namespace PAQ;
 using namespace sigc;
 
 
-namespace {
-  
-  string absolutise(const string& reluri, const string& baseuri) {
-    string result = baseuri + reluri.substr(1, reluri.length() - 2);
-    return result;
-  }
-  
-}
-
-
 LV2Host::LV2Host(const string& uri, unsigned long frame_rate) 
   : m_uri(uri),
     m_rate(frame_rate),
@@ -465,14 +455,9 @@ bool LV2Host::scan_manifests(const std::vector<std::string>& search_dirs,
         // parse the manifest to get the library filename and the data filename
         ttlfile = plugindir + "manifest.ttl";
         {
-          
-          ifstream ifs((plugindir + "manifest.ttl").c_str());
-          string text, line;
-          while (getline(ifs, line))
-            text += line + "\n";
           TurtleParser tp;
           RDFData data;
-          if (!tp.parse_ttl(text, data)) {
+          if (!tp.parse_ttl_file(ttlfile, data)) {
             DBG1("Could not parse "<<plugindir<<"manifest.ttl");
             continue;
           }
@@ -487,12 +472,11 @@ bool LV2Host::scan_manifests(const std::vector<std::string>& search_dirs,
 		 <<plugindir<<"manifest.ttl");
             continue;
           }
-          ifs.close();
 	  
           for (unsigned i = 0; i < qr.size(); ++i) {
-            library = absolutise(qr[i][binary]->name, plugindir);
+            library = qr[i][binary]->name;
             DBG2("Found shared object file "<<library);
-            ttlfile = absolutise(qr[i][datafile]->name, plugindir);
+            ttlfile = qr[i][datafile]->name;
             DBG2("Found RDF file "<<ttlfile);
             done = callback(qr[i][uriref]->name, plugindir, ttlfile, library);
             if (done)
@@ -545,13 +529,9 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     vector<QueryResult> qr;
     string uriref = string("<") + m_uri + ">";
     
-    ifstream ifs(rdf_file.c_str());
-    string text, line;
-    while (getline(ifs, line))
-      text += line + "\n";
     TurtleParser tp;
     RDFData data;
-    if (!tp.parse_ttl(text, data)) {
+    if (!tp.parse_ttl_url(rdf_file, data)) {
       DBG0("Could not parse "<<rdf_file);
       return;
     }
@@ -741,7 +721,8 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     if (qr.size() > 0) {
       m_guiuri = qr[0][gui_uri]->name.
 	substr(1, qr[0][gui_uri]->name.length() - 2);
-      m_plugingui = absolutise(qr[0][gui_path]->name, m_bundle);
+      m_plugingui = qr[0][gui_path]->name;
+      m_plugingui = m_plugingui.substr(8, m_plugingui.size() - 9);
       DBG2("Found GUI plugin file "<<m_plugingui);
     }
     
@@ -761,15 +742,11 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
       .where(uriref, ll("defaultPresets"), preset_path)
       .run(data);
     if (qr.size() > 0) {
-      string presetfile = absolutise(qr[0][preset_path]->name, m_bundle);
+      string presetfile = qr[0][preset_path]->name;
       DBG2("Found default preset file "<<presetfile);
-      ifstream ifs(presetfile.c_str());
-      string text, line;
-      while (getline(ifs, line))
-        text += line + "\n";
       TurtleParser tp;
       RDFData data;
-      if (!tp.parse_ttl(text, data)) {
+      if (!tp.parse_ttl_url(presetfile, data)) {
         DBG0("Could not parse presets from "<<presetfile);
       }
       else {
@@ -812,7 +789,7 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
   }
   
   // if we got this far the data is OK. time to load the library
-  m_libhandle = dlopen(binary.c_str(), RTLD_NOW);
+  m_libhandle = dlopen(binary.substr(8, binary.size() - 9).c_str(), RTLD_NOW);
   if (!m_libhandle) {
     DBG0("Could not dlopen "<<binary<<": "<<dlerror());
     return;

@@ -54,7 +54,16 @@ namespace PAQ {
     
     /** Parse the string @c str as a Turtle document and put the resulting 
         graph in @c data. */
-    bool parse_ttl(const std::string& str, RDFData& data);
+    bool parse_ttl(const std::string& str, RDFData& data, 
+    		   const std::string& base_uri);
+    
+    /** Parse the given file as a Turtle document and put the resulting graph
+	in @c data. */
+    bool parse_ttl_file(const std::string& filename, RDFData& data);
+    
+    /** Parse the given URL as a Turtle document and put the resulting graph
+	in @c data. Only file:// URLs are supported. */
+    bool parse_ttl_url(const std::string& url, RDFData& data);
     
   protected:
     
@@ -74,8 +83,9 @@ namespace PAQ {
     void do_triples(iter_t iter);
     RDFTerm* do_subject(iter_t iter);
     RDFTerm* do_resource(iter_t iter);
-    RDFTerm* do_blank(iter_t iter);
+    RDFTerm* do_blank(iter_t iter); 
     RDFTerm* do_uriref(iter_t iter);
+    RDFTerm* do_relativeURI(iter_t iter);
     RDFTerm* do_qname(iter_t iter);
     RDFTerm* do_nodeID(iter_t iter);
     multimap<RDFTerm*, RDFTerm*> do_predicateObjectList(iter_t iter);
@@ -97,8 +107,9 @@ namespace PAQ {
     
     // Utility functions
     string node_to_string(iter_t node);  
-    void ucharacter_escape(string& str);
-    void scharacter_escape(string& str);
+    void ucharacter_escape(std::string& str);
+    void scharacter_escape(std::string& str);
+    string absolutise(const std::string& str);
     
     // All the grammar rules
     rule_t turtleDoc,
@@ -145,6 +156,8 @@ namespace PAQ {
     
     std::map<parser_id, string> m_rule_map;
     std::map<std::string, std::string> m_prefix_map;
+    std::string m_base_uri;
+    
     RDFData* m_data;
   };
   

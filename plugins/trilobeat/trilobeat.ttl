@@ -31,7 +31,7 @@
     lv2:index 2;
     lv2:symbol "bpm";
     lv2:name "BPM";
-    lv2:default "120";
+    lv2:default 120;
   ],
 
   [

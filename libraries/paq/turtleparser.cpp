@@ -22,6 +22,12 @@
 
 #include <sstream>
 
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 #include <boost/spirit/dynamic.hpp>
 
 #include "turtleparser.hpp"
@@ -179,6 +185,7 @@ namespace PAQ {
     language = +chset<>("a-z") >> *(ch_p('-') >> +chset<>("a-z0-9"));
       
     // XXX BUG, many more characters should be allowed here but I'm lazy
+    // XXX Maybe this has been fixed now? I'm too lazy to check
     nameStartChar = (chset<>("A-Za-z_") | urange_p(0xC0, 0xD6) |
                      urange_p(0x00D8, 0x00F6) | urange_p(0x00F8, 0x02FF) |
                      urange_p(0x0370, 0x037D) | urange_p(0x037F, 0x1FFF) |
@@ -195,7 +202,7 @@ namespace PAQ {
     prefixName = (nameStartChar - uch_p('_')) >> *nameChar;
       
     relativeURI = *ucharacter;
-      
+    
     quotedString = longString | _string;
       
     _string = ch_p('"') >> *scharacter >> ch_p('"');
@@ -329,17 +336,22 @@ namespace PAQ {
         return m_data->add_bnode();
     }
     assert(!"This should never happen");
+    return 0;
   }
 
 
 
   RDFTerm* TurtleParser::do_uriref(iter_t iter) {
+    return do_relativeURI(iter->children.begin() + 1);
+  }
+  
+  
+  RDFTerm* TurtleParser::do_relativeURI(iter_t iter) {
     string str = node_to_string(iter);
     ucharacter_escape(str);
-    RDFTerm* t = m_data->add_uriref(str);
+    RDFTerm* t = m_data->add_uriref(string("<") + absolutise(str) + ">");    
     return t;
   }
-
 
 
   RDFTerm* TurtleParser::do_qname(iter_t iter) {
@@ -582,11 +594,12 @@ namespace PAQ {
   }
 
 
-
-  bool TurtleParser::parse_ttl(const std::string& str, RDFData& data) {
+  bool TurtleParser::parse_ttl(const std::string& str, RDFData& data,
+			       const std::string& base_uri) {
   
     m_data = &data;
-  
+    m_base_uri = base_uri;
+    
     tree_parse_info<> info = pt_parse(str.c_str(), turtleDoc);
   
     if (info.full) {
@@ -599,6 +612,55 @@ namespace PAQ {
       }
     }
     return info.full;
+  }
+
+  
+  bool TurtleParser::parse_ttl_file(const std::string& file, RDFData& data) {
+    
+    m_data = &data;
+    
+    // mmap the file
+    int fd;
+    if ((fd = open(file.c_str(), O_RDONLY)) == -1)
+      return false;
+    struct stat info;
+    if (stat(file.c_str(), &info))
+      return false;
+    const char* text;
+    if (!(text = (char*)mmap(0, info.st_size, PROT_READ, MAP_PRIVATE, fd, 0)))
+      return false;
+    close(fd);
+    
+    // build the base URI
+    if (file[0] == '/')
+      m_base_uri = string("file://") + file;
+    else {
+      static char buf[1024];
+      m_base_uri = string("file://") + getcwd(buf, 1024) + "/" + file;
+    }
+    
+    // parse
+    tree_parse_info<> pinfo = pt_parse(text, text + info.st_size, turtleDoc);
+    if (pinfo.full) {
+      iter_t root = pinfo.trees.begin();
+      if (root->value.id() == parser_id(&turtleDoc)) {
+        for (iter_t iter = root->children.begin(); 
+             iter != root->children.end(); ++iter) {
+          do_statement(iter);
+        }
+      }
+    }
+    
+    munmap((void*)text, info.st_size);
+    
+    return pinfo.full;
+  }
+
+
+  bool TurtleParser::parse_ttl_url(const std::string& url, RDFData& data) {
+    if (url.substr(0, 8) != "<file://")
+      return false;
+    return parse_ttl_file(url.substr(8, url.size() - 9), data);
   }
 
 
@@ -640,6 +702,44 @@ namespace PAQ {
     i = 0;
     while ((i = str.find("\\\\", i)) != string::npos)
       str.replace(i, 2, "\\");
+  }
+
+
+  string TurtleParser::absolutise(const std::string& str) {
+    
+    // check if it's an absolute URI, if so return
+    unsigned cpos = str.find(':');
+    if (cpos != string::npos && cpos > 0) {
+      if (str.size() > 0) {
+	if ((str[0] >= 'a' && str[0] <= 'z') ||
+	    (str[0] >= 'A' && str[0] <= 'Z')) {
+	  unsigned int i;
+	  for (i = 1; i < cpos; ++i) {
+	    if (!((str[i] >= 'a' && str[i] <= 'z') ||
+		  (str[i] >= 'A' && str[i] <= 'Z') ||
+		  (str[i] >= '0' && str[i] <= '9')))
+	      break;
+	  }
+	  if (i == cpos)
+	    return str;
+	}
+      }
+    }
+    
+    // it's a relative URI, but what type?
+    if (str.size() == 0)
+      return m_base_uri;
+    else if (str.size() >= 2 && str.substr(0, 2) == "//")
+      return m_base_uri.substr(m_base_uri.find(':')) + str;
+    else if (str.size() >= 1 && str[0] == '/') {
+      unsigned a = str.find("//");
+      if (a == string::npos)
+	return m_base_uri.substr(m_base_uri.find('/')) + str;
+      else
+	return m_base_uri.substr(m_base_uri.find('/', a + 2)) + str;
+    }
+    else
+      return m_base_uri.substr(0, m_base_uri.rfind('/')) + "/" + str;
   }
 
 
