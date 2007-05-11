@@ -9,15 +9,15 @@
 @prefix plug: <http://ll-plugins.nongnu.org/lv2/dev/azr3/0.0.0/>.
 
 
-plug:section1 doap:name "Section 1".
-plug:section2 doap:name "Section 2".
-plug:bass     doap:name "Bass".
-plug:db1      doap:name "Drawbars".
-plug:db2      doap:name "Drawbars".
-plug:db3      doap:name "Drawbars".
-plug:fx       doap:name "FX".
-plug:mrvalve  doap:name "Mr Valve".
-plug:speakers doap:name "Speakers".
+plug:section1 rdfs:label "Section 1".
+plug:section2 rdfs:label "Section 2".
+plug:bass     rdfs:label "Bass".
+plug:db1      rdfs:label "Drawbars".
+plug:db2      rdfs:label "Drawbars".
+plug:db3      rdfs:label "Drawbars".
+plug:fx       rdfs:label "FX".
+plug:mrvalve  rdfs:label "Mr Valve".
+plug:speakers rdfs:label "Speakers".
 plug:output   a pg:StereoGroup.
 
 plug:db1      pg:subgroupOf plug:section1.
