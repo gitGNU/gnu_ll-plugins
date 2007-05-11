@@ -29,6 +29,7 @@
 #include <gtkmm.h>
 
 #include "shapereditor.hpp"
+#include "springeditor.hpp"
 #include "pdeditor.hpp"
 #include "transitioneditor.hpp"
 #include "envelopeeditor.hpp"
@@ -61,8 +62,9 @@ protected:
   
   void program_selection_changed();
   
-  Gtk::Widget& init_pd_controls();
+  Gtk::Widget& init_pd_controls(); 
   Gtk::Widget& init_shp_controls();
+  Gtk::Widget& init_spr_controls();
   Gtk::Widget& init_markov_controls();
   Gtk::Widget& init_fx_controls();
   Gtk::Widget& init_voice_controls();
@@ -89,6 +91,9 @@ protected:
   ShaperEditor m_shaper;
   EnvelopeEditor m_shp_amount_env;
   EnvelopeEditor m_shp_amp_env;
+  
+  SpringEditor m_spring;
+  EnvelopeEditor m_spr_proj_env;
   
   TransitionEditor m_trans;
   EnvelopeEditor m_mrk_01_env;

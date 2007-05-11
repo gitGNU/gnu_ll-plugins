@@ -5,6 +5,27 @@
 @prefix llext: <http://ll-plugins.nongnu.org/lv2/ext/>.
 @prefix mm: <http://ll-plugins.nongnu.org/lv2/ext/midimap#>.
 @prefix gg: <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui#>.
+@prefix pg: <http://ll-plugins.nongnu.org/lv2/ext/portgroups#>.
+@prefix plug: <http://ll-plugins.nongnu.org/lv2/dev/azr3/0.0.0/>.
+
+
+plug:section1 doap:name "Section 1".
+plug:section2 doap:name "Section 2".
+plug:bass     doap:name "Bass".
+plug:db1      doap:name "Drawbars".
+plug:db2      doap:name "Drawbars".
+plug:db3      doap:name "Drawbars".
+plug:fx       doap:name "FX".
+plug:mrvalve  doap:name "Mr Valve".
+plug:speakers doap:name "Speakers".
+plug:output   a pg:StereoGroup.
+
+plug:db1      pg:subgroupOf plug:section1.
+plug:db2      pg:subgroupOf plug:section2.
+plug:db3      pg:subgroupOf plug:bass.
+plug:mrvalve  pg:subgroupOf plug:fx.
+plug:speakers pg:subgroupOf plug:fx.
+
 
 <http://ll-plugins.nongnu.org/lv2/dev/azr3/0.0.0>
   a lv2:Plugin;
@@ -181,6 +202,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 12;
     ];
+    pg:membership [ pg:group plug:section1; ];
   ],
   
   [
@@ -195,6 +217,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 13;
     ];
+    pg:membership [ pg:group plug:db1; ];
   ],
   
   [
@@ -209,6 +232,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 14;
     ];
+    pg:membership [ pg:group plug:db1; ];
   ],
   
   [
@@ -223,6 +247,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 15;
     ];
+    pg:membership [ pg:group plug:db1; ];
   ],
   
   [
@@ -237,6 +262,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 16;
     ];
+    pg:membership [ pg:group plug:db1; ];
   ],
   
   [
@@ -251,6 +277,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 17;
     ];
+    pg:membership [ pg:group plug:db1; ];
   ],
   
   [
@@ -265,6 +292,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 18;
     ];
+    pg:membership [ pg:group plug:db1; ];
   ],
   
   [
@@ -279,6 +307,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 19;
     ];
+    pg:membership [ pg:group plug:db1; ];
   ],
   
   [
@@ -293,6 +322,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 20;
     ];
+    pg:membership [ pg:group plug:db1; ];
   ],
   
   [
@@ -307,6 +337,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 21;
     ];
+    pg:membership [ pg:group plug:db1; ];
   ],
   
   [
@@ -322,6 +353,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 22;
     ];
+    pg:membership [ pg:group plug:db1; ];
   ],
   
   [
@@ -336,6 +368,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 23;
     ];
+    pg:membership [ pg:group plug:db1; ];
   ],
   
   [
@@ -350,6 +383,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 24;
     ];
+    pg:membership [ pg:group plug:db1; ];
   ],
   
   [
@@ -365,6 +399,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 25;
     ];
+    pg:membership [ pg:group plug:section2; ];
   ],
   
   [
@@ -379,6 +414,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 26;
     ];
+    pg:membership [ pg:group plug:db2; ];
   ],
   
   [
@@ -393,6 +429,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 27;
     ];
+    pg:membership [ pg:group plug:db2; ];
   ],
   
   [
@@ -407,6 +444,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 28;
     ];
+    pg:membership [ pg:group plug:db2; ];
   ],
   
   [
@@ -421,6 +459,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 29;
     ];
+    pg:membership [ pg:group plug:db2; ];
   ],
   
   [
@@ -435,6 +474,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 30;
     ];
+    pg:membership [ pg:group plug:db2; ];
   ],
   
   [
@@ -449,6 +489,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 31;
     ];
+    pg:membership [ pg:group plug:db2; ];
   ],
   
   [
@@ -463,6 +504,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 32;
     ];
+    pg:membership [ pg:group plug:db2; ];
   ],
   
   [
@@ -477,6 +519,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 33;
     ];
+    pg:membership [ pg:group plug:db2; ];
   ],
   
   [
@@ -491,6 +534,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 34;
     ];
+    pg:membership [ pg:group plug:db2; ];
   ],
   
   [
@@ -506,6 +550,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 35;
     ];
+    pg:membership [ pg:group plug:db2; ];
   ],
   
   [
@@ -520,6 +565,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 36;
     ];
+    pg:membership [ pg:group plug:db2; ];
   ],
   
   [
@@ -534,6 +580,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 37;
     ];
+    pg:membership [ pg:group plug:db2; ];
   ],
   
   [
@@ -549,6 +596,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 38;
     ];
+    pg:membership [ pg:group plug:bass; ];
   ],
   
   [
@@ -563,6 +611,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 39;
     ];
+    pg:membership [ pg:group plug:db3; ];
   ],
   
   [
@@ -577,6 +626,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 40;
     ];
+    pg:membership [ pg:group plug:db3; ];
   ],
   
   [
@@ -591,6 +641,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 41;
     ];
+    pg:membership [ pg:group plug:db3; ];
   ],
   
   [
@@ -605,6 +656,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 42;
     ];
+    pg:membership [ pg:group plug:db3; ];
   ],
   
   [
@@ -619,6 +671,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 43;
     ];
+    pg:membership [ pg:group plug:db3; ];
   ],
   
   [
@@ -634,6 +687,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 44;
     ];
+    pg:membership [ pg:group plug:mrvalve; ];
   ],
   
   [
@@ -648,6 +702,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 45;
     ];
+    pg:membership [ pg:group plug:mrvalve; ];
   ],
   
   [
@@ -662,6 +717,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 46;
     ];
+    pg:membership [ pg:group plug:mrvalve; ];
   ],
   
   [
@@ -676,6 +732,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 47;
     ];
+    pg:membership [ pg:group plug:mrvalve; ];
   ],
   
   [
@@ -690,6 +747,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 48;
     ];
+    pg:membership [ pg:group plug:mrvalve; ];
   ],
   
   [
@@ -705,6 +763,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 49;
     ];
+    pg:membership [ pg:group plug:speakers; ];
   ],
   
   [
@@ -720,6 +779,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 1;
     ];
+    pg:membership [ pg:group plug:speakers; ];
   ],
   
   [
@@ -734,6 +794,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 50;
     ];
+    pg:membership [ pg:group plug:speakers; ];
   ],
   
   [
@@ -748,6 +809,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 51;
     ];
+    pg:membership [ pg:group plug:speakers; ];
   ],
   
   [
@@ -762,6 +824,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 52;
     ];
+    pg:membership [ pg:group plug:speakers; ];
   ],
   
   [
@@ -776,6 +839,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 53;
     ];
+    pg:membership [ pg:group plug:speakers; ];
   ],
   
   [
@@ -790,6 +854,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 54;
     ];
+    pg:membership [ pg:group plug:speakers; ];
   ],
   
   [
@@ -804,6 +869,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 55;
     ];
+    pg:membership [ pg:group plug:speakers; ];
   ],
   
   [
@@ -818,6 +884,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 56;
     ];
+    pg:membership [ pg:group plug:speakers; ];
   ],
   
   [
@@ -832,6 +899,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 57;
     ];
+    pg:membership [ pg:group plug:speakers; ];
   ],
   
   [
@@ -847,6 +915,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 58;
     ];
+    pg:membership [ pg:group plug:speakers; ];
   ],
   
   [
@@ -876,6 +945,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 60;
     ];
+    pg:membership [ pg:group plug:section1; ];
   ],
   
   [
@@ -891,6 +961,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 61;
     ];
+    pg:membership [ pg:group plug:section2; ];
   ],
   
   [
@@ -906,6 +977,7 @@
       mm:controllerType mm:CC;
       mm:controllerNumber 62;
     ];
+    pg:membership [ pg:group plug:bass; ];
   ],
   
   [
@@ -920,6 +992,7 @@
     lv2:index 64;
     lv2:symbol "left";
     lv2:name "Left output";
+    pg:membership [ pg:group plug:output; pg:role pg:leftChannel; ];
   ],
 
   [
@@ -927,6 +1000,7 @@
     lv2:index 65;
     lv2:symbol "right";
     lv2:name "Right output";
+    pg:membership [ pg:group plug:output; pg:role pg:rightChannel; ];
   ].
 
 <http://ll-plugins.nongnu.org/lv2/dev/azr3/0.0.0/gui> 

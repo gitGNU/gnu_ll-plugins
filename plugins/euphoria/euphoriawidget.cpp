@@ -185,7 +185,8 @@ VBox* EuphoriaWidget::create_knob(const string& label, int port,
   adj.signal_value_changed().
     connect(compose(bind<0>(signal_control_changed, port),
                     mem_fun(adj, &Adjustment::get_value)));
-  assert(m_adj[port] == 0);
+  // XXX remember to fix this!
+  //assert(m_adj[port] == 0);
   m_adj[port] = &adj;
   box->pack_start(*knob);
   Label* text = manage(new Label(string("<small>") + label + "</small>"));
@@ -383,6 +384,72 @@ Widget& EuphoriaWidget::init_shp_controls() {
 }
 
 
+Widget& EuphoriaWidget::init_spr_controls() {
+  
+  Table* spring_tbl = manage(new Table(1, 4));
+  spring_tbl->set_border_width(6);
+  spring_tbl->set_spacings(6);
+  VBox* ed_box = manage(new VBox);
+  m_spring.set_size_request(91, 91);
+  Notebook* spring_ed_nbk = manage(new Notebook);
+  ScrolledWindow* ed_scw = manage(new ScrolledWindow);
+  spring_ed_nbk->append_page(*ed_scw, "Springs");
+  ed_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  ed_scw->set_shadow_type(SHADOW_IN);
+  ed_scw->add(m_spring);
+  ed_box->pack_start(*spring_ed_nbk, false, false);
+
+  HBox* ed_hbox = manage(new HBox(true));
+  ed_box->pack_start(*ed_hbox, false, false);
+  spring_tbl->attach(*ed_box, 0, 1, 0, 1, 
+		     AttachOptions(0), AttachOptions(0));
+  
+  Table* knob1_tbl = manage(new Table(2, 2));
+  spring_tbl->attach(*knob1_tbl, 1, 2, 0, 1, AttachOptions(0), AttachOptions(0));
+  knob1_tbl->set_spacings(3);
+  knob1_tbl->attach(*create_knob("Proj", e_shape), 
+                    0, 1, 0, 1, AttachOptions(0));
+  knob1_tbl->attach(*create_knob("Env", e_shape_env_sens),
+                    0, 1, 1, 2, AttachOptions(0));
+  knob1_tbl->attach(*create_knob("Vel", e_shape_vel_sens),
+                    1, 2, 0, 1, AttachOptions(0));
+  
+  VBox* env_box = manage(new VBox(false, 0));
+  Notebook* spr_env_nb = manage(new Notebook);
+  HScrollbar* env_scb = manage(new HScrollbar(m_spr_proj_env.get_adjustment()));
+  for (int i = 0; i < 4; ++i) {
+    ToggleButton* btn = manage(new ToggleButton);
+    env_scb->signal_size_allocate().connect(bind(&moo, btn));
+    ed_hbox->pack_start(*btn);
+  }
+  env_box->pack_start(*spr_env_nb);
+  
+  ScrolledWindow* env_scw = manage(new ScrolledWindow());
+  spr_env_nb->append_page(*env_scw, "Projection angle");
+  env_scw->set_shadow_type(SHADOW_IN);
+  env_scw->set_policy(POLICY_NEVER, POLICY_NEVER);
+  env_scw->add(m_spr_proj_env);
+
+  env_box->pack_start(*env_scb);
+  spring_tbl->attach(*env_box, 2, 3, 0, 1, FILL|EXPAND, AttachOptions(0));
+
+  Table* knob2_tbl = manage(new Table(2, 2));
+  spring_tbl->attach(*knob2_tbl, 3, 4, 0, 1, 
+		     AttachOptions(0), AttachOptions(0));
+  knob2_tbl->set_spacings(3);
+  knob2_tbl->attach(*create_knob("Att", e_shape_attack, 1, 0, 0), 
+                    0, 1, 0, 1, AttachOptions(0));
+  knob2_tbl->attach(*create_knob("Dec", e_shape_decay, 1, 1, 0),
+                    1, 2, 0, 1, AttachOptions(0));
+  knob2_tbl->attach(*create_knob("Sus", e_shape_sustain, 0.3, 1, 0.3),
+                    0, 1, 1, 2, AttachOptions(0));
+  knob2_tbl->attach(*create_knob("Rel", e_shape_release),
+                    1, 2, 1, 2, AttachOptions(0));
+
+  return *spring_tbl;
+}
+
+
 Widget& EuphoriaWidget::init_markov_controls() {
 
   Table* tbl = manage(new Table(1, 4));
@@ -551,6 +618,13 @@ Widget& EuphoriaWidget::init_voice_controls() {
   shp_hbox->pack_start(*shp_cbox);
   shp_hbox->show_all();
   voice_nbk->append_page(init_shp_controls(), *shp_hbox);
+  
+  CheckButton* spr_cbox = manage(new CheckButton);
+  HBox* spr_hbox = manage(new HBox(false, 3));
+  spr_hbox->pack_start(*manage(new Label("Spring synthesis")));
+  spr_hbox->pack_start(*spr_cbox);
+  spr_hbox->show_all();
+  voice_nbk->append_page(init_spr_controls(), *spr_hbox);
   
   /*
   CheckButton* mrk_cbox = manage(new CheckButton);

@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.230
+PACKAGE_VERSION = 0.1.231
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -19,6 +19,7 @@ ARCHIVES = \
 	libvgknob.a \
 	libenvelopeeditor.a \
 	libshapereditor.a \
+	libspringeditor.a \
 	libpdeditor.a \
 	libtransitioneditor.a \
 	libpatternwidget.a
@@ -65,6 +66,10 @@ libenvelopeeditor_a_SOURCEDIR = libraries/widgets
 libshapereditor_a_SOURCES = shapereditor.hpp shapereditor.cpp
 libshapereditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
 libshapereditor_a_SOURCEDIR = libraries/widgets
+
+libspringeditor_a_SOURCES = springeditor.hpp springeditor.cpp
+libspringeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
+libspringeditor_a_SOURCEDIR = libraries/widgets
 
 libpdeditor_a_SOURCES = pdeditor.hpp pdeditor.cpp
 libpdeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
@@ -227,6 +232,7 @@ euphoria_gtk_so_ARCHIVES = \
 	libraries/widgets/libvgknob.a \
 	libraries/widgets/libenvelopeeditor.a \
 	libraries/widgets/libshapereditor.a \
+	libraries/widgets/libspringeditor.a \
 	libraries/widgets/libpdeditor.a \
 	libraries/widgets/libtransitioneditor.a \
 	libraries/lv2gtk2gui/liblv2_gtk2gui.a
