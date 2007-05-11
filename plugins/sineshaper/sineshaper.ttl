@@ -4,6 +4,19 @@
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 @prefix llext: <http://ll-plugins.nongnu.org/lv2/ext/>.
 @prefix mm: <http://ll-plugins.nongnu.org/lv2/ext/midimap#>.
+@prefix pg: <http://ll-plugins.nongnu.org/lv2/ext/portgroups#>.
+@prefix plug: <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0>.
+
+
+plug:tuning     rdfs:label "Tuning".
+plug:osc2       rdfs:label "Oscillator 2".
+plug:vibrato    rdfs:label "Vibrato".
+plug:portamento rdfs:label "Portamento".
+plug:tremolo    rdfs:label "Tremolo".
+plug:envelope   rdfs:label "Envelope".
+plug:shaper     rdfs:label "Shaper".
+plug:amp        rdfs:label "Amplifer".
+plug:delay      rdfs:label "Delay".
 
 
 <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0>
@@ -25,6 +38,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 16;
     ];
+    pg:membership [ pg:group plug:tuning; ];
   ],
   
   [
@@ -39,6 +53,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 17;
     ];
+    pg:membership [ pg:group plug:tuning; ];
   ],
   
   [
@@ -53,6 +68,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 18;
     ];
+    pg:membership [ pg:group plug:osc2; ];
   ],
 
   [
@@ -67,6 +83,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 19;
     ];
+    pg:membership [ pg:group plug:osc2; ];
   ],
 
   [
@@ -81,6 +98,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 95;
     ];
+    pg:membership [ pg:group plug:osc2; ];
   ],
 
   [
@@ -95,6 +113,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 65;
     ];
+    pg:membership [ pg:group plug:portamento; ];
   ],
 
   [
@@ -109,6 +128,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 5;
     ];
+    pg:membership [ pg:group plug:portamento; ];
   ],
 
   [
@@ -123,6 +143,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 68;
     ];
+    pg:membership [ pg:group plug:portamento; ];
   ],
   
   [
@@ -137,6 +158,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 2;
     ];
+    pg:membership [ pg:group plug:vibrato; ];
   ],
 
   [
@@ -151,6 +173,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 1;
     ];
+    pg:membership [ pg:group plug:vibrato; ];
   ],
 
   [
@@ -165,6 +188,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 75;
     ];
+    pg:membership [ pg:group plug:tremolo; ];
   ],
 
   [
@@ -179,6 +203,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 92;
     ];
+    pg:membership [ pg:group plug:tremolo; ];
   ],
 
   [
@@ -193,6 +218,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 71;
     ];
+    pg:membership [ pg:group plug:shaper; ];
   ],
 
   [
@@ -207,6 +233,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 74;
     ];
+    pg:membership [ pg:group plug:shaper; ];
   ],
 
   [
@@ -221,6 +248,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 70;
     ];
+    pg:membership [ pg:group plug:shaper; ];
   ],
 
   [
@@ -235,6 +263,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 76;
     ];
+    pg:membership [ pg:group plug:shaper; ];
   ],
 
   [
@@ -249,6 +278,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 77;
     ];
+    pg:membership [ pg:group plug:shaper; ];
   ],
 
   [
@@ -263,6 +293,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 78;
     ];
+    pg:membership [ pg:group plug:shaper; ];
   ],
 
   [
@@ -277,6 +308,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 73;
     ];
+    pg:membership [ pg:group plug:envelope; ];
   ],
 
   [
@@ -291,6 +323,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 4;
     ];
+    pg:membership [ pg:group plug:envelope; ];
   ],
 
   [
@@ -305,6 +338,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 79;
     ];
+    pg:membership [ pg:group plug:envelope; ];
   ],
 
   [
@@ -319,6 +353,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 72;
     ];
+    pg:membership [ pg:group plug:release; ];
   ],
   
   [
@@ -333,6 +368,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 93;
     ];
+    pg:membership [ pg:group plug:amplifier; ];
   ],
 
   [
@@ -347,6 +383,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 94;
     ];
+    pg:membership [ pg:group plug:amplifier; ];
   ],
 
   [
@@ -361,6 +398,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 7;
     ];
+    pg:membership [ pg:group plug:amplifier; ];
   ],
   
   [
@@ -375,6 +413,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 12;
     ];
+    pg:membership [ pg:group plug:delay; ];
   ],
 
   [
@@ -389,6 +428,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 13;
     ];
+    pg:membership [ pg:group plug:delay; ];
   ],
 
   [
@@ -403,6 +443,7 @@
       mm:controllerType ll:CC;
       mm:controllerNumber 91;
     ];
+    pg:membership [ pg:group plug:delay; ];
   ],
   
   [
