@@ -87,22 +87,35 @@ protected:
   void* worker_function_real();
  
 protected:
- 
+  
+  /** The main notemaster object. */
   notemaster n1;
-  bool mute;
+  
+  /** Click coefficients for the different sections. */
+  // XXX why is this 16 elements long instead of just 3?
   float click[16];
-  float volume[16];
-  float mono_before;
+  
+  /** The rate the plugin is running at. */
   float samplerate;
+  
+  /** Frame counter. */
   long samplecount;
-  bool waitforsplit;
+  
+  /** Keyboard split point. */
   long splitpoint;
- 
+  
+  /** True for the parameters that need to be sent to the worker thread for
+      non-RT safe processing, false for all others. */
   bool slow_controls[kNumParams];
+  
+  /** Stores the last value for every parameter. */
+  // XXX maybe we could use m_value[i].new_value for this instead?
   float last_value[kNumParams];
- 
-  float tonewheel[WAVETABLESIZE]; // master waveform
-
+  
+  /** The master waveform. */
+  float tonewheel[WAVETABLESIZE];
+  
+  /** Resized waveforms at different pitches, one for each drawbar. */
   float sin_16[WAVETABLESIZE];
   float sin_8[WAVETABLESIZE];
   float sin_513[WAVETABLESIZE];

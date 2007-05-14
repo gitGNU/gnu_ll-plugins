@@ -74,7 +74,7 @@ AZR3::AZR3(uint32_t rate, const char* bundle_path,
     lfo_d_nout(0),
     splitpoint(0),
     last_shape(-1),
-    mute(true),
+    //mute(true),
     pedal(false),
     odchanged(true),
     last_r(0),
@@ -136,7 +136,7 @@ AZR3::~AZR3() {
 
 void AZR3::activate() {
 
-  mute = false;
+  //mute = false;
 
   for(int x = 0; x < 4; x++) {
     allpass_r[x].reset();
@@ -322,7 +322,7 @@ void AZR3::run(uint32_t sampleFrames) {
   for (uint32_t pframe = 0; pframe < sampleFrames; ++pframe) {
     
     // we need this variable further down
-    samplecount++;
+    ++samplecount;
     if(samplecount > 10000)
       samplecount = 0;
                 
@@ -752,10 +752,10 @@ void AZR3::run(uint32_t sampleFrames) {
     else {
       last_out1 = last_out2 = mono * *p(n_master);
     }
-    if(mute) {
-      last_out1 = 0;
-      last_out2 = 0;
-    }
+    //if(mute) {
+    //  last_out1 = 0;
+    //  last_out2 = 0;
+    //}
     
     (*out1++) = last_out1;
     (*out2++) = last_out2;

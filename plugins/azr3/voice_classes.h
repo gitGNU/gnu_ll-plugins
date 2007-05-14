@@ -49,6 +49,8 @@
 
 char*	note2str(long note);
 
+
+/** This is a single organ voice. */
 class voice
 {
 public:
@@ -115,6 +117,8 @@ private:
 	filt1	clicklp;
 };
 
+
+/** This class mixes and manages all voices. */
 class notemaster
 {
 public:
