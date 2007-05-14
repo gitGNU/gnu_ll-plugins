@@ -153,11 +153,19 @@ protected:
   unsigned char* midi_ptr;
  
   pthread_mutex_t m_notemaster_lock;
+  
+  /** This structure is used to pass data from the audio thread to the
+      worker thread. The audio thread trywaits for the semaphore, and if it
+      succeeds it writes the new port values to the new_value fields and then
+      posts the semaphore. The worker thread waits for the semaphore, copies
+      new_value to old_value, posts the semaphore, and does things with
+      old_value. */
   struct ParameterChange {
     float old_value;
-    float new_value;
+    volatile float new_value;
   } m_values[kNumParams];
   sem_t m_qsem;
+  
   pthread_t m_worker;
 };
 

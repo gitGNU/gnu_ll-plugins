@@ -126,7 +126,6 @@ AZR3::AZR3(uint32_t rate, const char* bundle_path,
   body_filt.setparam(190, 1.5f, samplerate);
   postbody_filt.setparam(1100, 1.5f, samplerate);
 
-  //make_waveforms(W_SINE);
 }
 
 
@@ -1084,7 +1083,6 @@ void* AZR3::worker_function(void* arg) {
 
 void* AZR3::worker_function_real() {
 
-  //PortChange pc(0, 0);
   bool change_mono = false;
   bool change_shape = false;
   bool change_organ1 = false;
