@@ -88,7 +88,7 @@ AZR3::AZR3(uint32_t rate, const char* bundle_path,
   for(int x = 0; x < kNumParams; x++) {
     last_value[x] = -99;
     slow_controls[x] = false;
-    w_p[x] = -99;
+    m_values[x].old_value = -99;
   }
   slow_controls[n_mono] = true;
   for (int x = 0; x < 9; ++x)
@@ -126,8 +126,6 @@ AZR3::AZR3(uint32_t rate, const char* bundle_path,
   body_filt.setparam(190, 1.5f, samplerate);
   postbody_filt.setparam(1100, 1.5f, samplerate);
 
-  //setFactorySounds(programs);
-
   //make_waveforms(W_SINE);
 }
 
@@ -155,7 +153,7 @@ void AZR3::activate() {
   wand_r.flood(0);
   wand_l.flood(0);
   
-  sem_init(&m_qsem, 0, 0);
+  sem_init(&m_qsem, 0, 1);
   pthread_create(&m_worker, 0, &AZR3::worker_function, this);
 }
 
@@ -165,31 +163,6 @@ void AZR3::deactivate() {
   pthread_join(m_worker, 0);
   sem_destroy(&m_qsem);
 }
-
-
-/*
-  void AZR3::select_program(uint32_t program) {
-  
-  if (program >= kNumPrograms)
-  return;
-  
-  Program& ap = programs[program];
-  
-  //cerr<<__PRETTY_FUNCTION__<<endl;
-  
-  for(uint32_t x = 0; x < kNumParams; x++) {
-  //cerr<<"Setting parameter "<<x<<" to "<<ap.p[x]<<" from "<<last_value[x]<<endl;
-  *p(x) = ap.p[x];
-  if (slow_controls[x]) {
-  //cerr<<"Sending port change to worker thread: "<<x<<" -> "<<ap.p[x]<<endl;
-  PortChange pc(x, ap.p[x]);
-  m_queue.write(&pc);
-  sem_post(&m_qsem);
-  last_value[x] = ap.p[x];
-  }
-  }
-  }
-*/
 
 
 void AZR3::run(uint32_t sampleFrames) {
@@ -214,6 +187,7 @@ void AZR3::run(uint32_t sampleFrames) {
   float* out1 = p(64);
   float* out2 = p(65);
   
+  // if the notemaster mutex is locked, don't try to render anything
   if (pthread_mutex_trylock(&m_notemaster_lock)) {
     memset(out1, 0, sizeof(float) * sampleFrames);
     memset(out2, 0, sizeof(float) * sampleFrames);
@@ -221,13 +195,12 @@ void AZR3::run(uint32_t sampleFrames) {
   }
   
   // send slow port changes to the worker thread
-  for (int i = 0; i < kNumParams; ++i) {
-    if (slow_controls[i] && *p(i) != last_value[i]) {
-      PortChange pc(i, *p(i));
-      m_queue.write(&pc);
-      sem_post(&m_qsem);
-      last_value[i] = *p(i);
+  if (!sem_trywait(&m_qsem)) {
+    for (int i = 0; i < kNumParams; ++i) {
+      if (slow_controls[i])
+	m_values[i].new_value = *p(i);
     }
+    sem_post(&m_qsem);
   }
   
   // vibrato handling
@@ -795,8 +768,6 @@ void AZR3::run(uint32_t sampleFrames) {
 
 bool AZR3::make_waveforms(int shape) {
   
-  //cerr<<__PRETTY_FUNCTION__<<" with shape "<<shape<<endl;
-  
   long    i;
   float   amp = 0.5f;
   float   tw = 0, twfuzz;
@@ -909,14 +880,12 @@ bool AZR3::make_waveforms(int shape) {
 // per set. "number" is 1..3 and references the waveform set
 void AZR3::calc_waveforms(int number) {
   
-  //cerr<<__PRETTY_FUNCTION__<<" with number "<<number<<endl;
-  
   int i, c;
   volatile float* t;
   float   this_p[kNumParams];
 
   for (c = 0; c < kNumParams; c++)
-    this_p[c] = w_p[c];
+    this_p[c] = m_values[c].old_value;
   if (number == 2) {
     c = n_2_db1;
     t = &wavetable[WAVETABLESIZE * TABLES_PER_CHANNEL];
@@ -1107,9 +1076,15 @@ unsigned char* AZR3::event_clock(uint32_t offset) {
 
 
 void* AZR3::worker_function(void* arg) {
-
+  
   AZR3& me = *static_cast<AZR3*>(arg);
-  PortChange pc(0, 0);
+  return me.worker_function_real();
+}
+
+
+void* AZR3::worker_function_real() {
+
+  //PortChange pc(0, 0);
   bool change_mono = false;
   bool change_shape = false;
   bool change_organ1 = false;
@@ -1118,40 +1093,44 @@ void* AZR3::worker_function(void* arg) {
   
   do {
     
-    // wait until the audio thread sends something
-    while (sem_wait(&me.m_qsem));
-    
     // sleep for a while - we don't need to update the tables for _every_ 
     // change
     usleep(10000);
     
+    // wait until the audio thread is done writing
+    sem_wait(&m_qsem);
+    
     // read port changes from the queue until the semaphore would block
-    do {
-      me.m_queue.read(&pc, 1);
-      if (pc.value != me.w_p[pc.port]) {
-        me.w_p[pc.port] = pc.value;
-        if (pc.port == n_mono)
-          change_mono = true;
-        else if (pc.port >= n_1_db1 && pc.port <= n_1_db9)
-          change_organ1 = true;
-        else if (pc.port >= n_2_db1 && pc.port <= n_2_db9)
-          change_organ2 = true;
-        else if (pc.port >= n_3_db1 && pc.port <= n_3_db5)
-          change_organ3 = true;
-        else if (pc.port == n_shape) {
-          change_shape = true;
+    for (unsigned i = 0; i < kNumParams; ++i) {
+      if (slow_controls[i]) {
+	if (m_values[i].old_value != m_values[i].new_value) {
+	  if (i == n_mono)
+	    change_mono = true;
+	  else if (i >= n_1_db1 && i <= n_1_db9)
+	    change_organ1 = true;
+	  else if (i >= n_2_db1 && i <= n_2_db9)
+	    change_organ2 = true;
+	  else if (i >= n_3_db1 && i <= n_3_db5)
+	    change_organ3 = true;
+	  else if (i == n_shape)
+	    change_shape = true;
+	  
+	  m_values[i].old_value = m_values[i].new_value;
         }
       }
-    } while (!sem_trywait(&me.m_qsem));
+    }
+    
+    // done reading, release the semaphore
+    sem_post(&m_qsem);
     
     // act on the port changes
     if (change_mono) {
-      pthread_mutex_lock(&me.m_notemaster_lock);
-      if (pc.value >= 0.5f)
-        me.n1.set_numofvoices(1);
+      pthread_mutex_lock(&m_notemaster_lock);
+      if (m_values[n_mono].old_value >= 0.5f)
+        n1.set_numofvoices(1);
       else
-        me.n1.set_numofvoices(NUMOFVOICES);
-      pthread_mutex_unlock(&me.m_notemaster_lock);
+        n1.set_numofvoices(NUMOFVOICES);
+      pthread_mutex_unlock(&m_notemaster_lock);
       change_mono = false;
     }
     
@@ -1160,26 +1139,30 @@ void* AZR3::worker_function(void* arg) {
     // noises while moving the shape knob or the drawbars this might be 
     // the cause.
     if (change_shape) {
-      if (me.make_waveforms(int(pc.value * (W_NUMOF - 1) + 1) - 1)) {
-        me.calc_waveforms(1);
-        me.calc_waveforms(2);
-        me.calc_waveforms(3);
+      if (make_waveforms(int(m_values[n_shape].old_value * 
+			     (W_NUMOF - 1) + 1) - 1)) {
+        calc_waveforms(1);
+        calc_waveforms(2);
+        calc_waveforms(3);
       }
       change_shape = false;
+      change_organ1 = false;
+      change_organ2 = false;
+      change_organ3 = false;
     }
     
     if (change_organ1) {
-      me.calc_waveforms(1);
+      calc_waveforms(1);
       change_organ1 = false;
     }
     
     if (change_organ2) {
-      me.calc_waveforms(2);
+      calc_waveforms(2);
       change_organ2 = false;
     }
         
     if (change_organ3) {
-      me.calc_waveforms(3);
+      calc_waveforms(3);
       change_organ3 = false;
     } 
 
