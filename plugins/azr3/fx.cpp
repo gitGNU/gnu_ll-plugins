@@ -136,13 +136,16 @@ float delay::clock(float input)
   return(output);
 }
 
-lfo::lfo()
+lfo::lfo(float sr)
 {
+  // XXX make this initialise itself properly
   output=0;
   inc=0;
   dir=1;
   c=1;
   s=0;
+  samplerate = sr;
+  set_rate(0, 0);
 }
 
 void lfo::set_samplerate(float sr)
@@ -222,7 +225,11 @@ void lfo::offset_phase(lfo& l, float phase_offset) {
 
 filt1::filt1()
 {
+  // XXX this is pretty ugly, make it initialise itself properly
   m_l=m_h=m_b=m_f=q=0;
+  fc = 5000;
+  q = 0.1;
+  fs = 44100;
 }
 
 void filt1::clock(float input)

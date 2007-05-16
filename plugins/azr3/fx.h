@@ -58,7 +58,7 @@ protected:
 class lfo
 {
 public:
-	lfo();
+	lfo(float sr);
 	~lfo(){};
 	float clock();
 	void	set_samplerate(float samplerate);

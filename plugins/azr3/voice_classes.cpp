@@ -24,21 +24,21 @@
 ****************************************************************************/
 
 /*
-	The voice producing machine, diverted into two blocks:
+  The voice producing machine, diverted into two blocks:
+  
+  VOICES actually calculate a single voice sound. They
+  do basic voice handling like ADSR, pitch and the unevitable
+  click and percussion effects.
 
-	VOICES actually calculate a single voice sound. They
-	do basic voice handling like ADSR, pitch and the unevitable
-	click and percussion effects.
-
-	A NOTEMASTER instantiates as many voice class objects as needed
-	for the current instrument. The numbers are tunable in "Globals.h",
-	definition "NUMOFVOICES". It handles all incoming events like note
-	on and off, all notes off, pedal, pitch bend and so on. The events
-	will then be assigned to the corresponding voices. The notemaster
-	assigns a specific wavetable to each voice.	Only active voices
-	are handled by the notemaster - that's the main reason why the CPU
-	meter goes up when you hold more notes. The positive effect is: The
-	meter goes down if you use less voices...
+  A NOTEMASTER instantiates as many voice class objects as needed
+  for the current instrument. The numbers are tunable in "Globals.h",
+  definition "NUMOFVOICES". It handles all incoming events like note
+  on and off, all notes off, pedal, pitch bend and so on. The events
+  will then be assigned to the corresponding voices. The notemaster
+  assigns a specific wavetable to each voice.	Only active voices
+  are handled by the notemaster - that's the main reason why the CPU
+  meter goes up when you hold more notes. The positive effect is: The
+  meter goes down if you use less voices...
 */
 #include "voice_classes.h"
 #include <stdio.h>

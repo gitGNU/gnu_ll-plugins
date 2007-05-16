@@ -47,6 +47,11 @@ AZR3::AZR3(uint32_t rate, const char* bundle_path,
     delay2(4410,true),
     delay3(4410,true),
     delay4(4410,true),
+    vlfo((float)rate),
+    lfo1((float)rate),
+    lfo2((float)rate),
+    lfo3((float)rate),
+    lfo4((float)rate),
     samplecount(0),
     viblfo(0),
     vmix1(0),
@@ -55,6 +60,8 @@ AZR3::AZR3(uint32_t rate, const char* bundle_path,
     oldmix(0),
     fuzz(0),
     odmix(0),
+    n_odmix(1 - odmix),
+    n2_odmix(2 - odmix),
     oldspread(0),
     spread(0),
     spread2(0),
@@ -64,6 +71,7 @@ AZR3::AZR3(uint32_t rate, const char* bundle_path,
     er_r(0),
     er_l(0),
     er_r_before(0),
+    er_feedback(0),
     llfo_out(0),
     llfo_nout(0),
     llfo_d_out(0),
@@ -89,6 +97,7 @@ AZR3::AZR3(uint32_t rate, const char* bundle_path,
     last_value[x] = -99;
     slow_controls[x] = false;
     m_values[x].old_value = -99;
+    m_values[x].new_value = -99;
   }
   slow_controls[n_mono] = true;
   for (int x = 0; x < 9; ++x)
@@ -513,11 +522,10 @@ void AZR3::run(uint32_t sampleFrames) {
       }
       mono2 = (1 - vmix2) * mono2 + vmix2 * vdelay2.clock(mono2);
     }
-                
-                
+    
     mono += mono1 + mono2;
     mono *= 1.4f;
-                
+
     // Mr. Valve
     /*
       Completely rebuilt.
