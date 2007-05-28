@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 #include <csignal>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -51,6 +52,108 @@ vector<jack_port_t*> jack_ports;
 jack_client_t* jack_client;
 lash_client_t* lash_client;
 bool still_running;
+
+
+void autoconnect(jack_client_t* client) {
+  
+  const char* env;
+  const char** port_list;
+  const char** our_ports;
+  const char* name = jack_get_client_name(client);
+  
+  // MIDI input
+  if ((env = getenv("ELVEN_MIDI_INPUT"))) {
+    our_ports = jack_get_ports(client, (string(name) + ":*").c_str(),
+			       JACK_DEFAULT_MIDI_TYPE, JackPortIsInput);
+    if (our_ports && our_ports[0]) {
+      // if it's a client, connect individual ports
+      if (index(env, ':') == NULL &&
+	  (port_list = jack_get_ports(client, (string(env) + ":*").c_str(),
+				      JACK_DEFAULT_MIDI_TYPE, 
+				      JackPortIsOutput)) && port_list[0]) {
+	for (int i = 0; port_list[i] && our_ports[i]; ++i)
+	  jack_connect(client, port_list[i], our_ports[i]);
+	free(port_list);
+      }
+      // if not, connect all our ports to that single port
+      else {
+	for (int i = 0; our_ports[i]; ++i)
+	  jack_connect(client, env, our_ports[i]);
+      }
+    }
+    free(our_ports);
+  }
+    
+  // audio input
+  if ((env = getenv("ELVEN_AUDIO_INPUT"))) {
+    our_ports = jack_get_ports(client, (string(name) + ":*").c_str(),
+			       JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput);
+    if (our_ports && our_ports[0]) {
+      // if it's a client, connect individual ports
+      if (index(env, ':') == NULL &&
+	  (port_list = jack_get_ports(client, (string(env) + ":*").c_str(),
+				      JACK_DEFAULT_AUDIO_TYPE, 
+				      JackPortIsOutput)) && port_list[0]) {
+	for (int i = 0; port_list[i] && our_ports[i]; ++i)
+	  jack_connect(client, port_list[i], our_ports[i]);
+	free(port_list);
+      }
+      // if not, connect all our ports to that single port
+      else {
+	for (int i = 0; our_ports[i]; ++i)
+	  jack_connect(client, env, our_ports[i]);
+      }
+    }
+    free(our_ports);
+  }
+  
+  // MIDI output
+  if ((env = getenv("ELVEN_MIDI_OUTPUT"))) {
+    our_ports = jack_get_ports(client, (string(name) + ":*").c_str(),
+			       JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput);
+    if (our_ports && our_ports[0]) {
+      // if it's a client, connect individual ports
+      if (index(env, ':') == NULL &&
+	  (port_list = jack_get_ports(client, (string(env) + ":*").c_str(),
+				      JACK_DEFAULT_MIDI_TYPE, 
+				      JackPortIsInput)) && port_list[0]) {
+	for (int i = 0; port_list[i] && our_ports[i]; ++i)
+	  jack_connect(client, our_ports[i], port_list[i]);
+	free(port_list);
+      }
+      // if not, connect all our ports to that single port
+      else {
+	for (int i = 0; our_ports[i]; ++i)
+	  jack_connect(client, our_ports[i], env);
+      }
+    }
+    free(our_ports);
+  }
+    
+  // audio output
+  if ((env = getenv("ELVEN_AUDIO_OUTPUT"))) {
+    our_ports = jack_get_ports(client, (string(name) + ":*").c_str(),
+			       JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput);
+    if (our_ports && our_ports[0]) {
+      // if it's a client, connect individual ports
+      if (index(env, ':') == NULL &&
+	  (port_list = jack_get_ports(client, (string(env) + ":*").c_str(),
+				      JACK_DEFAULT_AUDIO_TYPE, 
+				      JackPortIsInput)) && port_list[0]) {
+	for (int i = 0; port_list[i] && our_ports[i]; ++i)
+	  jack_connect(client, our_ports[i], port_list[i]);
+	free(port_list);
+      }
+      // if not, connect all our ports to that single port
+      else {
+	for (int i = 0; our_ports[i]; ++i)
+	  jack_connect(client, our_ports[i], env);
+      }
+    }
+    free(our_ports);
+  }  
+  
+}
 
 
 string escape_space(const string& str) {
@@ -459,6 +562,8 @@ int main(int argc, char** argv) {
     
     lv2h.signal_configure.connect(mem_fun(osc, &OSCController::send_configure));
     lv2h.signal_filename.connect(mem_fun(osc, &OSCController::send_filename));
+    
+    autoconnect(jack_client);
     
     // queue that the host can pass configurations to
     EventQueue conf_q;
