@@ -2,7 +2,7 @@
     
     AZR-3 - An LV2 synth plugin
     
-    Copyright (C) 2006  Lars Luthman <lars.luthman@gmail.com>
+    Copyright (C) 2006-2007  Lars Luthman <lars.luthman@gmail.com>
     
     based on source code from the VST plugin AZR-3, (C) 2006 Philipp Mott
     (well, almost all of it is his code)
@@ -44,6 +44,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <limits>
 #ifdef WIN32
 	#include <wtypes.h>
 #endif
@@ -229,7 +230,8 @@ float voice::clock()
 				static unsigned long randSeed = 22222;
 				float rand=0;
 				randSeed = (randSeed * 196314165) + 907633515;
-				rand=(float)randSeed/0xffffffff;
+				rand=(float)randSeed /
+				  std::numeric_limits<unsigned long>::max();
 				clicklp.clock(click*rand*.3f);
 				noise=clicklp.bp()*clickvol*.7f;
 				output+=noise;
@@ -286,7 +288,8 @@ float voice::clock()
 		if(mattack>1)
 			mattack=1;
 		randSeed = (randSeed * 196314165) + 907633515;
-		rand=(float)randSeed/0xffffffff;
+		rand=(float)randSeed /
+		  std::numeric_limits<unsigned long>::max();
 		clicklp.clock(click*rand*.3f);
 		noise=clicklp.bp();
 		noise*=clickvol;
