@@ -277,6 +277,11 @@ const std::vector<int>& LV2Host::get_midi_map() const {
 }
 
 
+const std::string& LV2Host::get_icon_path() const {
+  return m_iconpath;
+}
+
+
 const std::string& LV2Host::get_gui_path() const {
   return m_plugingui;
 }
@@ -724,6 +729,17 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
       m_plugingui = qr[0][gui_path]->name;
       m_plugingui = m_plugingui.substr(8, m_plugingui.size() - 9);
       DBG2("Found GUI plugin file "<<m_plugingui);
+    }
+    
+    // icon path
+    Variable icon_path;
+    qr = select(icon_path)
+      .where(uriref, ll("svgIcon"), icon_path)
+      .run(data);
+    if (qr.size() > 0) {
+      m_iconpath = qr[0][icon_path]->name;
+      m_iconpath = m_iconpath.substr(8, m_iconpath.size() - 9);
+      DBG2("Found SVG icon file "<<m_iconpath);
     }
     
     m_bundledir = m_bundle;

@@ -25,6 +25,7 @@ plug:delay      rdfs:label "Delay".
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
   ll:standaloneGui <sineshaper_gtk>;
   ll:defaultPresets <presets.ttl>;
+  ll:svgIcon <icon.svg>;
   
   lv2:port [
     a lv2:ControlPort, lv2:InputPort;

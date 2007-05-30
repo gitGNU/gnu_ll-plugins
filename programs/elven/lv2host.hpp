@@ -119,6 +119,9 @@ public:
   /** Return the MIDI controller mappings. */
   const std::vector<int>& get_midi_map() const;
   
+  /** Return the path to the SVG icon file. */
+  const std::string& get_icon_path() const;
+  
   /** Return the path to the GUI plugin module. */
   const std::string& get_gui_path() const;
   
@@ -227,6 +230,7 @@ protected:
   std::vector<LV2Port> m_ports;
   std::vector<int> m_midimap;
   long m_default_midi_port;
+  std::string m_iconpath;
   std::string m_plugingui;
   std::string m_guiuri;
   std::string m_bundledir;

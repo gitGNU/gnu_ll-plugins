@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.239
+PACKAGE_VERSION = 0.1.240
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -262,7 +262,7 @@ sineshaper_lv2_SOURCES = \
 	sineshaper.hpp sineshaper.cpp \
 	sineshaperports.hpp \
 	midiiterator.hpp
-sineshaper_lv2_DATA = manifest.ttl sineshaper.ttl sineshaper.glade dial.png sineshaper.png presets.ttl
+sineshaper_lv2_DATA = manifest.ttl sineshaper.ttl sineshaper.glade dial.png sineshaper.png presets.ttl icon.svg
 sineshaper_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/MidiPort -Iextensions/instrument -I.
 sineshaper_lv2_ARCHIVES = $(PLUGINARCHIVES)
 sineshaper_lv2_SOURCEDIR = plugins/sineshaper
@@ -329,7 +329,7 @@ azr3_lv2_SOURCES = \
 	voice_classes.h voice_classes.cpp \
 	programlist.hpp \
 	cknob.xpm minioffon.xpm onoffgreen.xpm panelfx.xpm vonoff.xpm voice.xpm num_yellow.xpm dbblack.xpm dbbrown.xpm dbwhite.xpm
-azr3_lv2_DATA = manifest.ttl azr3.ttl presets.ttl
+azr3_lv2_DATA = manifest.ttl azr3.ttl presets.ttl icon.svg
 azr3_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/MidiPort -Iextensions/instrument -Ilibraries/components -I.
 azr3_lv2_ARCHIVES = $(INSTRUMENTARCHIVES)
 azr3_lv2_SOURCEDIR = plugins/azr3

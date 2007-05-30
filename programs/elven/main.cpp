@@ -544,15 +544,22 @@ int main(int argc, char** argv) {
     // start the GUI
     string gui_uri = lv2h.get_gui_uri();
     string gui_path = lv2h.get_gui_path();
+    string icon_path = lv2h.get_icon_path();
     pid_t gui_pid = 0;
     if (gui_path.size()) {
       if (!(gui_pid = fork())) {
         ostringstream oss;
         oss<<DebugInfo::level();
-        execlp("elven_guiloader", "elven_guiloader", oss.str().c_str(), 
-               gui_path.c_str(), osc.get_url().c_str(), gui_uri.c_str(), 
-	       argv[i], lv2h.get_bundle_dir().c_str(), lv2h.get_name().c_str(),
-	       0);
+	if (icon_path.size() > 0)
+	  execlp("elven_guiloader", "elven_guiloader", oss.str().c_str(), 
+		 gui_path.c_str(), osc.get_url().c_str(), gui_uri.c_str(), 
+		 argv[i], lv2h.get_bundle_dir().c_str(), 
+		 lv2h.get_name().c_str(), icon_path.c_str(), 0);
+	else
+	  execlp("elven_guiloader", "elven_guiloader", oss.str().c_str(), 
+		 gui_path.c_str(), osc.get_url().c_str(), gui_uri.c_str(), 
+		 argv[i], lv2h.get_bundle_dir().c_str(), 
+		 lv2h.get_name().c_str(), 0);
         DBG0("Could not execute elven_guiloader");
         exit(-1);
       }

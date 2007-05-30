@@ -153,9 +153,11 @@ int main(int argc, char** argv) {
   const char* plugin_uri = argv[5];
   const char* bundle_path = argv[6];
   const char* name = argv[7];
+  const char* icon_path = 0;
+  // XXX handle socket ID somehow
   int socket_id = -1;
   if (argc > 8)
-    socket_id = atoi(argv[8]);
+    icon_path = argv[8];
   
   LV2UI_Set_Control_Function cfunc = &set_control;
   
@@ -269,6 +271,10 @@ int main(int argc, char** argv) {
     Window win;
     win.set_title(name);
     win.add(*Glib::wrap(cwidget));
+    if (icon_path) {
+      DBG2("Loading icon from "<<icon_path);
+      win.set_icon(Gdk::Pixbuf::create_from_file(icon_path));
+    }
     win.show_all();
     osc.send_update_request();
     DBG2("Starting GUI in its own window");
