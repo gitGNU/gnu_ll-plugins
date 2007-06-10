@@ -3,13 +3,15 @@
 @prefix doap: <http://usefulinc.com/ns/doap#>.
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 @prefix llext: <http://ll-plugins.nongnu.org/lv2/ext/>.
+@prefix gg: <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui#>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/horizon/0.0.0>
   a lv2:Plugin;
   doap:name "Horizon";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
-  lv2:requiredHostFeature ll:instrument-ext;
+  lv2:requiredHostFeature ll:dont-use-this-extension;
   ll:pegName "h";  
+  gg:gui <http://ll-plugins.nongnu.org/lv2/dev/horizon/0.0.0/gui>;
 
   lv2:port [
     a llext:MidiPort, lv2:InputPort;
@@ -32,3 +34,4 @@
     lv2:name "Right";
   ].
 
+<http://ll-plugins.nongnu.org/lv2/dev/horizon/0.0.0/gui> gg:binary <horizon_gtk.so>.

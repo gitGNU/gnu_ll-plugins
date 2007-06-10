@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.241
+PACKAGE_VERSION = 0.1.242
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -11,6 +11,7 @@ PKG_DEPS = \
 
 ARCHIVES = \
 	liblv2_plugin.a \
+	liblv2_advanced.a \
 	liblv2_instrument.a \
 	libpaq.a \
 	liblv2_oscui.a \
@@ -34,6 +35,10 @@ liblv2_plugin_a_SOURCEDIR = libraries/lv2plugin
 liblv2_instrument_a_SOURCES = lv2instrument.hpp lv2instrument.cpp
 liblv2_instrument_a_CFLAGS = -Iextensions/instrument -I.
 liblv2_instrument_a_SOURCEDIR = libraries/lv2plugin
+
+liblv2_advanced_a_SOURCES = lv2advanced.hpp lv2advanced.cpp
+liblv2_advanced_a_CFLAGS = -Iextensions/command -I.
+liblv2_advanced_a_SOURCEDIR = libraries/lv2plugin
 
 libpaq_a_SOURCES = \
 	turtleparser.hpp turtleparser.cpp \
@@ -98,7 +103,7 @@ elven_SOURCES = \
 	osccontroller.hpp osccontroller.cpp \
 	eventqueue.hpp eventqueue.cpp \
 	main.cpp
-elven_CFLAGS = `pkg-config --cflags jack liblo lash-1.0 sigc++-2.0` -Iextensions/MidiPort -Iextensions/instrument -Ilibraries/paq -Ilibraries/components -I.
+elven_CFLAGS = `pkg-config --cflags jack liblo lash-1.0 sigc++-2.0` -Iextensions/MidiPort -Iextensions/instrument -Iextensions/command -Ilibraries/paq -Ilibraries/components -I.
 elven_LDFLAGS = `pkg-config --libs jack liblo lash-1.0 sigc++-2.0` -lpthread
 elven_ARCHIVES = libraries/paq/libpaq.a
 elven_SOURCEDIR = programs/elven
@@ -140,6 +145,7 @@ LV2_PLUGINS = \
 
 PLUGINARCHIVES = libraries/lv2plugin/liblv2_plugin.a
 INSTRUMENTARCHIVES = libraries/lv2plugin/liblv2_plugin.a libraries/lv2plugin/liblv2_instrument.a
+ADVANCEDARCHIVES = libraries/lv2plugin/liblv2_plugin.a libraries/lv2plugin/liblv2_advanced.a
 
 # Control2MIDI
 control2midi_lv2_SOURCES = control2midi.cpp
@@ -251,11 +257,27 @@ horizon_lv2_SOURCES = \
 	segmentation.hpp segmentation.cpp \
 	voice.hpp voice.cpp
 horizon_lv2_DATA = manifest.ttl horizon.ttl
-horizon_lv2_CFLAGS = `pkg-config --cflags sndfile` -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/instrument -Iextensions/MidiPort -I.
-horizon_lv2_ARCHIVES = $(INSTRUMENTARCHIVES)
+horizon_lv2_CFLAGS = `pkg-config --cflags sndfile` -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/command -Iextensions/MidiPort -I.
+horizon_lv2_ARCHIVES = $(ADVANCEDARCHIVES)
 horizon_lv2_LDFLAGS = `pkg-config --libs sndfile`
 horizon_lv2_PEGFILES = horizon.peg
 horizon_lv2_SOURCEDIR = plugins/horizon
+horizon_lv2_MODULES = horizon_gtk.so
+horizon_gtk_so_SOURCES = \
+	chunkeditor.cpp chunkeditor.hpp \
+	controlsourcegui.cpp controlsourcegui.hpp \
+	labelslider.cpp labelslider.hpp \
+	lfo_gui.cpp lfo_gui.hpp \
+	mod_gui.cpp mod_gui.hpp \
+	optionslider.cpp optionslider.hpp \
+	sampleeditor.cpp sampleeditor.hpp \
+	triggereditor.cpp triggereditor.hpp \
+	horizon_gtk.cpp
+horizon_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0` -Iextensions/gtkgui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
+horizon_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 cairomm-1.0` 
+horizon_gtk_so_ARCHIVES = \
+	libraries/lv2gtk2gui/liblv2_gtk2gui.a
+horizon_gtk_so_SOURCEDIR = plugins/horizon
 
 # Sineshaper
 sineshaper_lv2_SOURCES = \

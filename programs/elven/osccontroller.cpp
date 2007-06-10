@@ -62,6 +62,16 @@ OSCController::OSCController(LV2Host& host, bool& still_running)
                        &OSCController::program_handler, &m_cbdata);
   lo_server_add_method(m_server, "/lv2/midi", "iim", 
                        &OSCController::midi_handler, &m_cbdata);
+  lo_server_add_method(m_server, "/lv2/tell_plugin", "", 
+                       &OSCController::tell_plugin_handler, &m_cbdata);
+  lo_server_add_method(m_server, "/lv2/tell_plugin", "s", 
+                       &OSCController::tell_plugin_handler, &m_cbdata);
+  lo_server_add_method(m_server, "/lv2/tell_plugin", "ss", 
+                       &OSCController::tell_plugin_handler, &m_cbdata);
+  lo_server_add_method(m_server, "/lv2/tell_plugin", "sss", 
+                       &OSCController::tell_plugin_handler, &m_cbdata);
+  lo_server_add_method(m_server, "/lv2/tell_plugin", "ssss", 
+                       &OSCController::tell_plugin_handler, &m_cbdata);
   
   DBG2("OSC server created, listening on "<<m_url);
   
@@ -216,6 +226,17 @@ int OSCController::midi_handler(const char*, const char*, lo_arg** argv,
   static_cast<CallbackData*>(cbdata)->
     host.queue_midi(argv[0]->i, argv[1]->i, 
                     (unsigned char*)(argv[2]->m));
+}
+
+
+int OSCController::tell_plugin_handler(const char*, const char*, lo_arg** argv,
+				       int argc, lo_message, void* cbdata) {
+  DBG2("Received /tell_plugin with "<<argc<<" parameters"<<endl);
+  const char** array = new const char*[argc];
+  for (int i = 0; i < argc; ++i)
+    array[i] = &argv[i]->s;
+  static_cast<CallbackData*>(cbdata)->
+  host.tell_plugin(argc, array);
 }
 
 

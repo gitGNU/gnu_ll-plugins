@@ -72,6 +72,13 @@ void LV2Controller::send_midi(uint32_t port, uint32_t size,
 }
 
 
+void LV2Controller::tell_plugin(uint32_t argc, const char* const* argv) {
+  cerr<<__PRETTY_FUNCTION__<<endl;
+  if (m_commdesc)
+    m_commdesc->tell_plugin(m_ctrl, argc, argv);
+}
+
+
 LV2Controller::LV2Controller(LV2UI_Set_Control_Function cfunc, 
                              LV2UI_Controller ctrl,
 			     const LV2_Host_Feature** features)
@@ -79,7 +86,8 @@ LV2Controller::LV2Controller(LV2UI_Set_Control_Function cfunc,
     m_ctrl(ctrl),
     m_instdesc(0),
     m_progdesc(0),
-    m_mididesc(0) {
+    m_mididesc(0),
+    m_commdesc(0) {
   
   for (int i = 0; features[i]; ++i) {
     if (!strcmp(features[i]->URI, "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext")) {
@@ -90,6 +98,9 @@ LV2Controller::LV2Controller(LV2UI_Set_Control_Function cfunc,
     }
     else if (!strcmp(features[i]->URI, "http://ll-plugins.nongnu.org/lv2/ext/miditype")) {
       m_mididesc = static_cast<LV2_MIDIControllerDescriptor*>(features[i]->data);
+    }
+    else if (!strcmp(features[i]->URI, "http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension")) {
+      m_commdesc = static_cast<LV2_GUICommControllerDescriptor*>(features[i]->data);
     }
   }
 }

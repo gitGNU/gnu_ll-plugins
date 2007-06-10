@@ -32,6 +32,7 @@
 
 #include "lv2-gtk2gui.h"
 #include "lv2-instrument-gtk2gui.h"
+#include "lv2-guicomm-gtk2gui.h"
 #include "lv2-program-gtk2gui.h"
 #include "lv2-miditype-gtk2gui.h"
 
@@ -96,6 +97,9 @@ namespace LV2G2GSupportFunctions {
   
   void set_program(LV2UI_Handle instance, unsigned char number);
   
+  void tell_plugin(LV2UI_Handle instance, 
+		   uint32_t argc, const char* const* argv);
+
   /* Try to access extension-specific data. You should not use this directly. */
   void* extension_data(LV2UI_Handle instance, const char* URI);
   
@@ -128,6 +132,9 @@ public:
   /** Send a MIDI event to the plugin instance. */
   void send_midi(uint32_t port, uint32_t size, const unsigned char* data);
   
+  /** Send a command to the plugin. */
+  void tell_plugin(uint32_t argc, const char* const* argv);
+  
   /** Return data associated with an extension URI, or 0 if that extension
       is not supported or does not have any data for use in controllers. */
   void* extension_data(const std::string& URI);
@@ -150,6 +157,7 @@ protected:
   LV2UI_Set_Control_Function m_cfunc;
   LV2UI_Controller m_ctrl;
   LV2_InstrumentControllerDescriptor* m_instdesc;
+  LV2_GUICommControllerDescriptor* m_commdesc;
   LV2_ProgramControllerDescriptor* m_progdesc;
   LV2_MIDIControllerDescriptor* m_mididesc;
 };

@@ -71,4 +71,23 @@ bool ActionTrigger::map_action(Action* action, unsigned char key) {
   return true;
 }
 
+
+bool ActionTrigger::remove_action(Action* action) {
+  for (unsigned i = 0; i < 128; ++i) {
+    if (m_key_table[i].action == action) {
+      m_key_table[i].action = 0;
+      // XXX probably have to do something here if the action is running
+      m_key_table[i].running = false;
+    }
+  }
+  for (unsigned i = 0; i < m_actions.size(); ++i) {
+    if (m_actions[i] == action) {
+      delete action;
+      m_actions.erase(m_actions.begin() + i);
+      return true;
+    }
+  }
+  
+  return false;
+}
   

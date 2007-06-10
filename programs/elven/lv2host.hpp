@@ -36,6 +36,7 @@
 #include <sigc++/signal.h>
 
 #include "lv2-instrument.h"
+#include "lv2-command.h"
 #include "ringbuffer.hpp"
 #include "eventqueue.hpp"
 
@@ -116,6 +117,9 @@ public:
   /** Set the plugin program. */
   void select_program(unsigned long program);
   
+  /** Send a command to the plugin. */
+  char* tell_plugin(uint32_t argc, const char* const* argv);
+  
   /** Return the MIDI controller mappings. */
   const std::vector<int>& get_midi_map() const;
   
@@ -190,6 +194,10 @@ protected:
   
   void load_plugin(const std::string& rdf_file, const std::string& binary);
   
+  void tell_host(uint32_t argc, char** argv);
+  
+  static void tell_host_wrapper(void* me, uint32_t argc, char** argv);
+  
   
   template <typename T, typename S> T nasty_cast(S ptr) {
     union {
@@ -226,6 +234,8 @@ protected:
   LV2_Handle m_handle;
   const LV2_Descriptor* m_desc;
   const LV2_InstrumentDescriptor* m_inst_desc;
+  const LV2_CommandDescriptor* m_comm_desc;
+  LV2_CommandHostDescriptor m_comm_host_desc;
   
   std::vector<LV2Port> m_ports;
   std::vector<int> m_midimap;

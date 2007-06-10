@@ -30,6 +30,7 @@
 
 #include "lv2-gtk2gui.h"
 #include "lv2-instrument-gtk2gui.h"
+#include "lv2-guicomm-gtk2gui.h"
 #include "lv2-miditype-gtk2gui.h"
 #include "lv2-program-gtk2gui.h"
 #include "lv2uiclient.hpp"
@@ -74,6 +75,14 @@ void set_file(LV2UI_Controller c, const char* key, const char* filename) {
 }
 
 
+/** Send a command to the plugin. This function is exposed to the plugin GUI. 
+ */
+void tell_plugin(LV2UI_Controller c, uint32_t argc, const char* const* argv) {
+  cerr<<__PRETTY_FUNCTION__<<endl;
+  static_cast<LV2UIClient*>(c)->send_tell_plugin(argc, argv);
+}
+
+
 /** Send a MIDI event to the plugin. This function is exposed to the plugin
     GUI. */
 void send_midi(LV2UI_Controller c, uint32_t port, uint32_t size,
@@ -102,11 +111,16 @@ void* extension_data(LV2UI_Controller c, const char* URI) {
   static LV2_MIDIControllerDescriptor midicdesc = {
     &send_midi
   };
+  static LV2_GUICommControllerDescriptor commcdesc = {
+    &tell_plugin
+  };
   
   if (!strcmp(URI, "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext"))
     return &instcdesc;
   if (!strcmp(URI, "http://ll-plugins.nongnu.org/lv2/namespace#program"))
     return &progcdesc;
+  if (!strcmp(URI, "http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension"))
+    return &commcdesc;
   if (!strcmp(URI, "http://ll-plugins.nongnu.org/lv2/ext/miditype"))
     return &midicdesc;
   return 0;
@@ -131,6 +145,8 @@ void ui_add_program(int number, const std::string& name, LV2UI_Handle handle,
                     const LV2_ProgramUIDescriptor* progdesc) {
   progdesc->add_program(handle, number, name.c_str());
 }
+
+// XXX tell_gui
 
 
 int main(int argc, char** argv) {
@@ -217,7 +233,14 @@ int main(int argc, char** argv) {
     &send_midi
   };
   features[2]->data = &midicdesc;
-  features[3] = 0;
+  features[3] = new LV2_Host_Feature;
+  features[3]->URI = strdup("http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension");
+  static LV2_GUICommControllerDescriptor commcdesc = {
+    &tell_plugin
+  };
+  features[3]->data = &commcdesc;
+  
+  features[4] = 0;
 
   
   // create a GUI instance

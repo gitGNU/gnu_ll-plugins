@@ -101,6 +101,9 @@ public:
   /** Send a configuration value to the plugin. */
   void send_filename(const std::string& key, const std::string& filename);
   
+  /** Send a command to the plugin. */
+  void send_tell_plugin(uint32_t argc, const char* const* argv);
+  
   /** Send a MIDI event to the plugin. The effect will be exactly the same
       as if it had been sent by the plugin host. */
   void send_midi(int port, int size, const unsigned char* event);

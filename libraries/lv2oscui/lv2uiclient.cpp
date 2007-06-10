@@ -206,6 +206,35 @@ void LV2UIClient::send_filename(const string& key, const string& filename) {
 }
 
 
+void LV2UIClient::send_tell_plugin(uint32_t argc, const char* const* argv) {
+  cerr<<__PRETTY_FUNCTION__<<endl;
+  cerr<<"argc = "<<argc<<endl;
+  if (m_valid) {
+    string types = "";
+    for (unsigned i = 0; i < argc; ++i)
+      types += "s";
+    if (argc == 0)
+      lo_send(m_plugin_address, (m_plugin_path + "/tell_plugin").c_str(),
+	      types.c_str());
+    else if (argc == 1)
+      lo_send(m_plugin_address, (m_plugin_path + "/tell_plugin").c_str(),
+	      types.c_str(), argv[0]);
+    else if (argc == 2)
+      lo_send(m_plugin_address, (m_plugin_path + "/tell_plugin").c_str(),
+	      types.c_str(), argv[0], argv[1]);
+    else if (argc == 3)
+      lo_send(m_plugin_address, (m_plugin_path + "/tell_plugin").c_str(),
+	      types.c_str(), argv[0], argv[1], argv[2]);
+    else if (argc == 4)
+      lo_send(m_plugin_address, (m_plugin_path + "/tell_plugin").c_str(),
+	      types.c_str(), argv[0], argv[1], argv[2], argv[3]);
+    else
+      cerr<<"Can not send more than 4 arguments"<<endl;
+    // XXX fix this
+  }
+}
+
+
 void LV2UIClient::send_midi(int port, int size, const unsigned char* event) {
   assert(size <= 4);
   if (m_valid) {

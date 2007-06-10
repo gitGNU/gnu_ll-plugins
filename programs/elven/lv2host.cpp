@@ -56,6 +56,9 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     m_midimap(128, -1),
     m_from_jack(0) {
   
+  m_comm_host_desc.tell_host = &tell_host_wrapper;
+  m_comm_host_desc.host_data = this;
+  
   DBG2("Creating plugin loader...");
   
   pthread_mutex_init(&m_mutex, 0);
@@ -269,6 +272,22 @@ void LV2Host::select_program(unsigned long program) {
   }
   else
     DBG3("Trying to change program to invalid program "<<program);
+}
+
+
+char* LV2Host::tell_plugin(uint32_t argc, const char* const* argv) {
+  DBG2("Calling tell_plugin() with "<<argc<<" parameters");
+  if (m_comm_desc && m_comm_desc->tell_plugin) {
+    char* result = m_comm_desc->tell_plugin(m_handle, argc, argv);
+    if (result)
+      DBG0("ERROR REPORTED BY PLUGIN: "<<result);
+    return result;
+  }
+  else
+    DBG0("This plugin has no tell_plugin() callback");
+
+  return 0;
+  
 }
 
 
@@ -525,6 +544,7 @@ bool LV2Host::match_uri(const string& uri, const string& bundle,
 void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
   
   bool isInstrument = false;
+  bool usesCommands = false;
   
   DBG2(__PRETTY_FUNCTION__);
   
@@ -716,6 +736,16 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
       DBG2("This plugin uses the instrument extension");
     }
     
+    // is the command extension used?
+    qr = select(extension_predicate)
+      .where(uriref, extension_predicate, ll("dont-use-this-extension"))
+      .run(data);
+    if (qr.size() > 0 && (qr[0][extension_predicate]->name == lv2("requiredHostFeature") ||
+			  qr[0][extension_predicate]->name == lv2("optionalHostFeature"))) {
+      usesCommands = true;
+      DBG2("This plugin uses the command extension");
+    }
+    
     // standalone GUI path
     Variable gui_uri, gui_path;
     Namespace gg("<http://ll-plugins.nongnu.org/lv2/ext/gtk2gui#>");
@@ -839,15 +869,28 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     }
   }
   
+  // get the command descriptor (if it has one)
+  if (usesCommands) {
+    m_comm_desc = 0;
+    if (m_desc->extension_data)
+      m_comm_desc = (LV2_CommandDescriptor*)(m_desc->extension_data("<http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension>"));
+    if (!m_comm_desc) {
+      DBG0(m_uri<<" does not use the command extension like the RDF said it should");
+    }
+  }
+  
   // instantiate the plugin
   LV2_Host_Feature instrument_feature = {
     "<http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>",
     0
   };
-  const LV2_Host_Feature* features[2];
-  memset(features, 0, 2 * sizeof(LV2_Host_Feature*));
-  if (isInstrument)
-    features[0] = &instrument_feature;
+  LV2_Host_Feature command_feature = {
+    "<http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension>",
+    &m_comm_host_desc
+  };
+  const LV2_Host_Feature* features[] = { &instrument_feature, 
+					 &command_feature, 
+					 0 };
   m_handle = m_desc->instantiate(m_desc, m_rate, m_bundle.c_str(), features);
 
 }
@@ -857,4 +900,20 @@ bool LV2Host::print_uri(const string& uri, const string& bundle,
                         const string& rdf_file, const string& binary) {
   cout<<uri<<endl;
   return false;
+}
+
+
+void LV2Host::tell_host(uint32_t argc, char** argv) {
+  cout<<"Plugin said:";
+  for (unsigned i = 0; i < argc; ++i) {
+    cout<<" "<<"'"<<argv[i]<<"'";
+    std::free(argv[i]);
+  }
+  std::free(argv);
+  cout<<endl;
+}
+
+
+void LV2Host::tell_host_wrapper(void* me, uint32_t argc, char** argv) {
+  static_cast<LV2Host*>(me)->tell_host(argc, argv);
 }

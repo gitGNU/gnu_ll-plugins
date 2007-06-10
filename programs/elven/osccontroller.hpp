@@ -67,6 +67,8 @@ protected:
                           int argc, lo_message, void* cbdata);
   static int exiting_handler(const char*, const char*, lo_arg** argv, 
                              int argc, lo_message, void* cbdata);
+  static int tell_plugin_handler(const char*, const char*, lo_arg** argv,
+				 int argc, lo_message, void* cbdata);
   
   static void* sender_thread(void* arg);
   
