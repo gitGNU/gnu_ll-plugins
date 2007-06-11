@@ -63,8 +63,16 @@ protected:
     
     m_samples.push_back(sample);
     int n = m_samples.size() - 1;
-
-    tell_host(2, "sample_loaded", sample->get_name().c_str());
+    
+    const SampleBuffer& buf = sample->get_processed_buffer();
+    if (buf.get_channels() == 1)
+      tell_host("ssifs", "sample_loaded", sample->get_name().c_str(), 
+		long(buf.get_length()), buf.get_rate(), 
+		buf.get_shm_name(0).c_str());
+    else if (buf.get_channels() == 2)
+      tell_host("ssifss", "sample_loaded", sample->get_name().c_str(), 
+		long(buf.get_length()), buf.get_rate(), 
+		buf.get_shm_name(0).c_str(), buf.get_shm_name(1).c_str());
     
     Action* a1 = new Action(*m_samples[n]->get_chunks()[0]);
     Action* a2 = new Action(*m_samples[n]->get_chunks()[1]);

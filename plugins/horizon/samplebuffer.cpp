@@ -116,7 +116,7 @@ size_t SampleBuffer::get_channels() const {
 }
 
 
-const std::string& SampleBuffer::get_shm_name(size_t channel) {
+const std::string& SampleBuffer::get_shm_name(size_t channel) const {
   return m_shm_names[channel];
 }
 

@@ -29,6 +29,7 @@
 
 #include <iostream>
 #include <cstring>
+#include <sstream>
 #include <stdarg.h>
 #include <string>
 #include <utility>
@@ -68,12 +69,25 @@ protected:
     tell_host(0, 0);
   }
   
-  void tell_host(uint32_t argc, ...) {
+  void tell_host(const std::string& types, ...) {
     va_list ap;
-    va_start(ap, argc);
+    va_start(ap, types);
+    uint32_t argc = types.size();
     char** argv = static_cast<char**>(malloc(sizeof(char*) * argc));
-    for (uint32_t i = 0; i < argc; ++i)
-      argv[i] = strdup(va_arg(ap, const char*));
+    for (uint32_t i = 0; i < argc; ++i) {
+      if (types[i] == 's')
+	argv[i] = strdup(va_arg(ap, const char*));
+      else if (types[i] == 'i') {
+	std::ostringstream oss;
+	oss<<va_arg(ap, long);
+	argv[i] = strdup(oss.str().c_str());
+      }
+      else if (types[i] == 'f') {
+	std::ostringstream oss;
+	oss<<va_arg(ap, double);
+	argv[i] = strdup(oss.str().c_str());
+      }
+    }
     va_end(ap);
     tell_host(argc, argv);
   }

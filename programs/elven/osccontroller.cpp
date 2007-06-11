@@ -62,15 +62,7 @@ OSCController::OSCController(LV2Host& host, bool& still_running)
                        &OSCController::program_handler, &m_cbdata);
   lo_server_add_method(m_server, "/lv2/midi", "iim", 
                        &OSCController::midi_handler, &m_cbdata);
-  lo_server_add_method(m_server, "/lv2/tell_plugin", "", 
-                       &OSCController::tell_plugin_handler, &m_cbdata);
-  lo_server_add_method(m_server, "/lv2/tell_plugin", "s", 
-                       &OSCController::tell_plugin_handler, &m_cbdata);
-  lo_server_add_method(m_server, "/lv2/tell_plugin", "ss", 
-                       &OSCController::tell_plugin_handler, &m_cbdata);
-  lo_server_add_method(m_server, "/lv2/tell_plugin", "sss", 
-                       &OSCController::tell_plugin_handler, &m_cbdata);
-  lo_server_add_method(m_server, "/lv2/tell_plugin", "ssss", 
+  lo_server_add_method(m_server, "/lv2/tell_plugin", "is", 
                        &OSCController::tell_plugin_handler, &m_cbdata);
   
   DBG2("OSC server created, listening on "<<m_url);
@@ -141,25 +133,28 @@ void OSCController::send_filename(const std::string& key,
 
 void OSCController::send_tell_gui(uint32_t argc, const char* const* argv) {
   DBG2("Sending /tell_gui with "<<argc<<" parameters");
+
+  // merge all parameters into one string
+  unsigned total = 0;
+  for (unsigned i = 0; i < argc; ++i)
+    total += strlen(argv[i]) + 1;
+  char* buffer = new char[total + 1];
+  unsigned offset = 0;
+  for (unsigned i = 0; i < argc; ++i) {
+    strcpy(buffer + offset, argv[i]);
+    offset += strlen(argv[i]);
+    *(buffer + offset) = ':';
+    ++offset;
+  }
+  buffer[total] = '\0';
+  
   pthread_mutex_lock(&m_clients_mutex);
   for (size_t i = 0; i < m_clients.size(); ++i) {
-    // XXX fix this
-    if (argc == 0)
-      lo_send(m_clients[i]->address, (m_clients[i]->path + "tell_gui").c_str(),
-	      "");
-    else if (argc == 1)
-      lo_send(m_clients[i]->address, (m_clients[i]->path + "tell_gui").c_str(),
-	      "s", argv[0]);
-    else if (argc == 2)
-      lo_send(m_clients[i]->address, (m_clients[i]->path + "tell_gui").c_str(),
-	      "ss", argv[0], argv[1]);
-    else if (argc == 3)
-      lo_send(m_clients[i]->address, (m_clients[i]->path + "tell_gui").c_str(),
-	      "sss", argv[0], argv[1], argv[2]);
-    else if (argc == 4)
-      lo_send(m_clients[i]->address, (m_clients[i]->path + "tell_gui").c_str(),
-	      "ssss", argv[0], argv[1], argv[2], argv[3]);
+    lo_send(m_clients[i]->address, (m_clients[i]->path + "tell_gui").c_str(),
+	    "is", argc, buffer);
   }
+  pthread_mutex_unlock(&m_clients_mutex);
+  delete [] buffer;
 }
 
 
@@ -255,12 +250,23 @@ int OSCController::midi_handler(const char*, const char*, lo_arg** argv,
 
 int OSCController::tell_plugin_handler(const char*, const char*, lo_arg** argv,
 				       int argc, lo_message, void* cbdata) {
-  DBG2("Received /tell_plugin with "<<argc<<" parameters"<<endl);
-  const char** array = new const char*[argc];
-  for (int i = 0; i < argc; ++i)
-    array[i] = &argv[i]->s;
-  static_cast<CallbackData*>(cbdata)->
-  host.tell_plugin(argc, array);
+  DBG2("Received /tell_plugin with "<<argv[0]->i<<" parameters"<<endl);
+
+  // split parameter string into an array
+  uint32_t my_argc = argv[0]->i;
+  char** my_argv = new char*[my_argc];
+  const char* str = &argv[1]->s;
+  for (unsigned i = 0; i < my_argc; ++i) {
+    char* next = strchr(str, ':');
+    my_argv[i] = new char[(next - str) + 1];
+    memcpy(my_argv[i], str, next - str);
+    my_argv[i][next - str] = '\0';
+    str = next + 1;
+  }
+  
+  static_cast<CallbackData*>(cbdata)->host.tell_plugin(my_argc, my_argv);
+  
+  // XXX should the buffers be deleted here?
 }
 
 

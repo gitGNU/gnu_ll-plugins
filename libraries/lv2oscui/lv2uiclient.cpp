@@ -21,6 +21,7 @@
 
 ****************************************************************************/
 
+#include <cstring>
 #include <cassert>
 #include <iostream>
 #include <sstream>
@@ -91,15 +92,7 @@ LV2UIClient::LV2UIClient(const string& osc_url, const string& bundle,
                               &LV2UIClient::configure_handler, this);
   lo_server_thread_add_method(m_server_thread, "/lv2plugin/set_file", "ss", 
                               &LV2UIClient::filename_handler, this);
-  lo_server_thread_add_method(m_server_thread, "/lv2plugin/tell_gui", "", 
-                              &LV2UIClient::tell_gui_handler, this);
-  lo_server_thread_add_method(m_server_thread, "/lv2plugin/tell_gui", "s", 
-                              &LV2UIClient::tell_gui_handler, this);
-  lo_server_thread_add_method(m_server_thread, "/lv2plugin/tell_gui", "ss", 
-                              &LV2UIClient::tell_gui_handler, this);
-  lo_server_thread_add_method(m_server_thread, "/lv2plugin/tell_gui", "sss", 
-                              &LV2UIClient::tell_gui_handler, this);
-  lo_server_thread_add_method(m_server_thread, "/lv2plugin/tell_gui", "ssss", 
+  lo_server_thread_add_method(m_server_thread, "/lv2plugin/tell_gui", "is", 
                               &LV2UIClient::tell_gui_handler, this);
   lo_server_thread_add_method(m_server_thread, "/lv2plugin/show", "", 
                               &LV2UIClient::show_handler, this);
@@ -222,27 +215,23 @@ void LV2UIClient::send_tell_plugin(uint32_t argc, const char* const* argv) {
   cerr<<__PRETTY_FUNCTION__<<endl;
   cerr<<"argc = "<<argc<<endl;
   if (m_valid) {
-    string types = "";
+    
+    // merge all parameters into one string
+    unsigned total = 0;
     for (unsigned i = 0; i < argc; ++i)
-      types += "s";
-    if (argc == 0)
-      lo_send(m_plugin_address, (m_plugin_path + "/tell_plugin").c_str(),
-	      types.c_str());
-    else if (argc == 1)
-      lo_send(m_plugin_address, (m_plugin_path + "/tell_plugin").c_str(),
-	      types.c_str(), argv[0]);
-    else if (argc == 2)
-      lo_send(m_plugin_address, (m_plugin_path + "/tell_plugin").c_str(),
-	      types.c_str(), argv[0], argv[1]);
-    else if (argc == 3)
-      lo_send(m_plugin_address, (m_plugin_path + "/tell_plugin").c_str(),
-	      types.c_str(), argv[0], argv[1], argv[2]);
-    else if (argc == 4)
-      lo_send(m_plugin_address, (m_plugin_path + "/tell_plugin").c_str(),
-	      types.c_str(), argv[0], argv[1], argv[2], argv[3]);
-    else
-      cerr<<"Can not send more than 4 arguments"<<endl;
-    // XXX fix this
+      total += strlen(argv[i]) + 1;
+    char* buffer = new char[total + 1];
+    unsigned offset = 0;
+    for (unsigned i = 0; i < argc; ++i) {
+      strcpy(buffer + offset, argv[i]);
+      offset += strlen(argv[i]);
+      *(buffer + offset) = ':';
+      ++offset;
+    }
+    buffer[total] = '\0';
+  
+    lo_send(m_plugin_address, (m_plugin_path + "/tell_plugin").c_str(),
+	    "is", argc, buffer);
   }
 }
 
@@ -348,10 +337,20 @@ int LV2UIClient::tell_gui_handler(const char *path, const char *types,
 				  void *data, void *user_data) {
   cerr<<__PRETTY_FUNCTION__<<endl;
   LV2UIClient* me = static_cast<LV2UIClient*>(user_data);
-  char** my_argv = new char*[argc];
-  for (unsigned i = 0; i < argc; ++i)
-    my_argv[i] = strdup(&argv[i]->s);
-  me->m_tell_gui_queue.push(make_pair(argc, my_argv));
+  
+  // split parameter string into an array
+  uint32_t my_argc = argv[0]->i;
+  char** my_argv = new char*[my_argc];
+  const char* str = &argv[1]->s;
+  for (unsigned i = 0; i < my_argc; ++i) {
+    char* next = strchr(str, ':');
+    my_argv[i] = new char[next - str];
+    memcpy(my_argv[i], str, next - str);
+    my_argv[i][next - str] = '\0';
+    str = next + 1;
+  }
+  
+  me->m_tell_gui_queue.push(make_pair(my_argc, my_argv));
   me->m_tell_gui_dispatcher();
   return 0;
 }

@@ -69,13 +69,21 @@ public:
     for (unsigned i = 0; i < argc; ++i)
       cerr<<" '"<<argv[i]<<"'";
     cerr<<endl;
+    
+    if (argc >= 5 && !strcmp(argv[0], "sample_loaded")) {
+      cerr<<endl
+	  <<endl<<"New sample: "<<argv[1]<<endl
+	  <<'\t'<<"Frames:     "<<argv[2]<<endl
+	  <<'\t'<<"Frame rate: "<<argv[3]<<endl
+	  <<'\t'<<"Channels:   "<<(argc - 4)<<endl<<endl;
+    }
   }
   
   
 protected:
   
   void do_load_sample(const string& filename) {
-    static const char* argv[] = { "load_sample", 0 };
+    const char* argv[] = { "load_sample", 0 };
     argv[1] = filename.c_str();
     m_ctrl.tell_plugin(2, argv);
   }

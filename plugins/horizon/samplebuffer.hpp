@@ -17,7 +17,7 @@ public:
   size_t get_length() const;
   float get_rate() const;
   size_t get_channels() const;
-  const std::string& get_shm_name(size_t channel);
+  const std::string& get_shm_name(size_t channel) const;
   
 protected:
   
