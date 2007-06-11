@@ -1,3 +1,12 @@
+#include <iostream>
+#include <cstdio>
+
+#include <errno.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+
 #include <sndfile.h>
 
 #include "samplebuffer.hpp"
@@ -7,7 +16,8 @@ SampleBuffer::SampleBuffer(const std::string& filename)
   : m_length(0),
     m_rate(0),
     m_channels(0),
-    m_data(0) {
+    m_data(0),
+    m_shm_names(0) {
   
   // open the file
   SF_INFO s_info;
@@ -21,12 +31,25 @@ SampleBuffer::SampleBuffer(const std::string& filename)
     sf_close(s_file);
     return;
   }
+
+  // set values
+  m_length = s_info.frames;
+  m_rate = s_info.samplerate;
+  m_channels = s_info.channels;
   
   // allocate temporary buffer and read interleaved data into it
-  float* tmp_data = new float[s_info.channels * s_info.frames];
+  m_shm_names = new std::string[s_info.channels];
+  float* tmp_data;
+  if (s_info.channels == 1)
+    tmp_data = shm_alloc(0, s_info.frames);
+  else
+    tmp_data = new float[s_info.channels * s_info.frames];
   if (sf_readf_float(s_file, tmp_data, s_info.frames) != s_info.frames) {
     sf_close(s_file);
-    delete [] tmp_data;
+    if (s_info.channels == 1)
+      shm_free(0);
+    else
+      delete [] tmp_data;
     return;
   }
   sf_close(s_file);
@@ -35,7 +58,8 @@ SampleBuffer::SampleBuffer(const std::string& filename)
   m_data = new float*[s_info.channels];
   if (s_info.channels > 1) {
     for (int c = 0; c < s_info.channels; ++c)
-      m_data[c] = new float[s_info.frames];
+      m_data[c] = shm_alloc(c, s_info.frames);
+      //m_data[c] = new float[s_info.frames];
     for (int f = 0; f < s_info.frames; ++f) {
       for (int c = 0; c < s_info.channels; ++c)
 	m_data[c][f] = tmp_data[s_info.channels * f + c];
@@ -45,19 +69,20 @@ SampleBuffer::SampleBuffer(const std::string& filename)
   else 
     m_data[0] = tmp_data;
   
-  // set values
-  m_length = s_info.frames;
-  m_rate = s_info.samplerate;
-  m_channels = s_info.channels;
 }
 
 
 SampleBuffer::~SampleBuffer() {
   if (m_data) {
     for (size_t i = 0; i < m_channels; ++i)
-      delete [] m_data[i];
+      shm_free(i);
+      //delete [] m_data[i];
     delete [] m_data;
   }
+  
+  if (m_shm_names)
+    delete [] m_shm_names;
+
 }
 
 
@@ -90,3 +115,43 @@ size_t SampleBuffer::get_channels() const {
   return m_channels;
 }
 
+
+const std::string& SampleBuffer::get_shm_name(size_t channel) {
+  return m_shm_names[channel];
+}
+
+
+float* SampleBuffer::shm_alloc(size_t channel, size_t floats) {
+  char name_buffer[16];
+  float* buffer = 0;
+  
+  for (unsigned i = 0; i < 10000; ++i) {
+    std::sprintf(name_buffer, "/horizon-%u", i);
+    int fd = shm_open(name_buffer, O_RDWR | O_CREAT | O_EXCL, S_IRWXU);
+    if (fd == -1) {
+      if (errno == EEXIST)
+	continue;
+      break;
+    }
+    if (!ftruncate(fd, sizeof(float) * floats)) {
+      buffer = static_cast<float*>(mmap(0, sizeof(float) * floats, 
+					PROT_READ | PROT_WRITE, MAP_SHARED,
+					fd, 0));
+      if (!buffer)
+	shm_unlink(name_buffer);
+      close(fd);
+    }
+    break;
+  }
+  
+  if (buffer)
+    m_shm_names[channel] = name_buffer;
+  return buffer;
+}
+
+
+void SampleBuffer::shm_free(size_t channel) {
+  std::cerr<<"Unlinking "<<m_shm_names[channel]<<std::endl;
+  shm_unlink(m_shm_names[channel].c_str());
+  munmap(m_data[channel], sizeof(float) * m_length);
+}

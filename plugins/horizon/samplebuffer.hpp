@@ -17,13 +17,18 @@ public:
   size_t get_length() const;
   float get_rate() const;
   size_t get_channels() const;
+  const std::string& get_shm_name(size_t channel);
   
 protected:
+  
+  float* shm_alloc(size_t channel, size_t floats);
+  void shm_free(size_t channel);
   
   size_t m_length;
   float m_rate;
   size_t m_channels;
   float** m_data;
+  std::string* m_shm_names;
   
 };
 

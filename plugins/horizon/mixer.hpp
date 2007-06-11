@@ -26,7 +26,6 @@ public:
 
 protected:
   
-  Sample m_sample;
   float* m_left;
   float* m_right;
   float m_gain;

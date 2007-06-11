@@ -26,6 +26,12 @@ public:
   }
   
   
+  ~Horizon() {
+    for (unsigned i = 0; i < m_samples.size(); ++i)
+      delete m_samples[i];
+  }
+  
+  
   void run(uint32_t nframes) {
     m_mixer.set_buffers(p(h_left), p(h_right));
     m_trigger.run(p<LV2_MIDI>(h_midi_input), nframes);

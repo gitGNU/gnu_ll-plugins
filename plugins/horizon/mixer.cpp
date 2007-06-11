@@ -8,20 +8,9 @@ using namespace std;
 
 
 Mixer::Mixer()
-  : m_sample("/home/ll/div/loops/tomsphases.wav"),
-    m_left(0),
+  : m_left(0),
     m_right(0),
     m_gain(0) {
-  
-  if (m_sample.is_valid()) {
-    const SampleBuffer& buf = m_sample.get_processed_buffer();
-    cerr<<"The sample was loaded OK!"<<endl
-	<<" channels:   "<<buf.get_channels()<<endl
-	<<" samplerate: "<<buf.get_rate()<<endl
-	<<" frames:     "<<buf.get_length()<<endl;
-  }
-  else
-    cerr<<"The sample was not loaded OK!"<<endl;
   
 }
 
