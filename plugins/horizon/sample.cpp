@@ -14,6 +14,13 @@ Sample::Sample(const std::string& filename)
     m_chunks.push_back(new Chunk(*this, 1, 2));
     m_chunks.push_back(new Chunk(*this, 2, 3));
     m_chunks.push_back(new Chunk(*this, 3, 4));
+    
+    for (unsigned i = filename.length() - 1; i >= 0; --i) {
+      if (filename[i] == '/') {
+	m_name = filename.substr(i + 1);
+	break;
+      }
+    }
   }
   
 }
@@ -52,5 +59,12 @@ const std::vector<Chunk*>& Sample::get_chunks() const {
   return m_chunks;
 }
   
-  
 
+const std::string& Sample::get_name() const {
+  return m_name;
+}
+
+
+void Sample::set_name(const std::string& name) {
+  m_name = name;
+}

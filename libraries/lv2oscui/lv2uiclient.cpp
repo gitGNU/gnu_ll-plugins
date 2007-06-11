@@ -62,6 +62,8 @@ LV2UIClient::LV2UIClient(const string& osc_url, const string& bundle,
     connect(mem_fun(*this, &LV2UIClient::configure_receiver));
   m_filename_dispatcher.
     connect(mem_fun(*this, &LV2UIClient::filename_receiver));
+  m_tell_gui_dispatcher.
+    connect(mem_fun(*this, &LV2UIClient::tell_gui_receiver));
   m_add_program_dispatcher.
     connect(mem_fun(*this, &LV2UIClient::add_program_receiver));
   m_remove_program_dispatcher.
@@ -89,6 +91,16 @@ LV2UIClient::LV2UIClient(const string& osc_url, const string& bundle,
                               &LV2UIClient::configure_handler, this);
   lo_server_thread_add_method(m_server_thread, "/lv2plugin/set_file", "ss", 
                               &LV2UIClient::filename_handler, this);
+  lo_server_thread_add_method(m_server_thread, "/lv2plugin/tell_gui", "", 
+                              &LV2UIClient::tell_gui_handler, this);
+  lo_server_thread_add_method(m_server_thread, "/lv2plugin/tell_gui", "s", 
+                              &LV2UIClient::tell_gui_handler, this);
+  lo_server_thread_add_method(m_server_thread, "/lv2plugin/tell_gui", "ss", 
+                              &LV2UIClient::tell_gui_handler, this);
+  lo_server_thread_add_method(m_server_thread, "/lv2plugin/tell_gui", "sss", 
+                              &LV2UIClient::tell_gui_handler, this);
+  lo_server_thread_add_method(m_server_thread, "/lv2plugin/tell_gui", "ssss", 
+                              &LV2UIClient::tell_gui_handler, this);
   lo_server_thread_add_method(m_server_thread, "/lv2plugin/show", "", 
                               &LV2UIClient::show_handler, this);
   lo_server_thread_add_method(m_server_thread, "/lv2plugin/hide", "", 
@@ -329,6 +341,21 @@ int LV2UIClient::filename_handler(const char *path, const char *types,
   me->m_filename_dispatcher();
   return 0;
 }
+
+
+int LV2UIClient::tell_gui_handler(const char *path, const char *types,
+				  lo_arg **argv, int argc, 
+				  void *data, void *user_data) {
+  cerr<<__PRETTY_FUNCTION__<<endl;
+  LV2UIClient* me = static_cast<LV2UIClient*>(user_data);
+  char** my_argv = new char*[argc];
+  for (unsigned i = 0; i < argc; ++i)
+    my_argv[i] = strdup(&argv[i]->s);
+  me->m_tell_gui_queue.push(make_pair(argc, my_argv));
+  me->m_tell_gui_dispatcher();
+  return 0;
+}
+
 
 
 int LV2UIClient::show_handler(const char *path, const char *types,

@@ -175,6 +175,8 @@ public:
 
   sigc::signal<void, const std::string&, const std::string&> signal_filename;
   
+  sigc::signal<void, uint32_t, const char* const*> signal_tell_gui;
+  
 protected:
   
   static std::vector<std::string> get_search_dirs();

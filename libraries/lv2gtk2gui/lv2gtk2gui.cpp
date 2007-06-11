@@ -135,6 +135,11 @@ namespace LV2G2GSupportFunctions {
   }
   
   
+  void tell_gui(LV2UI_Handle instance, uint32_t argc, const char* const* argv) {
+    static_cast<LV2GTK2GUI*>(instance)->tell_gui(argc, argv);
+  }
+  
+  
   void add_program(LV2UI_Handle instance, unsigned char number, 
                    const char* name) {
     static_cast<LV2GTK2GUI*>(instance)->add_program(number, name);
@@ -163,6 +168,9 @@ namespace LV2G2GSupportFunctions {
     else if (!strcmp(URI, 
                      "http://ll-plugins.nongnu.org/lv2/namespace#program"))
       return &LV2GTK2GUI::m_program_ui_desc;
+    else if (!strcmp(URI, 
+                     "http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension"))
+      return &LV2GTK2GUI::m_guicomm_ui_desc;
 
     
     return static_cast<LV2GTK2GUI*>(instance)->extension_data(URI);
@@ -183,6 +191,11 @@ LV2_ProgramUIDescriptor LV2GTK2GUI::m_program_ui_desc = {
   &LV2G2GSupportFunctions::remove_program,
   &LV2G2GSupportFunctions::clear_programs,
   &LV2G2GSupportFunctions::set_program
+};
+
+
+LV2_GUICommUIDescriptor LV2GTK2GUI::m_guicomm_ui_desc = {
+  &LV2G2GSupportFunctions::tell_gui
 };
 
 

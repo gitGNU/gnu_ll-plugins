@@ -135,6 +135,10 @@ public:
       the filename key and the filename value. */
   sigc::signal<void, std::string, std::string> filename_received;
   
+  /** Emitted when the host sends a tell_gui. The parameters are the argument
+      count and the argument array. */
+  sigc::signal<void, uint32_t, const char* const*> tell_gui_received;
+  
   /** Emitted when the host wants the UI to be visible. A LV2 GUI should not
       show any windows until this signal is emitted. */
   Glib::Dispatcher show_received;
@@ -172,6 +176,9 @@ private:
                                lo_arg **argv, int argc, 
                                void *data, void *user_data);
   static int filename_handler(const char *path, const char *types,
+                              lo_arg **argv, int argc, 
+                              void *data, void *user_data);
+  static int tell_gui_handler(const char *path, const char *types,
                               lo_arg **argv, int argc, 
                               void *data, void *user_data);
   static int show_handler(const char *path, const char *types,
@@ -233,6 +240,19 @@ private:
     std::string value = m_filename_queue.front().second;
     m_filename_queue.pop();
     filename_received(key, value);
+  }
+
+  Glib::Dispatcher m_tell_gui_dispatcher;
+  std::queue<std::pair<uint32_t, char**> > m_tell_gui_queue;
+  void tell_gui_receiver() {
+    std::cerr<<__PRETTY_FUNCTION__<<std::endl;
+    uint32_t argc = m_tell_gui_queue.front().first;
+    char** argv = m_tell_gui_queue.front().second;
+    m_tell_gui_queue.pop();
+    tell_gui_received(argc, argv);
+    for (unsigned i = 0; i < argc; ++i)
+      free(argv[i]);
+    delete [] argv;
   }
 
   Glib::Dispatcher m_add_program_dispatcher;

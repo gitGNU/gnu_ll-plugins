@@ -63,6 +63,9 @@ protected:
     
     m_samples.push_back(sample);
     int n = m_samples.size() - 1;
+
+    tell_host(2, "sample_loaded", sample->get_name().c_str());
+    
     Action* a1 = new Action(*m_samples[n]->get_chunks()[0]);
     Action* a2 = new Action(*m_samples[n]->get_chunks()[1]);
     Action* a3 = new Action(*m_samples[n]->get_chunks()[2]);
@@ -75,10 +78,9 @@ protected:
     m_trigger.map_action(a3, 62 + n * 4);
     m_trigger.add_action(a4);
     m_trigger.map_action(a4, 63 + n * 4);
-
+    
     return true;
   }
-  
   
   Mixer m_mixer;
   ActionTrigger m_trigger;

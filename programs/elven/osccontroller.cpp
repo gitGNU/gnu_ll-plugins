@@ -139,6 +139,30 @@ void OSCController::send_filename(const std::string& key,
 }
 
 
+void OSCController::send_tell_gui(uint32_t argc, const char* const* argv) {
+  DBG2("Sending /tell_gui with "<<argc<<" parameters");
+  pthread_mutex_lock(&m_clients_mutex);
+  for (size_t i = 0; i < m_clients.size(); ++i) {
+    // XXX fix this
+    if (argc == 0)
+      lo_send(m_clients[i]->address, (m_clients[i]->path + "tell_gui").c_str(),
+	      "");
+    else if (argc == 1)
+      lo_send(m_clients[i]->address, (m_clients[i]->path + "tell_gui").c_str(),
+	      "s", argv[0]);
+    else if (argc == 2)
+      lo_send(m_clients[i]->address, (m_clients[i]->path + "tell_gui").c_str(),
+	      "ss", argv[0], argv[1]);
+    else if (argc == 3)
+      lo_send(m_clients[i]->address, (m_clients[i]->path + "tell_gui").c_str(),
+	      "sss", argv[0], argv[1], argv[2]);
+    else if (argc == 4)
+      lo_send(m_clients[i]->address, (m_clients[i]->path + "tell_gui").c_str(),
+	      "ssss", argv[0], argv[1], argv[2], argv[3]);
+  }
+}
+
+
 const string& OSCController::get_url() const {
   return m_url;
 }

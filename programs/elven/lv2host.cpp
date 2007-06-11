@@ -56,7 +56,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     m_midimap(128, -1),
     m_from_jack(0) {
   
-  m_comm_host_desc.tell_host = &tell_host_wrapper;
+  m_comm_host_desc.tell_host = &LV2Host::tell_host_wrapper;
   m_comm_host_desc.host_data = this;
   
   DBG2("Creating plugin loader...");
@@ -905,6 +905,7 @@ bool LV2Host::print_uri(const string& uri, const string& bundle,
 
 void LV2Host::tell_host(uint32_t argc, char** argv) {
   cout<<"Plugin said:";
+  signal_tell_gui(argc, argv);
   for (unsigned i = 0; i < argc; ++i) {
     cout<<" "<<"'"<<argv[i]<<"'";
     std::free(argv[i]);
@@ -915,5 +916,6 @@ void LV2Host::tell_host(uint32_t argc, char** argv) {
 
 
 void LV2Host::tell_host_wrapper(void* me, uint32_t argc, char** argv) {
+  std::cerr<<__PRETTY_FUNCTION__<<endl;
   static_cast<LV2Host*>(me)->tell_host(argc, argv);
 }

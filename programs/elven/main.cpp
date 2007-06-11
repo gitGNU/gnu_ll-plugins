@@ -569,6 +569,7 @@ int main(int argc, char** argv) {
     
     lv2h.signal_configure.connect(mem_fun(osc, &OSCController::send_configure));
     lv2h.signal_filename.connect(mem_fun(osc, &OSCController::send_filename));
+    lv2h.signal_tell_gui.connect(mem_fun(osc, &OSCController::send_tell_gui));
     
     autoconnect(jack_client);
     

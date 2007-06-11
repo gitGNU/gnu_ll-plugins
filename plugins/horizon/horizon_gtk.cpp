@@ -40,6 +40,7 @@ using namespace sigc;
 
 class HorizonGUI : public LV2GTK2GUI {
 public:
+
   
   HorizonGUI(LV2Controller& ctrl, const std::string& URI, 
               const std::string& bundle_path) 
@@ -61,6 +62,15 @@ public:
       connect(mem_fun(*this, &HorizonGUI::do_load_sample));
     
   }
+  
+  
+  void tell_gui(uint32_t argc, const char* const* argv) {
+    cerr<<"GUI was told:";
+    for (unsigned i = 0; i < argc; ++i)
+      cerr<<" '"<<argv[i]<<"'";
+    cerr<<endl;
+  }
+  
   
 protected:
   

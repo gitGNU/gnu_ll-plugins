@@ -141,6 +141,13 @@ void ui_set_file(const std::string& key, const std::string& filename,
 }
 
 
+void ui_tell_gui(uint32_t argc, const char* const* argv,
+		 LV2UI_Handle handle, 
+                 const LV2_GUICommUIDescriptor* commdesc) {
+  commdesc->tell_gui(handle, argc, argv);
+}
+
+
 void ui_add_program(int number, const std::string& name, LV2UI_Handle handle,
                     const LV2_ProgramUIDescriptor* progdesc) {
   progdesc->add_program(handle, number, name.c_str());
@@ -267,6 +274,12 @@ int main(int argc, char** argv) {
       }
       if (instdesc->set_file)
         osc.filename_received.connect(bind(bind(&ui_set_file, instdesc), ui));
+    }
+    const LV2_GUICommUIDescriptor* commdesc = static_cast<LV2_GUICommUIDescriptor*>(desc->extension_data(ui, "http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension"));
+    if (commdesc) {
+      DBG2("The GUI uses the command extension");
+      if (commdesc->tell_gui)
+        osc.tell_gui_received.connect(bind(bind(&ui_tell_gui, commdesc), ui));
     }
     const LV2_ProgramUIDescriptor* progdesc = static_cast<LV2_ProgramUIDescriptor*>(desc->extension_data(ui, "http://ll-plugins.nongnu.org/lv2/namespace#program"));
     if (progdesc) {

@@ -88,6 +88,8 @@ namespace LV2G2GSupportFunctions {
 
   void set_file(LV2UI_Handle instance, const char* key, const char* filename);
   
+  void tell_gui(LV2UI_Handle instance, uint32_t argc, const char* const* argv);
+  
   void add_program(LV2UI_Handle instance, unsigned char number, 
                    const char* name);
   
@@ -191,6 +193,8 @@ public:
       changes in the plugin instance. */
   virtual void set_file(const char* key, const char* filename) { }
   
+  virtual void tell_gui(uint32_t argc, const char* const* argv) { }
+  
   /** Override this if you want your GUI to do something when a program has
       been added for the plugin instance. */
   virtual void add_program(unsigned char number, const char* name) { }
@@ -230,6 +234,7 @@ private:
 
   static LV2_InstrumentUIDescriptor m_instrument_ui_desc;
   static LV2_ProgramUIDescriptor m_program_ui_desc;
+  static LV2_GUICommUIDescriptor m_guicomm_ui_desc;
   
 };
 

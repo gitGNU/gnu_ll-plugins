@@ -42,6 +42,7 @@ public:
   
   void send_configure(const std::string& key, const std::string& value);
   void send_filename(const std::string& key, const std::string& filename);
+  void send_tell_gui(uint32_t argc, const char* const* argv);
   void send_quit();
   
   //void start();

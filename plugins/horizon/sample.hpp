@@ -24,6 +24,9 @@ public:
   const SampleBuffer& get_processed_buffer() const;
   const EffectStack& get_effect_stack() const;
   const std::vector<Chunk*>& get_chunks() const;
+  const std::string& get_name() const;
+  
+  void set_name(const std::string& name);
     
 protected:
   
@@ -32,6 +35,7 @@ protected:
   EffectStack m_static_fx;
   SampleBuffer* m_proc_sample;
   std::vector<Chunk*> m_chunks;
+  std::string m_name;
   
 };
 

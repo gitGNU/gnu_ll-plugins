@@ -26,7 +26,10 @@
 
 #include <unistd.h>
 
+
+#include <iostream>
 #include <cstring>
+#include <stdarg.h>
 #include <string>
 #include <utility>
 #include <vector>
@@ -40,7 +43,10 @@ public:
   
   /** This constructor is needed to initialise the port vector with the
       correct number of ports. */
-  LV2Advanced(uint32_t ports) : LV2Plugin(ports) { }
+  LV2Advanced(uint32_t ports) 
+    : LV2Plugin(ports),
+      m_tell_host_real(0),
+      m_host_data(0) { }
   
   /** We need a virtual destructor since we have virtual member functions. */
   virtual ~LV2Advanced() { }
@@ -51,8 +57,25 @@ public:
 protected:
   
   void tell_host(uint32_t argc, char** argv) {
+    
+    std::cerr<<__PRETTY_FUNCTION__<<std::endl;
+    
     if (m_tell_host_real)
       (*m_tell_host_real)(m_host_data, argc, argv);
+  }
+  
+  void tell_host() {
+    tell_host(0, 0);
+  }
+  
+  void tell_host(uint32_t argc, ...) {
+    va_list ap;
+    va_start(ap, argc);
+    char** argv = static_cast<char**>(malloc(sizeof(char*) * argc));
+    for (uint32_t i = 0; i < argc; ++i)
+      argv[i] = strdup(va_arg(ap, const char*));
+    va_end(ap);
+    tell_host(argc, argv);
   }
   
   void (*m_tell_host_real)(void*, uint32_t, char**);
@@ -98,22 +121,6 @@ public:
   }
 
   
-  /* This template function creates an instance of a plugin. It is used as
-     the instantiate() callback in the LV2 descriptor. You should not use
-     it directly. This function will return a non-NULL handle even if the host
-     does not provide the Command extension. */
-  template <class T>
-  static LV2_Handle create_optional_advanced_instance(const LV2_Descriptor* descriptor,
-						      uint32_t sample_rate,
-						      const char* bundle_path,
-						      const LV2_Host_Feature* const* host_features) {
-    // create and return an instance of the plugin
-    T* t = new T(sample_rate, bundle_path, host_features);
-    return reinterpret_cast<LV2_Handle>(t);
-  }
-  
-  
-  
 };
 
 
@@ -130,7 +137,7 @@ public:
     @param uri The unique LV2 URI for this plugin.
 */
 template <class T>
-size_t register_lv2_adv(const std::string& uri, bool optional = false) {
+size_t register_lv2_adv(const std::string& uri) {
   
   using namespace LV2SupportFunctions;
   
@@ -139,10 +146,7 @@ size_t register_lv2_adv(const std::string& uri, bool optional = false) {
   char* c_uri = new char[uri.size() + 1];
   std::memcpy(c_uri, uri.c_str(), uri.size() + 1);
   desc.URI = c_uri;
-  if (!optional)
-    desc.instantiate = &LV2Advanced::create_advanced_instance<T>;
-  else
-    desc.instantiate = &LV2Advanced::create_optional_advanced_instance<T>;
+  desc.instantiate = &LV2Advanced::create_advanced_instance<T>;
   desc.connect_port = &connect_port;
   desc.activate = &activate;
   desc.run = &run;
