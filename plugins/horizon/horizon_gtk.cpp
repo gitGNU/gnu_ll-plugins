@@ -60,6 +60,8 @@ public:
     
     m_sed.signal_load_sample().
       connect(mem_fun(*this, &HorizonGUI::do_load_sample));
+    m_sed.signal_delete_sample().
+      connect(mem_fun(*this, &HorizonGUI::do_delete_sample));
     
   }
   
@@ -71,11 +73,13 @@ public:
     cerr<<endl;
     
     if (argc >= 5 && !strcmp(argv[0], "sample_loaded")) {
-      cerr<<endl
-	  <<endl<<"New sample: "<<argv[1]<<endl
-	  <<'\t'<<"Frames:     "<<argv[2]<<endl
-	  <<'\t'<<"Frame rate: "<<argv[3]<<endl
-	  <<'\t'<<"Channels:   "<<(argc - 4)<<endl<<endl;
+      if (argc == 5)
+	m_sed.add_sample(argv[1], atol(argv[2]), atof(argv[3]), argv[4]);
+      else if (argc == 6)
+	m_sed.add_sample(argv[1], atol(argv[2]), atof(argv[3]), argv[4], 
+			 argv[5]);
+      else
+	cerr<<"Too many channels for the GUI!"<<endl;
     }
   }
   
@@ -85,6 +89,12 @@ protected:
   void do_load_sample(const string& filename) {
     const char* argv[] = { "load_sample", 0 };
     argv[1] = filename.c_str();
+    m_ctrl.tell_plugin(2, argv);
+  }
+      
+  void do_delete_sample(const string& sample) {
+    const char* argv[] = { "delete_sample", 0 };
+    argv[1] = sample.c_str();
     m_ctrl.tell_plugin(2, argv);
   }
       

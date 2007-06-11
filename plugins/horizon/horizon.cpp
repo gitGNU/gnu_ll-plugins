@@ -39,6 +39,8 @@ public:
 
 
   char* tell_plugin(uint32_t argc, const char*const* argv) {
+    
+    // load a new sample
     if (argc == 2 && !strcmp(argv[0], "load_sample")) {
       if (load_sample(argv[1])) {
 	cerr<<"Loaded sample from "<<argv[1]<<endl;
@@ -46,6 +48,16 @@ public:
       }
       else
 	return strdup((string("Failed to load ") + argv[1]).c_str());
+    }
+    
+    // delete a loaded sample
+    else if (argc == 2 && !strcmp(argv[0], "delete_sample")) {
+      if (delete_sample(argv[1])) {
+	cerr<<"Deleted sample "<<argv[1]<<endl;
+	return 0;
+      }
+      else
+	return strdup((string("Failed to delete ") + argv[1]).c_str());
     }
     
     return strdup("Unknown command!");
@@ -90,6 +102,12 @@ protected:
     return true;
   }
   
+
+  bool delete_sample(const std::string& name) {
+    return false;
+  }
+
+
   Mixer m_mixer;
   ActionTrigger m_trigger;
   vector<Sample*> m_samples;

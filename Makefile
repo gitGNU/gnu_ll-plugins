@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.245
+PACKAGE_VERSION = 0.1.246
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -271,6 +271,8 @@ horizon_gtk_so_SOURCES = \
 	mod_gui.cpp mod_gui.hpp \
 	optionslider.cpp optionslider.hpp \
 	sampleeditor.cpp sampleeditor.hpp \
+	samplemodel.cpp samplemodel.hpp \
+	sampleview.cpp sampleview.hpp \
 	triggereditor.cpp triggereditor.hpp \
 	horizon_gtk.cpp
 horizon_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0` -Iextensions/gtkgui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.

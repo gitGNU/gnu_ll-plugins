@@ -250,9 +250,7 @@ private:
     char** argv = m_tell_gui_queue.front().second;
     m_tell_gui_queue.pop();
     tell_gui_received(argc, argv);
-    for (unsigned i = 0; i < argc; ++i)
-      free(argv[i]);
-    delete [] argv;
+    // XXX shouldn't I deallocate the buffers here? it crashes
   }
 
   Glib::Dispatcher m_add_program_dispatcher;
