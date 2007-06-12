@@ -13,7 +13,7 @@ ActionTrigger::ActionTrigger(Mixer& mixer)
 
 void ActionTrigger::run(const LV2_MIDI* midi_port, uint32_t nframes) {
   
-  static unsigned char keymask = ~(1<<7);
+  static unsigned char keymask(~(1<<7));
 
   LV2_MIDIState state = { const_cast<LV2_MIDI*>(midi_port), nframes, 0 };
   
@@ -91,3 +91,28 @@ bool ActionTrigger::remove_action(Action* action) {
   return false;
 }
   
+
+bool ActionTrigger::remove_actions_for_chunk(const Chunk* chunk) {
+  
+  bool something_removed = false;
+  
+  for (unsigned i = 0; i < 128; ++i) {
+    if (m_key_table[i].action && &m_key_table[i].action->get_chunk() == chunk) {
+      m_key_table[i].action = 0;
+      // XXX here too
+      m_key_table[i].running = false;
+    }
+  }
+  
+  for (long i = 0; i < (long)m_actions.size(); ++i) {
+    if (&m_actions[i]->get_chunk() == chunk) {
+      delete m_actions[i];
+      m_actions.erase(m_actions.begin() + i);
+      --i;
+      something_removed = true;
+    }
+  }
+  
+  return something_removed;
+}
+

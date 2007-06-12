@@ -113,6 +113,31 @@ void SampleEditor::do_load_sample() {
 }
 
 
+bool SampleEditor::remove_sample(const std::string& name) {
+  std::map<string, SampleModel*>::iterator iter = m_models.find(name);
+  if (iter != m_models.end()) {
+    m_cmb_sample.remove_text(name);
+    if (m_cmb_sample.get_model()->children().size() == 0) {
+      m_cmb_sample.append_text("No samples");
+      m_cmb_sample.set_active_text("No samples");
+      m_cmb_sample.set_sensitive(false);
+      m_btn_delete.set_sensitive(false);
+      m_btn_rename.set_sensitive(false);
+      m_view.set_model(0);
+    }
+    else
+      m_cmb_sample.set_active(0);
+    
+    delete iter->second;
+    m_models.erase(iter);
+
+    return true;
+  }
+  
+  return false;
+}
+
+
 void SampleEditor::do_delete_sample() {
   MessageDialog msg_dlg(string("Are you sure that you want to remove "
 			       "the sample <b><i>") + 

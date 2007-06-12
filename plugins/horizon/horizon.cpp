@@ -1,6 +1,9 @@
+#include <cstring>
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include <semaphore.h>
 
 #include "action.hpp"
 #include "lv2advanced.hpp"
@@ -22,19 +25,29 @@ public:
     : LV2Advanced(h_n_ports),
       m_trigger(m_mixer) {
     
+    sem_init(&m_lock, 0, 1);
+    
     load_sample("/home/ll/div/loops/tomsphases.wav");
   }
   
   
   ~Horizon() {
+    sem_destroy(&m_lock);
     for (unsigned i = 0; i < m_samples.size(); ++i)
       delete m_samples[i];
   }
   
   
   void run(uint32_t nframes) {
-    m_mixer.set_buffers(p(h_left), p(h_right));
-    m_trigger.run(p<LV2_MIDI>(h_midi_input), nframes);
+    if (!sem_trywait(&m_lock)) {
+      m_mixer.set_buffers(p(h_left), p(h_right));
+      m_trigger.run(p<LV2_MIDI>(h_midi_input), nframes);
+      sem_post(&m_lock);
+    }
+    else {
+      memset(p(h_left), 0, sizeof(float) * nframes);
+      memset(p(h_right), 0, sizeof(float) * nframes);
+    }
   }
 
 
@@ -104,6 +117,19 @@ protected:
   
 
   bool delete_sample(const std::string& name) {
+    for (unsigned i = 0; i < m_samples.size(); ++i) {
+      if (m_samples[i]->get_name() == name) {
+	sem_wait(&m_lock);
+	m_mixer.stop();
+	const std::vector<Chunk*>& chunks = m_samples[i]->get_chunks();
+	for (unsigned j = 0; j < chunks.size(); ++j)
+	  m_trigger.remove_actions_for_chunk(chunks[j]);
+	sem_post(&m_lock);
+	delete m_samples[i];
+	tell_host("ss", "sample_deleted", name.c_str());
+	return true;
+      }
+    }
     return false;
   }
 
@@ -111,6 +137,9 @@ protected:
   Mixer m_mixer;
   ActionTrigger m_trigger;
   vector<Sample*> m_samples;
+  
+  // XXX this should be more fine-grained
+  sem_t m_lock;
   
 };
 

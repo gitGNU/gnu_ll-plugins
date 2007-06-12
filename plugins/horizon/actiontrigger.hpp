@@ -7,6 +7,7 @@
 
 
 class Action;
+class Chunk;
 class Mixer;
 
 
@@ -33,6 +34,9 @@ public:
   
   /** Remove an action from the list and delete it. */
   bool remove_action(Action* action);
+  
+  /** Remove all actions that use a given chunk. */
+  bool remove_actions_for_chunk(const Chunk* chunk);
   
 protected:
   

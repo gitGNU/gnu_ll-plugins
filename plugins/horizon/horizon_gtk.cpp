@@ -81,6 +81,10 @@ public:
       else
 	cerr<<"Too many channels for the GUI!"<<endl;
     }
+    
+    else if (argc == 2 && !strcmp(argv[0], "sample_deleted")) {
+      m_sed.remove_sample(argv[1]);
+    }
   }
   
   

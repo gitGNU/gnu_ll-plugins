@@ -15,6 +15,7 @@ public:
   
   bool add_sample(const std::string& name, long length, double rate,
 		  const std::string& left, const std::string& right = "");
+  bool remove_sample(const std::string& name);
   
   sigc::signal<void, const std::string&>& signal_load_sample();
   sigc::signal<void, const std::string&>& signal_delete_sample();
