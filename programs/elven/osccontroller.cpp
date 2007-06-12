@@ -264,7 +264,11 @@ int OSCController::tell_plugin_handler(const char*, const char*, lo_arg** argv,
     str = next + 1;
   }
   
-  static_cast<CallbackData*>(cbdata)->host.tell_plugin(my_argc, my_argv);
+  char* result = static_cast<CallbackData*>(cbdata)->
+    host.tell_plugin(my_argc, my_argv);
+  
+  if (result)
+    free(result);
   
   // XXX should the buffers be deleted here?
 }

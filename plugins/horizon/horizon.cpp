@@ -126,6 +126,7 @@ protected:
 	  m_trigger.remove_actions_for_chunk(chunks[j]);
 	sem_post(&m_lock);
 	delete m_samples[i];
+	m_samples.erase(m_samples.begin() + i);
 	tell_host("ss", "sample_deleted", name.c_str());
 	return true;
       }
