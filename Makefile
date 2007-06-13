@@ -1,5 +1,16 @@
+# By default, this Makefile only builds and installs software that is
+# considered to be somewhat finished and stable. If you want to build other
+# software as well, that may be buggy or completely broken, you need to run
+# make like this: 
+#
+#   make build_experimental=yes
+#   make build_experimental=yes install
+#
+# ...or edit this file to set the variable "build_experimental" to "yes".
+
+
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.249
+PACKAGE_VERSION = 0.1.250
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -9,11 +20,15 @@ PKG_DEPS = \
 	gsl>=1.8 \
 	sndfile>=1.0.16
 
-ARCHIVES = \
+
+ARCHIVES = libpaq.a
+
+
+ifeq ($(build_experimental),yes)
+  ARCHIVES += \
 	liblv2_plugin.a \
 	liblv2_advanced.a \
 	liblv2_instrument.a \
-	libpaq.a \
 	liblv2_oscui.a \
 	liblv2_gtk2gui.a \
 	libkeyboard.a \
@@ -24,6 +39,32 @@ ARCHIVES = \
 	libpdeditor.a \
 	libtransitioneditor.a \
 	libpatternwidget.a
+endif
+
+PROGRAMS = lv2peg
+
+ifeq ($(build_experimental),yes)
+  PROGRAMS += elven elven_guiloader sockettest paqtest
+endif
+
+ifeq ($(build_experimental),yes)
+  LV2_PLUGINS = \
+	arpeggiator.lv2 \
+	audio_identity.lv2 \
+	azr3.lv2 \
+	control2midi.lv2 \
+	euphoria.lv2 \
+	horizon.lv2 \
+	klaviatur.lv2 \
+	midi_identity.lv2 \
+	math-constants.lv2 \
+	math-functions.lv2 \
+	mrvalve.lv2 \
+	phase-distortion-osc.lv2 \
+	sineshaper.lv2 \
+	trilobeat.lv2 \
+	trilobyte.lv2
+endif
 
 
 # Archives with useful code bits
@@ -91,8 +132,6 @@ libpatternwidget_a_SOURCEDIR = libraries/widgets
 
 # Executable programs
 
-PROGRAMS = lv2peg elven elven_guiloader sockettest paqtest
-
 lv2peg_SOURCES = lv2peg.cpp
 lv2peg_CFLAGS = -Ilibraries/paq -DVERSION=\"$(PACKAGE_VERSION)\"
 lv2peg_ARCHIVES = libraries/paq/libpaq.a
@@ -125,23 +164,6 @@ paqtest_SOURCEDIR = libraries/paq
 
 
 # The plugins
-
-LV2_PLUGINS = \
-	arpeggiator.lv2 \
-	audio_identity.lv2 \
-	azr3.lv2 \
-	control2midi.lv2 \
-	euphoria.lv2 \
-	horizon.lv2 \
-	klaviatur.lv2 \
-	midi_identity.lv2 \
-	math-constants.lv2 \
-	math-functions.lv2 \
-	mrvalve.lv2 \
-	phase-distortion-osc.lv2 \
-	sineshaper.lv2 \
-	trilobeat.lv2 \
-	trilobyte.lv2
 
 PLUGINARCHIVES = libraries/lv2plugin/liblv2_plugin.a
 INSTRUMENTARCHIVES = libraries/lv2plugin/liblv2_plugin.a libraries/lv2plugin/liblv2_instrument.a
@@ -396,14 +418,17 @@ EXTRA_DIST = \
 	libraries/components/voicehandler.hpp \
 	libraries/components/wavewrapper.hpp \
 	\
+	extensions/command/lv2-command.h \
 	extensions/MidiPort/lv2-midiport.h \
 	extensions/midimap/lv2-midimap.rdfs \
 	extensions/instrument/lv2-instrument.h \
 	extensions/transporttype/lv2-transport.h \
 	extensions/gtkgui/lv2-gtk2gui.h \
+	extensions/gtkgui/lv2-guicomm-gtk2gui.h \
 	extensions/gtkgui/lv2-instrument-gtk2gui.h \
 	extensions/gtkgui/lv2-program-gtk2gui.h \
 	extensions/gtkgui/lv2-miditype-gtk2gui.h 
+
 
 
 # Do the magic
