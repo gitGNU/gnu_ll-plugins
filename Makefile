@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.250
+PACKAGE_VERSION = 0.1.251
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -22,7 +22,6 @@ PKG_DEPS = \
 
 
 ARCHIVES = libpaq.a
-
 
 ifeq ($(build_experimental),yes)
   ARCHIVES += \
@@ -41,11 +40,13 @@ ifeq ($(build_experimental),yes)
 	libpatternwidget.a
 endif
 
+
 PROGRAMS = lv2peg
 
 ifeq ($(build_experimental),yes)
   PROGRAMS += elven elven_guiloader sockettest paqtest
 endif
+
 
 ifeq ($(build_experimental),yes)
   LV2_PLUGINS = \

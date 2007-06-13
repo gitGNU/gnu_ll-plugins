@@ -22,8 +22,10 @@ public:
   bool is_valid() const;
   size_t get_length() const;
   double get_rate() const;
-  
+  const std::string& get_name() const;
   const PeakData* const* get_peak_data() const;
+
+  void set_name(const std::string& name);
   
 protected:
   

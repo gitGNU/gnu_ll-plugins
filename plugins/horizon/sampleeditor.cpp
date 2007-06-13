@@ -101,7 +101,37 @@ bool SampleEditor::add_sample(const std::string& name, long length, double rate,
   m_btn_rename.set_sensitive(true);
   m_btn_delete.set_sensitive(true);
   
-  return false;
+  return true;
+}
+
+
+bool SampleEditor::rename_sample(const std::string& old_name, 
+				 const std::string& new_name) {
+  
+  std::map<string, SampleModel*>::iterator iter = m_models.find(new_name);
+  
+  if (iter != m_models.end())
+    return false;
+  
+  iter = m_models.find(old_name);
+  if (iter == m_models.end())
+    return false;
+  
+  SampleModel* model = iter->second;
+  m_models.erase(iter);
+  m_models[new_name] = model;
+  model->set_name(new_name);
+  
+  // XXX need to preserve the order of the samples in the combo box
+  string selected = m_cmb_sample.get_active_text();
+  if (selected == old_name)
+    selected = new_name;
+  m_cmb_sample.clear();
+  for (iter = m_models.begin(); iter != m_models.end(); ++iter)
+    m_cmb_sample.append_text(iter->first);
+  m_cmb_sample.set_active_text(selected);
+  
+  return true;
 }
 
 
@@ -151,7 +181,24 @@ void SampleEditor::do_delete_sample() {
 
 
 void SampleEditor::do_rename_sample() {
-  cerr<<"Renaming samples is not supported!"<<endl;
+  Dialog dlg(string("Rename ") + m_cmb_sample.get_active_text());
+  HBox hbox(false, 6);
+  Label lbl("New name:");
+  Entry ent;
+  ent.set_size_request(300, -1);
+  hbox.pack_start(lbl, PACK_SHRINK);
+  hbox.pack_start(ent, PACK_EXPAND_WIDGET);
+  hbox.set_border_width(6);
+  dlg.get_vbox()->pack_start(hbox);
+  dlg.get_vbox()->set_spacing(6);
+  dlg.show_all();
+  dlg.add_button(Stock::CANCEL, RESPONSE_CANCEL);
+  dlg.add_button(Stock::OK, RESPONSE_OK);
+  if (dlg.run() == RESPONSE_OK) {
+    m_signal_rename_sample(m_cmb_sample.get_active_text(),
+			   ent.get_text());
+  }
+  dlg.hide();
 }
 
 

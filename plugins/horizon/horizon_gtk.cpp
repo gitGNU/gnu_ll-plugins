@@ -62,6 +62,8 @@ public:
       connect(mem_fun(*this, &HorizonGUI::do_load_sample));
     m_sed.signal_delete_sample().
       connect(mem_fun(*this, &HorizonGUI::do_delete_sample));
+    m_sed.signal_rename_sample().
+      connect(mem_fun(*this, &HorizonGUI::do_rename_sample));
     
   }
   
@@ -85,6 +87,10 @@ public:
     else if (argc == 2 && !strcmp(argv[0], "sample_deleted")) {
       m_sed.remove_sample(argv[1]);
     }
+    
+    else if (argc == 3 && !strcmp(argv[0], "sample_renamed")) {
+      m_sed.rename_sample(argv[1], argv[2]);
+    }
   }
   
   
@@ -100,6 +106,13 @@ protected:
     const char* argv[] = { "delete_sample", 0 };
     argv[1] = sample.c_str();
     m_ctrl.tell_plugin(2, argv);
+  }
+      
+  void do_rename_sample(const string& old_name, const string& new_name) {
+    const char* argv[] = { "rename_sample", 0, 0 };
+    argv[1] = old_name.c_str();
+    argv[2] = new_name.c_str();
+    m_ctrl.tell_plugin(3, argv);
   }
       
   void set_control(uint32_t port, float value) {

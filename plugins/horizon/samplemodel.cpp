@@ -96,3 +96,13 @@ double SampleModel::get_rate() const {
 const SampleModel::PeakData* const* SampleModel::get_peak_data() const {
   return m_peak_data;
 }
+
+
+const std::string& SampleModel::get_name() const {
+  return m_name;
+}
+
+
+void SampleModel::set_name(const std::string& name) {
+  m_name = name;
+}

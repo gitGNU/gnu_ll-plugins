@@ -72,6 +72,15 @@ public:
       else
 	return strdup((string("Failed to delete ") + argv[1]).c_str());
     }
+
+    else if (argc == 3 && !strcmp(argv[0], "rename_sample")) {
+      if (rename_sample(argv[1], argv[2])) {
+	cerr<<"Renamed sample "<<argv[1]<<" to "<<argv[2]<<endl;
+	return 0;
+      }
+      else
+	return strdup((string("Failed to rename ") + argv[1]).c_str());
+    }
     
     return strdup("Unknown command!");
   }
@@ -131,6 +140,26 @@ protected:
 	return true;
       }
     }
+    return false;
+  }
+  
+  
+  bool rename_sample(const std::string& old_name, const std::string& new_name) {
+    
+    // check that the new name isn't used already
+    for (unsigned i = 0; i < m_samples.size(); ++i) {
+      if (m_samples[i]->get_name() == new_name)
+	return false;
+    }
+    
+    for (unsigned i = 0; i < m_samples.size(); ++i) {
+      if (m_samples[i]->get_name() == old_name) {
+	m_samples[i]->set_name(new_name);
+	tell_host("sss", "sample_renamed", old_name.c_str(), new_name.c_str());
+	return true;
+      }
+    }
+    
     return false;
   }
   
