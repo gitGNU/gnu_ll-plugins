@@ -72,13 +72,15 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
   gc->set_foreground(m_fg);
   const SampleModel::PeakData* peak = 0;
   int scale = 0;
+  size_t scroll = m_scroll_adj.get_value();
+  size_t lines = m_model->get_length() / (1 << m_scale) - scroll;
+  lines = lines > get_width() ? get_width() : lines;
   
   // if we are zoomed in closer than the finest peak level, use the actual data
   if (m_scale < 4) {
     scale = 1 << m_scale;
-    size_t scroll = m_scroll_adj.get_value();
     const float* data = m_model->get_data(0);
-    for (size_t i = scroll; i < m_model->get_length() / (1 << m_scale); ++i) {
+    for (size_t i = scroll; i < scroll + lines; ++i) {
       float min = data[i*scale];
       float max = data[i*scale];
 	for (size_t j = 0; j < scale; ++j) {
@@ -110,7 +112,7 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
     
     if (peak) {
       size_t scroll = m_scroll_adj.get_value();
-      for (size_t i = scroll; i < m_model->get_length() / (1 << m_scale); ++i) {
+      for (size_t i = scroll; i < scroll + lines; ++i) {
 	float min = peak[i*scale].min;
 	float max = peak[i*scale].max;
 	for (size_t j = 0; j < scale; ++j) {
