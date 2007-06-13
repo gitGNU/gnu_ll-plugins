@@ -133,8 +133,8 @@ protected:
     }
     return false;
   }
-
-
+  
+  
   Mixer m_mixer;
   ActionTrigger m_trigger;
   vector<Sample*> m_samples;
