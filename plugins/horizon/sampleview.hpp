@@ -30,6 +30,8 @@ protected:
   
   Gtk::Adjustment m_scroll_adj;
   
+  int m_scale;
+  
 };
 
 

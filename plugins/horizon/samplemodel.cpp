@@ -103,6 +103,15 @@ const std::string& SampleModel::get_name() const {
 }
 
 
+const float* SampleModel::get_data(size_t channel) const {
+  if (channel == 0)
+    return m_left;
+  else if (channel == 1)
+    return m_right;
+  return 0;
+}
+
+
 void SampleModel::set_name(const std::string& name) {
   m_name = name;
 }

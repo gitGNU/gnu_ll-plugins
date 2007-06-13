@@ -24,6 +24,7 @@ public:
   double get_rate() const;
   const std::string& get_name() const;
   const PeakData* const* get_peak_data() const;
+  const float* get_data(size_t channel) const;
 
   void set_name(const std::string& name);
   
