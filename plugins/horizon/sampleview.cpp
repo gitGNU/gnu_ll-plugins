@@ -73,8 +73,9 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
   const SampleModel::PeakData* peak = 0;
   int scale = 0;
   size_t scroll = m_scroll_adj.get_value();
-  size_t lines = m_model->get_length() / (1 << m_scale) - scroll;
-  lines = lines > get_width() ? get_width() : lines;
+  size_t lines = get_width();
+  if (scroll + lines > m_model->get_length() / (1 << m_scale))
+    lines = m_model->get_length() / (1 << m_scale) - scroll;
   
   // if we are zoomed in closer than the finest peak level, use the actual data
   if (m_scale < 4) {

@@ -297,7 +297,7 @@ bool EnvelopeEditor::on_expose_event(GdkEventExpose* event) {
       cc->stroke();
       cc->restore();
     }
-    cc->clear_path();
+    cc->begin_new_path();
     
 
     xoffset += l;

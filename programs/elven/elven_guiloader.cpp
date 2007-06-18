@@ -220,7 +220,7 @@ int main(int argc, char** argv) {
   }
   
   // build the feature list
-  LV2_Host_Feature** features = new LV2_Host_Feature*[4];
+  LV2_Host_Feature** features = new LV2_Host_Feature*[5];
   features[0] = new LV2_Host_Feature;
   features[0]->URI = strdup("http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext");
   static LV2_InstrumentControllerDescriptor instcdesc = {
