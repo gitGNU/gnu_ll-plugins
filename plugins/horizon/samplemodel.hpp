@@ -48,6 +48,8 @@ protected:
   
   std::vector<size_t> m_seg;
   
+  float* m_envelope;
+  
 };
 
 

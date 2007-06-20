@@ -16,19 +16,22 @@ SampleView::SampleView()
     m_active_frame(0),
     m_active_segment(-1),
     m_sel_begin(-1),
-    m_sel_end(-1) {
+    m_sel_end(-1),
+    m_envelope(0) {
   
   m_bg.set_rgb(55000, 55000, 60000);
   m_bgl.set_rgb(65000, 65000, 65000);
   m_bgd.set_rgb(20000, 20000, 40000);
   m_bgs.set_rgb(37000, 37000, 50000);
   m_fg.set_rgb(0, 20000, 65000);
+  m_red.set_rgb(65000, 0, 0);
   Glib::RefPtr<Gdk::Colormap> cmap = Gdk::Colormap::get_system();
   cmap->alloc_color(m_bg);
   cmap->alloc_color(m_bgl);
   cmap->alloc_color(m_bgd);
   cmap->alloc_color(m_bgs);
   cmap->alloc_color(m_fg);
+  cmap->alloc_color(m_red);
   
   add_events(Gdk::EXPOSURE_MASK | Gdk::BUTTON1_MOTION_MASK | 
              Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK |
@@ -49,6 +52,9 @@ SampleView::SampleView()
   m_menu.items().
     push_back(MenuElem("Split in 3", 
                        mem_fun(*this, &SampleView::do_split_in_3)));
+  m_menu.items().
+    push_back(MenuElem("Auto split", 
+                       mem_fun(*this, &SampleView::do_auto_split)));
 }
 
 
@@ -56,6 +62,8 @@ void SampleView::set_model(SampleModel* model) {
   m_model = model;
   m_sel_begin = m_sel_end = -1;
   queue_draw();
+  delete [] m_envelope;
+  m_envelope = 0;
   if (m_model)
     m_scroll_adj.set_upper(model->get_length() / pow(2.0, m_scale) + 1);
   else
@@ -148,6 +156,22 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
       win->draw_line(gc, x, h - 1, x2, h - 1);
     }
     
+  }
+  
+  // draw envelope
+  int p = 0;
+  if (m_envelope && m_scale >= 0) {
+    gc->set_foreground(m_red);
+    int scale = int(pow(2.0, m_scale));
+    int scroll = int(m_scroll_adj.get_value() * scale);
+    for (size_t i = 0; i < w; ++i) {
+      size_t index = scroll + i * scale;
+      if (index >= m_model->get_length())
+	break;
+      int y = int(h / 2 + (h / 2 - 1) * m_envelope[index]);
+      win->draw_line(gc, i - 1, p, i, y);
+      p = y;
+    }
   }
 
   return true;
@@ -274,6 +298,137 @@ void SampleView::do_split_in_3() {
   }
   for (size_t i = 0; i < new_points.size(); ++i)
     m_signal_add_splitpoint(new_points[i]);  
+}
+
+
+void SampleView::do_auto_split() {
+  
+  if (!m_model || m_sel_begin == -1)
+    return;
+  
+  /* This is a very crude onset detection algorithm, but it works reasonably
+     well for simple beats. The procedure is something like this:
+     
+     * process the sample data with an asymmetric low pass filter that
+       smooths out fast descents but lets fast ascents through, write the
+       processed data to a circular buffer (delay line)
+       
+     * for every sample, check if the difference between the current processed 
+       value and the oldest value in the buffer is larger than a given 
+       threshold, if it is we have an onset somewhere in the buffer
+       
+     * search the buffer to find a value that is a weighted average of the
+       oldest and the newest buffer values, with given weights, and call that
+       frame the onset
+       
+     * when the onset is found, find the best cut point just before it
+       (preferrably a zero crossing)
+       
+     The parameters below can be used to tweak the performance of the auto
+     splitter.
+  */
+  
+  delete [] m_envelope;
+  m_envelope = new float[m_model->get_length()];
+  memset(m_envelope, 0, m_model->get_length() * sizeof(float));
+  
+  // algorithm parameters
+  // coefficient for the envelope tracker - higher means smoother descents
+  double k = pow(0.999, 48000.0 / m_model->get_rate());
+  // higher threshold means less detected onsets
+  float threshold = 0.3;
+  // too high value may cause too early onsets, too low may cause too early
+  float sensitivity = 0.5;
+  // the size of the circular buffer
+  int risetime = int(m_model->get_rate() * 0.05);
+  // the minimum time between detected onsets
+  int deadtime = int(m_model->get_rate() * 0.2);
+  // how far from the onset frame we may look for a perfect cut point
+  int slack = int(m_model->get_rate() * 0.01);
+  
+  float* buffer = new float[risetime];
+  memset(buffer, 0, risetime * sizeof(float));
+  int offset = 0;
+  const vector<size_t>& seg = m_model->get_splitpoints();
+  size_t start = seg[m_sel_begin];
+  size_t end = seg[m_sel_end + 1];
+  int dead = deadtime;
+  vector<size_t> new_points;
+  const float* data = m_model->get_data(0);
+  float y_1 = abs(data[start]);
+
+  for (size_t i = start; i < end; ++i) {
+    
+    // asymmetric filter (envelope tracker)
+    const float& x_0 = abs(data[i]);
+    float y_0 = (1 - k) * x_0 + k * y_1;
+    y_0 = x_0 > y_0 ? x_0 : y_0;
+    
+    // write to a circular buffer
+    buffer[offset] = y_0;
+    
+    // check if the difference between the oldest and the newest value in the 
+    // buffer is above the threshold, if it is we have found an onset
+    if (!dead &&
+	buffer[offset] - buffer[(offset + 1) % risetime] > threshold) {
+      
+      cerr<<"found an onset somewhere before frame "<<i<<"!"<<endl;
+      
+      // compute the envelope value where we say that the onset actually happens
+      float v_1 = buffer[(offset + 1) % risetime];
+      float v_2 = buffer[offset];
+      float v_t = v_1 + (v_2 - v_1) * (1 - sensitivity);
+      
+      // find the frame where the envelope goes above that value
+      int a = 0;
+      int b = risetime - 1;
+      while (b - a > 1) {
+	int c = (a + b) / 2;
+	if (buffer[(offset + 1 + c) % risetime] <= v_t)
+	  a = c;
+	else
+	  b = c;
+      }
+      a = i - (risetime - 1) + a;
+      
+      cerr<<"the actual onset is at frame "<<a<<endl;
+      
+      // find the best split point nearby
+      int best = a - slack;
+      float v_b = abs(data[best]);
+      for (int j = a - slack + 1; j < a; ++j) {
+	if (abs(data[j]) <= v_b) {
+	  v_b = abs(data[j]);
+	  best = j;
+	}
+      }
+      new_points.push_back(best);
+      
+      cerr<<"the best splitpoint is "<<best<<" with sample value "<<v_b<<endl;
+      
+      dead = deadtime - (i - best);
+    }
+    
+    // increase the buffer counter
+    offset = (offset + 1) % risetime;
+    
+    // count down the deadtime
+    --dead;
+    dead = dead < 0 ? 0 : dead;
+    
+    // write the envelope to an internal buffer for debug display
+    m_envelope[i] = y_0;
+
+    y_1 = y_0;
+    
+  }
+  
+  delete [] buffer;
+  
+  for (size_t i = 0; i < new_points.size(); ++i)
+    m_signal_add_splitpoint(new_points[i]);
+  
+  queue_draw();
 }
 
 
