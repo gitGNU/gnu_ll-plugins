@@ -24,6 +24,7 @@ protected:
   virtual bool on_expose_event(GdkEventExpose* event);
   virtual bool on_motion_notify_event(GdkEventMotion* event);
   virtual bool on_button_press_event(GdkEventButton* event);
+  virtual bool on_button_release_event(GdkEventButton* event);
   virtual bool on_scroll_event(GdkEventScroll* event);
   virtual void on_size_allocate(Gtk::Allocation& allocation);
   
@@ -41,6 +42,7 @@ protected:
   int m_scale;
 
   size_t m_active_frame;
+  int m_active_segment;
   
   sigc::signal<void, size_t> m_signal_add_splitpoint;
   sigc::signal<void, size_t> m_signal_remove_splitpoint;

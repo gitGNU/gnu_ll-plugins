@@ -13,7 +13,8 @@ SampleView::SampleView()
   : m_model(0),
     m_scroll_adj(0, 0, 0),
     m_scale(4),
-    m_active_frame(0) {
+    m_active_frame(0),
+    m_active_segment(-1) {
   
   m_bg.set_rgb(55000, 55000, 60000);
   m_bgl.set_rgb(65000, 65000, 65000);
@@ -26,7 +27,8 @@ SampleView::SampleView()
   cmap->alloc_color(m_fg);
   
   add_events(Gdk::EXPOSURE_MASK | Gdk::BUTTON1_MOTION_MASK | 
-             Gdk::BUTTON_PRESS_MASK | Gdk::SCROLL_MASK);  
+             Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK |
+	     Gdk::SCROLL_MASK);  
   
   m_scroll_adj.signal_value_changed().
     connect(mem_fun(*this, &SampleView::queue_draw));
@@ -151,16 +153,30 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
   
   // draw splitpoints
   const vector<size_t>& seg = m_model->get_splitpoints();
-  for (size_t i = 0; i < seg.size(); ++i) {
+  for (size_t i = 0; i < seg.size() - 1; ++i) {
     int x = int(seg[i] / pow(2.0, m_scale) - scroll);
     if (x < 0)
       continue;
     else if (x > get_width())
       break;
-    gc->set_foreground(m_bgd);
+    if (i == m_active_segment + 1)
+      gc->set_foreground(m_bgl);
+    else
+      gc->set_foreground(m_bgd);
     win->draw_line(gc, x - 1, 0, x - 1, h - 1);
-    gc->set_foreground(m_bgl);
+    if (i == m_active_segment)
+      gc->set_foreground(m_bgd);
+    else
+      gc->set_foreground(m_bgl);
     win->draw_line(gc, x, 0, x, h - 1);
+    if (i == m_active_segment) {
+      int x2 = int(seg[i + 1] / pow(2.0, m_scale) - scroll);
+      x2 = get_width() > x2 ? x2 : get_width();
+      gc->set_foreground(m_bgd);
+      win->draw_line(gc, x, 0, x2, 0);
+      gc->set_foreground(m_bgl);
+      win->draw_line(gc, x, h - 1, x2, h - 1);
+    }
   }
 
   return true;
@@ -174,10 +190,38 @@ bool SampleView::on_motion_notify_event(GdkEventMotion* event) {
 
 bool SampleView::on_button_press_event(GdkEventButton* event) {
   
-  if (event->button == 3) {
+  if (!m_model)
+    return true;
+  
+  if (event->button == 1) {
+    size_t frame = size_t((m_scroll_adj.get_value() + event->x) * 
+			  pow(2.0, m_scale));
+    const vector<size_t>& seg = m_model->get_splitpoints();
+    for (unsigned i = 0; i < seg.size() - 1; ++i) {
+      if (seg[i + 1] > frame) {
+	m_active_segment = i;
+	queue_draw();
+	return true;
+      }
+    }
+	   
+  }
+  
+  else if (event->button == 3) {
     m_active_frame = size_t((m_scroll_adj.get_value() + event->x) * 
 			    pow(2.0, m_scale));
     m_menu.popup(event->button, event->time);
+  }
+  
+  return true;
+}
+
+
+bool SampleView::on_button_release_event(GdkEventButton* event) {
+  
+  if (event->button == 1) {
+    m_active_segment = -1;
+    queue_draw();
   }
   
   return true;
