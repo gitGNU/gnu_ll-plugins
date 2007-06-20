@@ -35,7 +35,7 @@ void SampleView::set_model(SampleModel* model) {
   m_model = model;
   queue_draw();
   if (m_model)
-    m_scroll_adj.set_upper(model->get_length() / (1 << m_scale) + 1);
+    m_scroll_adj.set_upper(model->get_length() / pow(2.0, m_scale) + 1);
   else
     m_scroll_adj.set_upper(0);
   m_scroll_adj.set_value(0);
@@ -71,22 +71,33 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
   int m = h / 2;
   gc->set_foreground(m_fg);
   const SampleModel::PeakData* peak = 0;
-  int scale = 0;
-  size_t scroll = m_scroll_adj.get_value();
+  float scale = 0;
+  size_t scroll = size_t(m_scroll_adj.get_value());
   size_t lines = get_width();
-  if (scroll + lines > m_model->get_length() / (1 << m_scale))
-    lines = m_model->get_length() / (1 << m_scale) - scroll;
+  if (scroll + lines > m_model->get_length() / pow(2.0, m_scale))
+    lines = size_t(m_model->get_length() / pow(2.0, m_scale) - scroll);
   
-  // if we are zoomed in closer than the finest peak level, use the actual data
-  if (m_scale < 4) {
-    scale = 1 << m_scale;
+  // if we are zoomed in closer than 1:1, draw each sample as a tiny box
+  if (m_scale < 0) {
+    scale = pow(2.0, m_scale);
+    const float* data = m_model->get_data(0);
+    const int offset = int(scroll * scale);
+    for (size_t i = 0; i < lines * scale; ++i) {
+      win->draw_rectangle(gc, true, int(i / scale), 
+			  m + int((m - 1) * data[i + offset]) - 1, 3, 3); 
+    }
+  }
+  
+  // if the scale is 1:1 < 1:16, use the actual data
+  else if (m_scale < 4) {
+    scale = pow(2.0, m_scale);
     const float* data = m_model->get_data(0);
     for (size_t i = scroll; i < scroll + lines; ++i) {
-      float min = data[i*scale];
-      float max = data[i*scale];
+      float min = data[int(i*scale)];
+      float max = data[int(i*scale)];
 	for (size_t j = 0; j < scale; ++j) {
-	  min = min < data[i*scale + j] ? min : data[i*scale + j];
-	  max = max > data[i*scale + j] ? max : data[i*scale + j];
+	  min = min < data[int(i*scale + j)] ? min : data[int(i*scale + j)];
+	  max = max > data[int(i*scale + j)] ? max : data[int(i*scale + j)];
 	}
 	
 	win->draw_line(gc, i - scroll, m + int((m - 1) * min),
@@ -97,28 +108,30 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
   // else, select a peak level depending on the scale
   else {
     if (m_scale < 8) {
-      scale = 1 << (m_scale - 4);
+      scale = pow(2.0, m_scale - 4);
       peak = m_model->get_peak_data()[0];
     }
     
     else if (m_scale < 12) {
-      scale = 1 << (m_scale - 8);
+      scale = pow(2.0, m_scale - 8);
       peak = m_model->get_peak_data()[1];
     }
     
     else {
-      scale = 1 << (m_scale - 12);
+      scale = pow(2.0, m_scale - 12);
       peak = m_model->get_peak_data()[2];
     }
     
     if (peak) {
-      size_t scroll = m_scroll_adj.get_value();
+      size_t scroll = size_t(m_scroll_adj.get_value());
       for (size_t i = scroll; i < scroll + lines; ++i) {
-	float min = peak[i*scale].min;
-	float max = peak[i*scale].max;
+	float min = peak[int(i*scale)].min;
+	float max = peak[int(i*scale)].max;
 	for (size_t j = 0; j < scale; ++j) {
-	  min = min < peak[i*scale + j].min ? min : peak[i*scale + j].min;
-	  max = max > peak[i*scale + j].max ? max : peak[i*scale + j].max;
+	  min = min < peak[int(i*scale + j)].min ? 
+	    min : peak[int(i*scale + j)].min;
+	  max = max > peak[int(i*scale + j)].max ? 
+	    max : peak[int(i*scale + j)].max;
 	}
 	
 	win->draw_line(gc, i - scroll, m + int((m - 1) * min),
@@ -142,14 +155,14 @@ bool SampleView::on_button_press_event(GdkEventButton* event) {
 
 
 bool SampleView::on_scroll_event(GdkEventScroll* event) {
-  double frame = (m_scroll_adj.get_value() + event->x + 0.5) * (1 << m_scale);
-  if (event->direction == GDK_SCROLL_UP && m_scale > 0)
+  double frame = (m_scroll_adj.get_value() + event->x + 0.5) * pow(2.0, m_scale);
+  if (event->direction == GDK_SCROLL_UP && m_scale > -4)
     --m_scale;
   else if (event->direction == GDK_SCROLL_DOWN && m_scale < 16)
     ++m_scale;
   if (m_model) {
-    m_scroll_adj.set_upper(m_model->get_length() / (1 << m_scale) + 1);
-    double new_scroll = frame / (1 << m_scale) - event->x - 0.5;
+    m_scroll_adj.set_upper(m_model->get_length() / pow(2.0, m_scale) + 1);
+    double new_scroll = frame / pow(2.0, m_scale) - event->x - 0.5;
     new_scroll = new_scroll < 0 ? 0 : new_scroll;
     double max = m_scroll_adj.get_upper() - m_scroll_adj.get_page_size();
     new_scroll = new_scroll > max ? max : new_scroll;
