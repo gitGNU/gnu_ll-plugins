@@ -14,16 +14,20 @@ SampleView::SampleView()
     m_scroll_adj(0, 0, 0),
     m_scale(4),
     m_active_frame(0),
-    m_active_segment(-1) {
+    m_active_segment(-1),
+    m_sel_begin(-1),
+    m_sel_end(-1) {
   
   m_bg.set_rgb(55000, 55000, 60000);
   m_bgl.set_rgb(65000, 65000, 65000);
   m_bgd.set_rgb(20000, 20000, 40000);
+  m_bgs.set_rgb(37000, 37000, 50000);
   m_fg.set_rgb(0, 20000, 65000);
   Glib::RefPtr<Gdk::Colormap> cmap = Gdk::Colormap::get_system();
   cmap->alloc_color(m_bg);
   cmap->alloc_color(m_bgl);
   cmap->alloc_color(m_bgd);
+  cmap->alloc_color(m_bgs);
   cmap->alloc_color(m_fg);
   
   add_events(Gdk::EXPOSURE_MASK | Gdk::BUTTON1_MOTION_MASK | 
@@ -39,6 +43,15 @@ SampleView::SampleView()
   m_menu.items().
     push_back(MenuElem("Remove splitpoint", 
                        mem_fun(*this, &SampleView::do_remove_splitpoint)));
+  m_menu.items().
+    push_back(MenuElem("Merge", 
+                       mem_fun(*this, &SampleView::do_merge)));
+  m_menu.items().
+    push_back(MenuElem("Split in 2", 
+                       mem_fun(*this, &SampleView::do_split_in_2)));
+  m_menu.items().
+    push_back(MenuElem("Split in 3", 
+                       mem_fun(*this, &SampleView::do_split_in_3)));
 }
 
 
@@ -66,7 +79,7 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
   int w = get_width();
   int h = get_height();
   
-  // draw background
+  // draw background (including selection highlight)
   win->draw_rectangle(gc, true, 0, 0, w, h);
   gc->set_foreground(m_bgd);
   win->draw_line(gc, w - 1, 0, w - 1, h - 1);
@@ -74,6 +87,19 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
   gc->set_foreground(m_bgl);
   win->draw_line(gc, 0, 0, w, 0);
   win->draw_line(gc, 0, 0, 0, h);
+  if (m_model && m_sel_begin >= 0) {
+    const vector<size_t>& seg = m_model->get_splitpoints();
+    int begin = int(seg[m_sel_begin] / pow(2.0, m_scale) - 
+		    m_scroll_adj.get_value());
+    int end = int(seg[m_sel_end + 1] / pow(2.0, m_scale) - 
+		  m_scroll_adj.get_value());
+    if (end > 0 && begin < w) {
+      begin = begin > 0 ? begin : 0;
+      end = end < get_width() ? end : w;
+      gc->set_foreground(m_bgs);
+      win->draw_rectangle(gc, true, begin, 0, end - begin, h);
+    }
+  }
   
   if (!m_model)
     return true;
@@ -95,10 +121,16 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
   const vector<size_t>& seg = m_model->get_splitpoints();
   for (size_t i = 0; i < seg.size() - 1; ++i) {
     int x = int(seg[i] / pow(2.0, m_scale) - m_scroll_adj.get_value());
-    if (x < 0)
+    int x2 = int(seg[i + 1] / pow(2.0, m_scale) - m_scroll_adj.get_value());
+    x2 = get_width() > x2 ? x2 : get_width();
+    
+    // check if the segment intersects the view
+    if (x < 0 && x2 < 0)
       continue;
     else if (x > get_width())
       break;
+    
+    // draw the vertical lines
     if (i == m_active_segment + 1)
       gc->set_foreground(m_bgl);
     else
@@ -109,14 +141,15 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
     else
       gc->set_foreground(m_bgl);
     win->draw_line(gc, x, 0, x, h - 1);
+    
+    // draw the horizontal lines if needed
     if (i == m_active_segment) {
-      int x2 = int(seg[i + 1] / pow(2.0, m_scale) - m_scroll_adj.get_value());
-      x2 = get_width() > x2 ? x2 : get_width();
       gc->set_foreground(m_bgd);
       win->draw_line(gc, x, 0, x2, 0);
       gc->set_foreground(m_bgl);
       win->draw_line(gc, x, h - 1, x2, h - 1);
     }
+    
   }
 
   return true;
@@ -140,6 +173,12 @@ bool SampleView::on_button_press_event(GdkEventButton* event) {
     for (unsigned i = 0; i < seg.size() - 1; ++i) {
       if (seg[i + 1] > frame) {
 	m_active_segment = i;
+	if (event->state & GDK_SHIFT_MASK && m_sel_begin >= 0) {
+	  m_sel_begin = m_sel_begin < i ? m_sel_begin : i;
+	  m_sel_end = m_sel_end > i ? m_sel_end : i;
+	}
+	else
+	  m_sel_begin = m_sel_end = i;
 	queue_draw();
 	return true;
       }
@@ -205,6 +244,21 @@ void SampleView::do_add_splitpoint() {
 void SampleView::do_remove_splitpoint() {
   cerr<<"Remove splitpoint at frame "<<m_active_frame
       <<", signal not sent"<<endl;
+}
+
+
+void SampleView::do_merge() {
+  
+}
+
+
+void SampleView::do_split_in_2() {
+  
+}
+
+
+void SampleView::do_split_in_3() {
+  
 }
 
 

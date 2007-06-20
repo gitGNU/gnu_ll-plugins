@@ -30,11 +30,14 @@ protected:
   
   void do_add_splitpoint();
   void do_remove_splitpoint();
+  void do_merge();
+  void do_split_in_2();
+  void do_split_in_3();
   
   void draw_channel(size_t channel, Glib::RefPtr<Gdk::Window> win,
 		    Glib::RefPtr<Gdk::GC> gc, int c, int h);
   
-  Gdk::Color m_bg, m_fg, m_bgl, m_bgd, m_fgl, m_fgd;
+  Gdk::Color m_bg, m_fg, m_bgl, m_bgd, m_fgl, m_fgd, m_bgs;
   
   SampleModel* m_model;
   
@@ -46,6 +49,10 @@ protected:
 
   size_t m_active_frame;
   int m_active_segment;
+  
+  int m_sel_begin;
+  int m_sel_end;
+  
   
   sigc::signal<void, size_t> m_signal_add_splitpoint;
   sigc::signal<void, size_t> m_signal_remove_splitpoint;
