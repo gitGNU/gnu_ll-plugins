@@ -1,11 +1,14 @@
 #include <iostream>
 
+#include <sigc++/sigc++.h>
+
 #include "sampleeditor.hpp"
 #include "samplemodel.hpp"
 #include "sampleview.hpp"
 
 
 using namespace Gtk;
+using namespace sigc;
 using namespace std;
 
 
@@ -67,6 +70,12 @@ SampleEditor::SampleEditor()
   
   m_cmb_sample.signal_changed().
     connect(mem_fun(*this, &SampleEditor::sample_selected));
+  
+  m_view.signal_add_splitpoint().
+    connect(group(m_signal_add_splitpoint, 
+		  group(sigc::hide(mem_fun(m_cmb_sample, 
+					   &ComboBoxText::get_active_text)),
+			_1), _1));
 }
 
 
@@ -83,6 +92,12 @@ sigc::signal<void, const std::string&>& SampleEditor::signal_delete_sample() {
 sigc::signal<void, const std::string&, const std::string&>& 
 SampleEditor::signal_rename_sample() {
   return m_signal_rename_sample;
+}
+
+
+sigc::signal<void, const std::string&, size_t>& 
+SampleEditor::signal_add_splitpoint() {
+  return m_signal_add_splitpoint;
 }
 
 
@@ -165,6 +180,20 @@ bool SampleEditor::remove_sample(const std::string& name) {
   }
   
   return false;
+}
+
+
+bool SampleEditor::add_splitpoint(const std::string& name, size_t frame) {
+  std::map<string, SampleModel*>::iterator iter = m_models.find(name);
+  if (iter != m_models.end()) {
+    iter->second->add_splitpoint(frame);
+    if (m_cmb_sample.get_active_text() == iter->second->get_name())
+      m_view.queue_draw();
+    return true;
+  }
+  
+  return false;
+  
 }
 
 

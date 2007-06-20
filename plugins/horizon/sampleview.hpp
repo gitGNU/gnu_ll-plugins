@@ -16,6 +16,9 @@ public:
   
   Gtk::Adjustment& get_scroll_adjustment();
   
+  sigc::signal<void, size_t>& signal_add_splitpoint();
+  sigc::signal<void, size_t>& signal_remove_splitpoint();
+  
 protected:
   
   virtual bool on_expose_event(GdkEventExpose* event);
@@ -23,14 +26,24 @@ protected:
   virtual bool on_button_press_event(GdkEventButton* event);
   virtual bool on_scroll_event(GdkEventScroll* event);
   virtual void on_size_allocate(Gtk::Allocation& allocation);
-
+  
+  void do_add_splitpoint();
+  void do_remove_splitpoint();
+  
   Gdk::Color m_bg, m_fg, m_bgl, m_bgd, m_fgl, m_fgd;
   
   SampleModel* m_model;
   
   Gtk::Adjustment m_scroll_adj;
   
+  Gtk::Menu m_menu;
+  
   int m_scale;
+
+  size_t m_active_frame;
+  
+  sigc::signal<void, size_t> m_signal_add_splitpoint;
+  sigc::signal<void, size_t> m_signal_remove_splitpoint;
   
 };
 

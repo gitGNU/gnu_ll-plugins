@@ -68,3 +68,9 @@ const std::string& Sample::get_name() const {
 void Sample::set_name(const std::string& name) {
   m_name = name;
 }
+
+
+bool Sample::add_splitpoint(size_t frame) {
+  return m_seg.add_splitpoint(frame);
+}
+

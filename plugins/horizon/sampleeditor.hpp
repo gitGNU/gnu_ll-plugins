@@ -17,11 +17,13 @@ public:
 		  const std::string& left, const std::string& right = "");
   bool remove_sample(const std::string& name);
   bool rename_sample(const std::string& old_name, const std::string& new_name);
+  bool add_splitpoint(const std::string& name, size_t frame);
   
   sigc::signal<void, const std::string&>& signal_load_sample();
   sigc::signal<void, const std::string&>& signal_delete_sample();
   sigc::signal<void, const std::string&, const std::string&>& 
   signal_rename_sample();
+  sigc::signal<void, const std::string&, size_t>& signal_add_splitpoint();
 
 protected:
   
@@ -35,6 +37,7 @@ protected:
   sigc::signal<void, const std::string&> m_signal_delete_sample;
   sigc::signal<void, const std::string&, const std::string&>
   m_signal_rename_sample;
+  sigc::signal<void, const std::string&, size_t> m_signal_add_splitpoint;
   
   SampleView m_view;
   Gtk::FileChooserDialog m_dlg_load;

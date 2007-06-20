@@ -14,6 +14,9 @@ SampleModel::SampleModel(const std::string& name, size_t length, double rate,
     m_right(0),
     m_stereo(right != "") {
   
+  m_seg.push_back(0);
+  m_seg.push_back(length);
+  
   int fd = shm_open(left.c_str(), O_RDONLY, 0);
   if (fd == -1)
     return;
@@ -112,6 +115,26 @@ const float* SampleModel::get_data(size_t channel) const {
 }
 
 
+const std::vector<size_t>& SampleModel::get_splitpoints() const {
+  return m_seg;
+}
+
+
 void SampleModel::set_name(const std::string& name) {
   m_name = name;
 }
+
+
+void SampleModel::add_splitpoint(size_t frame) {
+  if (frame >= m_length)
+    return;
+  size_t i;
+  for (i = 0; i < m_seg.size(); ++i) {
+    if (m_seg[i] == frame)
+      return;
+    else if (m_seg[i] > frame)
+      break;
+  }
+  m_seg.insert(m_seg.begin() + i, frame);
+}
+

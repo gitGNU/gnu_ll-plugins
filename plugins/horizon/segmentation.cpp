@@ -19,3 +19,16 @@ const std::vector<size_t>& Segmentation::get_segments() const {
 }
 
 
+bool Segmentation::add_splitpoint(size_t frame) {
+  if (frame >= m_segments[m_segments.size() - 1])
+    return false;
+  size_t i;
+  for (i = 0; i < m_segments.size(); ++i) {
+    if (m_segments[i] == frame)
+      return false;
+    else if (m_segments[i] > frame)
+      break;
+  }
+  m_segments.insert(m_segments.begin() + i, frame);
+}
+

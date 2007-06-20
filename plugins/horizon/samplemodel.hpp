@@ -2,6 +2,7 @@
 #define SAMPLEMODEL_HPP
 
 #include <string>
+#include <vector>
 
 
 class SampleModel {
@@ -25,8 +26,10 @@ public:
   const std::string& get_name() const;
   const PeakData* const* get_peak_data() const;
   const float* get_data(size_t channel) const;
-
+  const std::vector<size_t>& get_splitpoints() const;
+  
   void set_name(const std::string& name);
+  void add_splitpoint(size_t frame);
   
 protected:
   
@@ -40,6 +43,8 @@ protected:
   float* m_right;
   
   bool m_stereo;
+  
+  std::vector<size_t> m_seg;
   
 };
 

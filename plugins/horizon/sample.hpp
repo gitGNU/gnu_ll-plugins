@@ -27,6 +27,7 @@ public:
   const std::string& get_name() const;
   
   void set_name(const std::string& name);
+  bool add_splitpoint(size_t frame);
     
 protected:
   

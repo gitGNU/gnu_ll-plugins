@@ -6,12 +6,14 @@
 
 
 using namespace std;
+using namespace Gtk::Menu_Helpers;
 
 
 SampleView::SampleView() 
   : m_model(0),
     m_scroll_adj(0, 0, 0),
-    m_scale(4) {
+    m_scale(4),
+    m_active_frame(0) {
   
   m_bg.set_rgb(55000, 55000, 60000);
   m_bgl.set_rgb(65000, 65000, 65000);
@@ -28,6 +30,13 @@ SampleView::SampleView()
   
   m_scroll_adj.signal_value_changed().
     connect(mem_fun(*this, &SampleView::queue_draw));
+  
+  m_menu.items().
+    push_back(MenuElem("Add splitpoint", 
+                       mem_fun(*this, &SampleView::do_add_splitpoint)));
+  m_menu.items().
+    push_back(MenuElem("Remove splitpoint", 
+                       mem_fun(*this, &SampleView::do_remove_splitpoint)));
 }
 
 
@@ -139,6 +148,20 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
       }
     }
   }
+  
+  // draw splitpoints
+  const vector<size_t>& seg = m_model->get_splitpoints();
+  for (size_t i = 0; i < seg.size(); ++i) {
+    int x = int(seg[i] / pow(2.0, m_scale) - scroll);
+    if (x < 0)
+      continue;
+    else if (x > get_width())
+      break;
+    gc->set_foreground(m_bgd);
+    win->draw_line(gc, x - 1, 0, x - 1, h - 1);
+    gc->set_foreground(m_bgl);
+    win->draw_line(gc, x, 0, x, h - 1);
+  }
 
   return true;
 }
@@ -150,6 +173,13 @@ bool SampleView::on_motion_notify_event(GdkEventMotion* event) {
 
 
 bool SampleView::on_button_press_event(GdkEventButton* event) {
+  
+  if (event->button == 3) {
+    m_active_frame = size_t((m_scroll_adj.get_value() + event->x) * 
+			    pow(2.0, m_scale));
+    m_menu.popup(event->button, event->time);
+  }
+  
   return true;
 }
 
@@ -179,3 +209,26 @@ void SampleView::on_size_allocate(Gtk::Allocation& a) {
   m_scroll_adj.set_page_size(a.get_width());
 }
 
+
+void SampleView::do_add_splitpoint() {
+  if (m_model) {
+    if (m_active_frame < m_model->get_length())
+      m_signal_add_splitpoint(m_active_frame);
+  }
+}
+
+
+void SampleView::do_remove_splitpoint() {
+  cerr<<"Remove splitpoint at frame "<<m_active_frame
+      <<", signal not sent"<<endl;
+}
+
+
+sigc::signal<void, size_t>& SampleView::signal_add_splitpoint() {
+  return m_signal_add_splitpoint;
+}
+
+
+sigc::signal<void, size_t>& SampleView::signal_remove_splitpoint() {
+  return m_signal_remove_splitpoint;
+}

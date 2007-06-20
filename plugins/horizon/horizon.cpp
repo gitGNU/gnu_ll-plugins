@@ -72,7 +72,8 @@ public:
       else
 	return strdup((string("Failed to delete ") + argv[1]).c_str());
     }
-
+    
+    // rename a loaded sample
     else if (argc == 3 && !strcmp(argv[0], "rename_sample")) {
       if (rename_sample(argv[1], argv[2])) {
 	cerr<<"Renamed sample "<<argv[1]<<" to "<<argv[2]<<endl;
@@ -80,6 +81,17 @@ public:
       }
       else
 	return strdup((string("Failed to rename ") + argv[1]).c_str());
+    }
+    
+    // add a splitpoint
+    else if (argc == 3 && !strcmp(argv[0], "add_splitpoint")) {
+      if (add_splitpoint(argv[1], atol(argv[2]))) {
+	cerr<<"Added splitpoint "<<argv[2]<<" in sample "<<argv[1]<<endl;
+	return 0;
+      }
+      else
+	return strdup((string("Failed to add splitpoint ") + argv[2] + 
+		       " in sample " + argv[1]).c_str());
     }
     
     return strdup("Unknown command!");
@@ -160,6 +172,24 @@ protected:
       }
     }
     
+    return false;
+  }
+  
+  
+  bool add_splitpoint(const std::string& name, size_t frame) {
+    for (unsigned i = 0; i < m_samples.size(); ++i) {
+      if (m_samples[i]->get_name() == name) {
+	bool success = false;
+	sem_wait(&m_lock);
+	m_mixer.stop();
+	if (m_samples[i]->add_splitpoint(frame))
+	  success = true;
+	sem_post(&m_lock);
+	if (success)
+	  tell_host("ssi", "splitpoint_added", name.c_str(), frame);
+	return success;
+      }
+    }
     return false;
   }
   
