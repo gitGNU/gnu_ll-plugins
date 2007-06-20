@@ -59,7 +59,6 @@ SampleBuffer::SampleBuffer(const std::string& filename)
   if (s_info.channels > 1) {
     for (int c = 0; c < s_info.channels; ++c)
       m_data[c] = shm_alloc(c, s_info.frames);
-      //m_data[c] = new float[s_info.frames];
     for (int f = 0; f < s_info.frames; ++f) {
       for (int c = 0; c < s_info.channels; ++c)
 	m_data[c][f] = tmp_data[s_info.channels * f + c];

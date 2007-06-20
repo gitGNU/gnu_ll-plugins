@@ -23,8 +23,9 @@ public:
   bool is_valid() const;
   size_t get_length() const;
   double get_rate() const;
+  size_t get_channels() const;
   const std::string& get_name() const;
-  const PeakData* const* get_peak_data() const;
+  const PeakData* const* get_peak_data(size_t channel) const;
   const float* get_data(size_t channel) const;
   const std::vector<size_t>& get_splitpoints() const;
   
@@ -33,7 +34,7 @@ public:
   
 protected:
   
-  PeakData* m_peak_data[3];
+  PeakData* m_peak_data[2][3];
   
   std::string m_name;
   size_t m_length;

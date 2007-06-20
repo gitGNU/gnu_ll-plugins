@@ -31,6 +31,9 @@ protected:
   void do_add_splitpoint();
   void do_remove_splitpoint();
   
+  void draw_channel(size_t channel, Glib::RefPtr<Gdk::Window> win,
+		    Glib::RefPtr<Gdk::GC> gc, int c, int h);
+  
   Gdk::Color m_bg, m_fg, m_bgl, m_bgd, m_fgl, m_fgd;
   
   SampleModel* m_model;

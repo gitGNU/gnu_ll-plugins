@@ -79,82 +79,22 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
     return true;
   
   // draw audio
-  int m = h / 2;
-  gc->set_foreground(m_fg);
-  const SampleModel::PeakData* peak = 0;
-  float scale = 0;
-  size_t scroll = size_t(m_scroll_adj.get_value());
-  size_t lines = get_width();
-  if (scroll + lines > m_model->get_length() / pow(2.0, m_scale))
-    lines = size_t(m_model->get_length() / pow(2.0, m_scale) - scroll);
-  
-  // if we are zoomed in closer than 1:1, draw each sample as a tiny box
-  if (m_scale < 0) {
-    scale = pow(2.0, m_scale);
-    const float* data = m_model->get_data(0);
-    const int offset = int(scroll * scale);
-    for (size_t i = 0; i < lines * scale; ++i) {
-      win->draw_rectangle(gc, true, int(i / scale), 
-			  m + int((m - 1) * data[i + offset]) - 1, 3, 3); 
-    }
+  if (m_model->get_channels() == 1) {
+    gc->set_foreground(m_fg);
+    int m = h / 2;
+    draw_channel(0, win, gc, m, m - 1);
   }
-  
-  // if the scale is 1:1 < 1:16, use the actual data
-  else if (m_scale < 4) {
-    scale = pow(2.0, m_scale);
-    const float* data = m_model->get_data(0);
-    for (size_t i = scroll; i < scroll + lines; ++i) {
-      float min = data[int(i*scale)];
-      float max = data[int(i*scale)];
-	for (size_t j = 0; j < scale; ++j) {
-	  min = min < data[int(i*scale + j)] ? min : data[int(i*scale + j)];
-	  max = max > data[int(i*scale + j)] ? max : data[int(i*scale + j)];
-	}
-	
-	win->draw_line(gc, i - scroll, m + int((m - 1) * min),
-		       i - scroll, m + int((m - 1) * max));
-    }
-  }
-  
-  // else, select a peak level depending on the scale
-  else {
-    if (m_scale < 8) {
-      scale = pow(2.0, m_scale - 4);
-      peak = m_model->get_peak_data()[0];
-    }
-    
-    else if (m_scale < 12) {
-      scale = pow(2.0, m_scale - 8);
-      peak = m_model->get_peak_data()[1];
-    }
-    
-    else {
-      scale = pow(2.0, m_scale - 12);
-      peak = m_model->get_peak_data()[2];
-    }
-    
-    if (peak) {
-      size_t scroll = size_t(m_scroll_adj.get_value());
-      for (size_t i = scroll; i < scroll + lines; ++i) {
-	float min = peak[int(i*scale)].min;
-	float max = peak[int(i*scale)].max;
-	for (size_t j = 0; j < scale; ++j) {
-	  min = min < peak[int(i*scale + j)].min ? 
-	    min : peak[int(i*scale + j)].min;
-	  max = max > peak[int(i*scale + j)].max ? 
-	    max : peak[int(i*scale + j)].max;
-	}
-	
-	win->draw_line(gc, i - scroll, m + int((m - 1) * min),
-		       i - scroll, m + int((m - 1) * max));
-      }
-    }
+  else if (m_model->get_channels() == 2) {
+    gc->set_foreground(m_fg);
+    int m = h / 4;
+    draw_channel(0, win, gc, m, m - 1);
+    draw_channel(1, win, gc, m + h / 2, m - 1);
   }
   
   // draw splitpoints
   const vector<size_t>& seg = m_model->get_splitpoints();
   for (size_t i = 0; i < seg.size() - 1; ++i) {
-    int x = int(seg[i] / pow(2.0, m_scale) - scroll);
+    int x = int(seg[i] / pow(2.0, m_scale) - m_scroll_adj.get_value());
     if (x < 0)
       continue;
     else if (x > get_width())
@@ -170,7 +110,7 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
       gc->set_foreground(m_bgl);
     win->draw_line(gc, x, 0, x, h - 1);
     if (i == m_active_segment) {
-      int x2 = int(seg[i + 1] / pow(2.0, m_scale) - scroll);
+      int x2 = int(seg[i + 1] / pow(2.0, m_scale) - m_scroll_adj.get_value());
       x2 = get_width() > x2 ? x2 : get_width();
       gc->set_foreground(m_bgd);
       win->draw_line(gc, x, 0, x2, 0);
@@ -275,4 +215,80 @@ sigc::signal<void, size_t>& SampleView::signal_add_splitpoint() {
 
 sigc::signal<void, size_t>& SampleView::signal_remove_splitpoint() {
   return m_signal_remove_splitpoint;
+}
+
+
+void SampleView::draw_channel(size_t channel, Glib::RefPtr<Gdk::Window> win,
+			      Glib::RefPtr<Gdk::GC> gc, int c, int h) {
+  
+  const SampleModel::PeakData* peak = 0;
+  float scale = 0;
+  size_t scroll = size_t(m_scroll_adj.get_value());
+  size_t lines = get_width();
+  if (scroll + lines > m_model->get_length() / pow(2.0, m_scale))
+    lines = size_t(m_model->get_length() / pow(2.0, m_scale) - scroll);
+  
+  // if we are zoomed in closer than 1:1, draw each sample as a tiny box
+  if (m_scale < 0) {
+    scale = pow(2.0, m_scale);
+    const float* data = m_model->get_data(channel);
+    const int offset = int(scroll * scale);
+    for (size_t i = 0; i < lines * scale; ++i) {
+      win->draw_rectangle(gc, true, int(i / scale), 
+			  c + int(h * data[i + offset]) - 1, 3, 3); 
+    }
+  }
+  
+  // if the scale is 1:1 < 1:16, use the actual data
+  else if (m_scale < 4) {
+    scale = pow(2.0, m_scale);
+    const float* data = m_model->get_data(channel);
+    for (size_t i = scroll; i < scroll + lines; ++i) {
+      float min = data[int(i*scale)];
+      float max = data[int(i*scale)];
+      for (size_t j = 0; j < scale; ++j) {
+	min = min < data[int(i*scale + j)] ? min : data[int(i*scale + j)];
+	max = max > data[int(i*scale + j)] ? max : data[int(i*scale + j)];
+      }
+      
+      win->draw_line(gc, i - scroll, c + int(h * min),
+		     i - scroll, c + int(h * max));
+    }
+  }
+  
+  // else, select a peak level depending on the scale
+  else {
+    if (m_scale < 8) {
+      scale = pow(2.0, m_scale - 4);
+      peak = m_model->get_peak_data(channel)[0];
+    }
+    
+    else if (m_scale < 12) {
+      scale = pow(2.0, m_scale - 8);
+      peak = m_model->get_peak_data(channel)[1];
+    }
+    
+    else {
+      scale = pow(2.0, m_scale - 12);
+      peak = m_model->get_peak_data(channel)[2];
+    }
+    
+    if (peak) {
+      size_t scroll = size_t(m_scroll_adj.get_value());
+      for (size_t i = scroll; i < scroll + lines; ++i) {
+	float min = peak[int(i*scale)].min;
+	float max = peak[int(i*scale)].max;
+	for (size_t j = 0; j < scale; ++j) {
+	  min = min < peak[int(i*scale + j)].min ? 
+	    min : peak[int(i*scale + j)].min;
+	  max = max > peak[int(i*scale + j)].max ? 
+	    max : peak[int(i*scale + j)].max;
+	}
+	
+	win->draw_line(gc, i - scroll, c + int(h * min),
+		       i - scroll, c + int(h * max));
+      }
+    }
+  }
+  
 }
