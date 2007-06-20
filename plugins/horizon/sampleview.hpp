@@ -29,7 +29,6 @@ protected:
   virtual void on_size_allocate(Gtk::Allocation& allocation);
   
   void do_add_splitpoint();
-  void do_remove_splitpoint();
   void do_merge();
   void do_split_in_2();
   void do_split_in_3();

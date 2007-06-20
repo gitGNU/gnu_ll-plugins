@@ -67,6 +67,8 @@ public:
       connect(mem_fun(*this, &HorizonGUI::do_rename_sample));
     m_sed.signal_add_splitpoint().
       connect(mem_fun(*this, &HorizonGUI::do_add_splitpoint));
+    m_sed.signal_remove_splitpoint().
+      connect(mem_fun(*this, &HorizonGUI::do_remove_splitpoint));
     
   }
   
@@ -98,6 +100,10 @@ public:
     else if (argc == 3 && !strcmp(argv[0], "splitpoint_added")) {
       m_sed.add_splitpoint(argv[1], atol(argv[2]));
     }
+
+    else if (argc == 3 && !strcmp(argv[0], "splitpoint_removed")) {
+      m_sed.remove_splitpoint(argv[1], atol(argv[2]));
+    }
   }
   
   
@@ -124,6 +130,15 @@ protected:
   
   void do_add_splitpoint(const string& sample, size_t frame) {
     const char* argv[] = { "add_splitpoint", 0, 0 };
+    argv[1] = sample.c_str();
+    ostringstream oss;
+    oss<<frame;
+    argv[2] = oss.str().c_str();
+    m_ctrl.tell_plugin(3, argv);
+  }
+      
+  void do_remove_splitpoint(const string& sample, size_t frame) {
+    const char* argv[] = { "remove_splitpoint", 0, 0 };
     argv[1] = sample.c_str();
     ostringstream oss;
     oss<<frame;

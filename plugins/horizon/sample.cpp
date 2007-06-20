@@ -74,3 +74,8 @@ bool Sample::add_splitpoint(size_t frame) {
   return m_seg.add_splitpoint(frame);
 }
 
+
+bool Sample::remove_splitpoint(size_t frame) {
+  return m_seg.remove_splitpoint(frame);
+}
+

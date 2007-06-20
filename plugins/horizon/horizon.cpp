@@ -94,6 +94,17 @@ public:
 		       " in sample " + argv[1]).c_str());
     }
     
+    // remove a splitpoint
+    else if (argc == 3 && !strcmp(argv[0], "remove_splitpoint")) {
+      if (remove_splitpoint(argv[1], atol(argv[2]))) {
+	cerr<<"Removed splitpoint "<<argv[2]<<" in sample "<<argv[1]<<endl;
+	return 0;
+      }
+      else
+	return strdup((string("Failed to remove splitpoint ") + argv[2] + 
+		       " in sample " + argv[1]).c_str());
+    }
+    
     return strdup("Unknown command!");
   }
   
@@ -187,6 +198,24 @@ protected:
 	sem_post(&m_lock);
 	if (success)
 	  tell_host("ssi", "splitpoint_added", name.c_str(), frame);
+	return success;
+      }
+    }
+    return false;
+  }
+  
+  
+  bool remove_splitpoint(const std::string& name, size_t frame) {
+    for (unsigned i = 0; i < m_samples.size(); ++i) {
+      if (m_samples[i]->get_name() == name) {
+	bool success = false;
+	sem_wait(&m_lock);
+	m_mixer.stop();
+	if (m_samples[i]->remove_splitpoint(frame))
+	  success = true;
+	sem_post(&m_lock);
+	if (success)
+	  tell_host("ssi", "splitpoint_removed", name.c_str(), frame);
 	return success;
       }
     }

@@ -76,6 +76,11 @@ SampleEditor::SampleEditor()
 		  group(sigc::hide(mem_fun(m_cmb_sample, 
 					   &ComboBoxText::get_active_text)),
 			_1), _1));
+  m_view.signal_remove_splitpoint().
+    connect(group(m_signal_remove_splitpoint, 
+		  group(sigc::hide(mem_fun(m_cmb_sample, 
+					   &ComboBoxText::get_active_text)),
+			_1), _1));
 }
 
 
@@ -98,6 +103,12 @@ SampleEditor::signal_rename_sample() {
 sigc::signal<void, const std::string&, size_t>& 
 SampleEditor::signal_add_splitpoint() {
   return m_signal_add_splitpoint;
+}
+
+
+sigc::signal<void, const std::string&, size_t>& 
+SampleEditor::signal_remove_splitpoint() {
+  return m_signal_remove_splitpoint;
 }
 
 
@@ -192,8 +203,20 @@ bool SampleEditor::add_splitpoint(const std::string& name, size_t frame) {
     return true;
   }
   
-  return false;
+  return false;  
+}
+
+
+bool SampleEditor::remove_splitpoint(const std::string& name, size_t frame) {
+  std::map<string, SampleModel*>::iterator iter = m_models.find(name);
+  if (iter != m_models.end()) {
+    iter->second->remove_splitpoint(frame);
+    if (m_cmb_sample.get_active_text() == iter->second->get_name())
+      m_view.queue_draw();
+    return true;
+  }
   
+  return false;
 }
 
 

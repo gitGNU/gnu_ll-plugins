@@ -176,3 +176,17 @@ void SampleModel::add_splitpoint(size_t frame) {
   m_seg.insert(m_seg.begin() + i, frame);
 }
 
+
+void SampleModel::remove_splitpoint(size_t frame) {
+  if (frame >= m_length || frame == 0)
+    return;
+  size_t i;
+  for (i = 0; i < m_seg.size(); ++i) {
+    if (m_seg[i] == frame)
+      break;
+    else if (m_seg[i] > frame)
+      return;
+  }
+  m_seg.erase(m_seg.begin() + i);
+}
+

@@ -12,6 +12,7 @@ public:
   const std::vector<size_t>& get_segments() const;
   
   bool add_splitpoint(size_t frame);
+  bool remove_splitpoint(size_t frame);
   
 protected:
   

@@ -41,9 +41,6 @@ SampleView::SampleView()
     push_back(MenuElem("Add splitpoint", 
                        mem_fun(*this, &SampleView::do_add_splitpoint)));
   m_menu.items().
-    push_back(MenuElem("Remove splitpoint", 
-                       mem_fun(*this, &SampleView::do_remove_splitpoint)));
-  m_menu.items().
     push_back(MenuElem("Merge", 
                        mem_fun(*this, &SampleView::do_merge)));
   m_menu.items().
@@ -57,6 +54,7 @@ SampleView::SampleView()
 
 void SampleView::set_model(SampleModel* model) {
   m_model = model;
+  m_sel_begin = m_sel_end = -1;
   queue_draw();
   if (m_model)
     m_scroll_adj.set_upper(model->get_length() / pow(2.0, m_scale) + 1);
@@ -241,24 +239,41 @@ void SampleView::do_add_splitpoint() {
 }
 
 
-void SampleView::do_remove_splitpoint() {
-  cerr<<"Remove splitpoint at frame "<<m_active_frame
-      <<", signal not sent"<<endl;
-}
-
-
 void SampleView::do_merge() {
-  
+  if (!m_model || m_sel_begin == -1)
+    return;
+  vector<size_t> to_remove;
+  const vector<size_t>& seg = m_model->get_splitpoints();
+  for (size_t i = m_sel_begin + 1; i <= m_sel_end; ++i)
+    to_remove.push_back(seg[i]);
+  for (size_t i = 0; i < to_remove.size(); ++i)
+    m_signal_remove_splitpoint(to_remove[i]);
 }
 
 
 void SampleView::do_split_in_2() {
-  
+  if (!m_model || m_sel_begin == -1)
+    return;
+  vector<size_t> new_points;
+  const vector<size_t>& seg = m_model->get_splitpoints();
+  for (size_t i = m_sel_begin; i <= m_sel_end; ++i)
+    new_points.push_back((seg[i] + seg[i + 1]) / 2);
+  for (size_t i = 0; i < new_points.size(); ++i)
+    m_signal_add_splitpoint(new_points[i]);
 }
 
 
 void SampleView::do_split_in_3() {
-  
+  if (!m_model || m_sel_begin == -1)
+    return;
+  vector<size_t> new_points;
+  const vector<size_t>& seg = m_model->get_splitpoints();
+  for (size_t i = m_sel_begin; i <= m_sel_end; ++i) {
+    new_points.push_back((2 * seg[i] + seg[i + 1]) / 3);
+    new_points.push_back((seg[i] + 2 * seg[i + 1]) / 3);
+  }
+  for (size_t i = 0; i < new_points.size(); ++i)
+    m_signal_add_splitpoint(new_points[i]);  
 }
 
 
