@@ -190,3 +190,18 @@ void SampleModel::remove_splitpoint(size_t frame) {
   m_seg.erase(m_seg.begin() + i);
 }
 
+
+void SampleModel::move_splitpoint(size_t frame, size_t newframe) {
+  if (frame >= m_length || frame == 0)
+    return;
+  size_t i;
+  for (i = 0; i < m_seg.size(); ++i) {
+    if (m_seg[i] == frame)
+      break;
+    else if (m_seg[i] > frame)
+      return;
+  }
+  if (newframe <= m_seg[i - 1] || newframe >= m_seg[i + 1])
+    return;
+  m_seg[i] = newframe;
+}

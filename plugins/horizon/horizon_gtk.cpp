@@ -69,6 +69,8 @@ public:
       connect(mem_fun(*this, &HorizonGUI::do_add_splitpoint));
     m_sed.signal_remove_splitpoint().
       connect(mem_fun(*this, &HorizonGUI::do_remove_splitpoint));
+    m_sed.signal_move_splitpoint().
+      connect(mem_fun(*this, &HorizonGUI::do_move_splitpoint));
     
   }
   
@@ -103,6 +105,10 @@ public:
 
     else if (argc == 3 && !strcmp(argv[0], "splitpoint_removed")) {
       m_sed.remove_splitpoint(argv[1], atol(argv[2]));
+    }
+
+    else if (argc == 4 && !strcmp(argv[0], "splitpoint_moved")) {
+      m_sed.move_splitpoint(argv[1], atol(argv[2]), atol(argv[3]));
     }
   }
   
@@ -144,6 +150,20 @@ protected:
     oss<<frame;
     argv[2] = oss.str().c_str();
     m_ctrl.tell_plugin(3, argv);
+  }
+      
+  void do_move_splitpoint(const string& sample, size_t frame, size_t newframe) {
+    const char* argv[] = { "move_splitpoint", 0, 0, 0};
+    argv[1] = sample.c_str();
+    ostringstream oss;
+    oss<<frame;
+    string a2 = oss.str();
+    argv[2] = a2.c_str();
+    oss.str("");
+    oss<<newframe;
+    string a3 = oss.str();
+    argv[3] = a3.c_str();
+    m_ctrl.tell_plugin(4, argv);
   }
       
   void set_control(uint32_t port, float value) {

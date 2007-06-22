@@ -32,6 +32,7 @@ public:
   void set_name(const std::string& name);
   void add_splitpoint(size_t frame);
   void remove_splitpoint(size_t frame);
+  void move_splitpoint(size_t frame, size_t newframe);
   
 protected:
   

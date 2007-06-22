@@ -18,6 +18,7 @@ public:
   
   sigc::signal<void, size_t>& signal_add_splitpoint();
   sigc::signal<void, size_t>& signal_remove_splitpoint();
+  sigc::signal<void, size_t, size_t>& signal_move_splitpoint();
   
 protected:
   
@@ -37,7 +38,11 @@ protected:
   void draw_channel(size_t channel, Glib::RefPtr<Gdk::Window> win,
 		    Glib::RefPtr<Gdk::GC> gc, int c, int h);
   
-  Gdk::Color m_bg, m_fg, m_bgl, m_bgd, m_fgl, m_fgd, m_bgs, m_red;
+  sigc::signal<void, size_t> m_signal_add_splitpoint;
+  sigc::signal<void, size_t> m_signal_remove_splitpoint;
+  sigc::signal<void, size_t, size_t> m_signal_move_splitpoint;
+  
+  Gdk::Color m_bg, m_fg, m_bgl, m_bgd, m_fgl, m_fgd, m_bgs, m_red, m_zero;
   
   SampleModel* m_model;
   
@@ -55,8 +60,9 @@ protected:
   
   float* m_envelope;
   
-  sigc::signal<void, size_t> m_signal_add_splitpoint;
-  sigc::signal<void, size_t> m_signal_remove_splitpoint;
+  size_t m_drag_segment;
+  int m_drag_start_x;
+  int m_drag_x;
   
 };
 

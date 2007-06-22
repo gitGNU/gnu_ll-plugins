@@ -104,6 +104,18 @@ public:
 	return strdup((string("Failed to remove splitpoint ") + argv[2] + 
 		       " in sample " + argv[1]).c_str());
     }
+
+    // move a splitpoint
+    else if (argc == 4 && !strcmp(argv[0], "move_splitpoint")) {
+      if (move_splitpoint(argv[1], atol(argv[2]), atol(argv[3]))) {
+	cerr<<"Moved splitpoint "<<argv[2]<<" to "<<argv[3]
+	    <<"in sample "<<argv[1]<<endl;
+	return 0;
+      }
+      else
+	return strdup((string("Failed to move splitpoint ") + argv[2] + " to " +
+		       argv[3] + " in sample " + argv[1]).c_str());
+    }
     
     return strdup("Unknown command!");
   }
@@ -216,6 +228,24 @@ protected:
 	sem_post(&m_lock);
 	if (success)
 	  tell_host("ssi", "splitpoint_removed", name.c_str(), frame);
+	return success;
+      }
+    }
+    return false;
+  }
+  
+  
+  bool move_splitpoint(const std::string& name, size_t frame, size_t newframe) {
+    for (unsigned i = 0; i < m_samples.size(); ++i) {
+      if (m_samples[i]->get_name() == name) {
+	bool success = false;
+	sem_wait(&m_lock);
+	m_mixer.stop();
+	if (m_samples[i]->move_splitpoint(frame, newframe))
+	  success = true;
+	sem_post(&m_lock);
+	if (success)
+	  tell_host("ssii", "splitpoint_moved", name.c_str(), frame, newframe);
 	return success;
       }
     }

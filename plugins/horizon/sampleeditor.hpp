@@ -19,6 +19,7 @@ public:
   bool rename_sample(const std::string& old_name, const std::string& new_name);
   bool add_splitpoint(const std::string& name, size_t frame);
   bool remove_splitpoint(const std::string& name, size_t frame);
+  bool move_splitpoint(const std::string& name, size_t frame, size_t newframe);
   
   sigc::signal<void, const std::string&>& signal_load_sample();
   sigc::signal<void, const std::string&>& signal_delete_sample();
@@ -26,6 +27,8 @@ public:
   signal_rename_sample();
   sigc::signal<void, const std::string&, size_t>& signal_add_splitpoint();
   sigc::signal<void, const std::string&, size_t>& signal_remove_splitpoint();
+  sigc::signal<void, const std::string&, size_t, size_t>& 
+  signal_move_splitpoint();
 
 protected:
   
@@ -41,6 +44,8 @@ protected:
   m_signal_rename_sample;
   sigc::signal<void, const std::string&, size_t> m_signal_add_splitpoint;
   sigc::signal<void, const std::string&, size_t> m_signal_remove_splitpoint;
+  sigc::signal<void, const std::string&, size_t, size_t> 
+  m_signal_move_splitpoint;
   
   SampleView m_view;
   Gtk::FileChooserDialog m_dlg_load;

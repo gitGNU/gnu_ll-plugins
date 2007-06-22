@@ -42,3 +42,20 @@ bool Segmentation::remove_splitpoint(size_t frame) {
   return true;
 }
 
+
+bool Segmentation::move_splitpoint(size_t frame, size_t newframe) {
+  if (frame >= m_segments[m_segments.size() - 1] || frame == 0)
+    return false;
+  size_t i;
+  for (i = 1; i < m_segments.size() - 1; ++i) {
+    if (m_segments[i] == frame)
+      break;
+    else if (m_segments[i] > frame)
+      return false;
+  }
+  newframe = newframe <= m_segments[i - 1] ? m_segments[i - 1] + 1 : newframe;
+  newframe = newframe >= m_segments[i + 1] ? m_segments[i + 1] - 1 : newframe;
+  m_segments[i] = newframe;
+  return true;
+}
+

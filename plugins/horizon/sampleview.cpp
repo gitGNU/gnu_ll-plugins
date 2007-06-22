@@ -17,7 +17,10 @@ SampleView::SampleView()
     m_active_segment(-1),
     m_sel_begin(-1),
     m_sel_end(-1),
-    m_envelope(0) {
+    m_envelope(0),
+    m_drag_segment(0),
+    m_drag_start_x(-1),
+    m_drag_x(-1) {
   
   m_bg.set_rgb(55000, 55000, 60000);
   m_bgl.set_rgb(65000, 65000, 65000);
@@ -25,6 +28,7 @@ SampleView::SampleView()
   m_bgs.set_rgb(37000, 37000, 50000);
   m_fg.set_rgb(0, 20000, 65000);
   m_red.set_rgb(65000, 0, 0);
+  m_zero.set_rgb(30000, 30000, 30000);
   Glib::RefPtr<Gdk::Colormap> cmap = Gdk::Colormap::get_system();
   cmap->alloc_color(m_bg);
   cmap->alloc_color(m_bgl);
@@ -32,8 +36,10 @@ SampleView::SampleView()
   cmap->alloc_color(m_bgs);
   cmap->alloc_color(m_fg);
   cmap->alloc_color(m_red);
+  cmap->alloc_color(m_zero);
   
-  add_events(Gdk::EXPOSURE_MASK | Gdk::BUTTON1_MOTION_MASK | 
+  add_events(Gdk::EXPOSURE_MASK | 
+	     Gdk::BUTTON1_MOTION_MASK | Gdk::BUTTON2_MOTION_MASK |
              Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK |
 	     Gdk::SCROLL_MASK);  
   
@@ -112,13 +118,18 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
   
   // draw audio
   if (m_model->get_channels() == 1) {
-    gc->set_foreground(m_fg);
     int m = h / 2;
+    gc->set_foreground(m_zero);
+    win->draw_line(gc, 0, m, w, m);
+    gc->set_foreground(m_fg);
     draw_channel(0, win, gc, m, m - 1);
   }
   else if (m_model->get_channels() == 2) {
-    gc->set_foreground(m_fg);
     int m = h / 4;
+    gc->set_foreground(m_zero);
+    win->draw_line(gc, 0, m, w, m);
+    win->draw_line(gc, 0, m + h / 2, w, m + h / 2);
+    gc->set_foreground(m_fg);
     draw_channel(0, win, gc, m, m - 1);
     draw_channel(1, win, gc, m + h / 2, m - 1);
   }
@@ -158,6 +169,20 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
     
   }
   
+  // draw the dragged splitpoint
+  if (m_drag_segment > 0) {
+    gc->set_foreground(m_red);
+    int x = int(m_model->get_splitpoints()[m_drag_segment] / pow(2.0, m_scale) -
+		m_scroll_adj.get_value()) + m_drag_x - m_drag_start_x;
+    int min = int(m_model->get_splitpoints()[m_drag_segment - 1] / 
+		  pow(2.0, m_scale) - m_scroll_adj.get_value());
+    int max = int(m_model->get_splitpoints()[m_drag_segment + 1] / 
+		  pow(2.0, m_scale) - m_scroll_adj.get_value());
+    x = x < min ? min : x;
+    x = x > max ? max : x;
+    win->draw_line(gc, x, 1, x, h - 1);
+  }
+  
   // draw envelope
   int p = 0;
   if (m_envelope && m_scale >= 0) {
@@ -179,6 +204,10 @@ bool SampleView::on_expose_event(GdkEventExpose* event) {
 
 
 bool SampleView::on_motion_notify_event(GdkEventMotion* event) {
+  if (m_drag_segment > 0) {
+    m_drag_x = int(event->x);
+    queue_draw();
+  }
   return true;
 }
 
@@ -188,6 +217,7 @@ bool SampleView::on_button_press_event(GdkEventButton* event) {
   if (!m_model)
     return true;
   
+  // button 1 - activate and select
   if (event->button == 1) {
     size_t frame = size_t((m_scroll_adj.get_value() + event->x) * 
 			  pow(2.0, m_scale));
@@ -208,6 +238,32 @@ bool SampleView::on_button_press_event(GdkEventButton* event) {
 	   
   }
   
+  // button 2 - move the splitpoints
+  else if (event->button == 2 && m_model->get_splitpoints().size() > 2) {
+    cerr<<"OK!"<<endl;
+    double frame = (event->x + m_scroll_adj.get_value()) * pow(2.0, m_scale);
+    if (frame < m_model->get_length()) {
+      double limit = 10 * pow(2.0, m_scale);
+      const vector<size_t>& seg = m_model->get_splitpoints();
+      unsigned point = 1;
+      double d = abs(seg[1] - frame);
+      for (unsigned i = 2; i < seg.size() - 1; ++i) {
+	double new_d = abs(seg[i] - frame);
+	if (new_d < limit && new_d < d) {
+	  d = new_d;
+	  point = i;
+	}
+      }
+      if (d < limit) {
+	m_drag_segment = point;
+	m_drag_x = m_drag_start_x = int(event->x);
+	queue_draw();
+	cerr<<"Started dragging segment "<<point<<endl;
+      }
+    }
+  }
+  
+  // button 3 - pop up the menu
   else if (event->button == 3) {
     m_active_frame = size_t((m_scroll_adj.get_value() + event->x) * 
 			    pow(2.0, m_scale));
@@ -220,8 +276,26 @@ bool SampleView::on_button_press_event(GdkEventButton* event) {
 
 bool SampleView::on_button_release_event(GdkEventButton* event) {
   
-  if (event->button == 1) {
+  if (!m_model)
+    return true;
+  
+  // button 1 - inactivate the active segment
+  if (event->button == 1 && m_active_segment >= 0) {
     m_active_segment = -1;
+    queue_draw();
+  }
+  
+  // button 2 - stop dragging a splitpoint
+  else if (event->button == 2 && m_drag_segment > 0) {
+    const vector<size_t>& seg = m_model->get_splitpoints();
+    long x = int(seg[m_drag_segment] + 
+		(m_drag_x - m_drag_start_x) * pow(2.0, m_scale));
+    long min = seg[m_drag_segment - 1] + 1;
+    long max = seg[m_drag_segment + 1] - 1;
+    x = x < min ? min : x;
+    x = x > max ? max : x;
+    m_signal_move_splitpoint(m_model->get_splitpoints()[m_drag_segment], x);
+    m_drag_segment = 0;
     queue_draw();
   }
   
@@ -439,6 +513,11 @@ sigc::signal<void, size_t>& SampleView::signal_add_splitpoint() {
 
 sigc::signal<void, size_t>& SampleView::signal_remove_splitpoint() {
   return m_signal_remove_splitpoint;
+}
+
+
+sigc::signal<void, size_t, size_t>& SampleView::signal_move_splitpoint() {
+  return m_signal_move_splitpoint;
 }
 
 
