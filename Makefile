@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.263
+PACKAGE_VERSION = 0.1.264
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -272,6 +272,7 @@ horizon_lv2_SOURCES = \
 	action.hpp action.cpp \
 	actiontrigger.hpp actiontrigger.cpp \
 	chunk.hpp chunk.cpp \
+	effect.hpp effect.cpp \
 	effectstack.hpp effectstack.cpp \
 	horizon.cpp \
 	mixer.hpp mixer.cpp \
