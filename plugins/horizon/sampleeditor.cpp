@@ -41,7 +41,7 @@ SampleEditor::SampleEditor()
   VBox* scrbx = manage(new VBox(false, 3));
   scrbx->pack_start(m_view);
   HScrollbar* scrb = manage(new HScrollbar(m_view.get_scroll_adjustment()));
-  scrbx->pack_start(*scrb);
+  scrbx->pack_start(*scrb, PACK_SHRINK);
 
   HBox* bottom_row = manage(new HBox(false, 6));
   m_cmb_sample.append_text("No samples");

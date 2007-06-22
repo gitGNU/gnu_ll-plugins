@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.262
+PACKAGE_VERSION = 0.1.263
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
