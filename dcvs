@@ -1,16 +1,5 @@
 #!/usr/bin/perl
 
-# find out which files have changed
-@files = {};
-$nfiles = 0;
-@lines = `(cvs diff -u | grep "RCS file") 2> /dev/null`;
-foreach $line (@lines) {
-  if ($line =~ /^RCS file: \/sources\/ll-plugins\/ll-plugins\/(.*),v$/) {
-    $files[$nfiles++] = $1;
-  }
-}
-
-
 # make sure that this is a commit
 $is_commit = 0;
 foreach (@ARGV) {
@@ -42,13 +31,21 @@ while (<MAKEFILE_BAK>) {
 close MAKEFILE_BAK;
 close MAKEFILE;
 
+# find out which files have changed
+@files = {};
+$nfiles = 0;
+@lines = `(cvs diff -u | grep "RCS file") 2> /dev/null`;
+foreach $line (@lines) {
+  if ($line =~ /^RCS file: \/sources\/ll-plugins\/ll-plugins\/(.*),v$/) {
+    $files[$nfiles++] = $1;
+  }
+}
+
 # if the CVS command fails, copy the backup back in place
 if (system('cvs', @ARGV) != 0) {
   system 'cp Makefile.bak Makefile';
   exit;
 }
-
-
 
 # The code below is adapted from Petr Baudis's ciabot_cvs.pl
 
