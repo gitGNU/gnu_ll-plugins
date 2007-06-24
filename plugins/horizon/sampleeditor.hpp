@@ -21,6 +21,10 @@ public:
   bool add_splitpoint(const std::string& name, size_t frame);
   bool remove_splitpoint(const std::string& name, size_t frame);
   bool move_splitpoint(const std::string& name, size_t frame, size_t newframe);
+  bool add_static_effect(const std::string& sample, size_t pos, 
+			 const std::string& label);
+  bool remove_static_effect(const std::string& sample, size_t pos);
+  bool bypass_static_effect(const std::string& sample, size_t pos, bool bypass);
   
   sigc::signal<void, const std::string&>& signal_load_sample();
   sigc::signal<void, const std::string&>& signal_delete_sample();
@@ -30,6 +34,8 @@ public:
   sigc::signal<void, const std::string&, size_t>& signal_remove_splitpoint();
   sigc::signal<void, const std::string&, size_t, size_t>& 
   signal_move_splitpoint();
+  sigc::signal<void, const std::string&, size_t, const std::string&>& 
+  signal_add_static_effect();
   sigc::signal<void, const std::string&, size_t>& signal_remove_static_effect();
   sigc::signal<void, const std::string&, size_t, bool>& 
   signal_bypass_static_effect();
@@ -50,6 +56,8 @@ protected:
   sigc::signal<void, const std::string&, size_t> m_signal_remove_splitpoint;
   sigc::signal<void, const std::string&, size_t, size_t> 
   m_signal_move_splitpoint;
+  sigc::signal<void, const std::string&, size_t, const std::string&> 
+  m_signal_add_static_effect;
   sigc::signal<void, const std::string&, size_t> m_signal_remove_static_effect;
   sigc::signal<void, const std::string&, size_t, bool> 
   m_signal_bypass_static_effect;

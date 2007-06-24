@@ -84,3 +84,18 @@ bool Sample::move_splitpoint(size_t frame, size_t newframe) {
   return m_seg.move_splitpoint(frame, newframe);
 }
 
+
+bool Sample::add_static_effect(size_t pos, const std::string& effect_uri) {
+  return m_static_fx.add_effect(effect_uri, pos);
+}
+
+
+bool Sample::remove_static_effect(size_t pos) {
+  return m_static_fx.remove_effect(pos);
+}
+
+
+bool Sample::bypass_static_effect(size_t pos, bool bypass) {
+  return m_static_fx.bypass_effect(pos, bypass);
+}
+

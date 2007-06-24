@@ -71,6 +71,8 @@ public:
       connect(mem_fun(*this, &HorizonGUI::do_remove_splitpoint));
     m_sed.signal_move_splitpoint().
       connect(mem_fun(*this, &HorizonGUI::do_move_splitpoint));
+    m_sed.signal_add_static_effect().
+      connect(mem_fun(*this, &HorizonGUI::do_add_static_effect));
     m_sed.signal_remove_static_effect().
       connect(mem_fun(*this, &HorizonGUI::do_remove_static_effect));
     m_sed.signal_bypass_static_effect().
@@ -114,6 +116,19 @@ public:
     else if (argc == 4 && !strcmp(argv[0], "splitpoint_moved")) {
       m_sed.move_splitpoint(argv[1], atol(argv[2]), atol(argv[3]));
     }
+    
+    else if (argc == 4 && !strcmp(argv[0], "static_effect_added")) {
+      m_sed.add_static_effect(argv[1], atol(argv[2]), argv[3]);
+    }
+    
+    else if (argc == 3 && !strcmp(argv[0], "static_effect_removed")) {
+      m_sed.remove_static_effect(argv[1], atol(argv[2]));
+    }
+    
+    else if (argc == 4 && !strcmp(argv[0], "static_effect_bypassed")) {
+      m_sed.bypass_static_effect(argv[1], atol(argv[2]), atol(argv[3]));
+    }
+    
   }
   
   
@@ -167,6 +182,18 @@ protected:
     oss<<newframe;
     string a3 = oss.str();
     argv[3] = a3.c_str();
+    m_ctrl.tell_plugin(4, argv);
+  }
+  
+  
+  void do_add_static_effect(const string& sample, size_t index, 
+			    const string& effect_uri) {
+    const char* argv[] = { "add_static_effect", 0, 0, 0 };
+    argv[1] = sample.c_str();
+    ostringstream oss;
+    oss<<index;
+    argv[2] = oss.str().c_str();
+    argv[3] = effect_uri.c_str();
     m_ctrl.tell_plugin(4, argv);
   }
   

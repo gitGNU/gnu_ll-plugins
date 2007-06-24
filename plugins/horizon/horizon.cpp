@@ -117,6 +117,45 @@ public:
 		       argv[3] + " in sample " + argv[1]).c_str());
     }
     
+    else if (argc == 4 && !strcmp(argv[0], "add_static_effect")) {
+      if (add_static_effect(argv[1], atol(argv[2]), argv[3])) {
+	cerr<<"Added static effect "<<argv[3]<<" at position "<<argv[2]
+	    <<" in the stack for "<<argv[1]<<endl;
+	return 0;
+      }
+      else
+	return strdup((string("Failed to add static effect ") + argv[3] +
+		       " at position " + argv[2] + " in the stack for " +
+		       argv[1]).c_str());
+    }
+    
+    else if (argc == 3 && !strcmp(argv[0], "remove_static_effect")) {
+      if (remove_static_effect(argv[1], atol(argv[2]))) {
+	cerr<<"Removed static effect "<<argv[2]<<" in stack for "
+	    <<argv[1]<<endl;
+	return 0;
+      }
+      else
+	return strdup((string("Failed to remove static effect ") + argv[2] +
+		       " from stack for " + argv[1]).c_str());
+    }
+    
+    else if (argc == 4 && !strcmp(argv[0], "bypass_static_effect")) {
+      if (bypass_static_effect(argv[1], atol(argv[2]), atoi(argv[3]) != 0)) {
+	cerr<<(atoi(argv[3]) ? 
+	       (string("Disabled static effect ") + argv[2] + " in stack for " +
+		argv[1]).c_str() :
+	       (string("Enabled static effect ") + argv[2] + "in stack for " +
+		argv[1]).c_str())<<endl;
+	return 0;
+      }
+      else
+	return strdup((string("Failed to ") + 
+		       (atoi(argv[3]) ? "disable" : "enable") + 
+		       " static effect " + argv[2] + " in the stack for " +
+		       argv[1]).c_str());
+    }
+    
     return strdup("Unknown command!");
   }
   
@@ -252,6 +291,54 @@ protected:
     return false;
   }
   
+  
+  bool add_static_effect(const std::string& sample, size_t pos,
+			 const std::string& effect_uri) {
+    for (unsigned i = 0; i < m_samples.size(); ++i) {
+      if (m_samples[i]->get_name() == sample) {
+	if (m_samples[i]->add_static_effect(pos, effect_uri)) {
+	  // XXX fix the name later
+	  tell_host("ssis", "static_effect_added", sample.c_str(), pos, "foo");
+	  return true;
+	}
+	else
+	  return false;
+      }
+    }
+    return false;
+  }
+  
+  
+  bool remove_static_effect(const std::string& sample, size_t pos) {
+    for (unsigned i = 0; i < m_samples.size(); ++i) {
+      if (m_samples[i]->get_name() == sample) {
+	if (m_samples[i]->remove_static_effect(pos)) {
+	  tell_host("ssi", "static_effect_removed", sample.c_str(), pos);
+	  return true;
+	}
+	else
+	  return false;
+      }
+    }
+    return false;
+  }
+  
+  
+  bool bypass_static_effect(const std::string& sample, size_t pos, bool bpass) {
+    for (unsigned i = 0; i < m_samples.size(); ++i) {
+      if (m_samples[i]->get_name() == sample) {
+	if (m_samples[i]->bypass_static_effect(pos, bpass)) {
+	  tell_host("ssii", "static_effect_bypassed", sample.c_str(), pos,
+		    bpass ? 1 : 0);
+	  return true;
+	}
+	else
+	  return false;
+      }
+    }
+    return false;
+  }
+
   
   Mixer m_mixer;
   ActionTrigger m_trigger;

@@ -96,14 +96,16 @@ bool EffectStackView::on_expose_event(GdkEventExpose* event) {
   const EffectStackModel& est = m_model->get_effect_stack_model();
   Glib::RefPtr<Pango::Layout> l;
   for (unsigned i = m_offset; i < est.get_effects().size(); ++i) {
-    if (i == 1)
-      gc->set_foreground(m_fgbp);
     l = Pango::Layout::create(get_pango_context());
     l->set_text(est.get_effects()[i].get_name());
     Pango::FontDescription f("sans,monospace bold");
     f.set_absolute_size(Pango::SCALE * 10);
     l->set_font_description(f);
+    if (est.get_effects()[i].get_bypassed())
+      gc->set_foreground(m_fgbp);
     win->draw_layout(gc, 4, (i - m_offset) * m_stepheight + 4, l);
+    if (est.get_effects()[i].get_bypassed())
+      gc->set_foreground(m_fg);
   }
   
   return true;
@@ -164,7 +166,10 @@ sigc::signal<void, size_t, bool>& EffectStackView::signal_bypass_effect() {
 
 
 void EffectStackView::do_add_effect() {
-
+  if (!m_model)
+    return;
+  m_signal_add_effect(m_model->get_effect_stack_model().get_effects().size(),
+		      "foo");
 }
 
 

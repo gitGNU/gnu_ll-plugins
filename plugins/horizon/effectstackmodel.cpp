@@ -2,8 +2,7 @@
 
 
 EffectStackModel::EffectStackModel() {
-  m_effects.push_back(EffectModel("Reverse"));
-  m_effects.push_back(EffectModel("Moog filter"));
+  
 }
 
 
@@ -11,13 +10,23 @@ bool EffectStackModel::insert_effect(size_t pos, const std::string& name) {
   if (pos > m_effects.size())
     return false;
   m_effects.insert(m_effects.begin() + pos, EffectModel(name));
+  return true;
 }
   
 
-void EffectStackModel::bypass_effect(size_t pos, bool bypass) {
+bool EffectStackModel::remove_effect(size_t pos) {
   if (pos >= m_effects.size())
-    return;
+    return false;
+  m_effects.erase(m_effects.begin() + pos);
+  return true;
+}
+
+
+bool EffectStackModel::bypass_effect(size_t pos, bool bypass) {
+  if (pos >= m_effects.size())
+    return false;
   m_effects[pos].set_bypassed(bypass);
+  return true;
 }
 
 

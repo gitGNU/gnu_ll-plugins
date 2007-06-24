@@ -92,6 +92,9 @@ SampleEditor::SampleEditor()
   m_view.signal_move_splitpoint().
     connect(group(m_signal_move_splitpoint, 
 		  group(sigc::hide(get_sample), _1), _1, _2));
+  m_sview.signal_add_effect().
+    connect(group(m_signal_add_static_effect,
+		  group(sigc::hide(get_sample), _1), _1, _2));
   m_sview.signal_remove_effect().
     connect(group(m_signal_remove_static_effect,
 		  group(sigc::hide(get_sample), _1), _1));
@@ -132,6 +135,12 @@ SampleEditor::signal_remove_splitpoint() {
 sigc::signal<void, const std::string&, size_t, size_t>& 
 SampleEditor::signal_move_splitpoint() {
   return m_signal_move_splitpoint;
+}
+
+
+sigc::signal<void, const std::string&, size_t, const std::string&>& 
+SampleEditor::signal_add_static_effect() {
+  return m_signal_add_static_effect;
 }
 
 
@@ -269,6 +278,46 @@ bool SampleEditor::move_splitpoint(const std::string& name,
   
   return false;
 }
+
+
+bool SampleEditor::add_static_effect(const std::string& sample, size_t pos, 
+				     const std::string& label) {
+  std::map<string, SampleModel*>::iterator iter = m_models.find(sample);
+  if (iter != m_models.end() &&
+      iter->second->get_effect_stack_model().insert_effect(pos, label)) {
+    m_view.queue_draw();
+    m_sview.queue_draw();
+    return true;
+  }
+  return false;
+}
+
+
+bool SampleEditor::remove_static_effect(const std::string& sample, size_t pos) {
+  std::map<string, SampleModel*>::iterator iter = m_models.find(sample);
+  if (iter != m_models.end() &&
+      iter->second->get_effect_stack_model().remove_effect(pos)) {
+    m_view.queue_draw();
+    m_sview.queue_draw();
+    return true;
+  }
+  return false;
+}
+
+
+bool SampleEditor::bypass_static_effect(const std::string& sample, 
+					size_t pos, bool bypass) {
+  std::map<string, SampleModel*>::iterator iter = m_models.find(sample);
+  if (iter != m_models.end() &&
+      iter->second->get_effect_stack_model().bypass_effect(pos, bypass)) {
+    m_view.queue_draw();
+    m_sview.queue_draw();
+    return true;
+  }
+  return false;
+}
+
+
 
 
 void SampleEditor::do_delete_sample() {

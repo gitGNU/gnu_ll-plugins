@@ -9,11 +9,21 @@ const vector<float>& Effect::get_parameters() const {
 }
 
 
+const string& Effect::get_name() const {
+  return m_name;
+}
+
+
 bool Effect::set_parameter(size_t index, float value) {
   if (index >= m_params.size())
     return false;
   m_params[index] = value;
   return true;
+}
+
+
+void Effect::set_name(const std::string& name) {
+  m_name = name;
 }
 
 

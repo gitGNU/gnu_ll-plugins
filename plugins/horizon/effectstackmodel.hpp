@@ -13,7 +13,8 @@ public:
   EffectStackModel();
   
   bool insert_effect(size_t pos, const std::string& name);
-  void bypass_effect(size_t pos, bool bypass);
+  bool remove_effect(size_t pos);
+  bool bypass_effect(size_t pos, bool bypass);
   
   const std::vector<EffectModel>& get_effects() const;
   
