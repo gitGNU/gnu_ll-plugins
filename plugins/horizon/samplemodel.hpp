@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "effectstackmodel.hpp"
+
 
 class SampleModel {
 public:
@@ -28,6 +30,9 @@ public:
   const PeakData* const* get_peak_data(size_t channel) const;
   const float* get_data(size_t channel) const;
   const std::vector<size_t>& get_splitpoints() const;
+  const EffectStackModel& get_effect_stack_model() const;
+  
+  EffectStackModel& get_effect_stack_model();
   
   void set_name(const std::string& name);
   void add_splitpoint(size_t frame);
@@ -50,6 +55,8 @@ protected:
   std::vector<size_t> m_seg;
   
   float* m_envelope;
+  
+  EffectStackModel m_stack;
   
 };
 

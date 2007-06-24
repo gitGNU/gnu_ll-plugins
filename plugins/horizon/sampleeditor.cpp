@@ -34,15 +34,20 @@ SampleEditor::SampleEditor()
   set_shadow_type(SHADOW_IN);
   set_label_widget(*manage(new MLabel("<b>Samples</b>")));
   
+  // the main vbox that holds all components
   VBox* vbox = manage(new VBox(false, 6));
   vbox->set_border_width(6);
   
+  // the sample and effect stack widgets
+  Table* stab = manage(new Table(2, 2));
+  stab->set_row_spacings(3);
   m_view.set_size_request(100, 100);
-  VBox* scrbx = manage(new VBox(false, 3));
-  scrbx->pack_start(m_view);
+  stab->attach(m_sview, 0, 1, 0, 1, AttachOptions(0));
+  stab->attach(m_view, 1, 2, 0, 1);
   HScrollbar* scrb = manage(new HScrollbar(m_view.get_scroll_adjustment()));
-  scrbx->pack_start(*scrb, PACK_SHRINK);
-
+  stab->attach(*scrb, 1, 2, 1, 2, FILL | EXPAND, AttachOptions(0));
+  
+  // combo box and buttons
   HBox* bottom_row = manage(new HBox(false, 6));
   m_cmb_sample.append_text("No samples");
   m_cmb_sample.set_active_text("No samples");
@@ -50,42 +55,49 @@ SampleEditor::SampleEditor()
   bottom_row->pack_start(m_cmb_sample, false, false);
   m_btn_delete.set_sensitive(false);
   m_btn_rename.set_sensitive(false);
+  bottom_row->pack_end(m_btn_load, false, false);
+  bottom_row->pack_end(m_btn_delete, false, false);
+  bottom_row->pack_end(m_btn_rename, false, false);
+  
+  // arrange the components
+  vbox->pack_start(*stab, true, true);
+  vbox->pack_end(*bottom_row, false, false);
+  add(*vbox);
+  
+  // set up the sample loading dialog
+  m_dlg_load.add_button(Stock::CANCEL, RESPONSE_CANCEL);
+  m_dlg_load.add_button(Stock::OPEN, RESPONSE_OK);
+  m_dlg_load.set_default_response(RESPONSE_OK); 
+  
+  // connect some signals
   m_btn_load.signal_clicked().
     connect(mem_fun(*this, &SampleEditor::do_load_sample));
   m_btn_delete.signal_clicked().
     connect(mem_fun(*this, &SampleEditor::do_delete_sample));
   m_btn_rename.signal_clicked().
     connect(mem_fun(*this, &SampleEditor::do_rename_sample));
-  bottom_row->pack_end(m_btn_load, false, false);
-  bottom_row->pack_end(m_btn_delete, false, false);
-  bottom_row->pack_end(m_btn_rename, false, false);
-  
-  vbox->pack_start(*scrbx, true, true);
-  vbox->pack_end(*bottom_row, false, false);
-  add(*vbox);
-  
-  m_dlg_load.add_button(Stock::CANCEL, RESPONSE_CANCEL);
-  m_dlg_load.add_button(Stock::OPEN, RESPONSE_OK);
-  m_dlg_load.set_default_response(RESPONSE_OK); 
-  
+
   m_cmb_sample.signal_changed().
     connect(mem_fun(*this, &SampleEditor::sample_selected));
   
+  slot<Glib::ustring> get_sample = mem_fun(m_cmb_sample, 
+  					   &ComboBoxText::get_active_text);
+  
   m_view.signal_add_splitpoint().
     connect(group(m_signal_add_splitpoint, 
-		  group(sigc::hide(mem_fun(m_cmb_sample, 
-					   &ComboBoxText::get_active_text)),
-			_1), _1));
+		  group(sigc::hide(get_sample), _1), _1));
   m_view.signal_remove_splitpoint().
     connect(group(m_signal_remove_splitpoint, 
-		  group(sigc::hide(mem_fun(m_cmb_sample, 
-					   &ComboBoxText::get_active_text)),
-			_1), _1));
+		  group(sigc::hide(get_sample), _1), _1));
   m_view.signal_move_splitpoint().
     connect(group(m_signal_move_splitpoint, 
-		  group(sigc::hide(mem_fun(m_cmb_sample, 
-					   &ComboBoxText::get_active_text)),
-			_1), _1, _2));
+		  group(sigc::hide(get_sample), _1), _1, _2));
+  m_sview.signal_remove_effect().
+    connect(group(m_signal_remove_static_effect,
+		  group(sigc::hide(get_sample), _1), _1));
+  m_sview.signal_bypass_effect().
+    connect(group(m_signal_bypass_static_effect,
+		  group(sigc::hide(get_sample), _1), _1, _2));
 }
 
 
@@ -123,6 +135,18 @@ SampleEditor::signal_move_splitpoint() {
 }
 
 
+sigc::signal<void, const std::string&, size_t>& 
+SampleEditor::signal_remove_static_effect() {
+  return m_signal_remove_static_effect;
+}
+
+
+sigc::signal<void, const std::string&, size_t, bool>& 
+SampleEditor::signal_bypass_static_effect() {
+  return m_signal_bypass_static_effect;
+}
+
+
 bool SampleEditor::add_sample(const std::string& name, long length, double rate,
 			      const std::string& left,
 			      const std::string& right) {
@@ -131,6 +155,7 @@ bool SampleEditor::add_sample(const std::string& name, long length, double rate,
   // XXX do not overwrite here! will leak!
   m_models[name] = model;
   m_view.set_model(model);
+  m_sview.set_model(model);
   m_cmb_sample.remove_text("No samples");
   m_cmb_sample.append_text(name);
   m_cmb_sample.set_active_text(name);
@@ -191,6 +216,7 @@ bool SampleEditor::remove_sample(const std::string& name) {
       m_btn_delete.set_sensitive(false);
       m_btn_rename.set_sensitive(false);
       m_view.set_model(0);
+      m_sview.set_model(0);
     }
     else
       m_cmb_sample.set_active(0);
@@ -282,7 +308,9 @@ void SampleEditor::do_rename_sample() {
 void SampleEditor::sample_selected() {
   std::map<string, SampleModel*>::iterator iter = 
     m_models.find(m_cmb_sample.get_active_text());
-  if (iter != m_models.end())
+  if (iter != m_models.end()) {
     m_view.set_model(iter->second);
+    m_sview.set_model(iter->second);
+  }
 }
 

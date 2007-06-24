@@ -5,6 +5,7 @@
 
 #include <gtkmm.h>
 
+#include "effectstackview.hpp"
 #include "sampleview.hpp"
 
 
@@ -29,7 +30,10 @@ public:
   sigc::signal<void, const std::string&, size_t>& signal_remove_splitpoint();
   sigc::signal<void, const std::string&, size_t, size_t>& 
   signal_move_splitpoint();
-
+  sigc::signal<void, const std::string&, size_t>& signal_remove_static_effect();
+  sigc::signal<void, const std::string&, size_t, bool>& 
+  signal_bypass_static_effect();
+  
 protected:
   
   void do_load_sample();
@@ -46,8 +50,13 @@ protected:
   sigc::signal<void, const std::string&, size_t> m_signal_remove_splitpoint;
   sigc::signal<void, const std::string&, size_t, size_t> 
   m_signal_move_splitpoint;
+  sigc::signal<void, const std::string&, size_t> m_signal_remove_static_effect;
+  sigc::signal<void, const std::string&, size_t, bool> 
+  m_signal_bypass_static_effect;
   
   SampleView m_view;
+  EffectStackView m_sview;
+  
   Gtk::FileChooserDialog m_dlg_load;
   Gtk::ComboBoxText m_cmb_sample;
   Gtk::Button m_btn_load;

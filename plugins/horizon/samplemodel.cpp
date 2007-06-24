@@ -205,3 +205,13 @@ void SampleModel::move_splitpoint(size_t frame, size_t newframe) {
     return;
   m_seg[i] = newframe;
 }
+
+
+const EffectStackModel& SampleModel::get_effect_stack_model() const {
+  return m_stack;
+}
+  
+
+EffectStackModel& SampleModel::get_effect_stack_model() {
+  return m_stack;
+}

@@ -71,6 +71,10 @@ public:
       connect(mem_fun(*this, &HorizonGUI::do_remove_splitpoint));
     m_sed.signal_move_splitpoint().
       connect(mem_fun(*this, &HorizonGUI::do_move_splitpoint));
+    m_sed.signal_remove_static_effect().
+      connect(mem_fun(*this, &HorizonGUI::do_remove_static_effect));
+    m_sed.signal_bypass_static_effect().
+      connect(mem_fun(*this, &HorizonGUI::do_bypass_static_effect));
     
   }
   
@@ -165,7 +169,29 @@ protected:
     argv[3] = a3.c_str();
     m_ctrl.tell_plugin(4, argv);
   }
-      
+  
+  
+  void do_remove_static_effect(const string& sample, size_t index) {
+    const char* argv[] = { "remove_static_effect", 0, 0 };
+    argv[1] = sample.c_str();
+    ostringstream oss;
+    oss<<index;
+    argv[2] = oss.str().c_str();
+    m_ctrl.tell_plugin(3, argv);
+  }
+  
+  
+  void do_bypass_static_effect(const string& sample, size_t index, bool yeah) {
+    const char* argv[] = { "bypass_static_effect", 0, 0, 0 };
+    argv[1] = sample.c_str();
+    ostringstream oss;
+    oss<<index;
+    argv[2] = oss.str().c_str();
+    argv[3] = yeah ? "1" : "0";
+    m_ctrl.tell_plugin(4, argv);
+  }
+  
+  
   void set_control(uint32_t port, float value) {
 
   }

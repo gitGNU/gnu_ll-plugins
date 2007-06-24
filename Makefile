@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.264
+PACKAGE_VERSION = 0.1.265
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -290,6 +290,9 @@ horizon_lv2_MODULES = horizon_gtk.so
 horizon_gtk_so_SOURCES = \
 	chunkeditor.cpp chunkeditor.hpp \
 	controlsourcegui.cpp controlsourcegui.hpp \
+	effectmodel.cpp effectmodel.hpp \
+	effectstackmodel.cpp effectstackmodel.hpp \
+	effectstackview.cpp effectstackview.hpp \
 	labelslider.cpp labelslider.hpp \
 	lfo_gui.cpp lfo_gui.hpp \
 	mod_gui.cpp mod_gui.hpp \
