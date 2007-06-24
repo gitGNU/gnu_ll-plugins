@@ -1,5 +1,17 @@
 #!/usr/bin/perl
 
+# find out which files have changed
+@files = {};
+$nfiles = 0;
+@lines = `(cvs diff -u | grep "RCS file") 2> /dev/null`;
+foreach $line (@lines) {
+  if ($line =~ /^RCS file: \/sources\/ll-plugins\/ll-plugins\/(.*),v$/) {
+    $files[$nfiles++] = $1;
+  }
+}
+
+
+# make sure that this is a commit
 $is_commit = 0;
 foreach (@ARGV) {
   if ($_ eq 'ci' || $_ eq 'commit') {
@@ -12,6 +24,7 @@ if ($is_commit == 0) {
   exit;
 }
 
+# modify the version in the makefile
 system 'cp Makefile Makefile.bak';
 open MAKEFILE_BAK, "<Makefile.bak";
 open MAKEFILE, ">Makefile";
@@ -29,9 +42,92 @@ while (<MAKEFILE_BAK>) {
 close MAKEFILE_BAK;
 close MAKEFILE;
 
-
+# if the CVS command fails, copy the backup back in place
 if (system('cvs', @ARGV) != 0) {
   system 'cp Makefile.bak Makefile';
+  exit;
+}
+
+
+
+# The code below is adapted from Petr Baudis's ciabot_cvs.pl
+
+# Get log message
+$next = 0;
+foreach $arg (@ARGV) {
+  if ($next == 1) {
+    $logmsg = $arg;
+    break;
+  }
+  if ($arg eq "-m") {
+    $next = 1;
+  }
+}
+
+# Guess module name.
+$module = $dir[0]; $module =~ s#/.*##;
+
+
+### Compose the RPC message
+
+my $project = "ll-plugins";
+my $user = "larsl";
+my $VERSION = $old_version;
+my $ts = time;
+
+$message = <<EM
+<message>
+   <generator>
+       <name>dcvs</name>
+       <version></version>
+   </generator>
+   <source>
+       <project>$project</project>
+       <module>ll-plugins</module>
+   </source>
+   <timestamp>
+       $ts
+   </timestamp>
+   <body>
+       <commit>
+           <author>$user</author>
+           <files>
+EM
+;
+
+foreach $file (@files) {
+  $message .= "              <file>$file</file>\n";
+}
+
+$message .= <<EM
+           </files>
+           <log>
+$logmsg
+           </log>
+       </commit>
+   </body>
+</message>
+EM
+;
+
+
+### Send out the XML-RPC message
+
+
+# We gotta be careful from now on. We silence all the warnings because
+# RPC::XML code is crappy and works with undefs etc.
+$^W = 0;
+$RPC::XML::ERROR if (0); # silence perl's compile-time warning
+
+require RPC::XML;
+require RPC::XML::Client;
+
+my $rpc_client = new RPC::XML::Client 'http://cia.vc/RPC2';
+my $rpc_request = RPC::XML::request->new('hub.deliver', $message);
+my $rpc_response = $rpc_client->send_request($rpc_request);
+
+unless (ref $rpc_response) {
+  die "XML-RPC Error: $RPC::XML::ERROR\n";
 }
 
 
