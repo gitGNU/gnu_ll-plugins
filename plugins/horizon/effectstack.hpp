@@ -26,7 +26,7 @@ public:
   
   std::vector<EffectInfo>& get_effects();
   
-  bool add_effect(const std::string& uri, size_t index);
+  const Effect* add_effect(const std::string& uri, size_t index);
   bool remove_effect(size_t index);
   bool bypass_effect(size_t index, bool bypass);
   

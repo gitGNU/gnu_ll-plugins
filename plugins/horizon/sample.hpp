@@ -30,7 +30,7 @@ public:
   bool add_splitpoint(size_t frame);
   bool remove_splitpoint(size_t frame);
   bool move_splitpoint(size_t frame, size_t newframe);
-  bool add_static_effect(size_t pos, const std::string& effect_uri);
+  const Effect* add_static_effect(size_t pos, const std::string& effect_uri);
   bool remove_static_effect(size_t pos);
   bool bypass_static_effect(size_t pos, bool bypass);
     

@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.270
+PACKAGE_VERSION = 0.1.271
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -276,6 +276,8 @@ horizon_lv2_SOURCES = \
 	effectstack.hpp effectstack.cpp \
 	horizon.cpp \
 	mixer.hpp mixer.cpp \
+	normaliseeffect.hpp normaliseeffect.cpp \
+	reverseeffect.hpp reverseeffect.cpp \
 	sample.hpp sample.cpp \
 	samplebuffer.hpp samplebuffer.cpp \
 	segmentation.hpp segmentation.cpp \

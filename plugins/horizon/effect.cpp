@@ -2,6 +2,12 @@
 
 
 using namespace std;
+
+
+Effect::Effect(const std::string& name)
+  : m_name(name) {
+  
+}
   
 
 const vector<float>& Effect::get_parameters() const {
@@ -27,7 +33,3 @@ void Effect::set_name(const std::string& name) {
 }
 
 
-void Effect::process(size_t nframes, float* input, float* output) {
-  for (size_t i = 0; i < nframes; ++i)
-    output[i] = input[nframes - i - 1];
-}

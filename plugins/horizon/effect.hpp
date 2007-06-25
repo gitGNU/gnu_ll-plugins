@@ -8,13 +8,15 @@
 class Effect {
 public:
   
+  Effect(const std::string& name);
+  
   const std::vector<float>& get_parameters() const;
   const std::string& get_name() const;
   
   bool set_parameter(size_t index, float value);
   void set_name(const std::string& name);
   
-  void process(size_t nframes, float* input, float* output);
+  virtual void process(size_t nframes, float* input, float* output) = 0;
   
 protected:
   

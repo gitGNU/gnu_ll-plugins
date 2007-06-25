@@ -6,11 +6,12 @@
 #include <semaphore.h>
 
 #include "action.hpp"
-#include "lv2advanced.hpp"
-#include "horizon.peg"
-#include "sample.hpp"
 #include "actiontrigger.hpp"
+#include "effect.hpp"
+#include "horizon.peg"
+#include "lv2advanced.hpp"
 #include "mixer.hpp"
+#include "sample.hpp"
 
 
 using namespace std;
@@ -26,8 +27,6 @@ public:
       m_trigger(m_mixer) {
     
     sem_init(&m_lock, 0, 1);
-    
-    load_sample("/home/ll/div/loops/tomsphases.wav");
   }
   
   
@@ -299,10 +298,10 @@ protected:
 			 const std::string& effect_uri) {
     for (unsigned i = 0; i < m_samples.size(); ++i) {
       if (m_samples[i]->get_name() == sample) {
-	if (m_samples[i]->add_static_effect(pos, effect_uri)) {
-	  // XXX fix the name later
+	const Effect* e = 0;
+	if ((e = m_samples[i]->add_static_effect(pos, effect_uri))) {
 	  tell_host("ssis", "static_effect_added", 
-		    sample.c_str(), pos, "Reverse");
+		    sample.c_str(), pos, e->get_name().c_str());
 	  return true;
 	}
 	else

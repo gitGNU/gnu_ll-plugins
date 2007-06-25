@@ -85,7 +85,8 @@ bool Sample::move_splitpoint(size_t frame, size_t newframe) {
 }
 
 
-bool Sample::add_static_effect(size_t pos, const std::string& effect_uri) {
+const Effect* Sample::add_static_effect(size_t pos, 
+					const std::string& effect_uri) {
   return m_static_fx.add_effect(effect_uri, pos);
 }
 

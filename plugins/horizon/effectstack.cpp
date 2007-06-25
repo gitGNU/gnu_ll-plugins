@@ -1,6 +1,7 @@
 #include <cstring>
 
-#include "effect.hpp"
+#include "normaliseeffect.hpp"
+#include "reverseeffect.hpp"
 #include "effectstack.hpp"
 #include "samplebuffer.hpp"
 
@@ -15,14 +16,23 @@ std::vector<EffectStack::EffectInfo>& EffectStack::get_effects() {
 }
 
   
-bool EffectStack::add_effect(const std::string& uri, size_t index) {
+const Effect* EffectStack::add_effect(const std::string& uri, size_t index) {
   if (index > m_effects.size())
-    return false;
-  if (uri == "effect") {
-    m_effects.insert(m_effects.begin() + index, EffectInfo(new Effect));
-    return true;
+    return 0;
+
+  if (uri == "reverse") {
+    m_effects.insert(m_effects.begin() + index, 
+		     EffectInfo(new ReverseEffect));
+    return m_effects[index].effect;
   }
-  return false;
+  
+  else if (uri == "normalise") {
+    m_effects.insert(m_effects.begin() + index,
+		     EffectInfo(new NormaliseEffect));
+    return m_effects[index].effect;
+  }
+  
+  return 0;
 }
 
 

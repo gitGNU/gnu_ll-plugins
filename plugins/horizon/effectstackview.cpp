@@ -6,6 +6,7 @@
 
 
 using namespace std;
+using namespace Gtk;
 using namespace Gtk::Menu_Helpers;
 
 
@@ -168,9 +169,27 @@ sigc::signal<void, size_t, bool>& EffectStackView::signal_bypass_effect() {
 void EffectStackView::do_add_effect() {
   if (!m_model)
     return;
-  m_signal_add_effect(m_model->get_effect_stack_model().get_effects().size(),
-		      "effect");
+  Dialog dlg("Add static effect");
+  HBox hbox(false, 6);
+  Label lbl("Effect URI:");
+  Entry ent;
+  ent.set_size_request(300, -1);
+  hbox.pack_start(lbl, PACK_SHRINK);
+  hbox.pack_start(ent, PACK_EXPAND_WIDGET);
+  hbox.set_border_width(6);
+  dlg.get_vbox()->pack_start(hbox);
+  dlg.get_vbox()->set_spacing(6);
+  dlg.show_all();
+  dlg.add_button(Stock::CANCEL, RESPONSE_CANCEL);
+  dlg.add_button(Stock::OK, RESPONSE_OK);
+  if (dlg.run() == RESPONSE_OK) {
+    m_signal_add_effect(m_model->get_effect_stack_model().get_effects().size(),
+			ent.get_text());
+  }
+  dlg.hide();
 }
+
+
 
 
 void EffectStackView::do_remove_effect() {
