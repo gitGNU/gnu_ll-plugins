@@ -61,22 +61,17 @@ foreach $arg (@ARGV) {
   }
 }
 
-# Guess module name.
-$module = $dir[0]; $module =~ s#/.*##;
-
-
 ### Compose the RPC message
-
 my $project = "ll-plugins";
 my $user = "larsl";
-my $VERSION = $old_version;
+my $version = $old_version;
 my $ts = time;
 
 $message = <<EM
 <message>
    <generator>
        <name>dcvs</name>
-       <version></version>
+       <version>$version</version>
    </generator>
    <source>
        <project>$project</project>
