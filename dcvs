@@ -1,5 +1,11 @@
 #!/usr/bin/perl
 
+# change these parameters if you are using this script for your own project
+my $project = "ll-plugins";
+my $module = "ll-plugins";
+my $user = "larsl";
+
+
 # make sure that this is a commit
 $is_commit = 0;
 foreach (@ARGV) {
@@ -13,16 +19,18 @@ if ($is_commit == 0) {
   exit;
 }
 
+
 # modify the version in the makefile
 system 'cp Makefile Makefile.bak';
 open MAKEFILE_BAK, "<Makefile.bak";
 open MAKEFILE, ">Makefile";
+my $version = "";
 while (<MAKEFILE_BAK>) {
   if (/PACKAGE_VERSION\ =\ ([0-9]+)\.([0-9]+)\.(-?[0-9]+)/) {
     $old_version = "$1.$2.$3";
-    $new_version = "$1.$2." . ($3 + 1);
-    print MAKEFILE "PACKAGE_VERSION = $new_version\n";
-    print "Updating version to $new_version\n";
+    $version = "$1.$2." . ($3 + 1);
+    print MAKEFILE "PACKAGE_VERSION = $version\n";
+    print "Updating version to $version\n";
   }
   else {
     print MAKEFILE $_;
@@ -30,6 +38,7 @@ while (<MAKEFILE_BAK>) {
 }
 close MAKEFILE_BAK;
 close MAKEFILE;
+
 
 # find out which files have changed
 @files = {};
@@ -41,19 +50,22 @@ foreach $line (@lines) {
   }
 }
 
+
 # if the CVS command fails, copy the backup back in place
 if (system('cvs', @ARGV) != 0) {
   system 'cp Makefile.bak Makefile';
   exit;
 }
 
+
 # The code below is adapted from Petr Baudis's ciabot_cvs.pl
+
 
 # Get log message
 $next = 0;
 foreach $arg (@ARGV) {
   if ($next == 1) {
-    $logmsg = $arg;
+    $logmsg = "$version: $arg";
     break;
   }
   if ($arg eq "-m") {
@@ -61,10 +73,8 @@ foreach $arg (@ARGV) {
   }
 }
 
-### Compose the RPC message
-my $project = "ll-plugins";
-my $user = "larsl";
-my $version = $old_version;
+
+# Compose the RPC message
 my $ts = time;
 
 $message = <<EM
@@ -75,7 +85,7 @@ $message = <<EM
    </generator>
    <source>
        <project>$project</project>
-       <module>ll-plugins</module>
+       <module>$module</module>
    </source>
    <timestamp>
        $ts
