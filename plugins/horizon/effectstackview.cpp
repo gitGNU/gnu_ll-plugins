@@ -169,7 +169,7 @@ void EffectStackView::do_add_effect() {
   if (!m_model)
     return;
   m_signal_add_effect(m_model->get_effect_stack_model().get_effects().size(),
-		      "foo");
+		      "effect");
 }
 
 

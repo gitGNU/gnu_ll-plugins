@@ -16,9 +16,13 @@ std::vector<EffectStack::EffectInfo>& EffectStack::get_effects() {
 
   
 bool EffectStack::add_effect(const std::string& uri, size_t index) {
-  // XXX ignoring the index for now
-  m_effects.push_back(EffectInfo(new Effect));
-  return true;
+  if (index > m_effects.size())
+    return false;
+  if (uri == "effect") {
+    m_effects.insert(m_effects.begin() + index, EffectInfo(new Effect));
+    return true;
+  }
+  return false;
 }
 
 

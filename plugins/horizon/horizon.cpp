@@ -117,6 +117,7 @@ public:
 		       argv[3] + " in sample " + argv[1]).c_str());
     }
     
+    // add a static effect to a sample
     else if (argc == 4 && !strcmp(argv[0], "add_static_effect")) {
       if (add_static_effect(argv[1], atol(argv[2]), argv[3])) {
 	cerr<<"Added static effect "<<argv[3]<<" at position "<<argv[2]
@@ -129,6 +130,7 @@ public:
 		       argv[1]).c_str());
     }
     
+    // remove a static effect from a sample
     else if (argc == 3 && !strcmp(argv[0], "remove_static_effect")) {
       if (remove_static_effect(argv[1], atol(argv[2]))) {
 	cerr<<"Removed static effect "<<argv[2]<<" in stack for "
@@ -140,6 +142,7 @@ public:
 		       " from stack for " + argv[1]).c_str());
     }
     
+    // bypass a static effect
     else if (argc == 4 && !strcmp(argv[0], "bypass_static_effect")) {
       if (bypass_static_effect(argv[1], atol(argv[2]), atoi(argv[3]) != 0)) {
 	cerr<<(atoi(argv[3]) ? 
@@ -298,7 +301,8 @@ protected:
       if (m_samples[i]->get_name() == sample) {
 	if (m_samples[i]->add_static_effect(pos, effect_uri)) {
 	  // XXX fix the name later
-	  tell_host("ssis", "static_effect_added", sample.c_str(), pos, "foo");
+	  tell_host("ssis", "static_effect_added", 
+		    sample.c_str(), pos, "Reverse");
 	  return true;
 	}
 	else
