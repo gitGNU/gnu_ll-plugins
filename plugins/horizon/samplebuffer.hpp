@@ -8,6 +8,7 @@ class SampleBuffer {
 public:
   
   SampleBuffer(const std::string& filename);
+  SampleBuffer(const SampleBuffer& buf);
   ~SampleBuffer();
   
   bool is_valid() const;

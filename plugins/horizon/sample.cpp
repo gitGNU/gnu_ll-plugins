@@ -87,16 +87,38 @@ bool Sample::move_splitpoint(size_t frame, size_t newframe) {
 
 const Effect* Sample::add_static_effect(size_t pos, 
 					const std::string& effect_uri) {
-  return m_static_fx.add_effect(effect_uri, pos);
+  const Effect* e = 0;
+  if ((e = m_static_fx.add_effect(effect_uri, pos))) {
+    apply_effect_stack();
+    return e;
+  }
+  return 0;
 }
 
 
 bool Sample::remove_static_effect(size_t pos) {
-  return m_static_fx.remove_effect(pos);
+  if (m_static_fx.remove_effect(pos)) {
+    apply_effect_stack();
+    return true;
+  }
+  return false;
 }
 
 
 bool Sample::bypass_static_effect(size_t pos, bool bypass) {
-  return m_static_fx.bypass_effect(pos, bypass);
+  if (m_static_fx.bypass_effect(pos, bypass)) {
+    apply_effect_stack();
+    return true;
+  }
+  return false;
+}
+
+
+void Sample::apply_effect_stack() {
+  SampleBuffer* new_buf = new SampleBuffer(m_orig_sample);
+  m_static_fx.process(*new_buf, *new_buf);
+  // XXX can't do this when we're playing the buffer
+  delete m_proc_sample;
+  m_proc_sample = new_buf;
 }
 

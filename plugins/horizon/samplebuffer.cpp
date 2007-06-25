@@ -71,11 +71,29 @@ SampleBuffer::SampleBuffer(const std::string& filename)
 }
 
 
+SampleBuffer::SampleBuffer(const SampleBuffer& buf) 
+  : m_length(buf.get_length()),
+    m_rate(buf.get_rate()),
+    m_channels(buf.get_channels()),
+    m_data(new float*[m_channels]),
+    m_shm_names(0) {
+
+  if (!buf.is_valid())
+    return;
+  
+  m_shm_names = new std::string[m_channels];
+  
+  for (int c = 0; c < m_channels; ++c) {
+    m_data[c] = shm_alloc(c, m_length);
+    memcpy(m_data[c], buf.get_data(c), m_length * sizeof(float));
+  }
+}
+
+
 SampleBuffer::~SampleBuffer() {
   if (m_data) {
     for (size_t i = 0; i < m_channels; ++i)
       shm_free(i);
-      //delete [] m_data[i];
     delete [] m_data;
   }
   

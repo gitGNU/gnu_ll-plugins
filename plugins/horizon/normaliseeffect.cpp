@@ -9,7 +9,8 @@ NormaliseEffect::NormaliseEffect()
 }
   
 
-void NormaliseEffect::process(size_t nframes, float* input, float* output) {
+void NormaliseEffect::process(const float* input, float* output, 
+			      size_t nframes) {
   float max = std::abs(input[0]);
   for (size_t i = 1; i < nframes; ++i)
     max = std::abs(input[i]) > max ? std::abs(input[i]) : max;

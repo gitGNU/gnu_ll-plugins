@@ -30,9 +30,8 @@ public:
   bool remove_effect(size_t index);
   bool bypass_effect(size_t index, bool bypass);
   
-  void process(const SampleBuffer& input,
-               float* output, size_t start, size_t end);
-  inline void process(const SampleBuffer& input, SampleBuffer& output);
+  void process(const float* input, float* output, size_t nframes);
+  void process(const SampleBuffer& input, SampleBuffer& output);
   
 protected:
   

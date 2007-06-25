@@ -105,6 +105,14 @@ public:
       m_sed.rename_sample(argv[1], argv[2]);
     }
     
+    else if (argc == 3 && !strcmp(argv[0], "sample_modified")) {
+      m_sed.modify_sample(argv[1], argv[2]);
+    }
+    
+    else if (argc == 4 && !strcmp(argv[0], "sample_modified")) {
+      m_sed.modify_sample(argv[1], argv[2], argv[3]);
+    }
+    
     else if (argc == 3 && !strcmp(argv[0], "splitpoint_added")) {
       m_sed.add_splitpoint(argv[1], atol(argv[2]));
     }

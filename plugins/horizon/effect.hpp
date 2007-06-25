@@ -16,7 +16,7 @@ public:
   bool set_parameter(size_t index, float value);
   void set_name(const std::string& name);
   
-  virtual void process(size_t nframes, float* input, float* output) = 0;
+  virtual void process(const float* input, float* output, size_t nframes) = 0;
   
 protected:
   

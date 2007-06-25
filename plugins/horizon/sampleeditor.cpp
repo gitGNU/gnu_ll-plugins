@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <sigc++/sigc++.h>
 
 #include "sampleeditor.hpp"
@@ -203,6 +201,19 @@ bool SampleEditor::rename_sample(const std::string& old_name,
   m_cmb_sample.set_active_text(selected);
   
   return true;
+}
+
+
+bool SampleEditor::modify_sample(const std::string& name, 
+				 const std::string& left, 
+				 const std::string& right) {
+  std::map<string, SampleModel*>::iterator iter = m_models.find(name);
+  if (iter == m_models.end())
+    return false;
+  bool result = iter->second->set_data(left, right);
+  m_view.queue_draw();
+  m_sview.queue_draw();
+  return result;
 }
 
 

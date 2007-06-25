@@ -53,14 +53,21 @@ bool EffectStack::bypass_effect(size_t index, bool bypass) {
 }
 
   
-void EffectStack::process(const SampleBuffer& input,
-                          float* output, size_t start, size_t end) {
-  std::memcpy(output, input.get_data(0) + start, (end - start) * sizeof(float));
+void EffectStack::process(const float* input, float* output, size_t nframes) {
+  const float* data = input;
+  for (size_t i = 0; i < m_effects.size(); ++i) {
+    if (!m_effects[i].bypassed) {
+      m_effects[i].effect->process(data, output, nframes);
+      data = output;
+    }
+  }
 }
 
 
 void EffectStack::process(const SampleBuffer& input, SampleBuffer& output) {
-  process(input, output.get_data(0), 0, input.get_length());
+  process(input.get_data(0), output.get_data(0), input.get_length());
+  if (input.get_channels() > 1 && output.get_channels() > 1)
+    process(input.get_data(1), output.get_data(1), input.get_length());
 }
 
 

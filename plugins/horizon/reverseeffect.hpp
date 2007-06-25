@@ -9,7 +9,7 @@ public:
   
   ReverseEffect();
   
-  void process(size_t nframes, float* input, float* output);
+  void process(const float* input, float* output, size_t nframes);
 
 };
 

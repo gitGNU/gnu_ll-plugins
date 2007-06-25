@@ -302,6 +302,15 @@ protected:
 	if ((e = m_samples[i]->add_static_effect(pos, effect_uri))) {
 	  tell_host("ssis", "static_effect_added", 
 		    sample.c_str(), pos, e->get_name().c_str());
+	  const SampleBuffer& buf = m_samples[i]->get_processed_buffer();
+	  if (buf.get_channels() == 1) {
+	    tell_host("sss", "sample_modified", sample.c_str(), 
+		      buf.get_shm_name(0).c_str());
+	  }
+	  else if (buf.get_channels() == 2) {
+	    tell_host("ssss", "sample_modified", sample.c_str(),
+		      buf.get_shm_name(0).c_str(), buf.get_shm_name(1).c_str());
+	  }
 	  return true;
 	}
 	else
@@ -317,6 +326,15 @@ protected:
       if (m_samples[i]->get_name() == sample) {
 	if (m_samples[i]->remove_static_effect(pos)) {
 	  tell_host("ssi", "static_effect_removed", sample.c_str(), pos);
+	  const SampleBuffer& buf = m_samples[i]->get_processed_buffer();
+	  if (buf.get_channels() == 1) {
+	    tell_host("sss", "sample_modified", sample.c_str(), 
+		      buf.get_shm_name(0).c_str());
+	  }
+	  else if (buf.get_channels() == 2) {
+	    tell_host("ssss", "sample_modified", sample.c_str(),
+		      buf.get_shm_name(0).c_str(), buf.get_shm_name(1).c_str());
+	  }
 	  return true;
 	}
 	else
@@ -333,6 +351,15 @@ protected:
 	if (m_samples[i]->bypass_static_effect(pos, bpass)) {
 	  tell_host("ssii", "static_effect_bypassed", sample.c_str(), pos,
 		    bpass ? 1 : 0);
+	  const SampleBuffer& buf = m_samples[i]->get_processed_buffer();
+	  if (buf.get_channels() == 1) {
+	    tell_host("sss", "sample_modified", sample.c_str(), 
+		      buf.get_shm_name(0).c_str());
+	  }
+	  else if (buf.get_channels() == 2) {
+	    tell_host("ssss", "sample_modified", sample.c_str(),
+		      buf.get_shm_name(0).c_str(), buf.get_shm_name(1).c_str());
+	  }
 	  return true;
 	}
 	else

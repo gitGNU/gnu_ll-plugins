@@ -35,11 +35,15 @@ public:
   EffectStackModel& get_effect_stack_model();
   
   void set_name(const std::string& name);
+  bool set_data(const std::string& left, const std::string& right = "");
   void add_splitpoint(size_t frame);
   void remove_splitpoint(size_t frame);
   void move_splitpoint(size_t frame, size_t newframe);
   
 protected:
+  
+  bool load_channel(size_t channel, const std::string& name);
+  void generate_peak_data();
   
   PeakData* m_peak_data[2][3];
   

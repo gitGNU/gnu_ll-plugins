@@ -18,6 +18,8 @@ public:
 		  const std::string& left, const std::string& right = "");
   bool remove_sample(const std::string& name);
   bool rename_sample(const std::string& old_name, const std::string& new_name);
+  bool modify_sample(const std::string& name, 
+		     const std::string& left, const std::string& right = "");
   bool add_splitpoint(const std::string& name, size_t frame);
   bool remove_splitpoint(const std::string& name, size_t frame);
   bool move_splitpoint(const std::string& name, size_t frame, size_t newframe);

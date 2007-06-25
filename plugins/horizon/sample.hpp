@@ -36,6 +36,8 @@ public:
     
 protected:
   
+  void apply_effect_stack();
+  
   SampleBuffer m_orig_sample;
   Segmentation m_seg;
   EffectStack m_static_fx;

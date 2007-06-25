@@ -14,87 +14,26 @@ SampleModel::SampleModel(const std::string& name, size_t length, double rate,
     m_right(0),
     m_stereo(right != "") {
   
+  // clear the peak data structures
+  for (unsigned i = 0; i < 2; ++i) {
+    for (unsigned j = 0; j < 3; ++j)
+      m_peak_data[i][j] = 0;
+  }
+  
+  // add splitpoints at start and end
   m_seg.push_back(0);
   m_seg.push_back(length);
   
-  // load left channel (or mono)
-  int fd = shm_open(left.c_str(), O_RDONLY, 0);
-  if (fd == -1)
+  // load sound data
+  if (!load_channel(0, left))
     return;
-  m_left = static_cast<float*>(mmap(0, m_length * sizeof(float), 
-				    PROT_READ, MAP_SHARED, fd, 0));
-  close(fd);
-  
-  // load right channel (or not)
   if (m_stereo) {
-    fd = shm_open(right.c_str(), O_RDONLY, 0);
-    if (fd == -1)
+    if (!load_channel(1, right))
       return;
-    m_right = static_cast<float*>(mmap(0, m_length * sizeof(float),
-				       PROT_READ, MAP_SHARED, fd, 0));
-    close(fd);
   }
   
-  // allocate peak data arrays
-  m_peak_data[0][0] = new PeakData[m_length / 16 + 1];
-  m_peak_data[0][1] = new PeakData[m_length / (16*16) + 1];
-  m_peak_data[0][2] = new PeakData[m_length / (16*16*16) + 1];
-  if (m_stereo) {
-    m_peak_data[1][0] = new PeakData[m_length / 16 + 1];
-    m_peak_data[1][1] = new PeakData[m_length / (16*16) + 1];
-    m_peak_data[1][2] = new PeakData[m_length / (16*16*16) + 1];
-  }
-  else {
-    m_peak_data[1][0] = 0;
-    m_peak_data[1][1] = 0;
-    m_peak_data[1][2] = 0;
-  }
+  generate_peak_data();
   
-  // peak level 0
-  for (unsigned i = 0; i < m_length / 16 + 1; ++i) {
-    for (int c = 0; c < (m_stereo ? 2 : 1); ++c) {
-      float& cmin = m_peak_data[c][0][i].min;
-      float& cmax = m_peak_data[c][0][i].max;
-      cmin = get_data(c)[16 * i];
-      cmax = get_data(c)[16 * i];
-      for (unsigned j = 1; j < 16; ++j) {
-	cmin = cmin < get_data(c)[16 * i + j] ? cmin : get_data(c)[16 * i + j];
-	cmax = cmax > get_data(c)[16 * i + j] ? cmax : get_data(c)[16 * i + j];
-      }
-    }
-  }
-
-  // peak level 1
-  for (unsigned i = 0; i < m_length / (16*16) + 1; ++i) {
-    for (int c = 0; c < (m_stereo ? 2 : 1); ++c) {
-      float& cmin = m_peak_data[c][1][i].min;
-      float& cmax = m_peak_data[c][1][i].max;
-      cmin = m_peak_data[c][0][16 * i].min;
-      cmax = m_peak_data[c][0][16 * i].max;
-      for (unsigned j = 1; j < 16; ++j) {
-	cmin = cmin < m_peak_data[c][0][16 * i + j].min ? 
-	  cmin : m_peak_data[c][0][16 * i + j].min;
-	cmax = cmax > m_peak_data[c][0][16 * i + j].max ? 
-	  cmax : m_peak_data[c][0][16 * i + j].max;
-      }
-    }
-  }
-
-  // peak level 2
-  for (unsigned i = 0; i < m_length / (16*16*16) + 1; ++i) {
-    for (int c = 0; c < (m_stereo ? 2 : 1); ++c) {
-      float& cmin = m_peak_data[c][2][i].min;
-      float& cmax = m_peak_data[c][2][i].max;
-      cmin = m_peak_data[c][1][16 * i].min;
-      cmax = m_peak_data[c][1][16 * i].max;
-      for (unsigned j = 1; j < 16; ++j) {
-	cmin = cmin < m_peak_data[c][1][16 * i + j].min ? 
-	  cmin : m_peak_data[c][1][16 * i + j].min;
-	cmax = cmax > m_peak_data[c][1][16 * i + j].max ?
-	  cmax : m_peak_data[c][1][16 * i + j].max;
-      }
-    }
-  }
 }
   
 
@@ -163,6 +102,21 @@ void SampleModel::set_name(const std::string& name) {
 }
 
 
+bool SampleModel::set_data(const std::string& left, const std::string& right) {
+  if (!load_channel(0, left))
+    return false;
+  if (right != "") {
+    if (!load_channel(1, right))
+      return false;
+    m_stereo = true;
+  }
+  else
+    m_stereo = false;
+  generate_peak_data();
+  return true;
+}
+
+
 void SampleModel::add_splitpoint(size_t frame) {
   if (frame >= m_length)
     return;
@@ -215,3 +169,99 @@ const EffectStackModel& SampleModel::get_effect_stack_model() const {
 EffectStackModel& SampleModel::get_effect_stack_model() {
   return m_stack;
 }
+
+
+bool SampleModel::load_channel(size_t channel, const std::string& name) {
+  int fd = shm_open(name.c_str(), O_RDONLY, 0);
+  if (fd == -1)
+    return false;
+  float* data = 0;
+  data = static_cast<float*>(mmap(0, m_length * sizeof(float), 
+				  PROT_READ, MAP_SHARED, fd, 0));
+  close(fd);
+
+  if (data) {
+    if (channel == 0) {
+      if (m_left)
+	munmap(m_left, m_length * sizeof(float));
+      m_left = data;
+    }
+    else if (channel == 1) {
+      if (m_right)
+	munmap(m_right, m_length * sizeof(float));
+      m_right = data;
+    }
+    return true;
+  }
+  
+  return false;
+}
+
+
+void SampleModel::generate_peak_data() {
+  // clear the peak data structures
+  for (unsigned i = 0; i < 2; ++i) {
+    for (unsigned j = 0; j < 3; ++j) {
+      delete [] m_peak_data[i][j];
+      m_peak_data[i][j] = 0;
+    }
+  }
+  
+  // allocate peak data arrays
+  m_peak_data[0][0] = new PeakData[m_length / 16 + 1];
+  m_peak_data[0][1] = new PeakData[m_length / (16*16) + 1];
+  m_peak_data[0][2] = new PeakData[m_length / (16*16*16) + 1];
+  if (m_stereo) {
+    m_peak_data[1][0] = new PeakData[m_length / 16 + 1];
+    m_peak_data[1][1] = new PeakData[m_length / (16*16) + 1];
+    m_peak_data[1][2] = new PeakData[m_length / (16*16*16) + 1];
+  }
+  
+  // peak level 0
+  for (unsigned i = 0; i < m_length / 16 + 1; ++i) {
+    for (int c = 0; c < (m_stereo ? 2 : 1); ++c) {
+      float& cmin = m_peak_data[c][0][i].min;
+      float& cmax = m_peak_data[c][0][i].max;
+      cmin = get_data(c)[16 * i];
+      cmax = get_data(c)[16 * i];
+      for (unsigned j = 1; j < 16; ++j) {
+	cmin = cmin < get_data(c)[16 * i + j] ? cmin : get_data(c)[16 * i + j];
+	cmax = cmax > get_data(c)[16 * i + j] ? cmax : get_data(c)[16 * i + j];
+      }
+    }
+  }
+
+  // peak level 1
+  for (unsigned i = 0; i < m_length / (16*16) + 1; ++i) {
+    for (int c = 0; c < (m_stereo ? 2 : 1); ++c) {
+      float& cmin = m_peak_data[c][1][i].min;
+      float& cmax = m_peak_data[c][1][i].max;
+      cmin = m_peak_data[c][0][16 * i].min;
+      cmax = m_peak_data[c][0][16 * i].max;
+      for (unsigned j = 1; j < 16; ++j) {
+	cmin = cmin < m_peak_data[c][0][16 * i + j].min ? 
+	  cmin : m_peak_data[c][0][16 * i + j].min;
+	cmax = cmax > m_peak_data[c][0][16 * i + j].max ? 
+	  cmax : m_peak_data[c][0][16 * i + j].max;
+      }
+    }
+  }
+
+  // peak level 2
+  for (unsigned i = 0; i < m_length / (16*16*16) + 1; ++i) {
+    for (int c = 0; c < (m_stereo ? 2 : 1); ++c) {
+      float& cmin = m_peak_data[c][2][i].min;
+      float& cmax = m_peak_data[c][2][i].max;
+      cmin = m_peak_data[c][1][16 * i].min;
+      cmax = m_peak_data[c][1][16 * i].max;
+      for (unsigned j = 1; j < 16; ++j) {
+	cmin = cmin < m_peak_data[c][1][16 * i + j].min ? 
+	  cmin : m_peak_data[c][1][16 * i + j].min;
+	cmax = cmax > m_peak_data[c][1][16 * i + j].max ?
+	  cmax : m_peak_data[c][1][16 * i + j].max;
+      }
+    }
+  }
+
+}
+
