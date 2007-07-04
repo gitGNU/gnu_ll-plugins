@@ -98,6 +98,9 @@ protected:
   /** The rate the plugin is running at. */
   float samplerate;
   
+  /** A factor used to scale rate-dependent values. */
+  float rate_scale;
+  
   /** Frame counter. */
   long samplecount;
   
