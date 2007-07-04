@@ -466,8 +466,14 @@ int main(int argc, char** argv) {
     return 1;
   }
     
+  // initialise JACK client
+  if (!(jack_client = jack_client_open("Elven", jack_options_t(0), 0))) {
+    cerr<<"jackd isn't running!"<<endl;
+    return -1;
+  }
+      
   // load plugin
-  LV2Host lv2h(argv[i], 48000);
+  LV2Host lv2h(argv[i], jack_get_sample_rate(jack_client));
   
   if (lv2h.is_valid()) {
     
@@ -488,18 +494,12 @@ int main(int argc, char** argv) {
     
     DBG2("Default MIDI port: "<<lv2h.get_default_midi_port());
     
-    // initialise JACK client and plugin port buffers
-    if (!(jack_client = jack_client_open(lv2h.get_name().c_str(), 
-                                         jack_options_t(0), 0))) {
-      cerr<<"jackd isn't running!"<<endl;
-      return -1;
-    }
-      
     if (!init_lash(argc, argv, jack_get_client_name(jack_client))) {
       cerr<<"Could not initialise LASH"<<endl;
       return -1;
     }
     
+    // initialise port buffers
     for (size_t p = 0; p < lv2h.get_ports().size(); ++p) {
       jack_port_t* port = 0;
       LV2Port& lv2port = lv2h.get_ports()[p];
