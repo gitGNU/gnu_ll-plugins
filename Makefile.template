@@ -55,11 +55,11 @@ $$($(2)_BLDPRF)/$(1): $$($(2)_OBJECTS)
 	ar rcs $$@ $$^ $(LDFLAGS) $$($(2)_LDFLAGS)
 
 install-$(2)-headers: $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS))
-	mkdir -p $(pkgincludedir)
-	cp $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS)) $(pkgincludedir)
+	mkdir -p $(DESTDIR)/$(pkgincludedir)
+	cp $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS)) $(DESTDIR)/$(pkgincludedir)
 
 install-$(2): $$($(2)_BLDPRF)/$(1) $$(if $$($(2)_HEADERS),install-$(2)-headers)
-	mkdir -p $$($(2)_INSTDIR) && cp $$($(2)_BLDPRF)/$(1) $$($(2)_INSTDIR)
+	mkdir -p $(DESTDIR)/$$($(2)_INSTDIR) && cp $$($(2)_BLDPRF)/$(1) $(DESTDIR)/$$($(2)_INSTDIR)
 
 endef
 bad_archives = $(filter-out lib%.a,$(ARCHIVES))
@@ -83,14 +83,18 @@ define LIBRARY_template
 
 # variables
 $(2)_SRCPRF = $$(if $$($(2)_SOURCEDIR),$$($(2)_SOURCEDIR),.)
+$(2)_BLDPRF = $$(if $$($(2)_BUILDDIR),$$($(2)_BUILDDIR),$$($(2)_SRCPRF))
 $(2)_FULLSOURCES = $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_SOURCES))
 $(2)_CSOURCES = $$(filter %.c,$$($(2)_FULLSOURCES))
 $(2)_CXXSOURCES = $$(filter %.cpp,$$($(2)_FULLSOURCES))
 $(2)_COBJECTS = $$(subst .c,.o,$$($(2)_CSOURCES))
 $(2)_CXXOBJECTS = $$(subst .cpp,.o,$$($(2)_CXXSOURCES))
 $(2)_OBJECTS = $$($(2)_COBJECTS) $$($(2)_CXXOBJECTS)
+$(2)_LOCALLIBRARIES = $$(patsubst lib%.so,-l%,$$(notdir $$($(2)_LIBRARIES)))
+$(2)_LOCALLDFLAGS = $$(patsubst %,-L%,$$(sort $$(dir $$($(2)_LIBRARIES))))
 ALL_OBJECTS += $$($(2)_OBJECTS)
 ALL_SOURCES += $$($(2)_FULLSOURCES)
+LIBRARIES_REAL += $$($(2)_BLDPRF)/$(1)
 ALL_LIBHEADER_INSTALLS += $$(if $$($(2)_HEADERS),install-$(2)-headers)
 $(2)_INSTDIR = $$(if $$($(2)_INSTALLDIR),$$($(2)_INSTALLDIR),$(libdir))
 
@@ -101,15 +105,15 @@ $$($(2)_COBJECTS): Makefile.config
 $$($(2)_CXXOBJECTS): Makefile.config
 	$(CXX) -c -o $$@ $(SHARED_LIBRARY_CFLAGS) $(CFLAGS) $(CXXFLAGS) $$($(2)_CFLAGS) $$(subst .o,.cpp,$$@)
 
-$(1): $$($(2)_OBJECTS) $$($(2)_ARCHIVES)
-	$(CXX) $(SHARED_LIBRARY_LDFLAGS) $$^ $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
+$$($(2)_BLDPRF)/$(1): $$($(2)_OBJECTS) $$($(2)_ARCHIVES) $$($(2)_LIBRARIES)
+	$(CXX) $(SHARED_LIBRARY_LDFLAGS) $$($(2)_OBJECTS) $$($(2)_LOCALLDFLAGS) $$($(2)_LOCALLIBRARIES) $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@ -Wl,-soname=$(1).0
 
 install-$(2)-headers: $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS))
-	mkdir -p $(pkgincludedir)
-	cp $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS)) $(pkgincludedir)
+	mkdir -p $(DESTDIR)/$(pkgincludedir)
+	cp $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS)) $(DESTDIR)/$(pkgincludedir)
 
-install-$(2): $(1) $$(if $$($(2)_HEADERS),install-$(2)-headers)
-	mkdir -p $$($(2)_INSTDIR) && cp $(1) $$($(2)_INSTDIR)
+install-$(2): $$($(2)_BLDPRF)/$(1) $$(if $$($(2)_HEADERS),install-$(2)-headers)
+	mkdir -p $(DESTDIR)/$$($(2)_INSTDIR) && cp $$($(2)_BLDPRF)/$(1) $(DESTDIR)/$$($(2)_INSTDIR)
 
 endef
 bad_libraries = $(filter-out lib%.so,$(LIBRARIES))
@@ -142,6 +146,8 @@ $(2)_COBJECTS = $$(subst .c,.o,$$($(2)_CSOURCES))
 $(2)_CXXOBJECTS = $$(subst .cpp,.o,$$($(2)_CXXSOURCES))
 $(2)_OBJECTS = $$($(2)_COBJECTS) $$($(2)_CXXOBJECTS)
 $(2)_LIBNAME = $$($(2)_SRCPRF)/$$(patsubst %.lv2,%.so,$(1))
+$(2)_LOCALLIBRARIES = $$(patsubst lib%.so,-l%,$$(notdir $$($(2)_LIBRARIES)))
+$(2)_LOCALLDFLAGS = $$(patsubst %,-L%,$$(sort $$(dir $$($(2)_LIBRARIES))))
 PROGRAMS += $$($(2)_PROGRAMS)
 MODULES += $$($(2)_MODULES)
 ALL_OBJECTS += $$($(2)_OBJECTS) $$($(2)_LIBNAME)
@@ -151,14 +157,14 @@ LV2_PLUGINS_REAL += $$($(2)_BLDPRF)/$(1)
 $(2)_INSTDIR = $$(if $$($(2)_INSTALLDIR),$$($(2)_INSTALLDIR),$(lv2plugindir))
 
 # targets
-$$($(2)_COBJECTS): Makefile.config $$($(2)_FULLPEGFILES)
+$$($(2)_COBJECTS): Makefile.config
 	$(CC) -c -o $$@ $(LV2PLUGIN_CFLAGS) $(CFLAGS) $$($(2)_CFLAGS) $$($$(patsubst %.o,%_c_CFLAGS,$$(notdir $$@))) $$(subst .o,.c,$$@)
 
 $$($(2)_CXXOBJECTS): Makefile.config
 	$(CXX) -c -o $$@ $(LV2PLUGIN_CFLAGS) $(CFLAGS) $(CXXFLAGS) $$($(2)_CFLAGS) $$($$(patsubst %.o,%_cpp_CFLAGS,$$(notdir $$@))) $$(subst .o,.cpp,$$@)
 
-$$($(2)_LIBNAME): $$($(2)_OBJECTS) $(LIBRARIES) $$($(2)_ARCHIVES)
-	$(CXX) $(LV2PLUGIN_LDFLAGS) $$($(2)_OBJECTS)  $$($(2)_ARCHIVES) $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
+$$($(2)_LIBNAME): $$($(2)_OBJECTS) $$($(2)_LIBRARIES) $$($(2)_ARCHIVES)
+	$(CXX) $(LV2PLUGIN_LDFLAGS) $$($(2)_OBJECTS) $$($(2)_ARCHIVES) $$($(2)_LOCALLDFLAGS) $$($(2)_LOCALLIBRARIES) $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
 
 $$($(2)_BLDPRF)/$(1): $$($(2)_LIBNAME) $$($(2)_FULLDATA) $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_PROGRAMS)) $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_MODULES))
 	rm -rf $$($(2)_BLDPRF)/$(1)
@@ -169,8 +175,8 @@ $$($(2)_BLDPRF)/$(1): $$($(2)_LIBNAME) $$($(2)_FULLDATA) $$(patsubst %,$$($(2)_S
 	$$(if $$($(2)_FULLDATA),cp $$($(2)_FULLDATA) $$($(2)_BLDPRF)/$(1), )
 
 install-$(2): $$($(2)_BLDPRF)/$(1) $$(if $$($(2)_HEADERS),install-$(2)-headers)
-	rm -rf $$($(2)_INSTDIR)/$(1)
-	mkdir -p $$($(2)_INSTDIR) && cp -R $$($(2)_BLDPRF)/$(1) $$($(2)_INSTDIR)
+	rm -rf $(DESTDIR)/$$($(2)_INSTDIR)/$(1)
+	mkdir -p $(DESTDIR)/$$($(2)_INSTDIR) && cp -R $$($(2)_BLDPRF)/$(1) $(DESTDIR)/$$($(2)_INSTDIR)
 
 endef
 $(foreach lv2,$(LV2_PLUGINS),$(eval $(call LV2_PLUGIN_template,$(lv2),$(subst .,_,$(lv2)))))
@@ -194,6 +200,8 @@ $(1)_CXXSOURCES = $$(filter %.cpp,$$($(1)_FULLSOURCES))
 $(1)_COBJECTS = $$(subst .c,.o,$$($(1)_CSOURCES))
 $(1)_CXXOBJECTS = $$(subst .cpp,.o,$$($(1)_CXXSOURCES))
 $(1)_OBJECTS = $$($(1)_COBJECTS) $$($(1)_CXXOBJECTS)
+$(1)_LOCALLIBRARIES = $$(patsubst lib%.so,-l%,$$(notdir $$($(1)_LIBRARIES)))
+$(1)_LOCALLDFLAGS = $$(patsubst %,-L%,$$(sort $$(dir $$($(1)_LIBRARIES)))) 
 ALL_OBJECTS += $$($(1)_OBJECTS)
 ALL_SOURCES += $$($(1)_FULLSOURCES)
 PROGRAMS_REAL += $$($(1)_BLDPRF)/$(1)
@@ -205,15 +213,15 @@ $$($(1)_COBJECTS): Makefile.config
 $$($(1)_CXXOBJECTS): Makefile.config
 	$(CXX) -c -o $$@ $(CFLAGS) $(CXXFLAGS) $$($(1)_CFLAGS) $$($$(patsubst %.o,%_cpp_CFLAGS,$$(notdir $$@))) $$(subst .o,.cpp,$$@)
 
-$$($(1)_BLDPRF)/$(1): $$($(1)_OBJECTS) $(LIBRARIES) $$($(1)_ARCHIVES)
-	$(CXX) $$($(1)_OBJECTS) $$($(1)_ARCHIVES) $(LDFLAGS) $$($(1)_LDFLAGS) -o $$@
+$$($(1)_BLDPRF)/$(1): $$($(1)_OBJECTS) $$($(1)_LIBRARIES) $$($(1)_ARCHIVES)
+	$(CXX) $$($(1)_OBJECTS) $$($(1)_ARCHIVES) $$($(1)_LOCALLDFLAGS) $$($(1)_LOCALLIBRARIES) $$($(1)_LDFLAGS) $(LDFLAGS) -o $$@
 
 install-$(1)-headers: $$(patsubst %,$$($(1)_SRCPRF)/%,$$($(1)_HEADERS))
-	mkdir -p $(pkgincludedir)
-	cp $$(patsubst %,$$($(1)_SRCPRF)/%,$$($(1)_HEADERS)) $(pkgincludedir)
+	mkdir -p $(DESTDIR)/$(pkgincludedir)
+	cp $$(patsubst %,$$($(1)_SRCPRF)/%,$$($(1)_HEADERS)) $(DESTDIR)/$(pkgincludedir)
 
 install-$(1): $$($(1)_BLDPRF)/$(1) $$(if $$($(1)_HEADERS),install-$(1)-headers)
-	mkdir -p $(bindir) && cp $$($(1)_BLDPRF)/$(1) $(bindir)
+	mkdir -p $(DESTDIR)/$(bindir) && cp $$($(1)_BLDPRF)/$(1) $(DESTDIR)/$(bindir)
 endef
 $(foreach prog,$(PROGRAMS),$(eval $(call PROGRAM_template,$(prog))))
 # END OF PROGRAMS
@@ -239,6 +247,8 @@ $(2)_CXXSOURCES = $$(filter %.cpp,$$($(2)_FULLSOURCES))
 $(2)_COBJECTS = $$(subst .c,.o,$$($(2)_CSOURCES))
 $(2)_CXXOBJECTS = $$(subst .cpp,.o,$$($(2)_CXXSOURCES))
 $(2)_OBJECTS = $$($(2)_COBJECTS) $$($(2)_CXXOBJECTS)
+$(2)_LOCALLIBRARIES = $$(patsubst lib%.so,-l%,$$(notdir $$($(2)_LIBRARIES)))
+$(2)_LOCALLDFLAGS = $$(patsubst %,-L%,$$(sort $$(dir $$($(2)_LIBRARIES))))
 ALL_OBJECTS += $$($(2)_OBJECTS)
 ALL_SOURCES += $$($(2)_FULLSOURCES)
 $(2)_INSTDIR = $$(if $$($(2)_INSTALLDIR),$$($(2)_INSTALLDIR),$(pkglibdir))
@@ -251,15 +261,15 @@ $$($(2)_COBJECTS): Makefile.config
 $$($(2)_CXXOBJECTS): Makefile.config
 	$(CXX) -c -o $$@ $(MODULE_CFLAGS) $(CFLAGS) $(CXXFLAGS) $$($(2)_CFLAGS) $$($$(patsubst %.o,%_cpp_CFLAGS,$$(notdir $$@))) $$(subst .o,.cpp,$$@)
 
-$$($(2)_BLDPRF)/$(1): $$($(2)_OBJECTS) $(LIBRARIES) $$($(2)_ARCHIVES)
-	$(CXX) $(MODULE_LDFLAGS) $$($(2)_OBJECTS) $$($(2)_ARCHIVES) $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
+$$($(2)_BLDPRF)/$(1): $$($(2)_OBJECTS) $$($(2)_LIBRARIES) $$($(2)_ARCHIVES)
+	$(CXX) $(MODULE_LDFLAGS) $$($(2)_OBJECTS) $$($(2)_LOCALLDFLAGS) $$($(2)_LOCALLIBRARIES) $$($(2)_ARCHIVES) $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@
 
 install-$(2)-headers: $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS))
-	mkdir -p $(pkgincludedir)
-	cp $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS)) $(pkgincludedir)
+	mkdir -p $(DESTDIR)/$(pkgincludedir)
+	cp $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_HEADERS)) $(DESTDIR)/$(pkgincludedir)
 
 install-$(2): $$($(2)_BLDPRF)/$(1) $$(if $$($(2)_HEADERS),install-$(2)-headers)
-	mkdir -p $$($(2)_INSTDIR) && cp $$($(2)_BLDPRF)/$(1) $$($(2)_INSTDIR)
+	mkdir -p $(DESTDIR)/$$($(2)_INSTDIR) && cp $$($(2)_BLDPRF)/$(1) $(DESTDIR)/$$($(2)_INSTDIR)
 
 endef
 $(foreach mod,$(MODULES),$(eval $(call MODULE_template,$(mod),$(subst .,_,$(mod)))))
@@ -267,7 +277,7 @@ $(foreach mod,$(MODULES),$(eval $(call MODULE_template,$(mod),$(subst .,_,$(mod)
 
 
 # START HERE
-really-all: $(if $(PKG_DEPS),check-pkg-deps) $(ARCHIVES_REAL) $(LIBRARIES) $(PROGRAMS_REAL) $(MODULES_REAL) $(LV2_PLUGINS_REAL)
+really-all: $(if $(PKG_DEPS),check-pkg-deps) $(ARCHIVES_REAL) $(LIBRARIES_REAL) $(PROGRAMS_REAL) $(MODULES_REAL) $(LV2_PLUGINS_REAL)
 
 
 
@@ -301,27 +311,28 @@ install-programs: $(patsubst %,install-%,$(subst .,_,$(PROGRAMS)))
 install-modules: $(patsubst %,install-%,$(subst .,_,$(MODULES)))
 
 install-libraries: $(patsubst %,install-%,$(subst .,_,$(LIBRARIES)))
+	$(if $(LIBRARIES),ldconfig $(libdir))
 
 install-lv2-plugins: $(patsubst %,install-%,$(subst .,_,$(LV2_PLUGINS)))
 
 install-data: $(DATA)
-	$(if $(DATA),mkdir -p $(pkgdatadir))
-	$(if $(DATA),cp $(DATA) $(pkgdatadir))
+	$(if $(DATA),mkdir -p $(DESTDIR)/$(pkgdatadir))
+	$(if $(DATA),cp $(DATA) $(DESTDIR)/$(pkgdatadir))
 
 install-docs: $(DOCS)
-	$(if $(DOCS),mkdir -p $(pkgdocdir))
-	$(if $(DOCS),cp $(DOCS) $(pkgdocdir))
+	$(if $(DOCS),mkdir -p $(DESTDIR)/$(pkgdocdir))
+	$(if $(DOCS),cp $(DOCS) $(DESTDIR)/$(pkgdocdir))
 
 install-pcfiles: $(PCFILES)
-	$(if $(PCFILES),mkdir -p $(libdir)/pkgconfig)
+	$(if $(PCFILES),mkdir -p $(DESTDIR)/$(libdir)/pkgconfig)
 	$(if $(PCFILES),@echo Installing pkg-config-files...)
-	@$(foreach pcf,$(PCFILES),echo PACKAGE_NAME = $(PACKAGE_NAME) > $(libdir)/pkgconfig/$(pcf) &&) true
-	@$(foreach pcf,$(PCFILES),echo PACKAGE_VERSION = $(PACKAGE_VERSION) >> $(libdir)/pkgconfig/$(pcf) &&) true
-	@$(foreach pcf,$(PCFILES),echo libdir = $(libdir) >> $(libdir)/pkgconfig/$(pcf) &&) true
-	@$(foreach pcf,$(PCFILES),echo pkglibdir = $(pkglibdir) >> $(libdir)/pkgconfig/$(pcf) &&) true
-	@$(foreach pcf,$(PCFILES),echo includedir = $(includedir) >> $(libdir)/pkgconfig/$(pcf) &&) true
-	@$(foreach pcf,$(PCFILES),echo pkgincludedir = $(pkgincludedir) >> $(libdir)/pkgconfig/$(pcf) &&) true
-	@$(foreach pcf,$(PCFILES),cat $(pcf) >> $(libdir)/pkgconfig/$(pcf) &&) true
+	@$(foreach pcf,$(PCFILES),echo PACKAGE_NAME = $(PACKAGE_NAME) > $(DESTDIR)/$(libdir)/pkgconfig/$(pcf) &&) true
+	@$(foreach pcf,$(PCFILES),echo PACKAGE_VERSION = $(PACKAGE_VERSION) >> $(DESTDIR)/$(libdir)/pkgconfig/$(pcf) &&) true
+	@$(foreach pcf,$(PCFILES),echo libdir = $(libdir) >> $(DESTDIR)/$(libdir)/pkgconfig/$(pcf) &&) true
+	@$(foreach pcf,$(PCFILES),echo pkglibdir = $(pkglibdir) >> $(DESTDIR)/$(libdir)/pkgconfig/$(pcf) &&) true
+	@$(foreach pcf,$(PCFILES),echo includedir = $(includedir) >> $(DESTDIR)/$(libdir)/pkgconfig/$(pcf) &&) true
+	@$(foreach pcf,$(PCFILES),echo pkgincludedir = $(pkgincludedir) >> $(DESTDIR)/$(libdir)/pkgconfig/$(pcf) &&) true
+	@$(foreach pcf,$(PCFILES),cat $(pcf) >> $(DESTDIR)/$(libdir)/pkgconfig/$(pcf) &&) true
 
 install: install-libraries install-modules install-programs install-lv2-plugins install-data install-docs install-pcfiles
 
