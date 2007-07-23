@@ -40,7 +40,7 @@ using namespace std;
 class Trilobeat : public LV2Instrument {
 public:
 
-  Trilobeat(uint32_t rate, const char* bundle, const LV2_Host_Feature* const* f)
+  Trilobeat(double rate, const char* bundle, const LV2_Host_Feature* const* f)
     : LV2Instrument(k_n_ports),
       m_seq(32),
       m_invrate(1.0 / rate),

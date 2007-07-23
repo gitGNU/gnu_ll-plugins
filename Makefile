@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.279
+PACKAGE_VERSION = 0.1.280
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -29,7 +29,7 @@ ifeq ($(build_experimental),yes)
 	liblv2_advanced.a \
 	liblv2_instrument.a \
 	liblv2_oscui.a \
-	liblv2_gtk2gui.a \
+#	liblv2_gtk2gui.a \
 	libkeyboard.a \
 	libvgknob.a \
 	libenvelopeeditor.a \
@@ -44,7 +44,7 @@ endif
 PROGRAMS = lv2peg
 
 ifeq ($(build_experimental),yes)
-  PROGRAMS += elven elven_guiloader sockettest paqtest
+  PROGRAMS += elven paqtest # elven_guiloader sockettest
 endif
 
 
@@ -191,7 +191,7 @@ klaviatur_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/MidiPort -Ilibraries/c
 klaviatur_lv2_ARCHIVES = $(PLUGINARCHIVES)
 klaviatur_lv2_PEGFILES = klaviatur.peg
 klaviatur_lv2_SOURCEDIR = plugins/klaviatur
-klaviatur_lv2_MODULES = klaviatur_gtk.so
+#klaviatur_lv2_MODULES = klaviatur_gtk.so
 klaviatur_gtk_so_SOURCES = klaviatur_gtk.cpp
 klaviatur_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/lv2gtk2gui -Ilibraries/widgets -I.
 klaviatur_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` 
@@ -213,7 +213,7 @@ trilobyte_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/MidiPort -Iextensions/
 trilobyte_lv2_ARCHIVES = $(INSTRUMENTARCHIVES)
 trilobyte_lv2_PEGFILES = trilobyte.peg
 trilobyte_lv2_SOURCEDIR = plugins/trilobyte
-trilobyte_lv2_MODULES = trilobyte_gtk.so
+#trilobyte_lv2_MODULES = trilobyte_gtk.so
 trilobyte_gtk_so_SOURCES = trilobyte_gtk.cpp
 trilobyte_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/lv2gtk2gui -Ilibraries/widgets -Ilibraries/components -I.
 trilobyte_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4`
@@ -251,7 +251,7 @@ euphoria_lv2_ARCHIVES = $(INSTRUMENTARCHIVES)
 euphoria_lv2_LDFLAGS = `pkg-config --libs gsl`
 euphoria_lv2_PEGFILES = euphoria.peg
 euphoria_lv2_SOURCEDIR = plugins/euphoria
-euphoria_lv2_MODULES = euphoria_gtk.so
+#euphoria_lv2_MODULES = euphoria_gtk.so
 euphoria_gtk_so_SOURCES = \
 	euphoria_gtk.cpp \
 	euphoriawidget.cpp euphoriawidget.hpp
@@ -288,7 +288,7 @@ horizon_lv2_ARCHIVES = $(ADVANCEDARCHIVES)
 horizon_lv2_LDFLAGS = `pkg-config --libs sndfile`
 horizon_lv2_PEGFILES = horizon.peg
 horizon_lv2_SOURCEDIR = plugins/horizon
-horizon_lv2_MODULES = horizon_gtk.so
+#horizon_lv2_MODULES = horizon_gtk.so
 horizon_gtk_so_SOURCES = \
 	chunkeditor.cpp chunkeditor.hpp \
 	controlsourcegui.cpp controlsourcegui.hpp \
@@ -319,7 +319,7 @@ sineshaper_lv2_DATA = manifest.ttl sineshaper.ttl sineshaper.glade dial.png sine
 sineshaper_lv2_CFLAGS = -Ilibraries/lv2plugin -Ilibraries/components -Iextensions/MidiPort -Iextensions/instrument -I.
 sineshaper_lv2_ARCHIVES = $(PLUGINARCHIVES)
 sineshaper_lv2_SOURCEDIR = plugins/sineshaper
-sineshaper_lv2_MODULES = sineshaper_gtk.so
+#sineshaper_lv2_MODULES = sineshaper_gtk.so
 sineshaper_gtk_so_SOURCES = \
 	sineshaper_gtk.cpp \
 	sineshaperwidget.cpp sineshaperwidget.hpp
@@ -386,7 +386,7 @@ azr3_lv2_DATA = manifest.ttl azr3.ttl presets.ttl icon.svg
 azr3_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/MidiPort -Iextensions/instrument -Ilibraries/components -I.
 azr3_lv2_ARCHIVES = $(INSTRUMENTARCHIVES)
 azr3_lv2_SOURCEDIR = plugins/azr3
-azr3_lv2_MODULES = azr3_gtk.so
+#azr3_lv2_MODULES = azr3_gtk.so
 azr3_gtk_so_SOURCES = \
 	azr3_gtk.cpp \
 	knob.hpp knob.cpp \

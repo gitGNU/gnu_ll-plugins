@@ -2,12 +2,12 @@
  *
  * GTK2 in-process UI extension for LV2
  *
- * Copyright (C) 2006 Lars Luthman <lars.luthman@gmail.com>
+ * Copyright (C) 2006-2007 Lars Luthman <lars.luthman@gmail.com>
  * 
- * Based on lv2.h, which is 
+ * Based on lv2.h, which was
  *
- * Copyright (C) 2000-2002 Richard W.E. Furse, Paul Barton-Davis, Stefan
- * Westerfeld
+ * Copyright (C) 2000-2002 Richard W.E. Furse, Paul Barton-Davis, 
+ *                         Stefan Westerfeld
  * Copyright (C) 2006 Steve Harris, Dave Robillard.
  *
  * This header is free software; you can redistribute it and/or modify it
@@ -33,8 +33,8 @@
     will reside in shared object files in a LV2 bundle and be referenced in 
     the RDF file using the triples
 <pre>    
-    <http://my.plugin> <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui#gui> <http://my.plugingui>
-    <http://my.plugingui> <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui#binary> <mygui.so>
+    <http://my.plugin> <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui/1#gui> <http://my.plugingui>
+    <http://my.plugingui> <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui/1#binary> <mygui.so>
 </pre>
     where <http://my.plugin> is the URI of the plugin, <http://my.plugingui> is
     the URI of the plugin GUI and <mygui.so> is the relative URI to the shared 
@@ -85,7 +85,7 @@
 extern "C" {
 #endif
 
-
+  
 /** This handle indicates a particular instance of a GUI.
     It is valid to compare this to NULL (0 for C++) but otherwise the 
     host MUST not attempt to interpret it. The GUI plugin may use it to 
@@ -100,15 +100,22 @@ typedef void* LV2UI_Handle;
 typedef void* LV2UI_Controller;
 
 
-/** This is the type of the host-provided function that changes the value
-    of a control rate float input port in a plugin instance. A function
-    pointer of this type will be provided to the GUI bu the host in the
-    instantiate() function. */
-typedef void (*LV2UI_Set_Control_Function)(LV2UI_Controller controller,
-					   uint32_t port,
-					   float value);
+/** This is the type of the host-provided function that the GUI can use to
+    send data to a plugin's input ports. The @c buffer parameter must point
+    to a block of data, @c buffer_size bytes large, that contains a valid
+    buffer for the port class of the port with the given index (e.g. a single
+    float value for a control port, or some timestamped and packed MIDI
+    events for a MIDI port). The GUI is responsible for allocating this buffer
+    and deallocating it after the call. There are no timing guarantees at all
+    for this function, although the faster the host can get the data to the 
+    plugin port the better. A function pointer of this type will be provided 
+    to the GUI by the host in the instantiate() function. */
+typedef void (*LV2UI_Write_Function)(LV2UI_Controller controller,
+				     uint32_t         port_index,
+				     uint32_t         buffer_size,
+				     const void*      buffer);
 
-
+  /** */
 typedef struct _LV2UI_Descriptor {
   
   /** The URI for this GUI (not for the plugin it controls). */
@@ -118,19 +125,19 @@ typedef struct _LV2UI_Descriptor {
       similarly to the instantiate() member in LV2_Descriptor, with the 
       additions that the URI for the plugin that this GUI is for is passed
       as a parameter, a function pointer and a controller handle are passed to
-      allow the plugin to change control port values in the plugin 
-      (control_function and controller) and a pointer to a GtkWidget pointer
-      is passed, which the GUI plugin should set to point to a newly created
-      widget which will be the main GUI for the plugin.
+      allow the plugin to write to input ports in the plugin (write_function 
+      and controller) and a pointer to a GtkWidget pointer is passed, which 
+      the GUI plugin should set to point to a newly created widget which will 
+      be the main GUI for the plugin.
       
       The features array works like the one in the instantiate() member
       in LV2_Descriptor, except that the URIs should be denoted with the triples
       <pre>
-      <http://my.plugingui> <http://ll-plugins.nongnu.org/lv2/dev/gtk2gui#optionalFeature> <http://my.guifeature>
+      <http://my.plugingui> <http://ll-plugins.nongnu.org/lv2/dev/gtk2gui/1#optionalFeature> <http://my.guifeature>
       </pre>
       or 
       <pre>
-      <http://my.plugingui> <http://ll-plugins.nongnu.org/lv2/dev/gtk2gui#requiredFeature> <http://my.guifeature>
+      <http://my.plugingui> <http://ll-plugins.nongnu.org/lv2/dev/gtk2gui/1#requiredFeature> <http://my.guifeature>
       </pre>
       in the RDF file, instead of the lv2:optionalFeature or lv2:requiredFeature
       that is used by host features. These features are associated with the GUI,
@@ -144,7 +151,7 @@ typedef struct _LV2UI_Descriptor {
   LV2UI_Handle (*instantiate)(const struct _LV2UI_Descriptor* descriptor,
                               const char*                     plugin_uri,
                               const char*                     bundle_path,
-			      LV2UI_Set_Control_Function      control_function,
+			      LV2UI_Write_Function            write_function,
                               LV2UI_Controller                controller,
                               GtkWidget**                     widget,
 			      const LV2_Host_Feature**        features);
@@ -154,12 +161,49 @@ typedef struct _LV2UI_Descriptor {
    */
   void (*cleanup)(LV2UI_Handle  gui);
   
-  /** Tell the GUI that a control port value has changed. This member may be
-      set to NULL if the GUI is not interested in control port changes. 
+  /** Tell the GUI that something interesting has happened at a plugin port.
+      For control ports this would be when the value in the buffer has changed,
+      for message-based port classes like MIDI or OSC it would be when a 
+      message has arrived in the buffer. For other port classes it is not 
+      defined when this function is called, unless it is specified in the 
+      definition of that port class extension. For control ports the default
+      setting is to call this function whenever an input control port value 
+      has changed but not when any output control port value has changed, for 
+      all other port classes the default setting is to never call this function.
+
+      However, the default setting can be modified by using the following
+      URIs:
+      <pre>
+      <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui/1#portNotification>
+      <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui/1#noPortNotification>
+      <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui/1#plugin>
+      <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui/1#portIndex>
+      </pre>
+      For example, if you want the GUI with uri 
+      <code><http://my.plugingui></code> for the plugin with URI 
+      <code><http://my.plugin></code> to get notified when the value of the 
+      output control port with index 4 changes, you would use the following 
+      in the RDF for your GUI:
+      <pre>
+      \@prefix gg: <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui/1#> .
+      <http://my.plugingui> gg:portNotification [ gg:plugin <http://my.plugin> ;
+                                                  gg:portIndex 4 ] .
+      </pre>
+      and similarly with <code>gg:noPortNotification</code> if you wanted to 
+      prevent notifications for a port for which it would be on by default 
+      otherwise.
+      
+      The @c buffer is only valid during the time of this function call, so if 
+      the GUI wants to keep it for later use it has to copy the contents to an
+      internal buffer.
+      
+      This member may be set to NULL if the GUI is
+      not interested in any port events.
   */
-  void (*set_control)(LV2UI_Handle   gui,
-                      uint32_t       port,
-                      float          value);
+  void (*port_event)(LV2UI_Handle   gui,
+		     uint32_t       port,
+		     uint32_t       buffer_size,
+		     const void*    buffer);
   
   /** Returns a data structure associated with an extension URI, for example
       a struct containing additional function pointers. Avoid returning
@@ -175,9 +219,7 @@ typedef struct _LV2UI_Descriptor {
 
 
 
-/** Accessing a plugin GUI.
-    
-    A plugin programmer must include a function called "lv2ui_descriptor"
+/** A plugin programmer must include a function called "lv2ui_descriptor"
     with the following function prototype within the shared object
     file. This function will have C-style linkage (if you are using
     C++ this is taken care of by the 'extern "C"' clause at the top of

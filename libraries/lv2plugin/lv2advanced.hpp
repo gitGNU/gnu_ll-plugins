@@ -110,7 +110,7 @@ public:
      Command extension. */
   template <class T>
   static LV2_Handle create_advanced_instance(const LV2_Descriptor* descriptor,
-					     uint32_t sample_rate,
+					     double sample_rate,
 					     const char* bundle_path,
 					     const LV2_Host_Feature* const* host_features) {
     // check that the host supports the Advanced extension

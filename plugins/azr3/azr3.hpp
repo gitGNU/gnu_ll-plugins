@@ -48,7 +48,7 @@ enum {
 class AZR3 : public LV2Plugin {
 public:
  
-  AZR3(uint32_t rate, const char* bundle_path, const LV2_Host_Feature* const*);
+  AZR3(double rate, const char* bundle_path, const LV2_Host_Feature* const*);
  
   ~AZR3();
  

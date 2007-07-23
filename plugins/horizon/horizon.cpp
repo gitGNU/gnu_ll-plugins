@@ -21,7 +21,7 @@ class Horizon : public LV2Advanced {
 public:
   
   
-  Horizon(uint32_t rate, const char* bundle_path, 
+  Horizon(double rate, const char* bundle_path, 
 	  const LV2_Host_Feature* const* f)
     : LV2Advanced(h_n_ports),
       m_trigger(m_mixer) {

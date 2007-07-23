@@ -48,7 +48,7 @@ public:
     OFF
   };
   
-  EuphoriaVoice(uint32_t rate)
+  EuphoriaVoice(double rate)
     : m_wsvoice(rate),
       m_pdvoice(rate),
       m_state(OFF),
@@ -115,7 +115,7 @@ FrequencyTable EuphoriaVoice::m_table;
 class Euphoria : public LV2Instrument {
 public:
   
-  Euphoria(uint32_t rate, const char*, const LV2_Host_Feature* const*) 
+  Euphoria(double rate, const char*, const LV2_Host_Feature* const*) 
     : LV2Instrument(e_n_ports),
       m_handler(3, rate),
       m_trigger(0),

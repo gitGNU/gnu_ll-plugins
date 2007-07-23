@@ -78,7 +78,7 @@ namespace LV2SupportFunctions {
      Instrument extension. */
   template <class T>
   LV2_Handle create_instrument_instance(const LV2_Descriptor* descriptor,
-                                        uint32_t sample_rate,
+                                        double sample_rate,
                                         const char* bundle_path,
                                         const LV2_Host_Feature* const* host_features) {
     // check that the host supports the Instrument extension
@@ -103,7 +103,7 @@ namespace LV2SupportFunctions {
      does not provide the Instrument extension. */
   template <class T>
   LV2_Handle create_optional_instrument_instance(const LV2_Descriptor* descriptor,
-                                        uint32_t sample_rate,
+                                        double sample_rate,
                                         const char* bundle_path,
                                         const LV2_Host_Feature* const* host_features) {
     // create and return an instance of the plugin

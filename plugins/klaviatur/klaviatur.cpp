@@ -29,7 +29,7 @@
 class Klaviatur : public LV2Plugin {
 public:
 
-  Klaviatur(uint32_t rate, const char* bundle, 
+  Klaviatur(double rate, const char* bundle, 
 	    const LV2_Host_Feature* const* f)
     : LV2Plugin(k_n_ports) {
     

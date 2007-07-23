@@ -490,7 +490,7 @@ bool LV2Host::scan_manifests(const std::vector<std::string>& search_dirs,
             continue;
           }
           Variable uriref, binary, datafile;
-          Namespace lv2("<http://lv2plug.in/ontology#>");
+          Namespace lv2("<http://lv2plug.in/ns/lv2core#>");
           qr = select(uriref, binary, datafile)
             .where(uriref, lv2("binary"), binary)
             .where(uriref, rdfs("seeAlso"), datafile)
@@ -565,7 +565,7 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
       return;
     }
     Variable symbol, index, portclass, porttype, port;
-    Namespace lv2("<http://lv2plug.in/ontology#>");
+    Namespace lv2("<http://lv2plug.in/ns/lv2core#>");
     Namespace ll("<http://ll-plugins.nongnu.org/lv2/namespace#>");
     Namespace llext("<http://ll-plugins.nongnu.org/lv2/ext/>");
     Namespace mm("<http://ll-plugins.nongnu.org/lv2/ext/midimap#>");

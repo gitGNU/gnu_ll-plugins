@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
   }
   
   // find all plugins in the file
-  Namespace lv2("<http://lv2plug.in/ontology#>");
+  Namespace lv2("<http://lv2plug.in/ns/lv2core#>");
   Namespace ll("<http://ll-plugins.nongnu.org/lv2/namespace#>");
   Variable plugin, pegname;
   vector<QueryResult> qr =

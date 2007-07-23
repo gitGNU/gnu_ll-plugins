@@ -32,7 +32,7 @@
 class MIDIIdentity : public LV2Plugin {
 public:
   
-  MIDIIdentity(uint32_t, const char*, const LV2_Host_Feature* const*) 
+  MIDIIdentity(double, const char*, const LV2_Host_Feature* const*) 
     : LV2Plugin(2) {
     
   }

@@ -35,7 +35,7 @@ using namespace std;
 void initialise() __attribute__((constructor));
 
 
-SineShaper::SineShaper(uint32_t frame_rate, const char* bundle_path,
+SineShaper::SineShaper(double frame_rate, const char* bundle_path,
                        const LV2_Host_Feature* const* host_features) 
   : LV2Plugin(SINESHAPER_PORT_COUNT),
     m_vibrato_lfo(frame_rate),

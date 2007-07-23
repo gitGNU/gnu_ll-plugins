@@ -36,7 +36,7 @@
 /** This is a base class for LV2 plugins. It has default implementations for
     all functions, so you only have to implement the functions that you need
     (for example run()). All subclasses must have a constructor that takes
-    a single <code>uint32_t</code> as parameter, otherwise it will 
+    a single <code>double</code> as parameter, otherwise it will 
     not work with the template function register_lv2(). The host will use 
     this parameter to pass the sample rate when it creates a new instance of
     the plugin. 
@@ -154,7 +154,7 @@ namespace LV2SupportFunctions {
      it directly. */
   template <class T>
   LV2_Handle create_plugin_instance(const LV2_Descriptor* descriptor,
-                                    uint32_t sample_rate,
+                                    double sample_rate,
                                     const char* bundle_path,
                                     const LV2_Host_Feature* const* host_features) {
     T* t = new T(sample_rate, bundle_path, host_features);
