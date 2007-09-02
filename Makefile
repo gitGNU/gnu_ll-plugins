@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.281
+PACKAGE_VERSION = 0.1.282
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -366,7 +366,8 @@ math-functions_lv2_SOURCEDIR = plugins/math-functions
 
 
 # The shared headers need to go in the distribution too
-EXTRA_DIST = \
+EXTRA_DIST = COPYING \
+	\
 	lv2.h \
 	\
 	libraries/components/adsr.hpp \

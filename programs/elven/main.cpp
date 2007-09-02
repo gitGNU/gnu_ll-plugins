@@ -2,11 +2,11 @@
     
     main.cpp - Main source file for the LV2 host Elven
     
-    Copyright (C) 2006  Lars Luthman <lars.luthman@gmail.com>
+    Copyright (C) 2006-2007 Lars Luthman <lars.luthman@gmail.com>
     
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
+    the Free Software Foundation; either version 3 of the License, or
     (at your option) any later version.
     
     This program is distributed in the hope that it will be useful,
@@ -433,7 +433,7 @@ int main(int argc, char** argv) {
     if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
       cerr<<"Elven is an (E)xperimental (LV)2 (E)xecution e(N)vironment.\n\n"
           <<"(C) 2006 Lars Luthman <lars.luthman@gmail.com>\n"
-          <<"Released under the GNU General Public License, version 2 or later."
+          <<"Released under the GNU General Public License, version 3 or later."
           <<endl<<endl;
       print_usage(argv[0]);
       return 0;
