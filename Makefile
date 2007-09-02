@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.280
+PACKAGE_VERSION = 0.1.281
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -52,7 +52,6 @@ ifeq ($(build_experimental),yes)
   LV2_PLUGINS = \
 	arpeggiator.lv2 \
 	audio_identity.lv2 \
-	azr3.lv2 \
 	control2midi.lv2 \
 	euphoria.lv2 \
 	horizon.lv2 \
@@ -60,7 +59,6 @@ ifeq ($(build_experimental),yes)
 	midi_identity.lv2 \
 	math-constants.lv2 \
 	math-functions.lv2 \
-	mrvalve.lv2 \
 	phase-distortion-osc.lv2 \
 	sineshaper.lv2 \
 	trilobeat.lv2 \
@@ -197,14 +195,6 @@ klaviatur_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -I
 klaviatur_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` 
 klaviatur_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libkeyboard.a
 klaviatur_gtk_so_SOURCEDIR = plugins/klaviatur
-
-# Mr Valve
-mrvalve_lv2_SOURCES = mrvalve.cpp
-mrvalve_lv2_DATA = manifest.ttl mrvalve.ttl
-mrvalve_lv2_PEGFILES = mrvalve.peg
-mrvalve_lv2_CFLAGS = -Ilibraries/lv2plugin -I. -Ilibraries/components
-mrvalve_lv2_ARCHIVES = $(PLUGINARCHIVES)
-mrvalve_lv2_SOURCEDIR = plugins/mrvalve
 
 # Trilobyte
 trilobyte_lv2_SOURCES = trilobyte.cpp
@@ -373,30 +363,6 @@ math-functions_lv2_DATA = manifest.ttl math-functions.ttl
 math-functions_lv2_CFLAGS = -Ilibraries/lv2plugin -I.
 math-functions_lv2_ARCHIVES = $(PLUGINARCHIVES)
 math-functions_lv2_SOURCEDIR = plugins/math-functions
-
-#AZR-3
-azr3_lv2_SOURCES = \
-	azr3.cpp azr3.hpp \
-	Globals.h \
-	fx.h fx.cpp \
-	voice_classes.h voice_classes.cpp \
-	programlist.hpp \
-	cknob.xpm minioffon.xpm onoffgreen.xpm panelfx.xpm vonoff.xpm voice.xpm num_yellow.xpm dbblack.xpm dbbrown.xpm dbwhite.xpm
-azr3_lv2_DATA = manifest.ttl azr3.ttl presets.ttl icon.svg
-azr3_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/MidiPort -Iextensions/instrument -Ilibraries/components -I.
-azr3_lv2_ARCHIVES = $(INSTRUMENTARCHIVES)
-azr3_lv2_SOURCEDIR = plugins/azr3
-#azr3_lv2_MODULES = azr3_gtk.so
-azr3_gtk_so_SOURCES = \
-	azr3_gtk.cpp \
-	knob.hpp knob.cpp \
-	switch.hpp switch.cpp \
-	drawbar.hpp drawbar.cpp \
-	textbox.hpp textbox.cpp
-azr3_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -I. -Ilibraries/lv2gtk2gui
-azr3_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` 
-azr3_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a
-azr3_gtk_so_SOURCEDIR = plugins/azr3
 
 
 # The shared headers need to go in the distribution too
