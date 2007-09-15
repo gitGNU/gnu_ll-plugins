@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.285
+PACKAGE_VERSION = 0.1.286
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -43,7 +43,7 @@ endif
 PROGRAMS = lv2peg
 
 ifeq ($(build_experimental),yes)
-  PROGRAMS += elven paqtest # elven_guiloader sockettest
+  PROGRAMS += elven
 endif
 
 
@@ -140,20 +140,6 @@ elven_CFLAGS = `pkg-config --cflags jack gtkmm-2.4 lash-1.0 sigc++-2.0` -Iextens
 elven_LDFLAGS = `pkg-config --libs jack gtkmm-2.4 lash-1.0 sigc++-2.0` -lpthread
 elven_ARCHIVES = libraries/paq/libpaq.a
 elven_SOURCEDIR = programs/elven
-
-elven_guiloader_SOURCES = elven_guiloader.cpp
-elven_guiloader_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo` -Iextensions/gtkgui -I. -Ilibraries/lv2oscui
-elven_guiloader_LDFLAGS = `pkg-config --libs gtkmm-2.4 liblo gthread-2.0` 
-elven_guiloader_SOURCEDIR = programs/elven
-
-sockettest_SOURCES = sockettest.cpp
-sockettest_CFLAGS = `pkg-config --cflags gtkmm-2.4`
-sockettest_LDFLAGS = `pkg-config --libs gtkmm-2.4`
-sockettest_SOURCEDIR = programs/elven
-
-paqtest_SOURCES = main.cpp
-paqtest_LDFLAGS = libraries/paq/libpaq.a
-paqtest_SOURCEDIR = libraries/paq
 
 
 # The plugins
