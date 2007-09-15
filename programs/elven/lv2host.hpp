@@ -35,7 +35,7 @@
 #include <sigc++/slot.h>
 #include <sigc++/signal.h>
 
-#include "lv2-instrument.h"
+#include "lv2.h"
 #include "lv2-command.h"
 #include "ringbuffer.hpp"
 #include "eventqueue.hpp"
@@ -108,12 +108,6 @@ public:
   /** Deactivate the plugin. */
   void deactivate();
   
-  /** Send a piece of configuration data to the plugin. */
-  char* configure(const char* key, const char* value);
-  
-  /** Send a datafile name to the plugin. */
-  char* set_file(const char* key, const char* filename);
-  
   /** Set the plugin program. */
   void select_program(unsigned long program);
   
@@ -159,23 +153,13 @@ public:
   /** Set the event queue. */
   void set_event_queue(EventQueue* q);
   
-  /** Returns the current configuration. */
-  const std::map<std::string, std::string>& get_config() const;
-  
-  /** Returns the currently used filenames. */
-  const std::map<std::string, std::string>& get_filenames() const;
-  
   /** Returns all found presets. */
   const std::map<uint32_t, LV2Preset>& get_presets() const;
   
   /** List all available plugins. */
   static void list_plugins();
   
-  sigc::signal<void, const std::string&, const std::string&> signal_configure;
-
-  sigc::signal<void, const std::string&, const std::string&> signal_filename;
-  
-  sigc::signal<void, uint32_t, const char* const*> signal_tell_gui;
+  sigc::signal<void, uint32_t, const char* const*> signal_feedback;
   
 protected:
   
@@ -196,9 +180,10 @@ protected:
   
   void load_plugin(const std::string& rdf_file, const std::string& binary);
   
-  void tell_host(uint32_t argc, char** argv);
+  void feedback(uint32_t argc, const char* const* argv);
   
-  static void tell_host_wrapper(void* me, uint32_t argc, char** argv);
+  static void feedback_wrapper(void* me, uint32_t argc, 
+			       const char* const* argv);
   
   
   template <typename T, typename S> T nasty_cast(S ptr) {
@@ -235,8 +220,8 @@ protected:
   void* m_libhandle;
   LV2_Handle m_handle;
   const LV2_Descriptor* m_desc;
-  const LV2_InstrumentDescriptor* m_inst_desc;
   const LV2_CommandDescriptor* m_comm_desc;
+  
   LV2_CommandHostDescriptor m_comm_host_desc;
   
   std::vector<LV2Port> m_ports;
@@ -248,8 +233,6 @@ protected:
   std::string m_bundledir;
   std::string m_name;
   
-  std::map<std::string, std::string> m_configuration;
-  std::map<std::string, std::string> m_filenames;
   unsigned long m_program;
   bool m_program_is_valid;
   bool m_new_program;

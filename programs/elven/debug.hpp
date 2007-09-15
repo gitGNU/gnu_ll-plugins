@@ -59,7 +59,7 @@ struct DebugInfo {
 #ifdef NDEBUG
 
 
-#define DBG0(A) std::cerr<<A<<endl
+#define DBG0(A) std::cerr<<A<<std::endl
 #define DBG1(A) do { } while (false)
 #define DBG2(A) do { } while (false)
 #define DBG3(A) do { } while (false)
@@ -89,11 +89,11 @@ namespace {
 
 }
 
-#define DBG0(A) do { if (DebugInfo::level() >= 0) debug_print(__FILE__, __LINE__, 0)<<A<<endl; } while (false)
-#define DBG1(A) do { if (DebugInfo::level() >= 1) debug_print(__FILE__, __LINE__, 1)<<A<<endl; } while (false)
-#define DBG2(A) do { if (DebugInfo::level() >= 2) debug_print(__FILE__, __LINE__, 2)<<A<<endl; } while (false)
-#define DBG3(A) do { if (DebugInfo::level() >= 3) debug_print(__FILE__, __LINE__, 3)<<A<<endl; } while (false)
-#define DBG4(A) do { if (DebugInfo::level() >= 4) debug_print(__FILE__, __LINE__, 4)<<A<<endl; } while (false)
+#define DBG0(A) do { if (DebugInfo::level() >= 0) debug_print(__FILE__, __LINE__, 0)<<A<<std::endl; } while (false)
+#define DBG1(A) do { if (DebugInfo::level() >= 1) debug_print(__FILE__, __LINE__, 1)<<A<<std::endl; } while (false)
+#define DBG2(A) do { if (DebugInfo::level() >= 2) debug_print(__FILE__, __LINE__, 2)<<A<<std::endl; } while (false)
+#define DBG3(A) do { if (DebugInfo::level() >= 3) debug_print(__FILE__, __LINE__, 3)<<A<<std::endl; } while (false)
+#define DBG4(A) do { if (DebugInfo::level() >= 4) debug_print(__FILE__, __LINE__, 4)<<A<<std::endl; } while (false)
 
 
 #endif

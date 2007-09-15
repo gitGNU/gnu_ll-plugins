@@ -49,7 +49,7 @@ public:
     m_euph.signal_configure.
       connect(mem_fun(*this, &EuphoriaGUI::configure_changed));
     m_euph.signal_program_selected.
-      connect(mem_fun(ctrl, &LV2Controller::set_program));
+      connect(mem_fun(ctrl, &LV2Controller::request_program));
   }
   
   void port_event(uint32_t port, uint32_t buffer_size, const void* buffer) {

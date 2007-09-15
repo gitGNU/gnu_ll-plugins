@@ -52,16 +52,17 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   : m_uri(uri),
     m_rate(frame_rate),
     m_handle(0),
-    m_inst_desc(0),
+    m_desc(0),
+    m_comm_desc(0),
     m_midimap(128, -1),
     m_from_jack(0) {
-  
-  m_comm_host_desc.tell_host = &LV2Host::tell_host_wrapper;
-  m_comm_host_desc.host_data = this;
   
   DBG2("Creating plugin loader...");
   
   pthread_mutex_init(&m_mutex, 0);
+  
+  m_comm_host_desc.feedback = &LV2Host::feedback_wrapper;
+  m_comm_host_desc.host_data = this;
   
   // get the directories to look in
   vector<string> search_dirs = get_search_dirs();
@@ -203,62 +204,6 @@ void LV2Host::deactivate() {
 }
 
 
-char* LV2Host::configure(const char* key, const char* value) {
-  DBG2("Calling configure(\""<<key<<"\", \""<<value<<"\")");
-  if (m_inst_desc && m_inst_desc->configure) {
-    char* result = m_inst_desc->configure(m_handle, key, value);
-    if (!result) {
-      if (!strcmp(value, "")) {
-        std::map<string, string>::iterator iter = m_configuration.find(key);
-        if (iter != m_configuration.end())
-          m_configuration.erase(iter);
-      }
-      else
-        m_configuration[key] = value;
-      signal_configure(key, value);
-    }
-    else {
-      DBG0("ERROR CONFIGURING PLUGIN: "<<result);
-      free(result);
-    }
-    
-    return result;
-  }
-  else
-    DBG0("This plugin has no configure() callback");
-
-  return 0;
-}
-
-
-char* LV2Host::set_file(const char* key, const char* filename) {
-  DBG2("Calling set_file(\""<<key<<"\", \""<<filename<<"\")");
-  if (m_inst_desc && m_inst_desc->set_file) {
-    char* result = m_inst_desc->set_file(m_handle, key, filename);
-    if (!result) {
-      if (!strcmp(filename, "")) {
-        std::map<string, string>::iterator iter = m_filenames.find(key);
-        if (iter != m_filenames.end())
-          m_filenames.erase(iter);
-      }
-      else
-        m_filenames[key] = filename;
-      signal_filename(key, filename);
-    }
-    else {
-      DBG0("ERROR SETTING FILE: "<<result);
-      free(result);
-    }
-    
-    return result;
-  }
-  else
-    DBG0("This plugin has no set_file() callback");
-  
-  return 0;
-}
-
-
 void LV2Host::select_program(unsigned long program) {
   map<uint32_t, LV2Preset>::const_iterator iter = m_presets.find(program);
   if (iter != m_presets.end()) {
@@ -275,10 +220,11 @@ void LV2Host::select_program(unsigned long program) {
 }
 
 
+
 char* LV2Host::command(uint32_t argc, const char* const* argv) {
   DBG2("Calling command() with "<<argc<<" parameters");
-  if (m_comm_desc && m_comm_desc->tell_plugin) {
-    char* result = m_comm_desc->tell_plugin(m_handle, argc, argv);
+  if (m_comm_desc && m_comm_desc->command) {
+    char* result = m_comm_desc->command(m_handle, argc, argv);
     if (result) {
       DBG0("ERROR REPORTED BY PLUGIN: "<<result);
       DBG0("  for command:");
@@ -288,7 +234,7 @@ char* LV2Host::command(uint32_t argc, const char* const* argv) {
     return result;
   }
   else
-    DBG0("This plugin has no tell_plugin() callback");
+    DBG0("This plugin has no command() callback");
 
   return 0;
   
@@ -395,16 +341,6 @@ void LV2Host::set_program(uint32_t program) {
 
 void LV2Host::set_event_queue(EventQueue* q) {
   m_from_jack = q;
-}
-
-
-const std::map<std::string, std::string>& LV2Host::get_config() const {
-  return m_configuration;
-}
-
-
-const std::map<std::string, std::string>& LV2Host::get_filenames() const {
-  return m_filenames;
 }
 
 
@@ -547,7 +483,6 @@ bool LV2Host::match_uri(const string& uri, const string& bundle,
 
 void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
   
-  bool isInstrument = false;
   bool usesCommands = false;
   
   DBG2(__PRETTY_FUNCTION__);
@@ -729,23 +664,14 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
       }
     }
     
-    // is the instrument extension used?
-    Variable extension_predicate;
-    qr = select(extension_predicate)
-      .where(uriref, extension_predicate, ll("instrument-ext"))
-      .run(data);
-    if (qr.size() > 0 && (qr[0][extension_predicate]->name == lv2("requiredHostFeature") ||
-                          qr[0][extension_predicate]->name == lv2("optionalHostFeature"))) {
-      isInstrument = true;
-      DBG2("This plugin uses the instrument extension");
-    }
-    
     // is the command extension used?
+    Variable extension_predicate;
     qr = select(extension_predicate)
       .where(uriref, extension_predicate, ll("dont-use-this-extension"))
       .run(data);
-    if (qr.size() > 0 && (qr[0][extension_predicate]->name == lv2("requiredHostFeature") ||
-			  qr[0][extension_predicate]->name == lv2("optionalHostFeature"))) {
+    if (qr.size() > 0 && 
+	(qr[0][extension_predicate]->name == lv2("requiredHostFeature") ||
+	 qr[0][extension_predicate]->name == lv2("optionalHostFeature"))) {
       usesCommands = true;
       DBG2("This plugin uses the command extension");
     }
@@ -862,20 +788,8 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     return;
   }
   
-  // get the instrument descriptor (if it is an instrument)
-  if (isInstrument) {
-    m_inst_desc = 0;
-    if (m_desc->extension_data)
-      m_inst_desc = (LV2_InstrumentDescriptor*)(m_desc->extension_data("<http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>"));
-    if (!m_inst_desc) {
-      DBG0(binary<<" does not contain the instrument "<<m_uri);
-      return;
-    }
-  }
-  
   // get the command descriptor (if it has one)
   if (usesCommands) {
-    m_comm_desc = 0;
     if (m_desc->extension_data)
       m_comm_desc = (LV2_CommandDescriptor*)(m_desc->extension_data("<http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension>"));
     if (!m_comm_desc) {
@@ -884,17 +798,11 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
   }
   
   // instantiate the plugin
-  LV2_Host_Feature instrument_feature = {
-    "<http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext>",
-    0
-  };
   LV2_Host_Feature command_feature = {
     "<http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension>",
     &m_comm_host_desc
   };
-  const LV2_Host_Feature* features[] = { &instrument_feature, 
-					 &command_feature, 
-					 0 };
+  const LV2_Host_Feature* features[] = { &command_feature, 0 };
   m_handle = m_desc->instantiate(m_desc, m_rate, m_bundle.c_str(), features);
 
 }
@@ -907,19 +815,17 @@ bool LV2Host::print_uri(const string& uri, const string& bundle,
 }
 
 
-void LV2Host::tell_host(uint32_t argc, char** argv) {
+void LV2Host::feedback(uint32_t argc, const char* const* argv) {
   cout<<"Plugin said:";
-  signal_tell_gui(argc, argv);
-  for (unsigned i = 0; i < argc; ++i) {
+  signal_feedback(argc, argv);
+  for (unsigned i = 0; i < argc; ++i)
     cout<<" "<<"'"<<argv[i]<<"'";
-    std::free(argv[i]);
-  }
-  std::free(argv);
   cout<<endl;
 }
 
 
-void LV2Host::tell_host_wrapper(void* me, uint32_t argc, char** argv) {
+void LV2Host::feedback_wrapper(void* me, uint32_t argc, 
+			       const char* const* argv) {
   std::cerr<<__PRETTY_FUNCTION__<<endl;
-  static_cast<LV2Host*>(me)->tell_host(argc, argv);
+  static_cast<LV2Host*>(me)->feedback(argc, argv);
 }

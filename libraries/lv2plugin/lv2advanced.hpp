@@ -46,30 +46,30 @@ public:
       correct number of ports. */
   LV2Advanced(uint32_t ports) 
     : LV2Plugin(ports),
-      m_tell_host_real(0),
+      m_feedback_real(0),
       m_host_data(0) { }
   
   /** We need a virtual destructor since we have virtual member functions. */
   virtual ~LV2Advanced() { }
   
   /** Function for sending commands to the plugin. */
-  virtual char* tell_plugin(uint32_t argc, const char*const* argv) { return 0; }
+  virtual char* command(uint32_t argc, const char*const* argv) { return 0; }
   
 protected:
   
-  void tell_host(uint32_t argc, char** argv) {
+  void feedback(uint32_t argc, const char* const* argv) {
     
     std::cerr<<__PRETTY_FUNCTION__<<std::endl;
     
-    if (m_tell_host_real)
-      (*m_tell_host_real)(m_host_data, argc, argv);
+    if (m_feedback_real)
+      (*m_feedback_real)(m_host_data, argc, argv);
   }
   
-  void tell_host() {
-    tell_host(0, 0);
+  void feedback() {
+    feedback(0, 0);
   }
   
-  void tell_host(const std::string& types, ...) {
+  void feedback(const std::string& types, ...) {
     va_list ap;
     va_start(ap, types);
     uint32_t argc = types.size();
@@ -89,16 +89,16 @@ protected:
       }
     }
     va_end(ap);
-    tell_host(argc, argv);
+    feedback(argc, argv);
   }
   
-  void (*m_tell_host_real)(void*, uint32_t, char**);
+  void (*m_feedback_real)(void*, uint32_t, const char* const*);
   void* m_host_data;
 
 public:
   
   
-  static char* tell_plugin(LV2_Handle instance, 
+  static char* command(LV2_Handle instance, 
 			   uint32_t argc, const char* const* argv);  
   
   static void* lv2_advanced_descriptor(const char* URI);
@@ -128,7 +128,7 @@ public:
     
     // create and return an instance of the plugin
     T* t = new T(sample_rate, bundle_path, host_features);
-    static_cast<LV2Advanced*>(t)->m_tell_host_real = chd->tell_host;
+    static_cast<LV2Advanced*>(t)->m_feedback_real = chd->feedback;
     static_cast<LV2Advanced*>(t)->m_host_data = chd->host_data;
     
     return reinterpret_cast<LV2_Handle>(t);

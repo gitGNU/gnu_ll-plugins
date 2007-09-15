@@ -34,10 +34,7 @@ using namespace std;
 LV2Controller::LV2Controller()
   : m_wfunc(0),
     m_cfunc(0),
-    m_ctrl(0),
-    m_instdesc(0),
-    m_progdesc(0),
-    m_mididesc(0) {
+    m_ctrl(0) {
 
 }
 
@@ -55,26 +52,22 @@ void LV2Controller::command(uint32_t argc, const char* const* argv) {
 }
 
 
-void LV2Controller::set_program(unsigned char number) {
-  if (m_progdesc)
-    m_progdesc->set_program(m_ctrl, number);
+void LV2Controller::request_program(unsigned char number) {
+  if (m_pfunc)
+    m_pfunc(m_ctrl, number);
 }
 
 
 LV2Controller::LV2Controller(LV2UI_Write_Function wfunc, 
 			     LV2UI_Command_Function cfunc,
+			     LV2UI_Program_Function pfunc,
                              LV2UI_Controller ctrl,
 			     const LV2_Host_Feature** features)
   : m_wfunc(wfunc),
     m_cfunc(cfunc),
-    m_ctrl(ctrl),
-    m_progdesc(0) {
+    m_pfunc(pfunc),
+    m_ctrl(ctrl) {
   
-  for (int i = 0; features[i]; ++i) {
-    if (!strcmp(features[i]->URI, "http://ll-plugins.nongnu.org/lv2/namespace#program")) {
-      m_progdesc = static_cast<LV2_ProgramControllerDescriptor*>(features[i]->data);
-    }
-  }
 }
 
 
@@ -105,43 +98,33 @@ namespace LV2G2GSupportFunctions {
   }
   
   
-  void add_program(LV2UI_Handle instance, unsigned char number, 
+  void program_added(LV2UI_Handle instance, unsigned char number, 
                    const char* name) {
-    static_cast<LV2GTK2GUI*>(instance)->add_program(number, name);
+    static_cast<LV2GTK2GUI*>(instance)->program_added(number, name);
   }
 
   
-  void remove_program(LV2UI_Handle instance, unsigned char number) {
-    static_cast<LV2GTK2GUI*>(instance)->remove_program(number);
+  void program_removed(LV2UI_Handle instance, unsigned char number) {
+    static_cast<LV2GTK2GUI*>(instance)->program_removed(number);
   }
   
 
-  void clear_programs(LV2UI_Handle instance) {
-    static_cast<LV2GTK2GUI*>(instance)->clear_programs();
+  void programs_cleared(LV2UI_Handle instance) {
+    static_cast<LV2GTK2GUI*>(instance)->programs_cleared();
   }
 
   
-  void set_program(LV2UI_Handle instance, unsigned char number) {
-    static_cast<LV2GTK2GUI*>(instance)->set_program(number);
+  void current_program_changed(LV2UI_Handle instance, unsigned char number) {
+    static_cast<LV2GTK2GUI*>(instance)->current_program_changed(number);
   }
   
 
   void* extension_data(LV2UI_Handle instance, const char* URI) {
-    if (!strcmp(URI, "http://ll-plugins.nongnu.org/lv2/namespace#program"))
-      return &LV2GTK2GUI::m_program_ui_desc;
     return static_cast<LV2GTK2GUI*>(instance)->extension_data(URI);
   }
   
   
 }  
-
-
-LV2_ProgramUIDescriptor LV2GTK2GUI::m_program_ui_desc = {
-  &LV2G2GSupportFunctions::add_program,
-  &LV2G2GSupportFunctions::remove_program,
-  &LV2G2GSupportFunctions::clear_programs,
-  &LV2G2GSupportFunctions::set_program
-};
 
 
 extern "C" {

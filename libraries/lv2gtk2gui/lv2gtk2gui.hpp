@@ -31,10 +31,6 @@
 #include <gtkmm.h>
 
 #include "lv2-gtk2gui.h"
-#include "lv2-instrument-gtk2gui.h"
-#include "lv2-guicomm-gtk2gui.h"
-#include "lv2-program-gtk2gui.h"
-#include "lv2-miditype-gtk2gui.h"
 
 
 namespace LV2G2GSupportFunctions {
@@ -45,6 +41,7 @@ namespace LV2G2GSupportFunctions {
 				  const char*                     bundle_path,
 				  LV2UI_Write_Function            write_func,
 				  LV2UI_Command_Function          command_func,
+				  LV2UI_Program_Function          program_func,
 				  LV2UI_Controller                ctrl,
 				  GtkWidget**                     widget,
 				  const LV2_Host_Feature**        features);
@@ -68,7 +65,7 @@ public:
   
   /** Tell the plugin host to switch to program @c number for the plugin
       instance. */
-  void set_program(unsigned char number);
+  void request_program(unsigned char number);
   
   /** Return data associated with an extension URI, or 0 if that extension
       is not supported or does not have any data for use in controllers. */
@@ -83,20 +80,19 @@ protected:
 		     const char*                     bundle_path,
 		     LV2UI_Write_Function            write_function,
 		     LV2UI_Command_Function          command_function,
+		     LV2UI_Program_Function          program_function,
 		     LV2UI_Controller                ctrl,
 		     GtkWidget**                     widget,
 		     const LV2_Host_Feature**        features);
 
   LV2Controller(LV2UI_Write_Function wfcn, LV2UI_Command_Function cfcn,
-		LV2UI_Controller ctrl, const LV2_Host_Feature** features);
+		LV2UI_Program_Function pfcn, LV2UI_Controller ctrl, 
+		const LV2_Host_Feature** features);
   
   LV2UI_Write_Function m_wfunc;
   LV2UI_Command_Function m_cfunc;
+  LV2UI_Program_Function m_pfunc;
   LV2UI_Controller m_ctrl;
-  LV2_InstrumentControllerDescriptor* m_instdesc;
-  LV2_GUICommControllerDescriptor* m_commdesc;
-  LV2_ProgramControllerDescriptor* m_progdesc;
-  LV2_MIDIControllerDescriptor* m_mididesc;
 };
 
 
@@ -123,6 +119,7 @@ namespace LV2G2GSupportFunctions {
 				  const char*                     bundle_path,
 				  LV2UI_Write_Function            write_func,
 				  LV2UI_Command_Function          command_func,
+				  LV2UI_Program_Function          program_func,
 				  LV2UI_Controller                ctrl,
 				  GtkWidget**                     widget,
 				  const LV2_Host_Feature**        features) {
@@ -132,7 +129,7 @@ namespace LV2G2GSupportFunctions {
     Gtk::Main::init_gtkmm_internals();
     
     LV2Controller* controller = new LV2Controller(write_func, command_func,
-						  ctrl, features);
+						  program_func, ctrl, features);
     T* t = new T(*controller, plugin_uri, bundle_path);
     t->m_controller = controller;
     *widget = static_cast<Gtk::Widget*>(t)->gobj();
@@ -151,14 +148,14 @@ namespace LV2G2GSupportFunctions {
   
   void feedback(LV2UI_Handle instance, uint32_t argc, const char* const* argv);
   
-  void add_program(LV2UI_Handle instance, unsigned char number, 
-                   const char* name);
+  void program_added(LV2UI_Handle instance, unsigned char number, 
+		     const char* name);
   
-  void remove_program(LV2UI_Handle instance, unsigned char number);
+  void program_removed(LV2UI_Handle instance, unsigned char number);
   
-  void clear_programs(LV2UI_Handle instance);
+  void programs_cleared(LV2UI_Handle instance);
   
-  void set_program(LV2UI_Handle instance, unsigned char number);
+  void current_program_changed(LV2UI_Handle instance, unsigned char number);
   
   /* Try to access extension-specific data. You should not use this directly. */
   void* extension_data(LV2UI_Handle instance, const char* URI);
@@ -187,31 +184,23 @@ public:
   virtual void port_event(uint32_t port, uint32_t buffer_size, 
 			  const void* buffer) { }
   
-  /** Override this if you want your GUI to do something when a piece of
-      configuration data changes in the plugin instance. */
-  virtual void configure(const char* key, const char* value) { }
-  
-  /** Override this is you want your GUI to do something when a filename
-      changes in the plugin instance. */
-  virtual void set_file(const char* key, const char* filename) { }
-  
   virtual void feedback(uint32_t argc, const char* const* argv) { }
   
   /** Override this if you want your GUI to do something when a program has
       been added for the plugin instance. */
-  virtual void add_program(unsigned char number, const char* name) { }
+  virtual void program_added(unsigned char number, const char* name) { }
   
   /** Override this if you want your GUI to do something when a program has
       been removed for the plugin instance. */
-  virtual void remove_program(unsigned char number) { }
+  virtual void program_removed(unsigned char number) { }
   
   /** Override this if you want your GUI to do something when the host
       removes all programs for the plugin instance. */
-  virtual void clear_programs() { }
+  virtual void programs_cleared() { }
   
   /** Override this if you want your GUI to do something when the host
       changes the program for the plugin instance. */
-  virtual void set_program(unsigned char number) { }
+  virtual void current_program_changed(unsigned char number) { }
   
   /** Return data associated with an extension URI, or 0 if that extension
       is not supported or does not have any data for use in plugin GUIs. */
@@ -226,6 +215,7 @@ private:
 		     const char*                     bundle_path,
 		     LV2UI_Write_Function            write_function,
 		     LV2UI_Command_Function          command_function,
+		     LV2UI_Program_Function          program_function,
 		     LV2UI_Controller                ctrl,
 		     GtkWidget**                     widget,
 		     const LV2_Host_Feature**        features);
@@ -235,10 +225,6 @@ private:
 
   LV2Controller* m_controller;
 
-  static LV2_InstrumentUIDescriptor m_instrument_ui_desc;
-  static LV2_ProgramUIDescriptor m_program_ui_desc;
-  static LV2_GUICommUIDescriptor m_guicomm_ui_desc;
-  
 };
 
 
@@ -251,6 +237,10 @@ template <typename T> void register_lv2gtk2gui(const std::string& URI) {
   desc->cleanup = &delete_ui_instance;
   desc->port_event = &port_event;
   desc->feedback = &feedback;
+  desc->program_added = &program_added;
+  desc->program_removed = &program_removed;
+  desc->programs_cleared = &programs_cleared;
+  desc->current_program_changed = &current_program_changed;
   desc->extension_data = &extension_data;
   get_lv2g2g_descriptors().push_back(desc);
 }

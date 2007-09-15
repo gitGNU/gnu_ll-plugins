@@ -34,7 +34,9 @@
 #include <jack/jack.h>
 #include <jack/midiport.h>
 #include <lash/lash.h>
+#include <gtkmm.h>
 
+#include "lv2guihost.hpp"
 #include "lv2host.hpp"
 #include "lv2-midiport.h"
 #include "lv2-midifunctions.h"
@@ -399,6 +401,67 @@ void thread_init(void*) {
 }
 
 
+void check_lash_events(LV2Host& lv2h, EventQueue& conf_q) {
+
+  lash_event_t* event;
+  while ((event = lash_get_event(lash_client))) {
+    
+    // save
+    if (lash_event_get_type(event) == LASH_Save_File) {
+      
+      ofstream of((string(lash_event_get_string(event)) + 
+		   "/lv2host").c_str());
+      
+      lv2h.queue_config_request(&conf_q);
+      EventQueue::Type t;
+      do {
+	while (!conf_q.wait() && still_running);
+	t = conf_q.read_event();
+	switch (t) {
+	case EventQueue::Program:
+	  of<<"program "<<conf_q.get_event().program.program<<endl;
+	  break;
+	case EventQueue::Control:
+	  of<<"control "<<conf_q.get_event().control.port<<" "
+	    <<conf_q.get_event().control.value<<endl;
+	}
+      } while (t != EventQueue::Passthrough && still_running);
+      
+      lash_send_event(lash_client, 
+		      lash_event_new_with_type(LASH_Save_File));
+    }
+    
+    // restore
+    else if (lash_event_get_type(event) == LASH_Restore_File) {
+      
+      ifstream ifs((string(lash_event_get_string(event)) + 
+		    "/lv2host").c_str());
+      while (ifs) {
+	string word;
+	ifs>>word;
+	
+	if (word == "control") {
+	  unsigned long port;
+	  float value;
+	  ifs>>port>>value;
+	  lv2h.queue_control(port, value);
+	}
+        
+      }
+      lash_send_event(lash_client,
+		      lash_event_new_with_type(LASH_Restore_File));
+    }
+    
+    // quit
+    else if (lash_event_get_type(event) == LASH_Quit)
+      still_running = false;
+    
+    lash_event_destroy(event);
+  }
+      
+}
+
+
 void sigchild(int signal) {
   DBG2("Child process terminated");
   if (signal == SIGCHLD)
@@ -417,6 +480,8 @@ void print_usage(const char* argv0) {
 
 int main(int argc, char** argv) {
   
+  Gtk::Main kit(argc, argv);
+  
   DebugInfo::prefix() = "H:";
   DebugInfo::thread_prefix()[pthread_self()] = "M ";
   
@@ -431,7 +496,7 @@ int main(int argc, char** argv) {
     // print help
     if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
       cerr<<"Elven is an (E)xperimental (LV)2 (E)xecution e(N)vironment.\n\n"
-          <<"(C) 2006 Lars Luthman <lars.luthman@gmail.com>\n"
+          <<"(C) 2006-2007 Lars Luthman <lars.luthman@gmail.com>\n"
           <<"Released under the GNU General Public License, version 3 or later."
           <<endl<<endl;
       print_usage(argv[0]);
@@ -465,12 +530,13 @@ int main(int argc, char** argv) {
     
   // initialise JACK client
   if (!(jack_client = jack_client_open("Elven", jack_options_t(0), 0))) {
-    cerr<<"jackd isn't running!"<<endl;
+    DBG0("Could not initialise JACK client!");
     return -1;
   }
       
   // load plugin
-  LV2Host lv2h(argv[i], jack_get_sample_rate(jack_client));
+  string plugin_uri = argv[i];
+  LV2Host lv2h(plugin_uri, jack_get_sample_rate(jack_client));
   
   if (lv2h.is_valid()) {
     
@@ -537,12 +603,31 @@ int main(int argc, char** argv) {
     still_running = true;
     
     // start the GUI
-    string gui_uri = lv2h.get_gui_uri();
     string gui_path = lv2h.get_gui_path();
-    string icon_path = lv2h.get_icon_path();
     pid_t gui_pid = 0;
+    Gtk::Window* win = 0;
+    LV2GUIHost* lv2gh = 0;
     if (gui_path.size()) {
-
+      lv2gh = new LV2GUIHost(gui_path, lv2h.get_gui_uri(), 
+			     plugin_uri, lv2h.get_bundle_dir());
+      if (!lv2gh->is_valid()) {
+	delete lv2gh;
+	lv2gh = 0;
+      }
+      else {
+	string icon_path = lv2h.get_icon_path();
+	win = new Gtk::Window;
+	win->set_title(lv2h.get_name());
+	win->add(lv2gh->get_widget());
+	lv2gh->get_widget().show_all();
+	if (icon_path.size())
+	  win->set_icon(Gdk::Pixbuf::create_from_file(icon_path));
+	const std::vector<LV2Port>& ports = lv2h.get_ports();
+	for (uint32_t i = 0; i < ports.size(); ++i) {
+	  if (ports[i].type == ControlType && ports[i].direction == InputPort)
+	    lv2gh->port_event(i, sizeof(float), ports[i].buffer);
+	}
+      }
     }
     
     autoconnect(jack_client);
@@ -551,83 +636,18 @@ int main(int argc, char** argv) {
     EventQueue conf_q;
     
     // wait until we are killed
-    while (still_running) {
-      
-      lash_event_t* event;
-      while ((event = lash_get_event(lash_client))) {
-        
-        // save
-        if (lash_event_get_type(event) == LASH_Save_File) {
-
-          ofstream of((string(lash_event_get_string(event)) + 
-                       "/lv2host").c_str());
-          
-          // configuration
-          const map<string, string>& config = lv2h.get_config();
-          map<string, string>::const_iterator iter;
-          for (iter = config.begin(); iter != config.end(); ++iter) {
-            of<<"configure "<<escape_space(iter->first)<<" "
-              <<escape_space(iter->second)<<endl;
-          }
-          
-          // data files
-          const map<string, string>& filenames = lv2h.get_filenames();
-          for (iter = filenames.begin(); iter != filenames.end(); ++iter) {
-            of<<"set_file "<<escape_space(iter->first)<<" "
-              <<escape_space(iter->second)<<endl;
-          }
-          
-          lv2h.queue_config_request(&conf_q);
-          EventQueue::Type t;
-          do {
-            while (!conf_q.wait() && still_running);
-            t = conf_q.read_event();
-            switch (t) {
-            case EventQueue::Program:
-              of<<"program "<<conf_q.get_event().program.program<<endl;
-              break;
-            case EventQueue::Control:
-              of<<"control "<<conf_q.get_event().control.port<<" "
-                <<conf_q.get_event().control.value<<endl;
-            }
-          } while (t != EventQueue::Passthrough && still_running);
-
-          lash_send_event(lash_client, 
-                          lash_event_new_with_type(LASH_Save_File));
-        }
-        
-        // restore
-        else if (lash_event_get_type(event) == LASH_Restore_File) {
-
-          ifstream ifs((string(lash_event_get_string(event)) + 
-                        "/lv2host").c_str());
-          while (ifs) {
-            string word;
-            ifs>>word;
-
-            if (word == "control") {
-              unsigned long port;
-              float value;
-              ifs>>port>>value;
-              lv2h.queue_control(port, value);
-            }
-              
-          }
-          lash_send_event(lash_client,
-                          lash_event_new_with_type(LASH_Restore_File));
-        }
-        
-        // quit
-        else if (lash_event_get_type(event) == LASH_Quit)
-          still_running = false;
-        
-        lash_event_destroy(event);
-      }
-      
-      usleep(100000);
+    slot<void> lash_slot = bind(bind(&check_lash_events, 
+				     ref(conf_q)), ref(lv2h));
+    Glib::signal_timeout().connect(bind_return(lash_slot, true), 100);
+    if (win) {
+      kit.run(*win);
+      win->show_all();
     }
+    else
+      kit.run();
     
     jack_client_close(jack_client);
+    delete lv2gh;
     lv2h.deactivate();
   }
   

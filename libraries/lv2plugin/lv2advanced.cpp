@@ -26,16 +26,16 @@
 using namespace std;
 
 
-char* LV2Advanced::tell_plugin(LV2_Handle instance, 
+char* LV2Advanced::command(LV2_Handle instance, 
 			       uint32_t argc, const char* const * argv) {
-  return reinterpret_cast<LV2Advanced*>(instance)->tell_plugin(argc, argv);
+  return reinterpret_cast<LV2Advanced*>(instance)->command(argc, argv);
 }
 
 void* LV2Advanced::lv2_advanced_descriptor(const char* URI) {
   if (!std::strcmp(URI, "<http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension>")) {
     using namespace LV2SupportFunctions;
     static LV2_CommandDescriptor cdesc = {
-      &LV2Advanced::tell_plugin
+      &LV2Advanced::command
     };
     return &cdesc;
   }

@@ -3,7 +3,7 @@
    This file is partly based on dssi.h from DSSI 0.9, which is
    Copyright (C) 2004 Chris Cannam, Steve Harris and Sean Bolton
 
-   Modifications (C) 2006 Lars Luthman <lars.luthman@gmail.com>
+   Modifications (C) 2006-2007 Lars Luthman <lars.luthman@gmail.com>
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public License
@@ -56,9 +56,9 @@ extern "C" {
 /** This struct contains all plugin callbacks used in this extension. */
 typedef struct {
   
-  char* (*tell_plugin)(LV2_Handle         instance,
-		       uint32_t           argc,
-		       const char* const* argv);
+  char* (*command)(LV2_Handle         instance,
+		   uint32_t           argc,
+		   const char* const* argv);
   
 } LV2_CommandDescriptor;
 
@@ -66,9 +66,9 @@ typedef struct {
 /** This struct contains all host callbacks used in this extension. */
 typedef struct {
   
-  void (*tell_host)(void*                host_data,
-		    uint32_t             argc,
-		    char**               argv);
+  void (*feedback)(void*                host_data,
+		   uint32_t             argc,
+		   const char* const*   argv);
   void* host_data;
 
 } LV2_CommandHostDescriptor;

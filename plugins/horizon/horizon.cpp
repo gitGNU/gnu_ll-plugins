@@ -72,7 +72,7 @@ public:
   }
 
 
-  char* tell_plugin(uint32_t argc, const char*const* argv) {
+  char* command(uint32_t argc, const char*const* argv) {
     
     // load a new sample
     if (argc == 2 && !strcmp(argv[0], "load_sample")) {
@@ -198,11 +198,11 @@ protected:
     
     const SampleBuffer& buf = sample->get_processed_buffer();
     if (buf.get_channels() == 1)
-      tell_host("ssifs", "sample_loaded", sample->get_name().c_str(), 
+      feedback("ssifs", "sample_loaded", sample->get_name().c_str(), 
 		long(buf.get_length()), buf.get_rate(), 
 		buf.get_shm_name(0).c_str());
     else if (buf.get_channels() == 2)
-      tell_host("ssifss", "sample_loaded", sample->get_name().c_str(), 
+      feedback("ssifss", "sample_loaded", sample->get_name().c_str(), 
 		long(buf.get_length()), buf.get_rate(), 
 		buf.get_shm_name(0).c_str(), buf.get_shm_name(1).c_str());
     
@@ -234,7 +234,7 @@ protected:
 	sem_post(&m_lock);
 	delete m_samples[i];
 	m_samples.erase(m_samples.begin() + i);
-	tell_host("ss", "sample_deleted", name.c_str());
+	feedback("ss", "sample_deleted", name.c_str());
 	return true;
       }
     }
@@ -253,7 +253,7 @@ protected:
     for (unsigned i = 0; i < m_samples.size(); ++i) {
       if (m_samples[i]->get_name() == old_name) {
 	m_samples[i]->set_name(new_name);
-	tell_host("sss", "sample_renamed", old_name.c_str(), new_name.c_str());
+	feedback("sss", "sample_renamed", old_name.c_str(), new_name.c_str());
 	return true;
       }
     }
@@ -272,7 +272,7 @@ protected:
 	  success = true;
 	sem_post(&m_lock);
 	if (success)
-	  tell_host("ssi", "splitpoint_added", name.c_str(), frame);
+	  feedback("ssi", "splitpoint_added", name.c_str(), frame);
 	return success;
       }
     }
@@ -290,7 +290,7 @@ protected:
 	  success = true;
 	sem_post(&m_lock);
 	if (success)
-	  tell_host("ssi", "splitpoint_removed", name.c_str(), frame);
+	  feedback("ssi", "splitpoint_removed", name.c_str(), frame);
 	return success;
       }
     }
@@ -308,7 +308,7 @@ protected:
 	  success = true;
 	sem_post(&m_lock);
 	if (success)
-	  tell_host("ssii", "splitpoint_moved", name.c_str(), frame, newframe);
+	  feedback("ssii", "splitpoint_moved", name.c_str(), frame, newframe);
 	return success;
       }
     }
@@ -322,15 +322,15 @@ protected:
       if (m_samples[i]->get_name() == sample) {
 	const Effect* e = 0;
 	if ((e = m_samples[i]->add_static_effect(pos, effect_uri))) {
-	  tell_host("ssis", "static_effect_added", 
+	  feedback("ssis", "static_effect_added", 
 		    sample.c_str(), pos, e->get_name().c_str());
 	  const SampleBuffer& buf = m_samples[i]->get_processed_buffer();
 	  if (buf.get_channels() == 1) {
-	    tell_host("sss", "sample_modified", sample.c_str(), 
+	    feedback("sss", "sample_modified", sample.c_str(), 
 		      buf.get_shm_name(0).c_str());
 	  }
 	  else if (buf.get_channels() == 2) {
-	    tell_host("ssss", "sample_modified", sample.c_str(),
+	    feedback("ssss", "sample_modified", sample.c_str(),
 		      buf.get_shm_name(0).c_str(), buf.get_shm_name(1).c_str());
 	  }
 	  return true;
@@ -347,14 +347,14 @@ protected:
     for (unsigned i = 0; i < m_samples.size(); ++i) {
       if (m_samples[i]->get_name() == sample) {
 	if (m_samples[i]->remove_static_effect(pos)) {
-	  tell_host("ssi", "static_effect_removed", sample.c_str(), pos);
+	  feedback("ssi", "static_effect_removed", sample.c_str(), pos);
 	  const SampleBuffer& buf = m_samples[i]->get_processed_buffer();
 	  if (buf.get_channels() == 1) {
-	    tell_host("sss", "sample_modified", sample.c_str(), 
+	    feedback("sss", "sample_modified", sample.c_str(), 
 		      buf.get_shm_name(0).c_str());
 	  }
 	  else if (buf.get_channels() == 2) {
-	    tell_host("ssss", "sample_modified", sample.c_str(),
+	    feedback("ssss", "sample_modified", sample.c_str(),
 		      buf.get_shm_name(0).c_str(), buf.get_shm_name(1).c_str());
 	  }
 	  return true;
@@ -371,15 +371,15 @@ protected:
     for (unsigned i = 0; i < m_samples.size(); ++i) {
       if (m_samples[i]->get_name() == sample) {
 	if (m_samples[i]->bypass_static_effect(pos, bpass)) {
-	  tell_host("ssii", "static_effect_bypassed", sample.c_str(), pos,
+	  feedback("ssii", "static_effect_bypassed", sample.c_str(), pos,
 		    bpass ? 1 : 0);
 	  const SampleBuffer& buf = m_samples[i]->get_processed_buffer();
 	  if (buf.get_channels() == 1) {
-	    tell_host("sss", "sample_modified", sample.c_str(), 
+	    feedback("sss", "sample_modified", sample.c_str(), 
 		      buf.get_shm_name(0).c_str());
 	  }
 	  else if (buf.get_channels() == 2) {
-	    tell_host("ssss", "sample_modified", sample.c_str(),
+	    feedback("ssss", "sample_modified", sample.c_str(),
 		      buf.get_shm_name(0).c_str(), buf.get_shm_name(1).c_str());
 	  }
 	  return true;
