@@ -115,7 +115,17 @@ typedef void (*LV2UI_Write_Function)(LV2UI_Controller controller,
 				     uint32_t         buffer_size,
 				     const void*      buffer);
 
-  /** */
+/** This is the type of the host-provided function that the GUI can use to
+    send arbitrary commands to the plugin. The parameters after the first one
+    should be const char* variables, terminated by a NULL pointer, and will be
+    interpreted as a command with arguments. A function of this type will be 
+    provided to the GUI by the host in the instantiate() function. */
+typedef void (*LV2UI_Command_Function)(LV2UI_Controller   controller,
+				       uint32_t           argc,
+				       const char* const* argv);
+
+
+/** */
 typedef struct _LV2UI_Descriptor {
   
   /** The URI for this GUI (not for the plugin it controls). */
@@ -152,6 +162,7 @@ typedef struct _LV2UI_Descriptor {
                               const char*                     plugin_uri,
                               const char*                     bundle_path,
 			      LV2UI_Write_Function            write_function,
+			      LV2UI_Command_Function          command_function,
                               LV2UI_Controller                controller,
                               GtkWidget**                     widget,
 			      const LV2_Host_Feature**        features);
@@ -204,6 +215,15 @@ typedef struct _LV2UI_Descriptor {
 		     uint32_t       port,
 		     uint32_t       buffer_size,
 		     const void*    buffer);
+  
+  /** This function is called when the plugin instance wants to send feedback
+      to the GUI. It may be called in response to a command function call,
+      either before or after the command function has returned (depending on
+      whether the GUI host <-> plugin instance communication is synchronous or
+      asynchronous). */
+  void (*feedback)(LV2UI_Handle gui, 
+		   uint32_t argc, 
+		   const char* const* argv);
   
   /** Returns a data structure associated with an extension URI, for example
       a struct containing additional function pointers. Avoid returning

@@ -38,7 +38,6 @@
 #include "lv2host.hpp"
 #include "lv2-midiport.h"
 #include "lv2-midifunctions.h"
-#include "osccontroller.hpp"
 #include "eventqueue.hpp"
 #include "debug.hpp"
 #include "midiutils.hpp"
@@ -536,8 +535,6 @@ int main(int argc, char** argv) {
     jack_activate(jack_client);
     
     still_running = true;
-    OSCController osc(lv2h, still_running);
-    //osc.start();
     
     // start the GUI
     string gui_uri = lv2h.get_gui_uri();
@@ -545,29 +542,8 @@ int main(int argc, char** argv) {
     string icon_path = lv2h.get_icon_path();
     pid_t gui_pid = 0;
     if (gui_path.size()) {
-      if (!(gui_pid = fork())) {
-        ostringstream oss;
-        oss<<DebugInfo::level();
-	if (icon_path.size() > 0)
-	  execlp("elven_guiloader", "elven_guiloader", oss.str().c_str(), 
-		 gui_path.c_str(), osc.get_url().c_str(), gui_uri.c_str(), 
-		 argv[i], lv2h.get_bundle_dir().c_str(), 
-		 lv2h.get_name().c_str(), icon_path.c_str(), 0);
-	else
-	  execlp("elven_guiloader", "elven_guiloader", oss.str().c_str(), 
-		 gui_path.c_str(), osc.get_url().c_str(), gui_uri.c_str(), 
-		 argv[i], lv2h.get_bundle_dir().c_str(), 
-		 lv2h.get_name().c_str(), 0);
-        DBG0("Could not execute elven_guiloader");
-        exit(-1);
-      }
-      else if (gui_pid > 0)
-        ::signal(SIGCHLD, &sigchild);
+
     }
-    
-    lv2h.signal_configure.connect(mem_fun(osc, &OSCController::send_configure));
-    lv2h.signal_filename.connect(mem_fun(osc, &OSCController::send_filename));
-    lv2h.signal_tell_gui.connect(mem_fun(osc, &OSCController::send_tell_gui));
     
     autoconnect(jack_client);
     
@@ -576,8 +552,6 @@ int main(int argc, char** argv) {
     
     // wait until we are killed
     while (still_running) {
-      
-      while (osc.run());
       
       lash_event_t* event;
       while ((event = lash_get_event(lash_client))) {
@@ -631,24 +605,6 @@ int main(int argc, char** argv) {
             string word;
             ifs>>word;
 
-            if (word == "configure") {
-              string key, value;
-              ifs>>key>>value;
-              key = unescape_space(key);
-              value = unescape_space(value);
-              lv2h.configure(key.c_str(), value.c_str());
-              osc.send_configure(key, value);
-            }
-
-            if (word == "set_file") {
-              string key, filename;
-              ifs>>key>>filename;
-              key = unescape_space(key);
-              filename = unescape_space(filename);
-              lv2h.set_file(key.c_str(), filename.c_str());
-              osc.send_filename(key, filename);
-            }
-
             if (word == "control") {
               unsigned long port;
               float value;
@@ -671,13 +627,6 @@ int main(int argc, char** argv) {
       usleep(100000);
     }
     
-    // kill the GUI
-    if (gui_pid) {
-      kill(gui_pid, SIGKILL);
-      waitpid(gui_pid, 0, 0);
-    }
-    
-    //osc.stop();
     jack_client_close(jack_client);
     lv2h.deactivate();
   }

@@ -275,8 +275,8 @@ void LV2Host::select_program(unsigned long program) {
 }
 
 
-char* LV2Host::tell_plugin(uint32_t argc, const char* const* argv) {
-  DBG2("Calling tell_plugin() with "<<argc<<" parameters");
+char* LV2Host::command(uint32_t argc, const char* const* argv) {
+  DBG2("Calling command() with "<<argc<<" parameters");
   if (m_comm_desc && m_comm_desc->tell_plugin) {
     char* result = m_comm_desc->tell_plugin(m_handle, argc, argv);
     if (result) {

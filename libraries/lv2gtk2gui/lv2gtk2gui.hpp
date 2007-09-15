@@ -37,7 +37,70 @@
 #include "lv2-miditype-gtk2gui.h"
 
 
-class LV2Controller;
+namespace LV2G2GSupportFunctions {
+  
+  template <class T>
+  LV2UI_Handle create_ui_instance(const struct _LV2UI_Descriptor* descriptor,
+				  const char*                     plugin_uri,
+				  const char*                     bundle_path,
+				  LV2UI_Write_Function            write_func,
+				  LV2UI_Command_Function          command_func,
+				  LV2UI_Controller                ctrl,
+				  GtkWidget**                     widget,
+				  const LV2_Host_Feature**        features);
+}
+
+
+/** This class is an interface for controlling a plugin instance. An object
+    of this class will be provided by the host when a plugin GUI is 
+    instantiated. */
+class LV2Controller {
+public:
+  
+  /** This constructor creates an invalid controller that doesn't actually
+      control anything. */
+  LV2Controller();
+  
+  /** Set the value of a control rate float port in the plugin instance. */
+  void write(uint32_t port, uint32_t buffer_size, const void* buffer);
+  
+  void command(uint32_t argc, const char* const* argv);
+  
+  /** Tell the plugin host to switch to program @c number for the plugin
+      instance. */
+  void set_program(unsigned char number);
+  
+  /** Return data associated with an extension URI, or 0 if that extension
+      is not supported or does not have any data for use in controllers. */
+  void* extension_data(const std::string& URI);
+  
+protected:
+  
+  template <class T> friend
+  LV2UI_Handle LV2G2GSupportFunctions::
+  create_ui_instance(const struct _LV2UI_Descriptor* descriptor,
+		     const char*                     plugin_uri,
+		     const char*                     bundle_path,
+		     LV2UI_Write_Function            write_function,
+		     LV2UI_Command_Function          command_function,
+		     LV2UI_Controller                ctrl,
+		     GtkWidget**                     widget,
+		     const LV2_Host_Feature**        features);
+
+  LV2Controller(LV2UI_Write_Function wfcn, LV2UI_Command_Function cfcn,
+		LV2UI_Controller ctrl, const LV2_Host_Feature** features);
+  
+  LV2UI_Write_Function m_wfunc;
+  LV2UI_Command_Function m_cfunc;
+  LV2UI_Controller m_ctrl;
+  LV2_InstrumentControllerDescriptor* m_instdesc;
+  LV2_GUICommControllerDescriptor* m_commdesc;
+  LV2_ProgramControllerDescriptor* m_progdesc;
+  LV2_MIDIControllerDescriptor* m_mididesc;
+};
+
+
+//class LV2Controller;
 
 
 /* These functions are C wrappers for the C++ member functions. You should not
@@ -58,7 +121,8 @@ namespace LV2G2GSupportFunctions {
   LV2UI_Handle create_ui_instance(const struct _LV2UI_Descriptor* descriptor,
 				  const char*                     plugin_uri,
 				  const char*                     bundle_path,
-				  LV2UI_Set_Control_Function      ctrl_function,
+				  LV2UI_Write_Function            write_func,
+				  LV2UI_Command_Function          command_func,
 				  LV2UI_Controller                ctrl,
 				  GtkWidget**                     widget,
 				  const LV2_Host_Feature**        features) {
@@ -67,7 +131,7 @@ namespace LV2G2GSupportFunctions {
     // a Gtk+ or PyGtk host or some other language
     Gtk::Main::init_gtkmm_internals();
     
-    LV2Controller* controller = new LV2Controller(ctrl_function, 
+    LV2Controller* controller = new LV2Controller(write_func, command_func,
 						  ctrl, features);
     T* t = new T(*controller, plugin_uri, bundle_path);
     t->m_controller = controller;
@@ -82,13 +146,10 @@ namespace LV2G2GSupportFunctions {
   
   /* Tell the GUI that a control rate float port has changed. You should
      not use this directly. */
-  void set_control(LV2UI_Handle instance, uint32_t port, float value);
+  void port_event(LV2UI_Handle instance, uint32_t port, uint32_t buffer_size,
+		  const void* buffer);
   
-  void configure(LV2UI_Handle instance, const char* key, const char* value);
-
-  void set_file(LV2UI_Handle instance, const char* key, const char* filename);
-  
-  void tell_gui(LV2UI_Handle instance, uint32_t argc, const char* const* argv);
+  void feedback(LV2UI_Handle instance, uint32_t argc, const char* const* argv);
   
   void add_program(LV2UI_Handle instance, unsigned char number, 
                    const char* name);
@@ -99,70 +160,10 @@ namespace LV2G2GSupportFunctions {
   
   void set_program(LV2UI_Handle instance, unsigned char number);
   
-  void tell_plugin(LV2UI_Handle instance, 
-		   uint32_t argc, const char* const* argv);
-
   /* Try to access extension-specific data. You should not use this directly. */
   void* extension_data(LV2UI_Handle instance, const char* URI);
   
 }  
-
-
-/** This class is an interface for controlling a plugin instance. An object
-    of this class will be provided by the host when a plugin GUI is 
-    instantiated. */
-class LV2Controller {
-public:
-  
-  /** This constructor creates an invalid controller that doesn't actually
-      control anything. */
-  LV2Controller();
-  
-  /** Set the value of a control rate float port in the plugin instance. */
-  void set_control(uint32_t port, float value);
-  
-  /** Send a piece of configuration data to the plugin instance. */
-  void configure(const std::string& key, const std::string& value);
-  
-  /** Send a filename to the plugin instance. */
-  void set_file(const std::string& key, const std::string& filename);
-  
-  /** Tell the plugin host to switch to program @c number for the plugin
-      instance. */
-  void set_program(unsigned char number);
-  
-  /** Send a MIDI event to the plugin instance. */
-  void send_midi(uint32_t port, uint32_t size, const unsigned char* data);
-  
-  /** Send a command to the plugin. */
-  void tell_plugin(uint32_t argc, const char* const* argv);
-  
-  /** Return data associated with an extension URI, or 0 if that extension
-      is not supported or does not have any data for use in controllers. */
-  void* extension_data(const std::string& URI);
-  
-protected:
-  
-  template <class T> friend
-  LV2UI_Handle LV2G2GSupportFunctions::
-  create_ui_instance(const struct _LV2UI_Descriptor* descriptor,
-		     const char*                     plugin_uri,
-		     const char*                     bundle_path,
-		     LV2UI_Set_Control_Function      ctrl_function,
-		     LV2UI_Controller                ctrl,
-		     GtkWidget**                     widget,
-		     const LV2_Host_Feature**        features);
-
-  LV2Controller(LV2UI_Set_Control_Function fcn, LV2UI_Controller ctrl,
-		const LV2_Host_Feature** features);
-  
-  LV2UI_Set_Control_Function m_cfunc;
-  LV2UI_Controller m_ctrl;
-  LV2_InstrumentControllerDescriptor* m_instdesc;
-  LV2_GUICommControllerDescriptor* m_commdesc;
-  LV2_ProgramControllerDescriptor* m_progdesc;
-  LV2_MIDIControllerDescriptor* m_mididesc;
-};
 
 
 /** This is the base class for a plugin GUI. You should inherit it and 
@@ -183,7 +184,8 @@ public:
   
   /** Override this if you want your GUI to do something when a control port
       value changes in the plugin instance. */
-  virtual void set_control(uint32_t port, float value) { }
+  virtual void port_event(uint32_t port, uint32_t buffer_size, 
+			  const void* buffer) { }
   
   /** Override this if you want your GUI to do something when a piece of
       configuration data changes in the plugin instance. */
@@ -193,7 +195,7 @@ public:
       changes in the plugin instance. */
   virtual void set_file(const char* key, const char* filename) { }
   
-  virtual void tell_gui(uint32_t argc, const char* const* argv) { }
+  virtual void feedback(uint32_t argc, const char* const* argv) { }
   
   /** Override this if you want your GUI to do something when a program has
       been added for the plugin instance. */
@@ -222,7 +224,8 @@ private:
   create_ui_instance(const struct _LV2UI_Descriptor* descriptor,
 		     const char*                     plugin_uri,
 		     const char*                     bundle_path,
-		     LV2UI_Set_Control_Function      ctrl_function,
+		     LV2UI_Write_Function            write_function,
+		     LV2UI_Command_Function          command_function,
 		     LV2UI_Controller                ctrl,
 		     GtkWidget**                     widget,
 		     const LV2_Host_Feature**        features);
@@ -246,7 +249,8 @@ template <typename T> void register_lv2gtk2gui(const std::string& URI) {
   desc->URI = strdup(URI.c_str());
   desc->instantiate = &create_ui_instance<T>;
   desc->cleanup = &delete_ui_instance;
-  desc->set_control = &set_control;
+  desc->port_event = &port_event;
+  desc->feedback = &feedback;
   desc->extension_data = &extension_data;
   get_lv2g2g_descriptors().push_back(desc);
 }

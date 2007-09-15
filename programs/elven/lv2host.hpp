@@ -118,7 +118,7 @@ public:
   void select_program(unsigned long program);
   
   /** Send a command to the plugin. */
-  char* tell_plugin(uint32_t argc, const char* const* argv);
+  char* command(uint32_t argc, const char* const* argv);
   
   /** Return the MIDI controller mappings. */
   const std::vector<int>& get_midi_map() const;

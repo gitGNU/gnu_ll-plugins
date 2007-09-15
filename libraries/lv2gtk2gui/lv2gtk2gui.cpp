@@ -32,7 +32,8 @@ using namespace std;
 
 
 LV2Controller::LV2Controller()
-  : m_cfunc(0),
+  : m_wfunc(0),
+    m_cfunc(0),
     m_ctrl(0),
     m_instdesc(0),
     m_progdesc(0),
@@ -41,23 +42,18 @@ LV2Controller::LV2Controller()
 }
 
 
-void LV2Controller::set_control(uint32_t port, float value) {
+void LV2Controller::write(uint32_t port, uint32_t buffer_size, 
+			  const void* buffer) {
+  if (m_wfunc)
+    m_wfunc(m_ctrl, port, buffer_size, buffer);
+}
+
+
+void LV2Controller::command(uint32_t argc, const char* const* argv) {
   if (m_cfunc)
-    m_cfunc(m_ctrl, port, value);
+    m_cfunc(m_ctrl, argc, argv);
 }
 
-
-void LV2Controller::configure(const string& key, const string& value) {
-  if (m_instdesc)
-    m_instdesc->configure(m_ctrl, key.c_str(), value.c_str());
-}
-
-
-void LV2Controller::set_file(const string& key, const string& filename) {
-  if (m_instdesc)
-    m_instdesc->set_file(m_ctrl, key.c_str(), filename.c_str());
-}
-  
 
 void LV2Controller::set_program(unsigned char number) {
   if (m_progdesc)
@@ -65,42 +61,18 @@ void LV2Controller::set_program(unsigned char number) {
 }
 
 
-void LV2Controller::send_midi(uint32_t port, uint32_t size, 
-                              const unsigned char* data) {
-  if (m_mididesc)
-    m_mididesc->send_midi(m_ctrl, port, size, data);
-}
-
-
-void LV2Controller::tell_plugin(uint32_t argc, const char* const* argv) {
-  cerr<<__PRETTY_FUNCTION__<<endl;
-  if (m_commdesc)
-    m_commdesc->tell_plugin(m_ctrl, argc, argv);
-}
-
-
-LV2Controller::LV2Controller(LV2UI_Set_Control_Function cfunc, 
+LV2Controller::LV2Controller(LV2UI_Write_Function wfunc, 
+			     LV2UI_Command_Function cfunc,
                              LV2UI_Controller ctrl,
 			     const LV2_Host_Feature** features)
-  : m_cfunc(cfunc),
+  : m_wfunc(wfunc),
+    m_cfunc(cfunc),
     m_ctrl(ctrl),
-    m_instdesc(0),
-    m_progdesc(0),
-    m_mididesc(0),
-    m_commdesc(0) {
+    m_progdesc(0) {
   
   for (int i = 0; features[i]; ++i) {
-    if (!strcmp(features[i]->URI, "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext")) {
-      m_instdesc = static_cast<LV2_InstrumentControllerDescriptor*>(features[i]->data);
-    }
-    else if (!strcmp(features[i]->URI, "http://ll-plugins.nongnu.org/lv2/namespace#program")) {
+    if (!strcmp(features[i]->URI, "http://ll-plugins.nongnu.org/lv2/namespace#program")) {
       m_progdesc = static_cast<LV2_ProgramControllerDescriptor*>(features[i]->data);
-    }
-    else if (!strcmp(features[i]->URI, "http://ll-plugins.nongnu.org/lv2/ext/miditype")) {
-      m_mididesc = static_cast<LV2_MIDIControllerDescriptor*>(features[i]->data);
-    }
-    else if (!strcmp(features[i]->URI, "http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension")) {
-      m_commdesc = static_cast<LV2_GUICommControllerDescriptor*>(features[i]->data);
     }
   }
 }
@@ -120,23 +92,16 @@ namespace LV2G2GSupportFunctions {
   }
   
   
-  void set_control(LV2UI_Handle instance, uint32_t port, float value) {
-    static_cast<LV2GTK2GUI*>(instance)->set_control(port, value);
+  /* Tell the GUI that a control rate float port has changed. You should
+     not use this directly. */
+  void port_event(LV2UI_Handle instance, uint32_t port, uint32_t buffer_size,
+		  const void* buffer) {
+    static_cast<LV2GTK2GUI*>(instance)->port_event(port, buffer_size, buffer);
   }
   
-  
-  void configure(LV2UI_Handle instance, const char* key, const char* value) {
-    static_cast<LV2GTK2GUI*>(instance)->configure(key, value);
-  }
 
-  
-  void set_file(LV2UI_Handle instance, const char* key, const char* filename) {
-    static_cast<LV2GTK2GUI*>(instance)->set_file(key, filename);
-  }
-  
-  
-  void tell_gui(LV2UI_Handle instance, uint32_t argc, const char* const* argv) {
-    static_cast<LV2GTK2GUI*>(instance)->tell_gui(argc, argv);
+  void feedback(LV2UI_Handle instance, uint32_t argc, const char* const* argv) {
+    static_cast<LV2GTK2GUI*>(instance)->feedback(argc, argv);
   }
   
   
@@ -162,17 +127,8 @@ namespace LV2G2GSupportFunctions {
   
 
   void* extension_data(LV2UI_Handle instance, const char* URI) {
-    if (!strcmp(URI, 
-                "http://ll-plugins.nongnu.org/lv2/namespace#instrument-ext"))
-      return &LV2GTK2GUI::m_instrument_ui_desc;
-    else if (!strcmp(URI, 
-                     "http://ll-plugins.nongnu.org/lv2/namespace#program"))
+    if (!strcmp(URI, "http://ll-plugins.nongnu.org/lv2/namespace#program"))
       return &LV2GTK2GUI::m_program_ui_desc;
-    else if (!strcmp(URI, 
-                     "http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension"))
-      return &LV2GTK2GUI::m_guicomm_ui_desc;
-
-    
     return static_cast<LV2GTK2GUI*>(instance)->extension_data(URI);
   }
   
@@ -180,22 +136,11 @@ namespace LV2G2GSupportFunctions {
 }  
 
 
-LV2_InstrumentUIDescriptor LV2GTK2GUI::m_instrument_ui_desc = {
-  &LV2G2GSupportFunctions::configure,
-  &LV2G2GSupportFunctions::set_file
-};
-
-
 LV2_ProgramUIDescriptor LV2GTK2GUI::m_program_ui_desc = {
   &LV2G2GSupportFunctions::add_program,
   &LV2G2GSupportFunctions::remove_program,
   &LV2G2GSupportFunctions::clear_programs,
   &LV2G2GSupportFunctions::set_program
-};
-
-
-LV2_GUICommUIDescriptor LV2GTK2GUI::m_guicomm_ui_desc = {
-  &LV2G2GSupportFunctions::tell_gui
 };
 
 

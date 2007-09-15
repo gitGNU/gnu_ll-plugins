@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.282
+PACKAGE_VERSION = 0.1.283
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -28,8 +28,7 @@ ifeq ($(build_experimental),yes)
 	liblv2_plugin.a \
 	liblv2_advanced.a \
 	liblv2_instrument.a \
-	liblv2_oscui.a \
-#	liblv2_gtk2gui.a \
+	liblv2_gtk2gui.a \
 	libkeyboard.a \
 	libvgknob.a \
 	libenvelopeeditor.a \
@@ -88,10 +87,6 @@ libpaq_a_SOURCES = \
 	query.hpp query.cpp
 libpaq_a_SOURCEDIR = libraries/paq
 
-liblv2_oscui_a_SOURCES = lv2uiclient.hpp lv2uiclient.cpp
-liblv2_oscui_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo`
-liblv2_oscui_a_SOURCEDIR = libraries/lv2oscui
-
 liblv2_gtk2gui_a_SOURCES = lv2gtk2gui.hpp lv2gtk2gui.cpp
 liblv2_gtk2gui_a_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -I.
 liblv2_gtk2gui_a_SOURCEDIR = libraries/lv2gtk2gui
@@ -138,7 +133,6 @@ lv2peg_SOURCEDIR = programs/lv2peg
 
 elven_SOURCES = \
 	lv2host.hpp lv2host.cpp \
-	osccontroller.hpp osccontroller.cpp \
 	eventqueue.hpp eventqueue.cpp \
 	main.cpp
 elven_CFLAGS = `pkg-config --cflags jack liblo lash-1.0 sigc++-2.0` -Iextensions/MidiPort -Iextensions/instrument -Iextensions/command -Ilibraries/paq -Ilibraries/components -I.
@@ -149,7 +143,6 @@ elven_SOURCEDIR = programs/elven
 elven_guiloader_SOURCES = elven_guiloader.cpp
 elven_guiloader_CFLAGS = `pkg-config --cflags gtkmm-2.4 liblo` -Iextensions/gtkgui -I. -Ilibraries/lv2oscui
 elven_guiloader_LDFLAGS = `pkg-config --libs gtkmm-2.4 liblo gthread-2.0` 
-elven_guiloader_ARCHIVES = libraries/lv2oscui/liblv2_oscui.a
 elven_guiloader_SOURCEDIR = programs/elven
 
 sockettest_SOURCES = sockettest.cpp
@@ -241,7 +234,7 @@ euphoria_lv2_ARCHIVES = $(INSTRUMENTARCHIVES)
 euphoria_lv2_LDFLAGS = `pkg-config --libs gsl`
 euphoria_lv2_PEGFILES = euphoria.peg
 euphoria_lv2_SOURCEDIR = plugins/euphoria
-#euphoria_lv2_MODULES = euphoria_gtk.so
+euphoria_lv2_MODULES = euphoria_gtk.so
 euphoria_gtk_so_SOURCES = \
 	euphoria_gtk.cpp \
 	euphoriawidget.cpp euphoriawidget.hpp

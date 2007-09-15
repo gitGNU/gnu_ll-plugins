@@ -39,23 +39,26 @@ class EuphoriaGUI : public LV2GTK2GUI {
 public:
   
   EuphoriaGUI(LV2Controller& ctrl, const std::string& URI, 
-              const std::string& bundle_path) {
+              const std::string& bundle_path)
+    : m_ctrl(ctrl) {
     
     pack_start(m_euph);
 
     m_euph.signal_control_changed.
-      connect(mem_fun(ctrl, &LV2Controller::set_control));
-    m_euph.signal_configure.connect(mem_fun(ctrl, &LV2Controller::configure));
+      connect(mem_fun(*this, &EuphoriaGUI::control_changed));
+    m_euph.signal_configure.
+      connect(mem_fun(*this, &EuphoriaGUI::configure_changed));
     m_euph.signal_program_selected.
       connect(mem_fun(ctrl, &LV2Controller::set_program));
   }
   
-  void set_control(uint32_t port, float value) {
-    m_euph.set_control(port, value);
+  void port_event(uint32_t port, uint32_t buffer_size, const void* buffer) {
+    m_euph.set_control(port, *static_cast<const float*>(buffer));
   }
 
-  void configure(const char* key, const char* value) {
-    m_euph.configure(key, value);
+  void feedback(uint32_t argc, const char* const* argv) {
+    if (argc == 2)
+      m_euph.configure(argv[0], argv[1]);
   }
   
   void add_program(unsigned char number, const char* name) {
@@ -75,8 +78,18 @@ public:
   }
   
 protected:
-
+  
+  void control_changed(uint32_t port, float value) {
+    m_ctrl.write(port, sizeof(float), &value);
+  }
+  
+  void configure_changed(const string& key, const string& value) {
+    const char* array[] = { key.c_str(), value.c_str() };
+    m_ctrl.command(2, array);
+  }
+  
   EuphoriaWidget m_euph;
+  LV2Controller& m_ctrl;
   
 };
 
