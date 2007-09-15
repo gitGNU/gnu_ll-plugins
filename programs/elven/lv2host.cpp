@@ -241,6 +241,14 @@ char* LV2Host::command(uint32_t argc, const char* const* argv) {
 }
 
 
+void LV2Host::write_port(uint32_t index, uint32_t buffer_size, 
+			 const void* buffer) {
+  if (index < m_ports.size() && m_ports[index].direction == InputPort &&
+      m_ports[index].type == ControlType)
+    queue_control(index, *static_cast<const float*>(buffer));
+}
+
+
 const std::vector<int>& LV2Host::get_midi_map() const {
   return m_midimap;
 }

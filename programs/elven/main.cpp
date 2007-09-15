@@ -623,10 +623,25 @@ int main(int argc, char** argv) {
 	if (icon_path.size())
 	  win->set_icon(Gdk::Pixbuf::create_from_file(icon_path));
 	const std::vector<LV2Port>& ports = lv2h.get_ports();
+	
+	// update the port controls in the GUI
 	for (uint32_t i = 0; i < ports.size(); ++i) {
 	  if (ports[i].type == ControlType && ports[i].direction == InputPort)
 	    lv2gh->port_event(i, sizeof(float), ports[i].buffer);
 	}
+	
+	// update the program controls in the GUI
+	const std::map<uint32_t, LV2Preset>& presets = lv2h.get_presets();
+	std::map<uint32_t, LV2Preset>::const_iterator iter;
+	for (iter = presets.begin(); iter != presets.end(); ++iter)
+	  lv2gh->program_added(iter->first, iter->second.name.c_str());
+	
+	// connect signals
+	lv2h.signal_feedback.connect(mem_fun(*lv2gh, &LV2GUIHost::feedback));
+	lv2gh->write_port.connect(mem_fun(lv2h, &LV2Host::write_port));
+	lv2gh->command.connect(hide_return(mem_fun(lv2h, &LV2Host::command)));
+	lv2gh->request_program.
+	  connect(bind(mem_fun(lv2h, &LV2Host::queue_program), true));
       }
     }
     

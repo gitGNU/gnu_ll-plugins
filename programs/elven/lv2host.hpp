@@ -114,6 +114,9 @@ public:
   /** Send a command to the plugin. */
   char* command(uint32_t argc, const char* const* argv);
   
+  /** Write to a plugin port. */
+  void write_port(uint32_t index, uint32_t buffer_size, const void* buffer);
+  
   /** Return the MIDI controller mappings. */
   const std::vector<int>& get_midi_map() const;
   
@@ -185,31 +188,15 @@ protected:
   static void feedback_wrapper(void* me, uint32_t argc, 
 			       const char* const* argv);
   
-  
-  template <typename T, typename S> T nasty_cast(S ptr) {
+  template <typename T> T get_symbol(const std::string& name) {
     union {
-      S s;
+      void* s;
       T t;
     } u;
-    u.s = ptr;
+    u.s = dlsym(m_libhandle, name.c_str());
     return u.t;
   }
-  
-  template <typename T> T get_symbol(const std::string& name) {
-    return nasty_cast<T>(dlsym(m_libhandle, name.c_str()));
-  }
-  
-  template <typename R, typename A> R call_symbol(const std::string& name, 
-                                                  A a) {
-    typedef R (*FuncType)(A);
-    FuncType func = get_symbol<FuncType>(name);
-    if (!func) {
-      std::cerr<<"Could not find symbol "<<name<<std::endl;
-      return R();
-    }
-    return func(a);
-  }
-  
+
   
   std::string m_uri;
   std::string m_bundle;
