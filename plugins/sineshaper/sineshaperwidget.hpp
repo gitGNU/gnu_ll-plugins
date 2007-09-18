@@ -28,6 +28,8 @@
 
 #include <gtkmm.h>
 
+#include "skindial_gtkmm.hpp"
+
 
 class SineshaperWidget : public Gtk::HBox {
 public:
@@ -46,7 +48,13 @@ protected:
   Gtk::Widget* init_delay_controls();
   Gtk::Widget* init_shaper_controls();
   Gtk::Widget* init_preset_list();
-
+  
+  Gtk::Widget* create_knob(Gtk::Table* table, int col, const std::string& name, 
+			   float min, float max, SkinDial::Mapping mapping,
+			   float center, uint32_t port);
+  Gtk::Widget* create_spin(Gtk::Table* table, int col, const std::string& name, 
+			   float min, float max, uint32_t port);
+  
   
   Glib::RefPtr<Gdk::Pixbuf> m_dialg;
 

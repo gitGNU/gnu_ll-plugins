@@ -25,6 +25,7 @@
 
 #include "sineshaperwidget.hpp"
 #include "skindial_gtkmm.hpp"
+#include "sineshaper.peg"
 
 
 using namespace Gtk;
@@ -34,7 +35,6 @@ using namespace std;
 SineshaperWidget::SineshaperWidget(const std::string& bundle)
   : HBox(false, 12) {
   
-  cerr<<"bundle: "<<bundle<<endl;
   m_dialg = Gdk::Pixbuf::create_from_file(bundle + "dial.png");
   
   VBox* knob_vbox = manage(new VBox(false, 12));
@@ -70,10 +70,14 @@ Widget* SineshaperWidget::init_tuning_controls() {
   Frame* frame = manage(new Frame);
   frame->set_label("Tuning");
   frame->set_shadow_type(SHADOW_IN);
-  HBox* hbox = manage(new HBox);
-  frame->add(*hbox);
-  hbox->pack_start(*manage(new SkinDial(0.5, 2.0, m_dialg, 
-					SkinDial::DoubleLog, 1.0)));
+  
+  Table* table = new Table(2, 2);
+  table->set_col_spacings(3);
+  frame->add(*table);
+  
+  create_knob(table, 0, "Tune", 0.5, 2.0, SkinDial::DoubleLog, 1.0, s_tun);
+  create_spin(table, 1, "Octave", -10, 10, s_oct);
+  
   return frame;
 }
 
@@ -82,6 +86,15 @@ Widget* SineshaperWidget::init_osc2_controls() {
   Frame* frame = manage(new Frame);
   frame->set_label("Oscillator 2");
   frame->set_shadow_type(SHADOW_IN);
+
+  Table* table = new Table(2, 3);
+  table->set_col_spacings(3);
+  frame->add(*table);
+  
+  create_knob(table, 0, "Tune", 0.5, 2.0, SkinDial::DoubleLog, 1.0, s_sub_tun);
+  create_spin(table, 1, "Octave", -10, 10, s_sub_oct);
+  create_knob(table, 2, "Mix", 0.0, 1.0, SkinDial::Linear, 0.5, s_osc_mix);
+
   return frame;
 }
 
@@ -90,6 +103,14 @@ Widget* SineshaperWidget::init_vibrato_controls() {
   Frame* frame = manage(new Frame);
   frame->set_label("Vibrato");
   frame->set_shadow_type(SHADOW_IN);
+  
+  Table* table = new Table(2, 2);
+  table->set_col_spacings(3);
+  frame->add(*table);
+  
+  create_knob(table, 0, "Freq", 0.0, 10.0, SkinDial::Linear, 1.0, s_vib_frq);
+  create_knob(table, 1, "Depth", 0.0, 0.25, SkinDial::Linear, 0.1, s_vib_dpt);
+  
   return frame;
 }
 
@@ -106,6 +127,14 @@ Widget* SineshaperWidget::init_tremolo_controls() {
   Frame* frame = manage(new Frame);
   frame->set_label("Tremolo");
   frame->set_shadow_type(SHADOW_IN);
+
+  Table* table = new Table(2, 2);
+  table->set_col_spacings(3);
+  frame->add(*table);
+  
+  create_knob(table, 0, "Freq", 0.0, 10.0, SkinDial::Linear, 1.0, s_trm_frq);
+  create_knob(table, 1, "Depth", 0.0, 1.0, SkinDial::Linear, 0.1, s_trm_dpt);
+
   return frame;
 }
 
@@ -114,6 +143,19 @@ Widget* SineshaperWidget::init_envelope_controls() {
   Frame* frame = manage(new Frame);
   frame->set_label("Envelope");
   frame->set_shadow_type(SHADOW_IN);
+
+  Table* table = new Table(2, 4);
+  table->set_col_spacings(3);
+  frame->add(*table);
+  
+  create_knob(table, 0, "Attack", 0.0005, 1.0, SkinDial::Logarithmic, 1.0, 
+	      s_att);
+  create_knob(table, 1, "Decay", 0.0005, 1.0, SkinDial::Logarithmic, 1.0, 
+	      s_dec);
+  create_knob(table, 2, "Sustain", 0.0, 1.0, SkinDial::Linear, 1.0, s_sus);
+  create_knob(table, 3, "Release", 0.0005, 3.0, SkinDial::Logarithmic, 1.0, 
+	      s_rel);
+
   return frame;
 }
 
@@ -122,6 +164,15 @@ Widget* SineshaperWidget::init_amp_controls() {
   Frame* frame = manage(new Frame);
   frame->set_label("Amp");
   frame->set_shadow_type(SHADOW_IN);
+
+  Table* table = new Table(2, 3);
+  table->set_col_spacings(3);
+  frame->add(*table);
+  
+  create_knob(table, 0, "Env", 0.0, 1.0, SkinDial::Linear, 1.0, s_amp_env);
+  create_knob(table, 1, "Drive", 0.0, 1.0, SkinDial::Linear, 1.0, s_drive);
+  create_knob(table, 2, "Gain", 0.0, 2.0, SkinDial::Linear, 1.0, s_gain);
+
   return frame;
 }
 
@@ -130,6 +181,15 @@ Widget* SineshaperWidget::init_delay_controls() {
   Frame* frame = manage(new Frame);
   frame->set_label("Delay");
   frame->set_shadow_type(SHADOW_IN);
+
+  Table* table = new Table(2, 3);
+  table->set_col_spacings(3);
+  frame->add(*table);
+  
+  create_knob(table, 0, "Time", 0.0, 3.0, SkinDial::Linear, 1.0, s_del_tim);
+  create_knob(table, 1, "Feedback", 0.0, 1.0, SkinDial::Linear, 1.0, s_del_fb);
+  create_knob(table, 2, "Mix", 0.0, 1.0, SkinDial::Linear, 1.0, s_del_mix);
+
   return frame;
 }
 
@@ -138,6 +198,18 @@ Widget* SineshaperWidget::init_shaper_controls() {
   Frame* frame = manage(new Frame);
   frame->set_label("Shaper");
   frame->set_shadow_type(SHADOW_IN);
+
+  Table* table = new Table(2, 6);
+  table->set_col_spacings(3);
+  frame->add(*table);
+  
+  create_knob(table, 0, "Env", 0.0, 1.0, SkinDial::Linear, 1.0, s_shp_env);
+  create_knob(table, 1, "Total", 0.0, 6.0, SkinDial::Linear, 1.0, s_shp_tot);
+  create_knob(table, 2, "Split", 0.0, 1.0, SkinDial::Linear, 1.0, s_shp_spl);
+  create_knob(table, 3, "Shift", 0.0, 1.0, SkinDial::Linear, 1.0, s_shp_shf);
+  create_knob(table, 4, "Freq", 0.0, 10.0, SkinDial::Linear, 1.0, s_lfo_frq);
+  create_knob(table, 5, "Depth", 0.0, 1.0, SkinDial::Linear, 1.0, s_lfo_dpt);
+
   return frame;
 }
 
@@ -150,4 +222,30 @@ Widget* SineshaperWidget::init_preset_list() {
 }
 
 
+Gtk::Widget* SineshaperWidget::create_knob(Gtk::Table* table, int col, 
+					   const std::string& name, 
+					   float min, float max, 
+					   SkinDial::Mapping mapping,
+					   float center, uint32_t port) {
+  SkinDial* skd = manage(new SkinDial(min, max, m_dialg, mapping, center));
+  table->attach(*skd, col, col + 1, 0, 1);
+  Label* lbl = manage(new Label(string("<small>") + name + string("</small>")));
+  lbl->set_use_markup(true);
+  table->attach(*lbl, col, col + 1, 1, 2);
+  return skd;
+}
 
+
+Gtk::Widget* SineshaperWidget::create_spin(Gtk::Table* table, int col, 
+					   const std::string& name, 
+					   float min, float max, 
+					   uint32_t port) {
+  SpinButton* spb = manage(new SpinButton(1));
+  spb->set_range(-10, 10);
+  spb->set_increments(1, 1);
+  table->attach(*spb, col, col + 1, 0, 1);
+  Label* lbl = manage(new Label(string("<small>") + name + string("</small>")));
+  lbl->set_use_markup(true);
+  table->attach(*lbl, col, col + 1, 1, 2);
+  return spb;
+}

@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.291
+PACKAGE_VERSION = 0.1.292
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -286,6 +286,7 @@ horizon_lv2_SOURCEDIR = plugins/horizon
 sineshaper_lv2_MODULES = sineshaper.so
 sineshaper_lv2_DATA = manifest.ttl sineshaper.ttl presets.ttl icon.svg
 sineshaper_lv2_SOURCEDIR = plugins/sineshaper
+sineshaper_lv2_PEGFILES = sineshaper.peg
 sineshaper_so_SOURCES = \
 	sineshaper.hpp sineshaper.cpp \
 	sineshaperports.hpp \
