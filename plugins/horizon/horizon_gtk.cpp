@@ -145,20 +145,20 @@ protected:
   void do_load_sample(const string& filename) {
     const char* argv[] = { "load_sample", 0 };
     argv[1] = filename.c_str();
-    m_ctrl.tell_plugin(2, argv);
+    m_ctrl.command(2, argv);
   }
       
   void do_delete_sample(const string& sample) {
     const char* argv[] = { "delete_sample", 0 };
     argv[1] = sample.c_str();
-    m_ctrl.tell_plugin(2, argv);
+    m_ctrl.command(2, argv);
   }
       
   void do_rename_sample(const string& old_name, const string& new_name) {
     const char* argv[] = { "rename_sample", 0, 0 };
     argv[1] = old_name.c_str();
     argv[2] = new_name.c_str();
-    m_ctrl.tell_plugin(3, argv);
+    m_ctrl.command(3, argv);
   }
   
   void do_add_splitpoint(const string& sample, size_t frame) {
@@ -167,7 +167,7 @@ protected:
     ostringstream oss;
     oss<<frame;
     argv[2] = oss.str().c_str();
-    m_ctrl.tell_plugin(3, argv);
+    m_ctrl.command(3, argv);
   }
       
   void do_remove_splitpoint(const string& sample, size_t frame) {
@@ -176,7 +176,7 @@ protected:
     ostringstream oss;
     oss<<frame;
     argv[2] = oss.str().c_str();
-    m_ctrl.tell_plugin(3, argv);
+    m_ctrl.command(3, argv);
   }
       
   void do_move_splitpoint(const string& sample, size_t frame, size_t newframe) {
@@ -190,7 +190,7 @@ protected:
     oss<<newframe;
     string a3 = oss.str();
     argv[3] = a3.c_str();
-    m_ctrl.tell_plugin(4, argv);
+    m_ctrl.command(4, argv);
   }
   
   
@@ -202,7 +202,7 @@ protected:
     oss<<index;
     argv[2] = oss.str().c_str();
     argv[3] = effect_uri.c_str();
-    m_ctrl.tell_plugin(4, argv);
+    m_ctrl.command(4, argv);
   }
   
   
@@ -212,7 +212,7 @@ protected:
     ostringstream oss;
     oss<<index;
     argv[2] = oss.str().c_str();
-    m_ctrl.tell_plugin(3, argv);
+    m_ctrl.command(3, argv);
   }
   
   
@@ -223,7 +223,7 @@ protected:
     oss<<index;
     argv[2] = oss.str().c_str();
     argv[3] = yeah ? "1" : "0";
-    m_ctrl.tell_plugin(4, argv);
+    m_ctrl.command(4, argv);
   }
   
   

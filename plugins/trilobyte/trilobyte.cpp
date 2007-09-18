@@ -27,7 +27,7 @@
 #include <vector>
 #include <iostream>
 
-#include "lv2instrument.hpp"
+#include "lv2advanced.hpp"
 #include "trilobyte.peg"
 #include "lv2-midifunctions.h"
 #include "monostep.hpp"
@@ -37,11 +37,11 @@
 using namespace std;
 
 
-class Trilobyte : public LV2Instrument {
+class Trilobyte : public LV2Advanced {
 public:
 
   Trilobyte(double rate, const char* bundle, const LV2_Host_Feature* const* f)
-    : LV2Instrument(k_n_ports),
+    : LV2Advanced(k_n_ports),
       m_seq(32),
       m_invrate(1.0 / rate),
       m_rate(rate),
@@ -94,7 +94,13 @@ public:
   }
   
   
-  char* configure(const char* key, const char* value) {
+  char* command(uint32_t argc, const char* const* argv) {
+    
+    if (argc != 2)
+      return strdup("Unknown command");
+    
+    const char* key = argv[0];
+    const char* value = argv[1];
     
     if (!strcmp(key, "seq")) {
       istringstream iss(value);
@@ -128,5 +134,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  register_lv2_inst<Trilobyte>(k_uri);
+  register_lv2_adv<Trilobyte>(k_uri);
 }

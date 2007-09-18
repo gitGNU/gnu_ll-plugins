@@ -23,7 +23,7 @@
 
 #include <cstring>
 
-#include "lv2instrument.hpp"
+#include "lv2advanced.hpp"
 #include "pdosc.hpp"
 #include "voicehandler.hpp"
 #include "frequencytable.hpp"
@@ -112,11 +112,11 @@ public:
 FrequencyTable EuphoriaVoice::m_table;
 
 
-class Euphoria : public LV2Instrument {
+class Euphoria : public LV2Advanced {
 public:
   
   Euphoria(double rate, const char*, const LV2_Host_Feature* const*) 
-    : LV2Instrument(e_n_ports),
+    : LV2Advanced(e_n_ports),
       m_handler(3, rate),
       m_trigger(0),
       m_dist(rate),
@@ -178,7 +178,14 @@ public:
   }
   
   
-  char* configure(const char* key, const char* value) {
+  char* command(uint32_t argc, const char* const* argv) {
+    
+    if (argc != 2)
+      return strdup("Unknown command");
+    
+    const char* key = argv[0];
+    const char* value = argv[1];
+    
     if (!strcmp(key, "shape"))
       for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
         m_handler.get_voices()[j].voice->m_wsvoice.set_shape(value);
@@ -199,6 +206,7 @@ public:
         m_handler.get_voices()[j].voice->m_pdvoice.set_gain_env(value);
     else
       return strdup("Unknown configure key");
+    
     return 0;
   }
   
@@ -218,5 +226,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  register_lv2_inst<Euphoria>(e_uri, true);
+  register_lv2_adv<Euphoria>(e_uri);
 }

@@ -61,6 +61,7 @@ public:
   /** Set the value of a control rate float port in the plugin instance. */
   void write(uint32_t port, uint32_t buffer_size, const void* buffer);
   
+  /** Send a command to the plugin instance. */
   void command(uint32_t argc, const char* const* argv);
   
   /** Tell the plugin host to switch to program @c number for the plugin
@@ -94,9 +95,6 @@ protected:
   LV2UI_Program_Function m_pfunc;
   LV2UI_Controller m_ctrl;
 };
-
-
-//class LV2Controller;
 
 
 /* These functions are C wrappers for the C++ member functions. You should not

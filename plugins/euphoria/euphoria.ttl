@@ -10,7 +10,7 @@
   doap:name "Euphoria";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
   ll:gtk2Gui <euphoria_gtk.so>;
-  lv2:requiredHostFeature ll:instrument-ext;
+  lv2:requiredHostFeature ll:dont-use-this-extension;
   ll:pegName "e";  
   ll:defaultPresets <presets.ttl>; 
   gg:gui <http://ll-plugins.nongnu.org/lv2/dev/euphoria/0.0.0/gui>;
