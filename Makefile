@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.287
+PACKAGE_VERSION = 0.1.288
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -47,7 +47,7 @@ endif
 
 
 ifeq ($(build_experimental),yes)
-  LV2_PLUGINS = \
+  LV2_BUNDLES = \
 	arpeggiator.lv2 \
 	audio_identity.lv2 \
 	control2midi.lv2 \
@@ -69,10 +69,6 @@ endif
 liblv2_plugin_a_SOURCES = lv2plugin.hpp lv2plugin.cpp
 liblv2_plugin_a_CFLAGS = -I.
 liblv2_plugin_a_SOURCEDIR = libraries/lv2plugin
-
-#liblv2_instrument_a_SOURCES = lv2instrument.hpp lv2instrument.cpp
-#liblv2_instrument_a_CFLAGS = -Iextensions/instrument -I.
-#liblv2_instrument_a_SOURCEDIR = libraries/lv2plugin
 
 liblv2_advanced_a_SOURCES = lv2advanced.hpp lv2advanced.cpp
 liblv2_advanced_a_CFLAGS = -Iextensions/command -I.
@@ -149,52 +145,54 @@ ADVANCEDARCHIVES = libraries/lv2plugin/liblv2_plugin.a libraries/lv2plugin/liblv
 ADVANCEDCFLAGS = -Ilibraries/lv2plugin -I. -Iextensions/command
 
 # Control2MIDI
-control2midi_lv2_SOURCES = control2midi.cpp
+control2midi_lv2_MODULES = control2midi.so
+control2midi_so_SOURCES = control2midi.cpp
+control2midi_so_CFLAGS = $(PLUGINCFLAGS) -Iextensions/MidiPort
+control2midi_so_ARCHIVES = $(PLUGINARCHIVES)
 control2midi_lv2_DATA = manifest.ttl control2midi.ttl
-control2midi_lv2_CFLAGS = $(PLUGINCFLAGS) -Iextensions/MidiPort
-control2midi_lv2_ARCHIVES = $(PLUGINARCHIVES)
 control2midi_lv2_SOURCEDIR = plugins/control2midi
 
 # Phase distortion oscillator
-phase-distortion-osc_lv2_SOURCES = phase-distortion-osc.cpp
+phase-distortion-osc_lv2_MODULES = phase-distortion-osc.so
+phase-distortion-osc_so_SOURCES = phase-distortion-osc.cpp
+phase-distortion-osc_so_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components
+phase-distortion-osc_so_ARCHIVES = $(PLUGINARCHIVES)
 phase-distortion-osc_lv2_DATA = manifest.ttl phase-distortion-osc.ttl
-phase-distortion-osc_lv2_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components
-phase-distortion-osc_lv2_ARCHIVES = $(PLUGINARCHIVES)
 phase-distortion-osc_lv2_SOURCEDIR = plugins/phase-distortion-osc
 
 # Klaviatur
-klaviatur_lv2_SOURCES = klaviatur.cpp
-klaviatur_lv2_DATA = manifest.ttl klaviatur.ttl
-klaviatur_lv2_CFLAGS = $(PLUGINCFLAGS) -Iextensions/MidiPort -Ilibraries/components
-klaviatur_lv2_ARCHIVES = $(PLUGINARCHIVES)
-klaviatur_lv2_PEGFILES = klaviatur.peg
-klaviatur_lv2_SOURCEDIR = plugins/klaviatur
-klaviatur_lv2_MODULES = klaviatur_gtk.so
+klaviatur_lv2_MODULES = klaviatur.so klaviatur_gtk.so
+klaviatur_so_SOURCES = klaviatur.cpp
+klaviatur_so_CFLAGS = $(PLUGINCFLAGS) -Iextensions/MidiPort -Ilibraries/components
+klaviatur_so_ARCHIVES = $(PLUGINARCHIVES)
 klaviatur_gtk_so_SOURCES = klaviatur_gtk.cpp
 klaviatur_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/lv2gtk2gui -Ilibraries/widgets -I.
 klaviatur_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` 
 klaviatur_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libkeyboard.a
-klaviatur_gtk_so_SOURCEDIR = plugins/klaviatur
+klaviatur_lv2_DATA = manifest.ttl klaviatur.ttl
+klaviatur_lv2_PEGFILES = klaviatur.peg
+klaviatur_lv2_SOURCEDIR = plugins/klaviatur
 
 # Trilobyte
-trilobyte_lv2_SOURCES = trilobyte.cpp
-trilobyte_lv2_DATA = manifest.ttl trilobyte.ttl patternbg.png
-trilobyte_lv2_CFLAGS = $(ADVANCEDCFLAGS) -Iextensions/MidiPort -Iextensions/instrument -Ilibraries/components
-trilobyte_lv2_ARCHIVES = $(ADVANCEDARCHIVES)
-trilobyte_lv2_PEGFILES = trilobyte.peg
-trilobyte_lv2_SOURCEDIR = plugins/trilobyte
-#trilobyte_lv2_MODULES = trilobyte_gtk.so
+trilobyte_lv2_MODULES = trilobyte.so
+trilobyte_so_SOURCES = trilobyte.cpp
+trilobyte_so_CFLAGS = $(ADVANCEDCFLAGS) -Iextensions/MidiPort -Iextensions/instrument -Ilibraries/components
+trilobyte_so_ARCHIVES = $(ADVANCEDARCHIVES)
 trilobyte_gtk_so_SOURCES = trilobyte_gtk.cpp
 trilobyte_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/lv2gtk2gui -Ilibraries/widgets -Ilibraries/components -I.
 trilobyte_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4`
 trilobyte_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libpatternwidget.a
 trilobyte_gtk_so_SOURCEDIR = plugins/trilobyte
+trilobyte_lv2_DATA = manifest.ttl trilobyte.ttl patternbg.png
+trilobyte_lv2_PEGFILES = trilobyte.peg
+trilobyte_lv2_SOURCEDIR = plugins/trilobyte
 
 # Trilobeat
-trilobeat_lv2_SOURCES = trilobeat.cpp
+trilobeat_lv2_MODULES = trilobeat.so
+trilobeat_so_SOURCES = trilobeat.cpp
+trilobeat_so_CFLAGS = $(ADVANCEDCFLAGS) -Iextensions/MidiPort -Iextensions/instrument -Ilibraries/components
+trilobeat_so_ARCHIVES = $(ADVANCEDARCHIVES)
 trilobeat_lv2_DATA = manifest.ttl trilobeat.ttl patternbg.png
-trilobeat_lv2_CFLAGS = $(ADVANCEDCFLAGS) -Iextensions/MidiPort -Iextensions/instrument -Ilibraries/components
-trilobeat_lv2_ARCHIVES = $(ADVANCEDARCHIVES)
 trilobeat_lv2_PEGFILES = trilobeat.peg
 trilobeat_lv2_SOURCEDIR = plugins/trilobeat
 #trilobeat_lv2_MODULES = trilobeat_gtk.so
@@ -205,7 +203,8 @@ trilobeat_lv2_SOURCEDIR = plugins/trilobeat
 #trilobeat_gtk_so_SOURCEDIR = plugins/trilobeat
 
 # Euphoria
-euphoria_lv2_SOURCES = \
+euphoria_lv2_MODULES = euphoria.so euphoria_gtk.so
+euphoria_so_SOURCES = \
 	euphoria.cpp \
 	shaper.hpp shaper.cpp \
 	envelope.hpp \
@@ -215,13 +214,9 @@ euphoria_lv2_SOURCES = \
 	chorus.hpp chorus.cpp \
 	echo.hpp echo.cpp \
 	reverb.hpp
-euphoria_lv2_DATA = manifest.ttl euphoria.ttl presets.ttl
-euphoria_lv2_CFLAGS = $(ADVANCEDCFLAGS) -Ilibraries/components -Iextensions/MidiPort `pkg-config --cflags gsl`
-euphoria_lv2_ARCHIVES = $(ADVANCEDARCHIVES)
-euphoria_lv2_LDFLAGS = `pkg-config --libs gsl`
-euphoria_lv2_PEGFILES = euphoria.peg
-euphoria_lv2_SOURCEDIR = plugins/euphoria
-euphoria_lv2_MODULES = euphoria_gtk.so
+euphoria_so_CFLAGS = $(ADVANCEDCFLAGS) -Ilibraries/components -Iextensions/MidiPort `pkg-config --cflags gsl`
+euphoria_so_ARCHIVES = $(ADVANCEDARCHIVES)
+euphoria_so_LDFLAGS = `pkg-config --libs gsl`
 euphoria_gtk_so_SOURCES = \
 	euphoria_gtk.cpp \
 	euphoriawidget.cpp euphoriawidget.hpp
@@ -235,10 +230,13 @@ euphoria_gtk_so_ARCHIVES = \
 	libraries/widgets/libpdeditor.a \
 	libraries/widgets/libtransitioneditor.a \
 	libraries/lv2gtk2gui/liblv2_gtk2gui.a
-euphoria_gtk_so_SOURCEDIR = plugins/euphoria
+euphoria_lv2_DATA = manifest.ttl euphoria.ttl presets.ttl
+euphoria_lv2_PEGFILES = euphoria.peg
+euphoria_lv2_SOURCEDIR = plugins/euphoria
 
 # Horizon
-horizon_lv2_SOURCES = \
+horizon_lv2_MODULES = horizon.so horizon_gtk.so
+horizon_so_SOURCES = \
 	action.hpp action.cpp \
 	actiontrigger.hpp actiontrigger.cpp \
 	chunk.hpp chunk.cpp \
@@ -252,13 +250,9 @@ horizon_lv2_SOURCES = \
 	samplebuffer.hpp samplebuffer.cpp \
 	segmentation.hpp segmentation.cpp \
 	voice.hpp voice.cpp
-horizon_lv2_DATA = manifest.ttl horizon.ttl
-horizon_lv2_CFLAGS = `pkg-config --cflags sndfile` $(ADVANCEDCFLAGS) -Ilibraries/components -Iextensions/command -Iextensions/MidiPort
-horizon_lv2_ARCHIVES = $(ADVANCEDARCHIVES)
-horizon_lv2_LDFLAGS = `pkg-config --libs sndfile`
-horizon_lv2_PEGFILES = horizon.peg
-horizon_lv2_SOURCEDIR = plugins/horizon
-horizon_lv2_MODULES = horizon_gtk.so
+horizon_so_CFLAGS = `pkg-config --cflags sndfile` $(ADVANCEDCFLAGS) -Ilibraries/components -Iextensions/command -Iextensions/MidiPort
+horizon_so_ARCHIVES = $(ADVANCEDARCHIVES)
+horizon_so_LDFLAGS = `pkg-config --libs sndfile`
 horizon_gtk_so_SOURCES = \
 	chunkeditor.cpp chunkeditor.hpp \
 	controlsourcegui.cpp controlsourcegui.hpp \
@@ -278,17 +272,18 @@ horizon_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0` -Iextensions
 horizon_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 cairomm-1.0` 
 horizon_gtk_so_ARCHIVES = \
 	libraries/lv2gtk2gui/liblv2_gtk2gui.a
-horizon_gtk_so_SOURCEDIR = plugins/horizon
+horizon_lv2_DATA = manifest.ttl horizon.ttl
+horizon_lv2_PEGFILES = horizon.peg
+horizon_lv2_SOURCEDIR = plugins/horizon
 
 # Sineshaper
-sineshaper_lv2_SOURCES = \
+sineshaper_lv2_MODULES = sineshaper.so
+sineshaper_so_SOURCES = \
 	sineshaper.hpp sineshaper.cpp \
 	sineshaperports.hpp \
 	midiiterator.hpp
-sineshaper_lv2_DATA = manifest.ttl sineshaper.ttl sineshaper.glade dial.png sineshaper.png presets.ttl icon.svg
-sineshaper_lv2_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components -Iextensions/MidiPort -Iextensions/instrument
-sineshaper_lv2_ARCHIVES = $(PLUGINARCHIVES)
-sineshaper_lv2_SOURCEDIR = plugins/sineshaper
+sineshaper_so_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components -Iextensions/MidiPort -Iextensions/instrument
+sineshaper_so_ARCHIVES = $(PLUGINARCHIVES)
 #sineshaper_lv2_MODULES = sineshaper_gtk.so
 sineshaper_gtk_so_SOURCES = \
 	sineshaper_gtk.cpp \
@@ -301,12 +296,15 @@ sineshaper_gtk_so_SOURCEDIR = plugins/sineshaper
 #sineshaper_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 libglademm-2.4 liblo` -Ilibraries/lv2oscui -Ilibraries/components -Iextensions/instrument -I.
 #sineshaper_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo libglademm-2.4` libraries/lv2oscui/liblv2_oscui.a
 #sineshaper_gtk_SOURCEDIR = plugins/sineshaper
+sineshaper_lv2_DATA = manifest.ttl sineshaper.ttl sineshaper.glade dial.png sineshaper.png presets.ttl icon.svg
+sineshaper_lv2_SOURCEDIR = plugins/sineshaper
 
 # MIDIIdentity
-midi_identity_lv2_SOURCES = midi_identity.cpp
+midi_identity_lv2_MODULES = midi_identity.so
+midi_identity_so_SOURCES = midi_identity.cpp
+midi_identity_so_CFLAGS = $(PLUGINCFLAGS) -Iextensions/MidiPort -Ilibraries/components
+midi_identity_so_ARCHIVES = $(PLUGINARCHIVES)
 midi_identity_lv2_DATA = manifest.ttl midi_identity.ttl
-midi_identity_lv2_CFLAGS = $(PLUGINCFLAGS) -Iextensions/MidiPort -Ilibraries/components
-midi_identity_lv2_ARCHIVES = $(PLUGINARCHIVES)
 midi_identity_lv2_SOURCEDIR = plugins/midi_identity
 
 # Householder FDN
@@ -317,31 +315,35 @@ midi_identity_lv2_SOURCEDIR = plugins/midi_identity
 #hhfdn_lv2_SOURCEDIR = plugins/householderfdn
 
 # AudioIdentity
-audio_identity_lv2_SOURCES = audio_identity.cpp
+audio_identity_lv2_MODULES = audio_identity.so
+audio_identity_so_SOURCES = audio_identity.cpp
+audio_identity_so_CFLAGS = $(PLUGINCFLAGS)
+audio_identity_so_ARCHIVES = $(PLUGINARCHIVES)
 audio_identity_lv2_DATA = manifest.ttl audio_identity.ttl
-audio_identity_lv2_CFLAGS = $(PLUGINCFLAGS)
-audio_identity_lv2_ARCHIVES = $(PLUGINARCHIVES)
 audio_identity_lv2_SOURCEDIR = plugins/audio_identity
 
 # Arpeggiator
-arpeggiator_lv2_SOURCES = arpeggiator.cpp
+arpeggiator_lv2_MODULES = arpeggiator.so
+arpeggiator_so_SOURCES = arpeggiator.cpp
+arpeggiator_so_CFLAGS = $(PLUGINCFLAGS) -Iextensions/MidiPort
+arpeggiator_so_ARCHIVES = $(PLUGINARCHIVES)
 arpeggiator_lv2_DATA = manifest.ttl arpeggiator.ttl
-arpeggiator_lv2_CFLAGS = $(PLUGINCFLAGS) -Iextensions/MidiPort
-arpeggiator_lv2_ARCHIVES = $(PLUGINARCHIVES)
 arpeggiator_lv2_SOURCEDIR = plugins/arpeggiator
 
 # Math constants
-math-constants_lv2_SOURCES = math-constants.cpp
+math-constants_lv2_MODULES = math-constants.so
+math-constants_so_SOURCES = math-constants.cpp
+math-constants_so_CFLAGS = $(PLUGINCFLAGS)
+math-constants_so_ARCHIVES = $(PLUGINARCHIVES)
 math-constants_lv2_DATA = manifest.ttl math-constants.ttl
-math-constants_lv2_CFLAGS = $(PLUGINCFLAGS)
-math-constants_lv2_ARCHIVES = $(PLUGINARCHIVES)
 math-constants_lv2_SOURCEDIR = plugins/math-constants
 
 # Math functions
-math-functions_lv2_SOURCES = math-functions.cpp
+math-functions_lv2_MODULES = math-functions.so
+math-functions_so_SOURCES = math-functions.cpp
+math-functions_so_CFLAGS = $(PLUGINCFLAGS)
+math-functions_so_ARCHIVES = $(PLUGINARCHIVES)
 math-functions_lv2_DATA = manifest.ttl math-functions.ttl
-math-functions_lv2_CFLAGS = $(PLUGINCFLAGS)
-math-functions_lv2_ARCHIVES = $(PLUGINARCHIVES)
 math-functions_lv2_SOURCEDIR = plugins/math-functions
 
 
