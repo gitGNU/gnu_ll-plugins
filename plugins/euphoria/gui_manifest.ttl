@@ -1,0 +1,11 @@
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#>.
+@prefix gg: <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui#>.
+
+<http://ll-plugins.nongnu.org/lv2/dev/euphoria/0.0.0> 
+  a lv2:Plugin;
+  gg:gui <http://ll-plugins.nongnu.org/lv2/dev/euphoria/0.0.0/gui>.
+
+<http://ll-plugins.nongnu.org/lv2/dev/euphoria/0.0.0/gui> 
+  gg:binary <euphoria_gtk.so>.
+
+

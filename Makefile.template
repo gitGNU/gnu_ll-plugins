@@ -142,14 +142,16 @@ ALL_DATA += $$($(2)_FULLDATA)
 LV2_BUNDLES_REAL += $$($(2)_BLDPRF)/$(1)
 LV2_BUNDLES_NOINST += $$(if $$($(2)_NOINST),$(2),)
 $(2)_INSTDIR = $$(if $$($(2)_INSTALLDIR),$$($(2)_INSTALLDIR),$(lv2plugindir))
+EXTRA_DIST += $$(if $$($(2)_MANIFEST),$$($(2)_SRCPRF)/$$($(2)_MANIFEST),)
 
 # targets
-$$($(2)_BLDPRF)/$(1): $$($(2)_FULLDATA) $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_PROGRAMS)) $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_MODULES))
+$$($(2)_BLDPRF)/$(1): $$($(2)_FULLDATA) $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_PROGRAMS)) $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_MODULES)) $$(if $$($(2)_MANIFEST),$$($(2)_SRCPRF)/$$($(2)_MANIFEST),)
 	rm -rf $$($(2)_BLDPRF)/$(1)
 	mkdir $$($(2)_BLDPRF)/$(1)
 	$$(if $$($(2)_PROGRAMS),cp $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_PROGRAMS)) $$($(2)_BLDPRF)/$(1),)
 	$$(if $$($(2)_MODULES),cp $$(patsubst %,$$($(2)_SRCPRF)/%,$$($(2)_MODULES)) $$($(2)_BLDPRF)/$(1),)
 	$$(if $$($(2)_FULLDATA),cp $$($(2)_FULLDATA) $$($(2)_BLDPRF)/$(1), )
+	$$(if $$($(2)_MANIFEST),cp $$($(2)_SRCPRF)/$$($(2)_MANIFEST) $$($(2)_BLDPRF)/$(1)/manifest.ttl,)
 
 install-$(2): $$($(2)_BLDPRF)/$(1) $$(if $$($(2)_HEADERS),install-$(2)-headers)
 	rm -rf $(DESTDIR)/$$($(2)_INSTDIR)/$(1)

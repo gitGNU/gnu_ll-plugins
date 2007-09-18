@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.288
+PACKAGE_VERSION = 0.1.289
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -52,6 +52,7 @@ ifeq ($(build_experimental),yes)
 	audio_identity.lv2 \
 	control2midi.lv2 \
 	euphoria.lv2 \
+	euphoria_gtk.lv2 \
 	horizon.lv2 \
 	klaviatur.lv2 \
 	midi_identity.lv2 \
@@ -203,7 +204,10 @@ trilobeat_lv2_SOURCEDIR = plugins/trilobeat
 #trilobeat_gtk_so_SOURCEDIR = plugins/trilobeat
 
 # Euphoria
-euphoria_lv2_MODULES = euphoria.so euphoria_gtk.so
+euphoria_lv2_MODULES = euphoria.so
+euphoria_lv2_DATA = manifest.ttl euphoria.ttl presets.ttl
+euphoria_lv2_PEGFILES = euphoria.peg
+euphoria_lv2_SOURCEDIR = plugins/euphoria
 euphoria_so_SOURCES = \
 	euphoria.cpp \
 	shaper.hpp shaper.cpp \
@@ -217,6 +221,11 @@ euphoria_so_SOURCES = \
 euphoria_so_CFLAGS = $(ADVANCEDCFLAGS) -Ilibraries/components -Iextensions/MidiPort `pkg-config --cflags gsl`
 euphoria_so_ARCHIVES = $(ADVANCEDARCHIVES)
 euphoria_so_LDFLAGS = `pkg-config --libs gsl`
+
+# Euphoria GUI
+euphoria_gtk_lv2_MANIFEST = gui_manifest.ttl
+euphoria_gtk_lv2_MODULES = euphoria_gtk.so
+euphoria_gtk_lv2_SOURCEDIR = plugins/euphoria
 euphoria_gtk_so_SOURCES = \
 	euphoria_gtk.cpp \
 	euphoriawidget.cpp euphoriawidget.hpp
@@ -230,9 +239,6 @@ euphoria_gtk_so_ARCHIVES = \
 	libraries/widgets/libpdeditor.a \
 	libraries/widgets/libtransitioneditor.a \
 	libraries/lv2gtk2gui/liblv2_gtk2gui.a
-euphoria_lv2_DATA = manifest.ttl euphoria.ttl presets.ttl
-euphoria_lv2_PEGFILES = euphoria.peg
-euphoria_lv2_SOURCEDIR = plugins/euphoria
 
 # Horizon
 horizon_lv2_MODULES = horizon.so horizon_gtk.so
@@ -282,7 +288,7 @@ sineshaper_so_SOURCES = \
 	sineshaper.hpp sineshaper.cpp \
 	sineshaperports.hpp \
 	midiiterator.hpp
-sineshaper_so_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components -Iextensions/MidiPort -Iextensions/instrument
+sineshaper_so_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components -Iextensions/MidiPort
 sineshaper_so_ARCHIVES = $(PLUGINARCHIVES)
 #sineshaper_lv2_MODULES = sineshaper_gtk.so
 sineshaper_gtk_so_SOURCES = \
@@ -377,13 +383,8 @@ EXTRA_DIST = COPYING \
 	extensions/command/lv2-command.h \
 	extensions/MidiPort/lv2-midiport.h \
 	extensions/midimap/lv2-midimap.rdfs \
-	extensions/instrument/lv2-instrument.h \
 	extensions/transporttype/lv2-transport.h \
-	extensions/gtkgui/lv2-gtk2gui.h \
-	extensions/gtkgui/lv2-guicomm-gtk2gui.h \
-	extensions/gtkgui/lv2-instrument-gtk2gui.h \
-	extensions/gtkgui/lv2-program-gtk2gui.h \
-	extensions/gtkgui/lv2-miditype-gtk2gui.h 
+	extensions/gtkgui/lv2-gtk2gui.h
 
 
 
