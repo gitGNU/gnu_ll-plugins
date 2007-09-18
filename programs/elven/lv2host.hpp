@@ -168,20 +168,16 @@ protected:
   
   static std::vector<std::string> get_search_dirs();
   
-  typedef sigc::slot<bool, const std::string&, const std::string&, 
-                     const std::string&, const std::string&> 
-  scan_callback_t;
+  typedef sigc::slot<bool, const std::string&> scan_callback_t;
   
   static bool scan_manifests(const std::vector<std::string>& search_dirs, 
                              scan_callback_t callback);
                       
-  bool match_uri(const std::string& uri, const std::string& bundle,
-                 const std::string& rdf_file, const std::string& binary);
+  bool match_uri(const std::string& bundle);
   
-  static bool print_uri(const std::string& uri, const std::string& bundle,
-                        const std::string& rdf_file, const std::string& binary);
+  static bool print_uri(const std::string& bundle);
   
-  void load_plugin(const std::string& rdf_file, const std::string& binary);
+  bool load_plugin();
   
   void feedback(uint32_t argc, const char* const* argv);
   
@@ -200,7 +196,7 @@ protected:
   
   std::string m_uri;
   std::string m_bundle;
-  std::string m_rdffile;
+  std::vector<std::string> m_rdffiles;
   std::string m_binary;
   uint32_t m_rate;
   

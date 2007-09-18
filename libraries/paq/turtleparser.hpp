@@ -64,6 +64,8 @@ namespace PAQ {
     /** Parse the given URL as a Turtle document and put the resulting graph
 	in @c data. Only file:// URLs are supported. */
     bool parse_ttl_url(const std::string& url, RDFData& data);
+
+    string absolutise(const std::string& str);
     
   protected:
     
@@ -109,7 +111,6 @@ namespace PAQ {
     string node_to_string(iter_t node);  
     void ucharacter_escape(std::string& str);
     void scharacter_escape(std::string& str);
-    string absolutise(const std::string& str);
     
     // All the grammar rules
     rule_t turtleDoc,

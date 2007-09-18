@@ -70,17 +70,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   // iterate over all directories
   scan_manifests(search_dirs, mem_fun(*this, &LV2Host::match_uri));
   
-  if (m_binary == "") {
-    DBG0("Could not find plugin <"<<m_uri<<">");
-    return;
-  }
-  
-  if (!m_handle) {
-    DBG0("Could not instantiate plugin <"<<m_uri<<">");
-    if (m_libhandle)
-      dlclose(m_libhandle);
-    return;
-  }
+  load_plugin();
 }
   
   
@@ -431,40 +421,15 @@ bool LV2Host::scan_manifests(const std::vector<std::string>& search_dirs,
           continue;
         }
         
-        // parse the manifest to get the library filename and the data filename
+        // execute the callback
         ttlfile = plugindir + "manifest.ttl";
-        {
-          TurtleParser tp;
-          RDFData data;
-          if (!tp.parse_ttl_file(ttlfile, data)) {
-            DBG1("Could not parse "<<plugindir<<"manifest.ttl");
-            continue;
-          }
-          Variable uriref, binary, datafile;
-          Namespace lv2("<http://lv2plug.in/ns/lv2core#>");
-          qr = select(uriref, binary, datafile)
-            .where(uriref, lv2("binary"), binary)
-            .where(uriref, rdfs("seeAlso"), datafile)
-            .run(data);
-          if (qr.size() == 0) {
-            DBG1("Did not find any valid plugin in "
-		 <<plugindir<<"manifest.ttl");
-            continue;
-          }
-	  
-          for (unsigned i = 0; i < qr.size(); ++i) {
-            library = qr[i][binary]->name;
-            DBG2("Found shared object file "<<library);
-            ttlfile = qr[i][datafile]->name;
-            DBG2("Found RDF file "<<ttlfile);
-            done = callback(qr[i][uriref]->name, plugindir, ttlfile, library);
-            if (done)
-              break;
-          }
-          
-          if (done)
-            break;
+	struct stat buf;
+	if (stat(ttlfile.c_str(), &buf) != ENOENT) {
+	  callback(plugindir);
+	  if (done)
+	    break;
         }
+	
       }
     }
     
@@ -478,25 +443,45 @@ bool LV2Host::scan_manifests(const std::vector<std::string>& search_dirs,
 }
 
  
-bool LV2Host::match_uri(const string& uri, const string& bundle,
-                        const string& rdf_file, const string& binary) {
-  if (uri != string("<") + m_uri + ">") {
-    DBG2(uri<<" is not the plugin we are looking for");
+bool LV2Host::match_uri(const string& bundle) {
+  
+  // parse
+  TurtleParser tp;
+  RDFData data;
+  if (!tp.parse_ttl_file(bundle + "manifest.ttl", data)) {
+    DBG1("Could not parse "<<bundle<<"manifest.ttl");
     return false;
   }
   
-  m_bundle = bundle;
-  m_rdffile = rdf_file;
-  m_binary = binary;
-  
-  DBG2("Found <"<<m_uri<<"> in "<<bundle);
-  load_plugin(rdf_file, binary);
-  
-  return true;
+  // query
+  Namespace lv2("<http://lv2plug.in/ns/lv2core#>");
+  Variable datafile;
+  string uriref = string("<") + m_uri + ">";
+  vector<QueryResult> qr = select(datafile)
+    .where(uriref, rdfs("seeAlso"), datafile)
+    .run(data);
+  for (unsigned i = 0; i < qr.size(); ++i) {
+    const string& str = qr[i][datafile]->name;
+    if (str.size() >= 10 && str.substr(0, 9) == "<file:///") {
+      m_rdffiles.push_back(str.substr(8, str.size() - 9));
+      DBG2("Found datafile "<<m_rdffiles[m_rdffiles.size() - 1]);
+    }
+    else
+      DBG1("Unknown URI type: "<<qr[i][datafile]->name);
+  }
+  qr = select(datafile)
+    .where(uriref, rdf("type"), lv2("Plugin"))
+    .run(data);
+  if (qr.size() > 0) {
+    DBG2("Found datafile "<<bundle<<"manifest.ttl");
+    m_rdffiles.push_back(bundle + "manifest.ttl");
+  }
+
+  return false;
 }
 
 
-void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
+bool LV2Host::load_plugin() {
   
   bool usesCommands = false;
   
@@ -508,18 +493,38 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     vector<QueryResult> qr;
     string uriref = string("<") + m_uri + ">";
     
-    TurtleParser tp;
+    // parse all data files
     RDFData data;
-    if (!tp.parse_ttl_url(rdf_file, data)) {
-      DBG0("Could not parse "<<rdf_file);
-      return;
+    TurtleParser tp;
+    for (unsigned i = 0; i < m_rdffiles.size(); ++i) {
+      DBG2("Parsing "<<m_rdffiles[i]);
+      if (!tp.parse_ttl_file(m_rdffiles[i], data)) {
+	DBG0("Failed to parse "<<m_rdffiles[i]);
+	return false;
+      }
     }
-    Variable symbol, index, portclass, porttype, port;
+    
     Namespace lv2("<http://lv2plug.in/ns/lv2core#>");
     Namespace ll("<http://ll-plugins.nongnu.org/lv2/namespace#>");
     Namespace llext("<http://ll-plugins.nongnu.org/lv2/ext/>");
     Namespace mm("<http://ll-plugins.nongnu.org/lv2/ext/midimap#>");
+    Variable name, license, binary;
+    qr = select(name, binary)
+      .where(uriref, rdf("type"), lv2("Plugin"))
+      .where(uriref, lv2("binary"), binary)
+      .where(uriref, doap("name"), name)
+      .where(uriref, doap("license"), license)
+      .run(data);
+    if (qr.size() > 0) {
+      m_name = qr[0][name]->name;
+      m_binary = qr[0][binary]->name;
+    }
+    else {
+      DBG0("No valid plugin found");
+      return false;
+    }
     
+    Variable symbol, index, portclass, porttype, port;
     qr = select(index, symbol, portclass, porttype)
       .where(uriref, lv2("port"), port)
       .where(port, lv2("index"), index)
@@ -527,8 +532,8 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
       .run(data);
 
     if (qr.size() == 0) {
-      DBG1("Can not find any ports for <"<<m_uri<<"> in "<<rdf_file);
-      return;
+      DBG1("Can not find any ports for <"<<m_uri<<">");
+      return false;
     }
     
     m_ports.resize(qr.size());
@@ -540,7 +545,7 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
       if (p >= m_ports.size()) {
         DBG0("Found port with index "<<p<<", but there are only "
              <<m_ports.size()<<" ports in total");
-        return;
+        return false;
       }
       
       // symbol
@@ -575,12 +580,12 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
       
       if (m_ports[p].direction == NoDirection) {
 	DBG0("No direction given for port "<<m_ports[p].symbol);
-	return;
+	return false;
       }
 	
       if (m_ports[p].type == NoType) {
 	DBG0("No known data type given for port "<<m_ports[p].symbol);
-	return;
+	return false;
       }
 	
       m_ports[p].default_value = 0;
@@ -598,7 +603,7 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     for (unsigned j = 0; j < qr.size(); ++j) {
       unsigned p = atoi(qr[j][index]->name.c_str());
       if (p >= m_ports.size())
-        return;
+        return false;
       m_ports[p].default_value = 
         atof(qr[j][default_value]->name.c_str());
     }
@@ -613,7 +618,7 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     for (unsigned j = 0; j < qr.size(); ++j) {
       unsigned p = atoi(qr[j][index]->name.c_str());
       if (p >= m_ports.size())
-        return;
+        return false;
       m_ports[p].min_value = 
         atof(qr[j][min_value]->name.c_str());
     }
@@ -628,7 +633,7 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     for (unsigned j = 0; j < qr.size(); ++j) {
       unsigned p = atoi(qr[j][index]->name.c_str());
       if (p >= m_ports.size())
-        return;
+        return false;
       m_ports[p].max_value = 
         atof(qr[j][max_value]->name.c_str());
       DBG2(m_ports[p].symbol<<" has the range ["<<m_ports[p].min_value
@@ -691,7 +696,7 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
       DBG2("This plugin uses the command extension");
     }
     
-    // standalone GUI path
+    // GUI plugin path
     Variable gui_uri, gui_path;
     Namespace gg("<http://ll-plugins.nongnu.org/lv2/ext/gtk2gui#>");
     qr = select(gui_uri, gui_path)
@@ -718,14 +723,6 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
     }
     
     m_bundledir = m_bundle;
-    
-    // plugin name
-    Variable name;
-    qr = select(name)
-      .where(uriref, doap("name"), name)
-      .run(data);
-    if (qr.size() > 0)
-      m_name = qr[0][name]->name;
     
     // default preset path
     Variable preset_path;
@@ -780,27 +777,28 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
   }
   
   // if we got this far the data is OK. time to load the library
-  m_libhandle = dlopen(binary.substr(8, binary.size() - 9).c_str(), RTLD_NOW);
+  m_libhandle = dlopen(m_binary.substr(8, m_binary.size() - 9).c_str(), 
+		       RTLD_NOW);
   if (!m_libhandle) {
-    DBG0("Could not dlopen "<<binary<<": "<<dlerror());
-    return;
+    DBG0("Could not dlopen "<<m_binary<<": "<<dlerror());
+    return false;
   }
   
   // get the descriptor
   LV2_Descriptor_Function dfunc = get_symbol<LV2_Descriptor_Function>("lv2_descriptor");
   if (!dfunc) {
-    DBG0(binary<<" has no LV2 descriptor function");
+    DBG0(m_binary<<" has no LV2 descriptor function");
     dlclose(m_libhandle);
-    return;
+    return false;
   }
   for (unsigned long j = 0; (m_desc = dfunc(j)); ++j) {
     if (m_uri == m_desc->URI)
       break;
   }
   if (!m_desc) {
-    DBG0(binary<<" does not contain the plugin "<<m_uri);
+    DBG0(m_binary<<" does not contain the plugin "<<m_uri);
     dlclose(m_libhandle);
-    return;
+    return false;
   }
   
   // get the command descriptor (if it has one)
@@ -819,13 +817,38 @@ void LV2Host::load_plugin(const string& rdf_file, const string& binary) {
   };
   const LV2_Host_Feature* features[] = { &command_feature, 0 };
   m_handle = m_desc->instantiate(m_desc, m_rate, m_bundle.c_str(), features);
-
+  
+  if (!m_handle) {
+    DBG0("Could not instantiate the plugin");
+    dlclose(m_libhandle);
+    m_libhandle = 0;
+    m_desc = 0;
+    return false;
+  }
+  
+  return true;
 }
 
 
-bool LV2Host::print_uri(const string& uri, const string& bundle,
-                        const string& rdf_file, const string& binary) {
-  cout<<uri<<endl;
+bool LV2Host::print_uri(const string& bundle) {
+  
+  // parse
+  TurtleParser tp;
+  RDFData data;
+  if (!tp.parse_ttl_file(bundle + "manifest.ttl", data)) {
+    DBG1("Could not parse "<<bundle<<"manifest.ttl");
+    return false;
+  }
+  
+  // query
+  Namespace lv2("<http://lv2plug.in/ns/lv2core#>");
+  Variable uriref;
+  vector<QueryResult> qr = select(uriref)
+    .where(uriref, rdf("type"), lv2("Plugin"))
+    .run(data);
+  for (unsigned i = 0; i < qr.size(); ++i)
+    cout<<qr[i][uriref]->name<<endl;
+
   return false;
 }
 

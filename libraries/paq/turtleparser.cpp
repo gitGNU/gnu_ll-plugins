@@ -342,6 +342,9 @@ namespace PAQ {
 
 
   RDFTerm* TurtleParser::do_uriref(iter_t iter) {
+    iter_t second = iter->children.begin() + 1;
+    if (node_to_string(second) == ">")
+      return m_data->add_uriref(string("<") + absolutise("") + string(">"));
     return do_relativeURI(iter->children.begin() + 1);
   }
   
