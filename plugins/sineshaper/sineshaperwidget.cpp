@@ -33,7 +33,8 @@ using namespace std;
 
 
 SineshaperWidget::SineshaperWidget(const std::string& bundle)
-  : HBox(false, 12) {
+  : HBox(false, 12),
+    m_adjs(s_n_ports, 0) {
   
   m_dialg = Gdk::Pixbuf::create_from_file(bundle + "dial.png");
   
@@ -63,6 +64,12 @@ SineshaperWidget::SineshaperWidget(const std::string& bundle)
   
   pack_start(*knob_vbox);
   pack_start(*preset_vbox);
+}
+
+
+void SineshaperWidget::set_control(uint32_t port, float value) {
+  if (port < m_adjs.size() && m_adjs[port])
+    m_adjs[port]->set_value(value);
 }
 
 
@@ -232,6 +239,13 @@ Gtk::Widget* SineshaperWidget::create_knob(Gtk::Table* table, int col,
   Label* lbl = manage(new Label(string("<small>") + name + string("</small>")));
   lbl->set_use_markup(true);
   table->attach(*lbl, col, col + 1, 1, 2);
+  m_adjs[port] = skd->get_adjustment();
+  slot<float> get_value = mem_fun(*skd->get_adjustment(), 
+				  &Adjustment::get_value);
+  slot<void, float> sccf = bind<0>(signal_control_changed, port);
+  slot<void> scc = compose(sccf, get_value);
+  skd->get_adjustment()->signal_value_changed().connect(scc);
+
   return skd;
 }
 
@@ -247,5 +261,12 @@ Gtk::Widget* SineshaperWidget::create_spin(Gtk::Table* table, int col,
   Label* lbl = manage(new Label(string("<small>") + name + string("</small>")));
   lbl->set_use_markup(true);
   table->attach(*lbl, col, col + 1, 1, 2);
+  m_adjs[port] = spb->get_adjustment();
+  slot<float> get_value = mem_fun(*spb->get_adjustment(), 
+				  &Adjustment::get_value);
+  slot<void, float> sccf = bind<0>(signal_control_changed, port);
+  slot<void> scc = compose(sccf, get_value);
+  spb->get_adjustment()->signal_value_changed().connect(scc);
+
   return spb;
 }

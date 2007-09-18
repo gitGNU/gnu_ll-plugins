@@ -39,18 +39,19 @@ public:
   
   SineshaperGUI(LV2Controller& ctrl, const std::string& URI, 
               const std::string& bundle_path)
-    : m_sshp(bundle_path) {
+    : m_sshp(bundle_path),
+      m_ctrl(ctrl) {
     
     pack_start(m_sshp);
 
-    //m_sshp.signal_control_changed.
-    //  connect(mem_fun(ctrl, &LV2Controller::set_control));
+    m_sshp.signal_control_changed.
+      connect(mem_fun(*this, &SineshaperGUI::request_control_change));
     //m_sshp.signal_program_selected.
     //  connect(mem_fun(ctrl, &LV2Controller::set_program));
   }
   
   void set_control(uint32_t port, float value) {
-    //m_sshp.set_control(port, value);
+    m_sshp.set_control(port, value);
   }
 
   void add_program(unsigned char number, const char* name) {
@@ -70,8 +71,13 @@ public:
   }
   
 protected:
-
+  
+  void request_control_change(uint32_t port, float value) {
+    m_ctrl.write(port, sizeof(float), &value);
+  }
+  
   SineshaperWidget m_sshp;
+  LV2Controller& m_ctrl;
   
 };
 

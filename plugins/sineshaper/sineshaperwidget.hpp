@@ -25,6 +25,7 @@
 #define SINESHAPERWIDGET_HPP
 
 #include <string>
+#include <vector>
 
 #include <gtkmm.h>
 
@@ -35,7 +36,11 @@ class SineshaperWidget : public Gtk::HBox {
 public:
   
   SineshaperWidget(const std::string& bundle);
-
+  
+  void set_control(uint32_t port, float value);
+  
+  sigc::signal<void, uint32_t, float> signal_control_changed;
+  
 protected:
   
   Gtk::Widget* init_tuning_controls();
@@ -57,7 +62,8 @@ protected:
   
   
   Glib::RefPtr<Gdk::Pixbuf> m_dialg;
-
+  std::vector<Gtk::Adjustment*> m_adjs;
+  
 };
 
 
