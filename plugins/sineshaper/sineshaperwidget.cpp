@@ -21,14 +21,21 @@
 
 ****************************************************************************/
 
+#include <iostream>
+
 #include "sineshaperwidget.hpp"
+#include "skindial_gtkmm.hpp"
 
 
 using namespace Gtk;
+using namespace std;
 
 
-SineshaperWidget::SineshaperWidget()
+SineshaperWidget::SineshaperWidget(const std::string& bundle)
   : HBox(false, 12) {
+  
+  cerr<<"bundle: "<<bundle<<endl;
+  m_dialg = Gdk::Pixbuf::create_from_file(bundle + "dial.png");
   
   VBox* knob_vbox = manage(new VBox(false, 12));
   
@@ -63,6 +70,10 @@ Widget* SineshaperWidget::init_tuning_controls() {
   Frame* frame = manage(new Frame);
   frame->set_label("Tuning");
   frame->set_shadow_type(SHADOW_IN);
+  HBox* hbox = manage(new HBox);
+  frame->add(*hbox);
+  hbox->pack_start(*manage(new SkinDial(0.5, 2.0, m_dialg, 
+					SkinDial::DoubleLog, 1.0)));
   return frame;
 }
 

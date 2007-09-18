@@ -38,7 +38,8 @@ class SineshaperGUI : public LV2GTK2GUI {
 public:
   
   SineshaperGUI(LV2Controller& ctrl, const std::string& URI, 
-              const std::string& bundle_path) {
+              const std::string& bundle_path)
+    : m_sshp(bundle_path) {
     
     pack_start(m_sshp);
 
@@ -77,5 +78,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  register_lv2gtk2gui<SineshaperGUI>("http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0");
+  register_lv2gtk2gui<SineshaperGUI>("http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/gui");
 }

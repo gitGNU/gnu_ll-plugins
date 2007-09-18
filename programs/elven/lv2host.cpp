@@ -475,6 +475,7 @@ bool LV2Host::match_uri(const string& bundle) {
   if (qr.size() > 0) {
     DBG2("Found datafile "<<bundle<<"manifest.ttl");
     m_rdffiles.push_back(bundle + "manifest.ttl");
+    m_bundle = bundle;
   }
 
   return false;

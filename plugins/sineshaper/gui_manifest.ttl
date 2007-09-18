@@ -1,0 +1,12 @@
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix gg: <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui#>.
+
+<http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0> 
+  rdfs:seeAlso <>;
+  gg:gui <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/gui>.
+
+<http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/gui> 
+  gg:binary <sineshaper_gtk.so>.
+
+

@@ -24,13 +24,15 @@
 #ifndef SINESHAPERWIDGET_HPP
 #define SINESHAPERWIDGET_HPP
 
+#include <string>
+
 #include <gtkmm.h>
 
 
 class SineshaperWidget : public Gtk::HBox {
 public:
   
-  SineshaperWidget();
+  SineshaperWidget(const std::string& bundle);
 
 protected:
   
@@ -44,6 +46,9 @@ protected:
   Gtk::Widget* init_delay_controls();
   Gtk::Widget* init_shaper_controls();
   Gtk::Widget* init_preset_list();
+
+  
+  Glib::RefPtr<Gdk::Pixbuf> m_dialg;
 
 };
 

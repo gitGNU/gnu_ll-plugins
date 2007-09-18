@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.290
+PACKAGE_VERSION = 0.1.291
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -60,6 +60,7 @@ ifeq ($(build_experimental),yes)
 	math-functions.lv2 \
 	phase-distortion-osc.lv2 \
 	sineshaper.lv2 \
+	sineshaper_gtk.lv2 \
 	trilobeat.lv2 \
 	trilobyte.lv2
 endif
@@ -276,34 +277,35 @@ horizon_gtk_so_SOURCES = \
 	horizon_gtk.cpp
 horizon_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0` -Iextensions/gtkgui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
 horizon_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 cairomm-1.0` 
-horizon_gtk_so_ARCHIVES = \
-	libraries/lv2gtk2gui/liblv2_gtk2gui.a
+horizon_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a
 horizon_lv2_DATA = manifest.ttl horizon.ttl
 horizon_lv2_PEGFILES = horizon.peg
 horizon_lv2_SOURCEDIR = plugins/horizon
 
 # Sineshaper
 sineshaper_lv2_MODULES = sineshaper.so
+sineshaper_lv2_DATA = manifest.ttl sineshaper.ttl presets.ttl icon.svg
+sineshaper_lv2_SOURCEDIR = plugins/sineshaper
 sineshaper_so_SOURCES = \
 	sineshaper.hpp sineshaper.cpp \
 	sineshaperports.hpp \
 	midiiterator.hpp
 sineshaper_so_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components -Iextensions/MidiPort
 sineshaper_so_ARCHIVES = $(PLUGINARCHIVES)
-#sineshaper_lv2_MODULES = sineshaper_gtk.so
+
+# Sineshaper GUI
+sineshaper_gtk_lv2_MODULES = sineshaper_gtk.so
+sineshaper_gtk_lv2_MANIFEST = gui_manifest.ttl
+sineshaper_gtk_lv2_DATA = sineshaper.glade dial.png sineshaper.png
+sineshaper_gtk_lv2_SOURCEDIR = plugins/sineshaper
 sineshaper_gtk_so_SOURCES = \
 	sineshaper_gtk.cpp \
-	sineshaperwidget.cpp sineshaperwidget.hpp
+	sineshaperwidget.cpp sineshaperwidget.hpp \
+	skindial_gtkmm.cpp skindial_gtkmm.hpp
 sineshaper_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
 sineshaper_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` 
+sineshaper_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a
 sineshaper_gtk_so_SOURCEDIR = plugins/sineshaper
-#sineshaper_lv2_PROGRAMS = sineshaper_gtk
-#sineshaper_gtk_SOURCES = sineshapergui.cpp sineshapergui.hpp main.cpp skindial_gtkmm.hpp skindial_gtkmm.cpp
-#sineshaper_gtk_CFLAGS = `pkg-config --cflags gtkmm-2.4 libglademm-2.4 liblo` -Ilibraries/lv2oscui -Ilibraries/components -Iextensions/instrument -I.
-#sineshaper_gtk_LDFLAGS = `pkg-config --libs gtkmm-2.4 gthread-2.0 liblo libglademm-2.4` libraries/lv2oscui/liblv2_oscui.a
-#sineshaper_gtk_SOURCEDIR = plugins/sineshaper
-sineshaper_lv2_DATA = manifest.ttl sineshaper.ttl sineshaper.glade dial.png sineshaper.png presets.ttl icon.svg
-sineshaper_lv2_SOURCEDIR = plugins/sineshaper
 
 # MIDIIdentity
 midi_identity_lv2_MODULES = midi_identity.so
