@@ -40,7 +40,6 @@
 #include "lv2host.hpp"
 #include "lv2-midiport.h"
 #include "lv2-midifunctions.h"
-#include "eventqueue.hpp"
 #include "debug.hpp"
 #include "midiutils.hpp"
 
@@ -321,7 +320,8 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
       float& min = host.get_ports()[port].min_value;
       float& max = host.get_ports()[port].max_value;
       *pbuf = min + (max - min) * input_event.buffer[2] / 127.0;
-      host.queue_control(port, *pbuf, false);
+      // XXX notify the main thread somehow
+      //host.queue_control(port, *pbuf, false);
     }
     
     // or a program change
@@ -401,7 +401,7 @@ void thread_init(void*) {
 }
 
 
-void check_lash_events(LV2Host& lv2h, EventQueue& conf_q) {
+void check_lash_events(LV2Host& lv2h) {
 
   lash_event_t* event;
   while ((event = lash_get_event(lash_client))) {
@@ -411,21 +411,11 @@ void check_lash_events(LV2Host& lv2h, EventQueue& conf_q) {
       
       ofstream of((string(lash_event_get_string(event)) + 
 		   "/lv2host").c_str());
-      
-      lv2h.queue_config_request(&conf_q);
-      EventQueue::Type t;
-      do {
-	while (!conf_q.wait() && still_running);
-	t = conf_q.read_event();
-	switch (t) {
-	case EventQueue::Program:
-	  of<<"program "<<conf_q.get_event().program.program<<endl;
-	  break;
-	case EventQueue::Control:
-	  of<<"control "<<conf_q.get_event().control.port<<" "
-	    <<conf_q.get_event().control.value<<endl;
-	}
-      } while (t != EventQueue::Passthrough && still_running);
+      const std::vector<LV2Port>& ports = lv2h.get_ports();
+      for (unsigned i = 0; i < ports.size(); ++i) {
+	if (ports[i].type == ControlType && ports[i].direction == InputPort)
+	  of<<"control "<<i<<ports[i].value<<endl;
+      }
       
       lash_send_event(lash_client, 
 		      lash_event_new_with_type(LASH_Save_File));
@@ -444,7 +434,7 @@ void check_lash_events(LV2Host& lv2h, EventQueue& conf_q) {
 	  unsigned long port;
 	  float value;
 	  ifs>>port>>value;
-	  lv2h.queue_control(port, value);
+	  lv2h.set_control(port, value);
 	}
         
       }
@@ -668,28 +658,25 @@ int main(int argc, char** argv) {
 	}
 	
 	// update the program controls in the GUI
-	const std::map<uint32_t, LV2Preset>& presets = lv2h.get_presets();
-	std::map<uint32_t, LV2Preset>::const_iterator iter;
+	const std::map<unsigned char, LV2Preset>& presets = lv2h.get_presets();
+	std::map<unsigned char, LV2Preset>::const_iterator iter;
 	for (iter = presets.begin(); iter != presets.end(); ++iter)
 	  lv2gh->program_added(iter->first, iter->second.name.c_str());
 	
 	// connect signals
 	lv2h.signal_feedback.connect(mem_fun(*lv2gh, &LV2GUIHost::feedback));
+	lv2h.signal_port_event.
+	  connect(mem_fun(*lv2gh, &LV2GUIHost::port_event));
 	lv2gh->write_port.connect(mem_fun(lv2h, &LV2Host::write_port));
 	lv2gh->command.connect(hide_return(mem_fun(lv2h, &LV2Host::command)));
-	lv2gh->request_program.
-	  connect(bind(mem_fun(lv2h, &LV2Host::queue_program), true));
+	lv2gh->request_program.connect(mem_fun(lv2h, &LV2Host::set_program));
       }
     }
     
     autoconnect(jack_client);
     
-    // queue that the host can pass configurations to
-    EventQueue conf_q;
-    
     // wait until we are killed
-    slot<void> lash_slot = bind(bind(&check_lash_events, 
-				     ref(conf_q)), ref(lv2h));
+    slot<void> lash_slot = bind(&check_lash_events, ref(lv2h));
     Glib::signal_timeout().connect(bind_return(lash_slot, true), 100);
     if (win) {
       kit.run(*win);

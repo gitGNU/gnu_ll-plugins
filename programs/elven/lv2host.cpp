@@ -54,8 +54,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     m_handle(0),
     m_desc(0),
     m_comm_desc(0),
-    m_midimap(128, -1),
-    m_from_jack(0) {
+    m_midimap(128, -1) {
   
   DBG2("Creating plugin loader...");
   
@@ -132,65 +131,40 @@ void LV2Host::activate() {
 
 
 void LV2Host::run(unsigned long nframes) {
+  
   assert(m_handle);
+  
   for (size_t i = 0; i < m_ports.size(); ++i)
     m_desc->connect_port(m_handle, i, m_ports[i].buffer);
   
-  // read commands from ringbuffer
-  EventQueue::Type t;
-  const EventQueue::Event& e = m_to_jack.get_event();
-  while ((t = m_to_jack.read_event()) != EventQueue::None) {
-    switch (t) {
-      
-    case EventQueue::Program:
-      select_program(e.program.program);
-      queue_program(e.program.program, false);
-      break;
-      
-    case EventQueue::Control: {
-      const unsigned long& port = e.control.port;
-      const float& value = e.control.value;
-      *static_cast<float*>(m_ports[port].buffer) = value;
-      DBG3("Changing value for port "<<port<<" to "<<value);
-      //queue_control(port, value, false);
-      break;
-    }
-      
-    case EventQueue::ConfigRequest:
-      if (m_from_jack) {
-        //if (m_program_is_valid)
-        //  e.config.sender->write_program(m_program);
-        for (unsigned long p = 0; p < m_ports.size(); ++p) {
-          if (m_ports[p].type == ControlType &&
-	      m_ports[p].direction == InputPort) {
-            e.config.sender->
-              write_control(p, *static_cast<float*>(m_ports[p].buffer));
-          }
-        }
-        e.config.sender->write_passthrough("cend");
+  if (!pthread_mutex_trylock(&m_mutex)) {
+    
+    // copy any updated control port values into the port buffers
+    if (m_ports_updated) {
+      m_ports_updated = false;
+      for (unsigned i = 0; i < m_ports.size(); ++i) {
+	if (m_ports[i].type == ControlType && m_ports[i].direction == InputPort)
+	  memcpy(m_ports[i].buffer, &m_ports[i].value, sizeof(float));
       }
-      break;
-      
-    case EventQueue::Passthrough:
-      if (m_from_jack)
-        m_from_jack->write_passthrough(e.passthrough.msg, e.passthrough.ptr);
-      break;
-      
-    case EventQueue::Midi: {
+    }
+    
+    // read MIDI events from the vector
+    for (unsigned i = 0; i < m_midi_events.size(); ++i) {
+      if (m_midi_events[i]->written)
+	continue;
+      MidiEvent* e = m_midi_events[i];
       DBG3("Received MIDI event from the main thread for port "
-           <<m_ports[e.midi.port].symbol<<": "
-           <<midi2str(e.midi.size, e.midi.data));
-      LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[e.midi.port].buffer);
+	   <<m_ports[e->port].symbol<<": "
+	   <<midi2str(e->event_size, e->data));
+      LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[e->port].buffer);
       LV2_MIDIState state = { midi, nframes, 0 };
       // XXX DANGER! Can't set the timestamp to 0 since other events may
       // have been written to the buffer already!
-      lv2midi_put_event(&state, 0, e.midi.size, e.midi.data);
-      break;
+      lv2midi_put_event(&state, 0, e->event_size, e->data);
+      e->written = true;
     }
-
-    default:
-      break;
-    }
+    
+    pthread_mutex_unlock(&m_mutex);
   }
   
   m_desc->run(m_handle, nframes);
@@ -203,23 +177,6 @@ void LV2Host::deactivate() {
   if (m_desc->deactivate)
     m_desc->deactivate(m_handle);
 }
-
-
-void LV2Host::select_program(unsigned long program) {
-  map<uint32_t, LV2Preset>::const_iterator iter = m_presets.find(program);
-  if (iter != m_presets.end()) {
-    DBG3("Changing program to "<<program);
-    map<uint32_t, float>::const_iterator piter;
-    for (piter = iter->second.values.begin(); 
-         piter != iter->second.values.end(); ++piter) {
-      *(float*)m_ports[piter->first].buffer = piter->second;
-      queue_control(piter->first, piter->second, false);
-    }
-  }
-  else
-    DBG3("Trying to change program to invalid program "<<program);
-}
-
 
 
 char* LV2Host::command(uint32_t argc, const char* const* argv) {
@@ -246,7 +203,7 @@ void LV2Host::write_port(uint32_t index, uint32_t buffer_size,
 			 const void* buffer) {
   if (index < m_ports.size() && m_ports[index].direction == InputPort) {
     if (m_ports[index].type == ControlType)
-      queue_control(index, *static_cast<const float*>(buffer));
+      set_control(index, *static_cast<const float*>(buffer));
     else if (m_ports[index].type == MidiType)
       queue_midi(index, buffer_size, static_cast<const unsigned char*>(buffer));
     else
@@ -254,6 +211,34 @@ void LV2Host::write_port(uint32_t index, uint32_t buffer_size,
   }
   else
     DBG0("Tried to write to invalid input port");
+}
+
+
+void LV2Host::set_control(uint32_t index, float value) {
+  if (index < m_ports.size() && m_ports[index].type == ControlType &&
+      m_ports[index].direction == InputPort) {
+    pthread_mutex_lock(&m_mutex);
+    m_ports[index].value = value;
+    m_ports_updated = true;
+    pthread_mutex_unlock(&m_mutex);
+    signal_port_event(index, sizeof(float), &value);
+  }
+}
+
+
+void LV2Host::set_program(uint32_t program) {
+  std::map<unsigned char, LV2Preset>::const_iterator iter = m_presets.find(program);
+  if (iter != m_presets.end()) {
+    // XXX fire signal here
+    const std::map<uint32_t, float>& preset = iter->second.values;
+    std::map<uint32_t, float>::const_iterator piter;
+    for (piter = preset.begin(); piter != preset.end(); ++piter) {
+      if (piter->first < m_ports.size() && 
+	  m_ports[piter->first].type == ControlType &&
+	  m_ports[piter->first].direction == InputPort)
+	set_control(piter->first, piter->second);
+    }
+  }
 }
 
 
@@ -287,33 +272,6 @@ const std::string& LV2Host::get_name() const {
 }
 
 
-void LV2Host::queue_program(unsigned long program, bool to_jack) {
-  if (to_jack) {
-    DBG2("Queueing program change to program "<<program);
-    //cerr<<__PRETTY_FUNCTION__<<endl;
-    pthread_mutex_lock(&m_mutex);
-    m_to_jack.write_program(program);
-    pthread_mutex_unlock(&m_mutex);
-  }
-  else if (m_from_jack)
-    m_from_jack->write_program(program);
-}
-
-
-void LV2Host::queue_control(unsigned long port, float value, bool to_jack) {
-  if (port < m_ports.size()) {
-    if (to_jack) {
-      DBG2("Queueing control change of port "<<port<<" to value "<<value);
-      pthread_mutex_lock(&m_mutex);
-      m_to_jack.write_control(port, value);
-      pthread_mutex_unlock(&m_mutex);
-    }
-    else if (m_from_jack)
-      m_from_jack->write_control(port, value);
-  }
-}
-
-
 void LV2Host::queue_midi(uint32_t port, uint32_t size, 
                          const unsigned char* midi) {
   if (port < m_ports.size() && m_ports[port].type == MidiType && 
@@ -321,7 +279,15 @@ void LV2Host::queue_midi(uint32_t port, uint32_t size,
     if (size <= 4) {
       DBG2("Queueing MIDI event for port "<<port);
       pthread_mutex_lock(&m_mutex);
-      m_to_jack.write_midi(port, size, midi);
+      unsigned i;
+      for (i = 0; i < m_midi_events.size(); ++i) {
+	if (!m_midi_events[i]->written)
+	  break;
+	delete m_midi_events[i]->data;
+	delete m_midi_events[i];
+      }
+      m_midi_events.erase(m_midi_events.begin(), m_midi_events.begin() + i);
+      m_midi_events.push_back(new MidiEvent(port, size, midi));
       pthread_mutex_unlock(&m_mutex);
     }
     else
@@ -332,35 +298,7 @@ void LV2Host::queue_midi(uint32_t port, uint32_t size,
 }
 
 
-void LV2Host::queue_config_request(EventQueue* sender) {
-  m_to_jack.write_config_request(sender);
-}
-
-
-void LV2Host::queue_passthrough(const char* msg, void* ptr) {
-  m_to_jack.write_passthrough(msg, ptr);
-}
-
-
-void LV2Host::set_program(uint32_t program) {
-  map<uint32_t, LV2Preset>::const_iterator iter = m_presets.find(program);
-  if (iter == m_presets.end()) {
-    DBG0("Could not find program "<<program);
-  }
-  else {
-    map<uint32_t, float>::const_iterator piter = iter->second.values.begin();
-    for ( ; piter != iter->second.values.end(); ++iter)
-      queue_control(piter->first, piter->second, true);
-  }
-}
-
-
-void LV2Host::set_event_queue(EventQueue* q) {
-  m_from_jack = q;
-}
-
-
-const std::map<uint32_t, LV2Preset>& LV2Host::get_presets() const {
+const std::map<unsigned char, LV2Preset>& LV2Host::get_presets() const {
   return m_presets;
 }
 

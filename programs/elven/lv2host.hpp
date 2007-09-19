@@ -38,7 +38,6 @@
 #include "lv2.h"
 #include "lv2-command.h"
 #include "ringbuffer.hpp"
-#include "eventqueue.hpp"
 
 
 enum PortDirection {
@@ -62,11 +61,10 @@ struct LV2Port {
   std::string symbol;
   PortDirection direction;
   PortType type;
-  //PortRate rate;
   float default_value;
   float min_value;
   float max_value;
-  //bool midi;
+  float value;
 };
 
 
@@ -108,14 +106,17 @@ public:
   /** Deactivate the plugin. */
   void deactivate();
   
-  /** Set the plugin program. */
-  void select_program(unsigned long program);
-  
   /** Send a command to the plugin. */
   char* command(uint32_t argc, const char* const* argv);
   
   /** Write to a plugin port. */
   void write_port(uint32_t index, uint32_t buffer_size, const void* buffer);
+  
+  /** Set a control port value. */
+  void set_control(uint32_t index, float value);
+  
+  /** Set the plugin program. */
+  void set_program(uint32_t program);
   
   /** Return the MIDI controller mappings. */
   const std::vector<int>& get_midi_map() const;
@@ -135,32 +136,16 @@ public:
   /** Return the name of the plugin. */
   const std::string& get_name() const;
   
-  /** Queue a program change. */
-  void queue_program(unsigned long program, bool to_jack = true);
-  
-  /** Queue a control port change. */
-  void queue_control(unsigned long port, float value, bool to_jack = true);
-  
   /** Queue a MIDI event. */
   void queue_midi(uint32_t port, uint32_t size, const unsigned char* midi);
   
-  /** Queue a configuration request. */
-  void queue_config_request(EventQueue* sender);
-  
-  /** Queue a passthrough message. */
-  void queue_passthrough(const char* msg, void* ptr);
-  
-  /** Set the program. */
-  void set_program(uint32_t program);
-  
-  /** Set the event queue. */
-  void set_event_queue(EventQueue* q);
-  
   /** Returns all found presets. */
-  const std::map<uint32_t, LV2Preset>& get_presets() const;
+  const std::map<unsigned char, LV2Preset>& get_presets() const;
   
   /** List all available plugins. */
   static void list_plugins();
+  
+  sigc::signal<void, uint32_t, uint32_t, const void*> signal_port_event;
   
   sigc::signal<void, uint32_t, const char* const*> signal_feedback;
   
@@ -169,6 +154,18 @@ protected:
   static std::vector<std::string> get_search_dirs();
   
   typedef sigc::slot<bool, const std::string&> scan_callback_t;
+  
+  struct MidiEvent {
+    MidiEvent(uint32_t p, uint32_t s, const unsigned char* d) 
+      : port(p), event_size(s), data(0), written(false) {
+      data = new unsigned char[event_size];
+      std::memcpy(data, d, event_size);
+    }
+    uint32_t port;
+    uint32_t event_size;
+    unsigned char* data;
+    bool written;
+  };
   
   static bool scan_manifests(const std::vector<std::string>& search_dirs, 
                              scan_callback_t callback);
@@ -210,6 +207,7 @@ protected:
   LV2_CommandHostDescriptor m_comm_host_desc;
   
   std::vector<LV2Port> m_ports;
+  bool m_ports_updated;
   std::vector<int> m_midimap;
   long m_default_midi_port;
   std::string m_iconpath;
@@ -222,13 +220,12 @@ protected:
   bool m_program_is_valid;
   bool m_new_program;
   
+  std::vector<MidiEvent*> m_midi_events;
+  
   // big lock
   pthread_mutex_t m_mutex;
   
-  EventQueue m_to_jack;
-  EventQueue* m_from_jack;
-  
-  std::map<uint32_t, LV2Preset> m_presets;
+  std::map<unsigned char, LV2Preset> m_presets;
 };
 
 

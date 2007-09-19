@@ -39,7 +39,7 @@ namespace LV2 {
       all functions, so you only have to implement the functions that you need
       (for example run()). All subclasses must have a constructor that takes
       a single <code>double</code> as parameter, otherwise it will 
-      not work with the template function register_lv2(). The host will use 
+      not work with the template class LV2::Register. The host will use 
       this parameter to pass the sample rate when it creates a new instance of
       the plugin. 
       
