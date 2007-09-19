@@ -96,6 +96,27 @@ public:
       MIDI port. */
   long get_default_midi_port() const;
   
+  /** Return the MIDI controller mappings. */
+  const std::vector<int>& get_midi_map() const;
+  
+  /** Return the path to the SVG icon file. */
+  const std::string& get_icon_path() const;
+  
+  /** Return the path to the GUI plugin module. */
+  const std::string& get_gui_path() const;
+  
+  /** Return the URI for the GUI plugin. */
+  const std::string& get_gui_uri() const;
+  
+  /** Return the path to the plugin bundle. */
+  const std::string& get_bundle_dir() const;
+  
+  /** Return the name of the plugin. */
+  const std::string& get_name() const;
+  
+  /** Returns all found presets. */
+  const std::map<unsigned char, LV2Preset>& get_presets() const;
+  
   /** Activate the plugin. The plugin must be activated before you call the
       run() function. */
   void activate();
@@ -118,29 +139,8 @@ public:
   /** Set the plugin program. */
   void set_program(uint32_t program);
   
-  /** Return the MIDI controller mappings. */
-  const std::vector<int>& get_midi_map() const;
-  
-  /** Return the path to the SVG icon file. */
-  const std::string& get_icon_path() const;
-  
-  /** Return the path to the GUI plugin module. */
-  const std::string& get_gui_path() const;
-  
-  /** Return the URI for the GUI plugin. */
-  const std::string& get_gui_uri() const;
-  
-  /** Return the path to the plugin bundle. */
-  const std::string& get_bundle_dir() const;
-  
-  /** Return the name of the plugin. */
-  const std::string& get_name() const;
-  
   /** Queue a MIDI event. */
   void queue_midi(uint32_t port, uint32_t size, const unsigned char* midi);
-  
-  /** Returns all found presets. */
-  const std::map<unsigned char, LV2Preset>& get_presets() const;
   
   /** List all available plugins. */
   static void list_plugins();
