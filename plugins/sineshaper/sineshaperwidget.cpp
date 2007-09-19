@@ -93,6 +93,10 @@ SineshaperWidget::SineshaperWidget(const std::string& bundle)
 
 
 void SineshaperWidget::set_control(uint32_t port, float value) {
+  //if (port == s_prt_on)
+  //  m_prt_on->set_active(value > 0);
+  //else if (port == s_prt_tie)
+  //  m_prt_tie->set_active(value > 0);
   if (port < m_adjs.size() && m_adjs[port])
     m_adjs[port]->set_value(value);
 }
@@ -187,6 +191,17 @@ Widget* SineshaperWidget::init_vibrato_controls() {
 Widget* SineshaperWidget::init_portamento_controls() {
   Frame* frame = manage(new BFrame("Portamento"));
   frame->set_shadow_type(SHADOW_IN);
+
+  Table* table = new Table(2, 2);
+  table->set_col_spacings(3);
+  frame->add(*table);
+  
+  VBox* vbox = manage(new VBox(false, 3));
+  table->attach(*vbox, 0, 1, 0, 2);
+  m_prt_on = create_check(vbox, "Portamento on", s_prt_on);
+  m_prt_tie = create_check(vbox, "Tie overlapping notes", s_prt_tie);
+  create_knob(table, 1, "Time", 0.001, 3, SkinDial::Logarithmic, 1, s_prt_tim);
+  
   return frame;
 }
 
@@ -341,6 +356,22 @@ Gtk::Widget* SineshaperWidget::create_spin(Gtk::Table* table, int col,
 
   return spb;
 }
+
+
+Gtk::CheckButton* SineshaperWidget::create_check(Gtk::VBox* vbox, 
+						 const std::string& name, 
+						 uint32_t port) {
+  CheckButton* chk = manage(new CheckButton);
+  Label* lbl = manage(new SLabel(name));
+  chk->add(*lbl);
+  vbox->pack_start(*chk);
+  slot<void, uint32_t, bool> btc = 
+    mem_fun(*this, &SineshaperWidget::bool_to_control);
+  slot<void, bool> btc2 = bind<0>(btc, port);
+  slot<void> st = compose(btc2, mem_fun(*chk, &CheckButton::get_active));
+  chk->signal_toggled().connect(st);
+  return chk;
+}
  
  
 void SineshaperWidget::do_change_preset() {
@@ -349,4 +380,12 @@ void SineshaperWidget::do_change_preset() {
   else
     signal_preset_changed(m_view->get_selection()->
 			  get_selected()->get_value(m_preset_columns.number));
+}
+
+
+void SineshaperWidget::bool_to_control(uint32_t port, bool value) {
+  if (value)
+    signal_control_changed(port, 1);
+  else
+    signal_control_changed(port, 0);
 }

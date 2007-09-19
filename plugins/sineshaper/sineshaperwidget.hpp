@@ -81,6 +81,10 @@ protected:
 			   float center, uint32_t port);
   Gtk::Widget* create_spin(Gtk::Table* table, int col, const std::string& name, 
 			   float min, float max, uint32_t port);
+  Gtk::CheckButton* create_check(Gtk::VBox* vbox, const std::string& name, 
+				 uint32_t port);
+  
+  void bool_to_control(uint32_t port, bool value);
   
   void do_change_preset();
   
@@ -89,6 +93,8 @@ protected:
   std::vector<Gtk::Adjustment*> m_adjs;
   Glib::RefPtr<ListStore> m_preset_store;
   Gtk::TreeView* m_view;
+  Gtk::CheckButton* m_prt_on;
+  Gtk::CheckButton* m_prt_tie;
   
 };
 
