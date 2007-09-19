@@ -32,16 +32,40 @@ using namespace Gtk;
 using namespace std;
 
 
+namespace {
+  
+  class BFrame : public Frame {
+  public:
+    BFrame(const string& label) {
+      Label* lbl = manage(new Label(string("<b>") + label + "</b>"));
+      lbl->set_use_markup(true);
+      set_label_widget(*lbl);
+    }
+  };
+  
+  class SLabel : public Label {
+  public:
+    SLabel(const string& label) 
+      : Label(string("<small>") + label + "</small>") {
+      set_use_markup(true);
+    }
+  };
+
+}
+
+
 SineshaperWidget::SineshaperWidget(const std::string& bundle)
-  : HBox(false, 12),
+  : HBox(false, 6),
     m_adjs(s_n_ports, 0) {
+  
+  set_border_width(6);
   
   m_dialg = Gdk::Pixbuf::create_from_file(bundle + "dial.png");
   
-  VBox* knob_vbox = manage(new VBox(false, 12));
+  VBox* knob_vbox = manage(new VBox(false, 6));
   
   Table* table = manage(new Table(3, 2));
-  table->set_spacings(12);
+  table->set_spacings(6);
   table->attach(*init_tuning_controls(), 0, 1, 0, 1);
   table->attach(*init_osc2_controls(), 1, 2, 0, 1);
   table->attach(*init_vibrato_controls(), 0, 1, 1, 2);
@@ -49,7 +73,7 @@ SineshaperWidget::SineshaperWidget(const std::string& bundle)
   table->attach(*init_tremolo_controls(), 0, 1, 2, 3);
   table->attach(*init_envelope_controls(), 1, 2, 2, 3);
   
-  HBox* knob_hbox = manage(new HBox(false, 12));
+  HBox* knob_hbox = manage(new HBox(false, 6));
   knob_hbox->pack_start(*init_amp_controls());
   knob_hbox->pack_start(*init_delay_controls());
   
@@ -57,13 +81,14 @@ SineshaperWidget::SineshaperWidget(const std::string& bundle)
   knob_vbox->pack_start(*init_shaper_controls());
   knob_vbox->pack_start(*knob_hbox);
   
-  VBox* preset_vbox = manage(new VBox(false, 12));
-  preset_vbox->pack_start(*init_preset_list());
-  preset_vbox->pack_start(*manage(new Button("Save preset")));
-  preset_vbox->pack_start(*manage(new Button("About Sineshaper")));
+  VBox* preset_vbox = manage(new VBox(false, 6));
+  preset_vbox->pack_start(*init_preset_list(), PACK_EXPAND_WIDGET);
+  preset_vbox->pack_start(*manage(new Button("Save preset")), PACK_SHRINK);
+  preset_vbox->pack_start(*manage(new Button("About Sineshaper")), PACK_SHRINK);
   
   pack_start(*knob_vbox);
   pack_start(*preset_vbox);
+  
 }
 
 
@@ -73,9 +98,48 @@ void SineshaperWidget::set_control(uint32_t port, float value) {
 }
 
 
+void SineshaperWidget::add_preset(unsigned char number, const char* name) {
+  remove_preset(number);
+  ListStore::iterator iter = m_preset_store->append();
+  (*iter)[m_preset_columns.number] = number;
+  (*iter)[m_preset_columns.name] = name;
+  set_preset(5);
+}
+  
+
+void SineshaperWidget::remove_preset(unsigned char number) {
+  TreeNodeChildren c = m_preset_store->children();
+  for (TreeIter iter = c.begin(); iter != c.end(); ++iter) {
+    if ((*iter)[m_preset_columns.number] == number) {
+      m_preset_store->erase(iter);
+      break;
+    }
+  }
+}
+  
+
+void SineshaperWidget::clear_presets() {
+  m_preset_store->clear();
+}
+  
+
+void SineshaperWidget::set_preset(unsigned char number) {
+  if (number > 127)
+    m_view->get_selection()->unselect_all();
+  else {
+    TreeNodeChildren c = m_preset_store->children();
+    for (TreeIter iter = c.begin(); iter != c.end(); ++iter) {
+      if ((*iter)[m_preset_columns.number] == number) {
+	m_view->get_selection()->select(iter);
+	break;
+      }
+    }
+  }
+}
+  
+
 Widget* SineshaperWidget::init_tuning_controls() {
-  Frame* frame = manage(new Frame);
-  frame->set_label("Tuning");
+  Frame* frame = manage(new BFrame("Tuning"));
   frame->set_shadow_type(SHADOW_IN);
   
   Table* table = new Table(2, 2);
@@ -90,8 +154,7 @@ Widget* SineshaperWidget::init_tuning_controls() {
 
 
 Widget* SineshaperWidget::init_osc2_controls() {
-  Frame* frame = manage(new Frame);
-  frame->set_label("Oscillator 2");
+  Frame* frame = manage(new BFrame("Oscillator 2"));
   frame->set_shadow_type(SHADOW_IN);
 
   Table* table = new Table(2, 3);
@@ -107,8 +170,7 @@ Widget* SineshaperWidget::init_osc2_controls() {
 
 
 Widget* SineshaperWidget::init_vibrato_controls() {
-  Frame* frame = manage(new Frame);
-  frame->set_label("Vibrato");
+  Frame* frame = manage(new BFrame("Vibrato"));
   frame->set_shadow_type(SHADOW_IN);
   
   Table* table = new Table(2, 2);
@@ -123,16 +185,14 @@ Widget* SineshaperWidget::init_vibrato_controls() {
 
 
 Widget* SineshaperWidget::init_portamento_controls() {
-  Frame* frame = manage(new Frame);
-  frame->set_label("Portamento");
+  Frame* frame = manage(new BFrame("Portamento"));
   frame->set_shadow_type(SHADOW_IN);
   return frame;
 }
 
 
 Widget* SineshaperWidget::init_tremolo_controls() {
-  Frame* frame = manage(new Frame);
-  frame->set_label("Tremolo");
+  Frame* frame = manage(new BFrame("Tremolo"));
   frame->set_shadow_type(SHADOW_IN);
 
   Table* table = new Table(2, 2);
@@ -147,8 +207,7 @@ Widget* SineshaperWidget::init_tremolo_controls() {
 
 
 Widget* SineshaperWidget::init_envelope_controls() {
-  Frame* frame = manage(new Frame);
-  frame->set_label("Envelope");
+  Frame* frame = manage(new BFrame("Envelope"));
   frame->set_shadow_type(SHADOW_IN);
 
   Table* table = new Table(2, 4);
@@ -168,8 +227,7 @@ Widget* SineshaperWidget::init_envelope_controls() {
 
 
 Widget* SineshaperWidget::init_amp_controls() {
-  Frame* frame = manage(new Frame);
-  frame->set_label("Amp");
+  Frame* frame = manage(new BFrame("Amp"));
   frame->set_shadow_type(SHADOW_IN);
 
   Table* table = new Table(2, 3);
@@ -185,8 +243,7 @@ Widget* SineshaperWidget::init_amp_controls() {
 
 
 Widget* SineshaperWidget::init_delay_controls() {
-  Frame* frame = manage(new Frame);
-  frame->set_label("Delay");
+  Frame* frame = manage(new BFrame("Delay"));
   frame->set_shadow_type(SHADOW_IN);
 
   Table* table = new Table(2, 3);
@@ -202,8 +259,7 @@ Widget* SineshaperWidget::init_delay_controls() {
 
 
 Widget* SineshaperWidget::init_shaper_controls() {
-  Frame* frame = manage(new Frame);
-  frame->set_label("Shaper");
+  Frame* frame = manage(new BFrame("Shaper"));
   frame->set_shadow_type(SHADOW_IN);
 
   Table* table = new Table(2, 6);
@@ -222,9 +278,26 @@ Widget* SineshaperWidget::init_shaper_controls() {
 
 
 Widget* SineshaperWidget::init_preset_list() {
-  Frame* frame = manage(new Frame);
-  frame->set_label("Presets");
+  Frame* frame = manage(new BFrame("Presets"));
   frame->set_shadow_type(SHADOW_NONE);
+  
+  m_preset_store = ListStore::create(m_preset_columns);
+  m_preset_store->set_sort_column_id(m_preset_columns.number, SORT_ASCENDING);
+  ScrolledWindow* scrw = manage(new ScrolledWindow);
+  scrw->set_shadow_type(SHADOW_IN);
+  scrw->set_policy(POLICY_NEVER, POLICY_AUTOMATIC);
+  m_view = manage(new TreeView(m_preset_store));
+  m_view->set_rules_hint(true);
+  m_view->append_column("No", m_preset_columns.number);
+  m_view->append_column("Name", m_preset_columns.name);
+  m_view->set_headers_visible(false);
+  m_view->get_selection()->signal_changed().
+    connect(mem_fun(*this, &SineshaperWidget::do_change_preset));
+  
+  scrw->add(*m_view);
+  
+  frame->add(*scrw);
+  
   return frame;
 }
 
@@ -236,8 +309,7 @@ Gtk::Widget* SineshaperWidget::create_knob(Gtk::Table* table, int col,
 					   float center, uint32_t port) {
   SkinDial* skd = manage(new SkinDial(min, max, m_dialg, mapping, center));
   table->attach(*skd, col, col + 1, 0, 1);
-  Label* lbl = manage(new Label(string("<small>") + name + string("</small>")));
-  lbl->set_use_markup(true);
+  Label* lbl = manage(new SLabel(name));
   table->attach(*lbl, col, col + 1, 1, 2);
   m_adjs[port] = skd->get_adjustment();
   slot<float> get_value = mem_fun(*skd->get_adjustment(), 
@@ -258,8 +330,7 @@ Gtk::Widget* SineshaperWidget::create_spin(Gtk::Table* table, int col,
   spb->set_range(-10, 10);
   spb->set_increments(1, 1);
   table->attach(*spb, col, col + 1, 0, 1);
-  Label* lbl = manage(new Label(string("<small>") + name + string("</small>")));
-  lbl->set_use_markup(true);
+  Label* lbl = manage(new SLabel(name));
   table->attach(*lbl, col, col + 1, 1, 2);
   m_adjs[port] = spb->get_adjustment();
   slot<float> get_value = mem_fun(*spb->get_adjustment(), 
@@ -269,4 +340,13 @@ Gtk::Widget* SineshaperWidget::create_spin(Gtk::Table* table, int col,
   spb->get_adjustment()->signal_value_changed().connect(scc);
 
   return spb;
+}
+ 
+ 
+void SineshaperWidget::do_change_preset() {
+  if (m_view->get_selection()->count_selected_rows() == 0)
+    signal_preset_changed(128);
+  else
+    signal_preset_changed(m_view->get_selection()->
+			  get_selected()->get_value(m_preset_columns.number));
 }

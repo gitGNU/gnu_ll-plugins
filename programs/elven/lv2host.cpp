@@ -70,6 +70,17 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   // iterate over all directories
   scan_manifests(search_dirs, mem_fun(*this, &LV2Host::match_uri));
   
+  // if we didn't find it, assume that we were given a partial URI
+  // XXX lots of scanning here, we shouldn't need to do 3 passes
+  if (m_rdffiles.size() == 0) {
+    DBG1("Did not find a complete match, looking for partial match");
+    if (scan_manifests(search_dirs, 
+		       mem_fun(*this, &LV2Host::match_partial_uri))) {
+      DBG2("Found matching URI, re-scanning manifests");
+      scan_manifests(search_dirs, mem_fun(*this, &LV2Host::match_uri));
+    }
+  }
+  
   load_plugin();
 }
   
@@ -425,9 +436,10 @@ bool LV2Host::scan_manifests(const std::vector<std::string>& search_dirs,
         ttlfile = plugindir + "manifest.ttl";
 	struct stat buf;
 	if (stat(ttlfile.c_str(), &buf) != ENOENT) {
-	  callback(plugindir);
-	  if (done)
+	  if (callback(plugindir)) {
+	    done = true;
 	    break;
+	  }
         }
 	
       }
@@ -439,7 +451,7 @@ bool LV2Host::scan_manifests(const std::vector<std::string>& search_dirs,
       break;
   }
   
-  return true;
+  return done;
 }
 
  
@@ -476,6 +488,35 @@ bool LV2Host::match_uri(const string& bundle) {
     DBG2("Found datafile "<<bundle<<"manifest.ttl");
     m_rdffiles.push_back(bundle + "manifest.ttl");
     m_bundle = bundle;
+  }
+
+  return false;
+}
+
+
+bool LV2Host::match_partial_uri(const string& bundle) {
+  
+  // parse
+  TurtleParser tp;
+  RDFData data;
+  if (!tp.parse_ttl_file(bundle + "manifest.ttl", data)) {
+    DBG1("Could not parse "<<bundle<<"manifest.ttl");
+    return false;
+  }
+  
+  // query
+  Namespace lv2("<http://lv2plug.in/ns/lv2core#>");
+  Variable uriref;
+  vector<QueryResult> qr = select(uriref)
+    .where(uriref, rdf("type"), lv2("Plugin"))
+    .run(data);
+  for (unsigned i = 0; i < qr.size(); ++i) {
+    if (qr[i][uriref]->name.find(m_uri) != string::npos) {
+      m_uri = qr[i][uriref]->name;
+      m_uri = m_uri.substr(1, m_uri.size() - 2);
+      DBG2("Found matching URI: "<<m_uri);
+      return true;
+    }
   }
 
   return false;

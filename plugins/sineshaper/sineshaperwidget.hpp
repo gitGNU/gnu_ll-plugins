@@ -39,10 +39,32 @@ public:
   
   void set_control(uint32_t port, float value);
   
+  void add_preset(unsigned char number, const char* name);
+  
+  void remove_preset(unsigned char number);
+  
+  void clear_presets();
+  
+  void set_preset(unsigned char number);
+  
   sigc::signal<void, uint32_t, float> signal_control_changed;
+  
+  sigc::signal<void, unsigned char> signal_preset_changed;
   
 protected:
   
+  class PresetColumns : public TreeModel::ColumnRecord {
+  public:
+    TreeModelColumn<unsigned> number;
+    TreeModelColumn<Glib::ustring> name;
+    
+    PresetColumns() { 
+      add(number); 
+      add(name);
+    }
+  } m_preset_columns;
+  
+
   Gtk::Widget* init_tuning_controls();
   Gtk::Widget* init_osc2_controls();
   Gtk::Widget* init_vibrato_controls();
@@ -60,9 +82,13 @@ protected:
   Gtk::Widget* create_spin(Gtk::Table* table, int col, const std::string& name, 
 			   float min, float max, uint32_t port);
   
+  void do_change_preset();
+  
   
   Glib::RefPtr<Gdk::Pixbuf> m_dialg;
   std::vector<Gtk::Adjustment*> m_adjs;
+  Glib::RefPtr<ListStore> m_preset_store;
+  Gtk::TreeView* m_view;
   
 };
 

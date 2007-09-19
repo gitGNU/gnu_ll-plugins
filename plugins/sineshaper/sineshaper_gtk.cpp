@@ -46,8 +46,8 @@ public:
 
     m_sshp.signal_control_changed.
       connect(mem_fun(*this, &SineshaperGUI::request_control_change));
-    //m_sshp.signal_program_selected.
-    //  connect(mem_fun(ctrl, &LV2Controller::set_program));
+    m_sshp.signal_preset_changed.
+      connect(mem_fun(ctrl, &LV2Controller::request_program));
   }
   
   void port_event(uint32_t port, uint32_t buffer_size, const void* buffer) {
@@ -55,20 +55,20 @@ public:
     m_sshp.set_control(port, *static_cast<const float*>(buffer));
   }
 
-  void add_program(unsigned char number, const char* name) {
-    //m_sshp.add_program(number, name);
+  void program_added(unsigned char number, const char* name) {
+    m_sshp.add_preset(number, name);
   }
   
-  void remove_program(unsigned char number) {
-    //m_sshp.remove_program(number);
+  void program_removed(unsigned char number) {
+    m_sshp.remove_preset(number);
   }
   
-  void clear_programs() {
-    //m_sshp.clear_programs();
+  void programs_cleared() {
+    m_sshp.clear_presets();
   }
   
-  void set_program(unsigned char number) {
-    //m_sshp.set_program(number);
+  void current_program_changed(unsigned char number) {
+    m_sshp.set_preset(number);
   }
   
 protected:

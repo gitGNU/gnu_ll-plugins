@@ -469,12 +469,32 @@ void sigchild(int signal) {
 }
 
 
+void print_version() {
+  cerr<<"Elven is an (E)xperimental (LV)2 (E)xecution e(N)vironment.\n"
+      <<"Version " VERSION 
+      <<", (C) 2006-2007 Lars Luthman <lars.luthman@gmail.com>\n"
+      <<"Released under the GNU General Public License, version 3 or later.\n"
+      <<endl;
+}
+
+
 void print_usage(const char* argv0) {
-  cerr<<"usage:   "<<argv0<<" --help"<<endl
-      <<"         "<<argv0<<" --list"<<endl
-      <<"         "<<argv0<<" [--debug DEBUGLEVEL] PLUGIN_URI"<<endl<<endl
+  cerr<<"usage:   "<<argv0<<" --help\n"
+      <<"         "<<argv0<<" --list\n"
+      <<"         "<<argv0<<" [--debug DEBUGLEVEL] [--nogui] PLUGIN_URI\n\n"
       <<"example: "<<argv0
-      <<" 'http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0'"<<endl;
+      <<" http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0\n"
+      <<endl;
+}
+
+
+void print_help(const char* argv0) {
+  cerr<<"Elven will first try to find a plugin with the given URI, if\n"
+      <<"it fails it will try to find a plugin that contains the given\n"
+      <<"URI as a substring. Thus '"<<argv0<<" klav' will load the plugin\n"
+      <<"with the URI http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0,\n"
+      <<"unless Elven happens to find another plugin whose URI contains\n"
+      <<"the substring 'klav' first."<<endl;
 }
 
 
@@ -484,6 +504,8 @@ int main(int argc, char** argv) {
   
   DebugInfo::prefix() = "H:";
   DebugInfo::thread_prefix()[pthread_self()] = "M ";
+  
+  bool load_gui = true;
   
   if (argc < 2) {
     print_usage(argv[0]);
@@ -495,11 +517,15 @@ int main(int argc, char** argv) {
     
     // print help
     if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
-      cerr<<"Elven is an (E)xperimental (LV)2 (E)xecution e(N)vironment.\n\n"
-          <<"(C) 2006-2007 Lars Luthman <lars.luthman@gmail.com>\n"
-          <<"Released under the GNU General Public License, version 3 or later."
-          <<endl<<endl;
+      print_version();
       print_usage(argv[0]);
+      print_help(argv[0]);
+      return 0;
+    }
+    
+    // print version info
+    if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "--version")) {
+      print_version();
       return 0;
     }
     
@@ -517,6 +543,11 @@ int main(int argc, char** argv) {
       }
       DebugInfo::level() = atoi(argv[i + 1]);
       ++i;
+    }
+    
+    // don't load a GUI plugin
+    else if (!strcmp(argv[i], "-n") || !strcmp(argv[i], "--nogui")) {
+      load_gui = false;
     }
     
     else
@@ -603,7 +634,9 @@ int main(int argc, char** argv) {
     still_running = true;
     
     // start the GUI
-    string gui_path = lv2h.get_gui_path();
+    string gui_path;
+    if (load_gui)
+      gui_path = lv2h.get_gui_path();
     pid_t gui_pid = 0;
     Gtk::Window* win = 0;
     LV2GUIHost* lv2gh = 0;

@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.294
+PACKAGE_VERSION = 0.1.295
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -134,7 +134,7 @@ elven_SOURCES = \
 	lv2host.hpp lv2host.cpp \
 	eventqueue.hpp eventqueue.cpp \
 	main.cpp
-elven_CFLAGS = `pkg-config --cflags jack gtkmm-2.4 lash-1.0 sigc++-2.0` -Iextensions/MidiPort -Iextensions/gtkgui -Iextensions/command -Ilibraries/paq -Ilibraries/components -I.
+elven_CFLAGS = `pkg-config --cflags jack gtkmm-2.4 lash-1.0 sigc++-2.0` -Iextensions/MidiPort -Iextensions/gtkgui -Iextensions/command -Ilibraries/paq -Ilibraries/components -I. -DVERSION=\"$(PACKAGE_VERSION)\"
 elven_LDFLAGS = `pkg-config --libs jack gtkmm-2.4 lash-1.0 sigc++-2.0` -lpthread
 elven_ARCHIVES = libraries/paq/libpaq.a
 elven_SOURCEDIR = programs/elven

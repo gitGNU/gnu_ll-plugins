@@ -174,6 +174,8 @@ protected:
                              scan_callback_t callback);
                       
   bool match_uri(const std::string& bundle);
+
+  bool match_partial_uri(const std::string& bundle);
   
   static bool print_uri(const std::string& bundle);
   
