@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.293
+PACKAGE_VERSION = 0.1.294
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -54,6 +54,7 @@ ifeq ($(build_experimental),yes)
 	euphoria.lv2 \
 	euphoria_gtk.lv2 \
 	horizon.lv2 \
+	horizon_gtk.lv2 \
 	klaviatur.lv2 \
 	midi_identity.lv2 \
 	math-constants.lv2 \
@@ -242,7 +243,10 @@ euphoria_gtk_so_ARCHIVES = \
 	libraries/lv2gtk2gui/liblv2_gtk2gui.a
 
 # Horizon
-horizon_lv2_MODULES = horizon.so horizon_gtk.so
+horizon_lv2_MODULES = horizon.so
+horizon_lv2_DATA = manifest.ttl horizon.ttl
+horizon_lv2_PEGFILES = horizon.peg
+horizon_lv2_SOURCEDIR = plugins/horizon
 horizon_so_SOURCES = \
 	action.hpp action.cpp \
 	actiontrigger.hpp actiontrigger.cpp \
@@ -260,6 +264,11 @@ horizon_so_SOURCES = \
 horizon_so_CFLAGS = `pkg-config --cflags sndfile` $(ADVANCEDCFLAGS) -Ilibraries/components -Iextensions/command -Iextensions/MidiPort
 horizon_so_ARCHIVES = $(ADVANCEDARCHIVES)
 horizon_so_LDFLAGS = `pkg-config --libs sndfile`
+
+# Horizon GUI
+horizon_gtk_lv2_MODULES = horizon_gtk.so
+horizon_gtk_lv2_MANIFEST = gui_manifest.ttl
+horizon_gtk_lv2_SOURCEDIR = plugins/horizon
 horizon_gtk_so_SOURCES = \
 	chunkeditor.cpp chunkeditor.hpp \
 	controlsourcegui.cpp controlsourcegui.hpp \
@@ -278,9 +287,6 @@ horizon_gtk_so_SOURCES = \
 horizon_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0` -Iextensions/gtkgui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
 horizon_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 cairomm-1.0` 
 horizon_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a
-horizon_lv2_DATA = manifest.ttl horizon.ttl
-horizon_lv2_PEGFILES = horizon.peg
-horizon_lv2_SOURCEDIR = plugins/horizon
 
 # Sineshaper
 sineshaper_lv2_MODULES = sineshaper.so

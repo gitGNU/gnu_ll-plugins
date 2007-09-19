@@ -50,8 +50,9 @@ public:
     //  connect(mem_fun(ctrl, &LV2Controller::set_program));
   }
   
-  void set_control(uint32_t port, float value) {
-    m_sshp.set_control(port, value);
+  void port_event(uint32_t port, uint32_t buffer_size, const void* buffer) {
+    //cerr<<__PRETTY_FUNCTION__<<" "<<port<<", "<<value<<endl;
+    m_sshp.set_control(port, *static_cast<const float*>(buffer));
   }
 
   void add_program(unsigned char number, const char* name) {
