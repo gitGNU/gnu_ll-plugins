@@ -226,10 +226,10 @@ void LV2Host::set_control(uint32_t index, float value) {
 }
 
 
-void LV2Host::set_program(uint32_t program) {
+void LV2Host::set_program(unsigned char program) {
   std::map<unsigned char, LV2Preset>::const_iterator iter = m_presets.find(program);
   if (iter != m_presets.end()) {
-    // XXX fire signal here
+    signal_program_changed(program);
     const std::map<uint32_t, float>& preset = iter->second.values;
     std::map<uint32_t, float>::const_iterator piter;
     for (piter = preset.begin(); piter != preset.end(); ++piter) {

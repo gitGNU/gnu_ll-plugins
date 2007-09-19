@@ -137,7 +137,7 @@ public:
   void set_control(uint32_t index, float value);
   
   /** Set the plugin program. */
-  void set_program(uint32_t program);
+  void set_program(unsigned char program);
   
   /** Queue a MIDI event. */
   void queue_midi(uint32_t port, uint32_t size, const unsigned char* midi);
@@ -146,6 +146,8 @@ public:
   static void list_plugins();
   
   sigc::signal<void, uint32_t, uint32_t, const void*> signal_port_event;
+  
+  sigc::signal<void, unsigned char> signal_program_changed;
   
   sigc::signal<void, uint32_t, const char* const*> signal_feedback;
   

@@ -616,10 +616,6 @@ int main(int argc, char** argv) {
       
       jack_ports.push_back(port);
     }
-    jack_set_process_callback(jack_client, &process, &lv2h);
-    jack_set_thread_init_callback(jack_client, &thread_init, 0);
-    lv2h.activate();
-    jack_activate(jack_client);
     
     still_running = true;
     
@@ -672,6 +668,13 @@ int main(int argc, char** argv) {
 	lv2gh->request_program.connect(mem_fun(lv2h, &LV2Host::set_program));
       }
     }
+
+    jack_set_process_callback(jack_client, &process, &lv2h);
+    jack_set_thread_init_callback(jack_client, &thread_init, 0);
+    if (lv2h.get_presets().size() > 0)
+      lv2h.set_program(lv2h.get_presets().begin()->first);
+    lv2h.activate();
+    jack_activate(jack_client);
     
     autoconnect(jack_client);
     

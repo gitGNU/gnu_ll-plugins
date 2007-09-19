@@ -93,10 +93,10 @@ SineshaperWidget::SineshaperWidget(const std::string& bundle)
 
 
 void SineshaperWidget::set_control(uint32_t port, float value) {
-  //if (port == s_prt_on)
-  //  m_prt_on->set_active(value > 0);
-  //else if (port == s_prt_tie)
-  //  m_prt_tie->set_active(value > 0);
+  if (port == s_prt_on)
+    m_prt_on->set_active(value > 0);
+  else if (port == s_prt_tie)
+    m_prt_tie->set_active(value > 0);
   if (port < m_adjs.size() && m_adjs[port])
     m_adjs[port]->set_value(value);
 }
@@ -107,7 +107,6 @@ void SineshaperWidget::add_preset(unsigned char number, const char* name) {
   ListStore::iterator iter = m_preset_store->append();
   (*iter)[m_preset_columns.number] = number;
   (*iter)[m_preset_columns.name] = name;
-  set_preset(5);
 }
   
 
