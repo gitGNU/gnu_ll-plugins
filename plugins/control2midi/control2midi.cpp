@@ -21,19 +21,17 @@
 
 ****************************************************************************/
 
-#include <iostream>
-
 #include "lv2plugin.hpp"
 #include "lv2-midiport.h"
 
 
 /** This is the class that contains all the code and data for the Sineshaper
     synth plugin. */
-class Control2MIDI : public LV2Plugin {
+class Control2MIDI : public LV2::Plugin {
 public:
   
   Control2MIDI(double, const char*, const LV2_Host_Feature* const*) 
-    : LV2Plugin(5),
+    : LV2::Plugin(5),
       m_last_value(0),
       m_last_cc(0) { 
     
@@ -84,7 +82,5 @@ protected:
 };
 
 
-void initialise() __attribute__((constructor));
-void initialise() {
-  register_lv2<Control2MIDI>("http://ll-plugins.nongnu.org/lv2/dev/control2midi/0.0.0");
-}
+static LV2::Register<Control2MIDI>
+reg("http://ll-plugins.nongnu.org/lv2/dev/control2midi/0.0.0");

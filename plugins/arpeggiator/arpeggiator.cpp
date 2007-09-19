@@ -33,11 +33,11 @@ using namespace std;
 
 /** This is the class that contains all the code and data for the Sineshaper
     synth plugin. */
-class Arpeggiator : public LV2Plugin {
+class Arpeggiator : public LV2::Plugin {
 public:
   
   Arpeggiator(double, const char*, const LV2_Host_Feature* const*) 
-    : LV2Plugin(5),
+    : LV2::Plugin(5),
       m_num_keys(0),
       m_frame_counter(0),
       m_next_key(0) {
@@ -182,7 +182,5 @@ protected:
 };
 
 
-void initialise() __attribute__((constructor));
-void initialise() {
-  register_lv2<Arpeggiator>("http://ll-plugins.nongnu.org/lv2/dev/arpeggiator/0.0.0");
-}
+static LV2::Register<Arpeggiator> 
+reg("http://ll-plugins.nongnu.org/lv2/dev/arpeggiator/0.0.0");

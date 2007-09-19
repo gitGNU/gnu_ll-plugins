@@ -112,11 +112,11 @@ public:
 FrequencyTable EuphoriaVoice::m_table;
 
 
-class Euphoria : public LV2Advanced {
+class Euphoria : public LV2::Advanced {
 public:
   
   Euphoria(double rate, const char*, const LV2_Host_Feature* const*) 
-    : LV2Advanced(e_n_ports),
+    : LV2::Advanced(e_n_ports),
       m_handler(3, rate),
       m_trigger(0),
       m_dist(rate),
@@ -224,7 +224,4 @@ protected:
 };
 
 
-void initialise() __attribute__((constructor));
-void initialise() {
-  register_lv2_adv<Euphoria>(e_uri);
-}
+static LV2::RegisterAdvanced<Euphoria> reg(e_uri);

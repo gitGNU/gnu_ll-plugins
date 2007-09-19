@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.295
+PACKAGE_VERSION = 0.1.296
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -26,7 +26,6 @@ ARCHIVES = libpaq.a
 ifeq ($(build_experimental),yes)
   ARCHIVES += \
 	liblv2_plugin.a \
-	liblv2_advanced.a \
 	liblv2_gtk2gui.a \
 	libkeyboard.a \
 	libvgknob.a \
@@ -69,13 +68,13 @@ endif
 
 # Archives with useful code bits
 
-liblv2_plugin_a_SOURCES = lv2plugin.hpp lv2plugin.cpp
+liblv2_plugin_a_SOURCES = lv2plugin.hpp lv2plugin.cpp lv2advanced.hpp
 liblv2_plugin_a_CFLAGS = -I.
 liblv2_plugin_a_SOURCEDIR = libraries/lv2plugin
 
-liblv2_advanced_a_SOURCES = lv2advanced.hpp lv2advanced.cpp
-liblv2_advanced_a_CFLAGS = -Iextensions/command -I.
-liblv2_advanced_a_SOURCEDIR = libraries/lv2plugin
+#liblv2_advanced_a_SOURCES = lv2advanced.hpp lv2advanced.cpp
+#liblv2_advanced_a_CFLAGS = -Iextensions/command -I.
+#liblv2_advanced_a_SOURCEDIR = libraries/lv2plugin
 
 libpaq_a_SOURCES = \
 	turtleparser.hpp turtleparser.cpp \
@@ -144,7 +143,7 @@ elven_SOURCEDIR = programs/elven
 
 PLUGINARCHIVES = libraries/lv2plugin/liblv2_plugin.a
 PLUGINCFLAGS = -Ilibraries/lv2plugin -I.
-ADVANCEDARCHIVES = libraries/lv2plugin/liblv2_plugin.a libraries/lv2plugin/liblv2_advanced.a
+ADVANCEDARCHIVES = libraries/lv2plugin/liblv2_plugin.a
 ADVANCEDCFLAGS = -Ilibraries/lv2plugin -I. -Iextensions/command
 
 # Control2MIDI

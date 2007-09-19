@@ -37,11 +37,11 @@
 using namespace std;
 
 
-class Trilobeat : public LV2Advanced {
+class Trilobeat : public LV2::Advanced {
 public:
 
   Trilobeat(double rate, const char* bundle, const LV2_Host_Feature* const* f)
-    : LV2Advanced(k_n_ports),
+    : LV2::Advanced(k_n_ports),
       m_seq(32),
       m_invrate(1.0 / rate),
       m_rate(rate),
@@ -122,7 +122,4 @@ protected:
 };
 
 
-void initialise() __attribute__((constructor));
-void initialise() {
-  register_lv2_adv<Trilobeat>(k_uri);
-}
+static LV2::RegisterAdvanced<Trilobeat> reg(k_uri);

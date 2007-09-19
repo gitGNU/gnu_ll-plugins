@@ -39,13 +39,13 @@
 using namespace std;
 
 
-class Horizon : public LV2Advanced {
+class Horizon : public LV2::Advanced {
 public:
   
   
   Horizon(double rate, const char* bundle_path, 
 	  const LV2_Host_Feature* const* f)
-    : LV2Advanced(h_n_ports),
+    : LV2::Advanced(h_n_ports),
       m_trigger(m_mixer) {
     
     sem_init(&m_lock, 0, 1);
@@ -402,7 +402,4 @@ protected:
 };
 
 
-void initialise() __attribute__((constructor));
-void initialise() {
-  register_lv2_adv<Horizon>(h_uri);
-}
+static LV2::Register<Horizon> reg(h_uri);

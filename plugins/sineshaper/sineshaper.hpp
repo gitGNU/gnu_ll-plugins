@@ -35,7 +35,7 @@
 
 /** This is the class that contains all the code and data for the Sineshaper
     synth plugin. */
-class SineShaper : public LV2Plugin {
+class SineShaper : public LV2::Plugin {
 public:
   
   SineShaper(double frame_rate, const char* bundle_path, 

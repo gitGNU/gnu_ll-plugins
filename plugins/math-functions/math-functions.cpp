@@ -53,10 +53,10 @@ namespace {
 
 
 template <unary_f F, bool A>
-class Unary : public LV2Plugin {
+class Unary : public LV2::Plugin {
 public:
   Unary(double, const char*, const LV2_Host_Feature* const*) 
-    : LV2Plugin(2) {
+    : LV2::Plugin(2) {
     
   }
   void run(uint32_t sample_count) {
@@ -69,10 +69,10 @@ public:
 
 
 template <unary_f F, bool A>
-class UnaryGuard : public LV2Plugin {
+class UnaryGuard : public LV2::Plugin {
 public:
   UnaryGuard(double, const char*, const LV2_Host_Feature* const*) 
-    : LV2Plugin(2) {
+    : LV2::Plugin(2) {
     
   }
   void run(uint32_t sample_count) {
@@ -88,10 +88,10 @@ public:
 
 
 template <unary_f F, bool A, float& MIN, float& MAX>
-class UnaryRange : public LV2Plugin {
+class UnaryRange : public LV2::Plugin {
 public:
   UnaryRange(double, const char*, const LV2_Host_Feature* const*) 
-    : LV2Plugin(2) {
+    : LV2::Plugin(2) {
     
   }
   void run(uint32_t sample_count) {
@@ -107,10 +107,10 @@ public:
 
 
 template <unary_f F, bool A, float& MIN>
-class UnaryMin : public LV2Plugin {
+class UnaryMin : public LV2::Plugin {
 public:
   UnaryMin(double, const char*, const LV2_Host_Feature* const*) 
-    : LV2Plugin(2) {
+    : LV2::Plugin(2) {
     
   }
   void run(uint32_t sample_count) {
@@ -125,10 +125,10 @@ public:
 
 
 template <binary_f F, bool A>
-class Binary : public LV2Plugin {
+class Binary : public LV2::Plugin {
 public:
   Binary(double, const char*, const LV2_Host_Feature* const*) 
-    : LV2Plugin(3) {
+    : LV2::Plugin(3) {
     
   }
   void run(uint32_t sample_count) {
@@ -142,10 +142,10 @@ public:
 
 
 template <binary_f F, bool A>
-class BinaryGuard : public LV2Plugin {
+class BinaryGuard : public LV2::Plugin {
 public:
   BinaryGuard(double, const char*, const LV2_Host_Feature* const*) 
-    : LV2Plugin(3) {
+    : LV2::Plugin(3) {
     
   }
   void run(uint32_t sample_count) {
@@ -162,10 +162,10 @@ public:
 
 
 template <bool A>
-class Modf : public LV2Plugin {
+class Modf : public LV2::Plugin {
 public:
   Modf(double, const char*, const LV2_Host_Feature* const*) 
-    : LV2Plugin(3) {
+    : LV2::Plugin(3) {
     
   }
   void run(uint32_t sample_count) {
@@ -181,49 +181,84 @@ public:
 #define LL_PREFIX "http://ll-plugins.nongnu.org/lv2/dev/math-function-"
 
 
-void initialise() __attribute__((constructor));
-void initialise() {
-  
-  register_lv2<Unary<&atan, true> >(LL_PREFIX "atan/0.0.0");
-  register_lv2<Unary<&atan, false> >(LL_PREFIX "atan-ctrl/0.0.0");
-  register_lv2<Unary<&ceil, true> >(LL_PREFIX "ceil/0.0.0");
-  register_lv2<Unary<&ceil, false> >(LL_PREFIX "ceil-ctrl/0.0.0");
-  register_lv2<Unary<&cos, true> >(LL_PREFIX "cos/0.0.0");
-  register_lv2<Unary<&cos, false> >(LL_PREFIX "cos-ctrl/0.0.0");
-  register_lv2<Unary<&cosh, true> >(LL_PREFIX "cosh/0.0.0");
-  register_lv2<Unary<&cosh, false> >(LL_PREFIX "cosh-ctrl/0.0.0");
-  register_lv2<Unary<&exp, true> >(LL_PREFIX "exp/0.0.0");
-  register_lv2<Unary<&exp, false> >(LL_PREFIX "exp-ctrl/0.0.0");
-  register_lv2<Unary<&abs, true> >(LL_PREFIX "abs/0.0.0");
-  register_lv2<Unary<&abs, false> >(LL_PREFIX "abs-ctrl/0.0.0");
-  register_lv2<Unary<&floor, true> >(LL_PREFIX "floor/0.0.0");
-  register_lv2<Unary<&floor, false> >(LL_PREFIX "floor-ctrl/0.0.0");
-  register_lv2<Unary<&sin, true> >(LL_PREFIX "sin/0.0.0");
-  register_lv2<Unary<&sin, false> >(LL_PREFIX "sin-ctrl/0.0.0");
-  register_lv2<Unary<&sinh, true> >(LL_PREFIX "sinh/0.0.0");
-  register_lv2<Unary<&sinh, false> >(LL_PREFIX "sinh-ctrl/0.0.0");
-  register_lv2<UnaryMin<&log, true, epsilon> >(LL_PREFIX "log/0.0.0");
-  register_lv2<UnaryMin<&log, false, epsilon> >(LL_PREFIX "log-ctrl/0.0.0");
-  register_lv2<UnaryMin<&log10, true, epsilon> >(LL_PREFIX "log10/0.0.0");
-  register_lv2<UnaryMin<&log10, false,epsilon> >(LL_PREFIX "log10-ctrl/0.0.0");
-  register_lv2<UnaryMin<&sqrt, true, zero> >(LL_PREFIX "sqrt/0.0.0");
-  register_lv2<UnaryMin<&sqrt, false, zero> >(LL_PREFIX "sqrt-ctrl/0.0.0");
-  register_lv2<UnaryRange<&acos, true, neg1, pos1> >(LL_PREFIX "acos/0.0.0");
-  register_lv2<UnaryRange<&acos,false,neg1,pos1> >(LL_PREFIX"acos-ctrl/0.0.0");
-  register_lv2<UnaryRange<&asin, true, neg1, pos1> >(LL_PREFIX "asin/0.0.0");
-  register_lv2<UnaryRange<&asin,false,neg1,pos1> >(LL_PREFIX"asin-ctrl/0.0.0");
-  register_lv2<UnaryGuard<&tan, true> >(LL_PREFIX "tan/0.0.0");
-  register_lv2<UnaryGuard<&tan, false> >(LL_PREFIX "tan-ctrl/0.0.0");
-  register_lv2<UnaryGuard<&tanh, true> >(LL_PREFIX "tanh/0.0.0");
-  register_lv2<UnaryGuard<&tanh, false> >(LL_PREFIX "tanh-ctrl/0.0.0");
+static LV2::Register<Unary<&atan, true> > 
+reg01(LL_PREFIX "atan/0.0.0");
+static LV2::Register<Unary<&atan, false> > 
+reg02(LL_PREFIX "atan-ctrl/0.0.0");
+static LV2::Register<Unary<&ceil, true> > 
+reg03(LL_PREFIX "ceil/0.0.0");
+static LV2::Register<Unary<&ceil, false> > 
+reg04(LL_PREFIX "ceil-ctrl/0.0.0");
+static LV2::Register<Unary<&cos, true> > 
+reg05(LL_PREFIX "cos/0.0.0");
+static LV2::Register<Unary<&cos, false> > 
+reg06(LL_PREFIX "cos-ctrl/0.0.0");
+static LV2::Register<Unary<&cosh, true> > 
+reg07(LL_PREFIX "cosh/0.0.0");
+static LV2::Register<Unary<&cosh, false> > 
+reg08(LL_PREFIX "cosh-ctrl/0.0.0");
+static LV2::Register<Unary<&exp, true> > 
+reg09(LL_PREFIX "exp/0.0.0");
+static LV2::Register<Unary<&exp, false> > 
+reg10(LL_PREFIX "exp-ctrl/0.0.0");
+static LV2::Register<Unary<&abs, true> > 
+reg11(LL_PREFIX "abs/0.0.0");
+static LV2::Register<Unary<&abs, false> > 
+reg12(LL_PREFIX "abs-ctrl/0.0.0");
+static LV2::Register<Unary<&floor, true> > 
+reg13(LL_PREFIX "floor/0.0.0");
+static LV2::Register<Unary<&floor, false> > 
+reg14(LL_PREFIX "floor-ctrl/0.0.0");
+static LV2::Register<Unary<&sin, true> > 
+reg15(LL_PREFIX "sin/0.0.0");
+static LV2::Register<Unary<&sin, false> > 
+reg16(LL_PREFIX "sin-ctrl/0.0.0");
+static LV2::Register<Unary<&sinh, true> > 
+reg17(LL_PREFIX "sinh/0.0.0");
+static LV2::Register<Unary<&sinh, false> > 
+reg18(LL_PREFIX "sinh-ctrl/0.0.0");
+static LV2::Register<UnaryMin<&log, true, epsilon> > 
+reg19(LL_PREFIX "log/0.0.0");
+static LV2::Register<UnaryMin<&log, false, epsilon> > 
+reg20(LL_PREFIX "log-ctrl/0.0.0");
+static LV2::Register<UnaryMin<&log10, true, epsilon> > 
+reg21(LL_PREFIX "log10/0.0.0");
+static LV2::Register<UnaryMin<&log10, false,epsilon> > 
+reg22(LL_PREFIX "log10-ctrl/0.0.0");
+static LV2::Register<UnaryMin<&sqrt, true, zero> > 
+reg23(LL_PREFIX "sqrt/0.0.0");
+static LV2::Register<UnaryMin<&sqrt, false, zero> > 
+reg24(LL_PREFIX "sqrt-ctrl/0.0.0");
+static LV2::Register<UnaryRange<&acos, true, neg1, pos1> > 
+reg25(LL_PREFIX "acos/0.0.0");
+static LV2::Register<UnaryRange<&acos,false,neg1,pos1> > 
+reg26(LL_PREFIX"acos-ctrl/0.0.0");
+static LV2::Register<UnaryRange<&asin, true, neg1, pos1> > 
+reg27(LL_PREFIX "asin/0.0.0");
+static LV2::Register<UnaryRange<&asin,false,neg1,pos1> > 
+reg28(LL_PREFIX"asin-ctrl/0.0.0");
+static LV2::Register<UnaryGuard<&tan, true> > 
+reg29(LL_PREFIX "tan/0.0.0");
+static LV2::Register<UnaryGuard<&tan, false> > 
+reg30(LL_PREFIX "tan-ctrl/0.0.0");
+static LV2::Register<UnaryGuard<&tanh, true> > 
+reg31(LL_PREFIX "tanh/0.0.0");
+static LV2::Register<UnaryGuard<&tanh, false> > 
+reg32(LL_PREFIX "tanh-ctrl/0.0.0");
+static LV2::Register<Binary<&atan2, true> > 
+reg33(LL_PREFIX "atan2/0.0.0");
+static LV2::Register<Binary<&atan2, false> > 
+reg34(LL_PREFIX "atan2-ctrl/0.0.0");
+static LV2::Register<BinaryGuard<&fmod, true> > 
+reg35(LL_PREFIX "fmod/0.0.0");
+static LV2::Register<BinaryGuard<&fmod, false> > 
+reg36(LL_PREFIX "fmod-ctrl/0.0.0");
+static LV2::Register<BinaryGuard<&pow, true> > 
+reg37(LL_PREFIX "pow/0.0.0");
+static LV2::Register<BinaryGuard<&pow, false> > 
+reg38(LL_PREFIX "pow-ctrl/0.0.0");
+static LV2::Register<Modf<true> > 
+reg39(LL_PREFIX "modf/0.0.0");
+static LV2::Register<Modf<false> > 
+reg40(LL_PREFIX "modf-ctrl/0.0.0");
 
-  register_lv2<Binary<&atan2, true> >(LL_PREFIX "atan2/0.0.0");
-  register_lv2<Binary<&atan2, false> >(LL_PREFIX "atan2-ctrl/0.0.0");
-  register_lv2<BinaryGuard<&fmod, true> >(LL_PREFIX "fmod/0.0.0");
-  register_lv2<BinaryGuard<&fmod, false> >(LL_PREFIX "fmod-ctrl/0.0.0");
-  register_lv2<BinaryGuard<&pow, true> >(LL_PREFIX "pow/0.0.0");
-  register_lv2<BinaryGuard<&pow, false> >(LL_PREFIX "pow-ctrl/0.0.0");
-
-  register_lv2<Modf<true> >(LL_PREFIX "modf/0.0.0");
-  register_lv2<Modf<false> >(LL_PREFIX "modf-ctrl/0.0.0");
-}

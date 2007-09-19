@@ -470,7 +470,7 @@ void sigchild(int signal) {
 
 
 void print_version() {
-  cerr<<"Elven is an (E)xperimental (LV)2 (E)xecution e(N)vironment.\n"
+  clog<<"Elven is an (E)xperimental (LV)2 (E)xecution e(N)vironment.\n"
       <<"Version " VERSION 
       <<", (C) 2006-2007 Lars Luthman <lars.luthman@gmail.com>\n"
       <<"Released under the GNU General Public License, version 3 or later.\n"
@@ -479,7 +479,7 @@ void print_version() {
 
 
 void print_usage(const char* argv0) {
-  cerr<<"usage:   "<<argv0<<" --help\n"
+  clog<<"usage:   "<<argv0<<" --help\n"
       <<"         "<<argv0<<" --list\n"
       <<"         "<<argv0<<" [--debug DEBUGLEVEL] [--nogui] PLUGIN_URI\n\n"
       <<"example: "<<argv0
@@ -489,7 +489,7 @@ void print_usage(const char* argv0) {
 
 
 void print_help(const char* argv0) {
-  cerr<<"Elven will first try to find a plugin with the given URI, if\n"
+  clog<<"Elven will first try to find a plugin with the given URI, if\n"
       <<"it fails it will try to find a plugin that contains the given\n"
       <<"URI as a substring. Thus '"<<argv0<<" klav' will load the plugin\n"
       <<"with the URI http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0,\n"
@@ -538,7 +538,7 @@ int main(int argc, char** argv) {
     // set debugging level (higher level -> more messages)
     else if (!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug")) {
       if (i == argc - 1) {
-        cerr<<"No debug level given!"<<endl;
+        DBG0("No debug level given!");
         return 1;
       }
       DebugInfo::level() = atoi(argv[i + 1]);
@@ -589,7 +589,7 @@ int main(int argc, char** argv) {
     DBG2("Default MIDI port: "<<lv2h.get_default_midi_port());
     
     if (!init_lash(argc, argv, jack_get_client_name(jack_client))) {
-      cerr<<"Could not initialise LASH"<<endl;
+      DBG0("Could not initialise LASH");
       return -1;
     }
     
@@ -637,7 +637,6 @@ int main(int argc, char** argv) {
     string gui_path;
     if (load_gui)
       gui_path = lv2h.get_gui_path();
-    pid_t gui_pid = 0;
     Gtk::Window* win = 0;
     LV2GUIHost* lv2gh = 0;
     if (gui_path.size()) {

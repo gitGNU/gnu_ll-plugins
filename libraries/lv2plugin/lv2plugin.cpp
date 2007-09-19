@@ -20,51 +20,26 @@
 
 ****************************************************************************/
 
-#include <iostream>
 #include "lv2plugin.hpp"
 
 
-using namespace std;
-
-
-namespace LV2SupportFunctions {
-
-  void connect_port(LV2_Handle instance, uint32_t port, 
-                    void* data_location) {
-    reinterpret_cast<LV2Plugin*>(instance)->connect_port(port, data_location);
-  }
-
-
-  void activate(LV2_Handle instance) {
-    reinterpret_cast<LV2Plugin*>(instance)->activate();
-  }
-
-
-  void run(LV2_Handle instance, uint32_t sample_count) {
-    reinterpret_cast<LV2Plugin*>(instance)->run(sample_count);
-  }
+namespace LV2 {
   
-  
-  void deactivate(LV2_Handle instance) {
-    reinterpret_cast<LV2Plugin*>(instance)->deactivate();
-  }
-
-  DescList& get_lv2_descriptors() {
-    static vector<LV2_Descriptor> descriptors;
+  // we need at least one exported function here that is used by the plugin 
+  // implementations, otherwise this object file may not be linked into the
+  // plugin and then there won't be a lv2_descriptor() function
+  Plugin::DescList& Plugin::get_lv2_descriptors() {
+    static DescList descriptors;
     return descriptors;
   }
 
-  void delete_plugin_instance(LV2_Handle instance) {
-    delete reinterpret_cast<LV2Plugin*>(instance);
-  }
-  
 }
-  
+
+
 extern "C" {
   const LV2_Descriptor* lv2_descriptor(uint32_t index) {
-    using namespace LV2SupportFunctions;
-    if (index < get_lv2_descriptors().size())
-      return &get_lv2_descriptors()[index];
+    if (index < LV2::Plugin::get_lv2_descriptors().size())
+      return &LV2::Plugin::get_lv2_descriptors()[index];
     return NULL;
   }
 }

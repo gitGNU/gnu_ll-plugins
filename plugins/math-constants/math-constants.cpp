@@ -50,10 +50,10 @@ namespace {
 /** This is a template plugin class with a single output port that returns 
     a constant value. */
 template <float& Output>
-class Constant : public LV2Plugin {
+class Constant : public LV2::Plugin {
 public:
   Constant(double, const char*, const LV2_Host_Feature* const*) 
-    : LV2Plugin(1) {
+    : LV2::Plugin(1) {
     
   }
   void run(uint32_t sample_count) {
@@ -65,19 +65,16 @@ public:
 #define LL_PREFIX "http://ll-plugins.nongnu.org/lv2/dev/math-constant-"
 
 
-void initialise() __attribute__((constructor));
-void initialise() {
-  register_lv2< Constant<e> >(LL_PREFIX "e/0.0.0");
-  register_lv2< Constant<log2e> >(LL_PREFIX "log2e/0.0.0");
-  register_lv2< Constant<log10e> >(LL_PREFIX "log10e/0.0.0");
-  register_lv2< Constant<ln2> >(LL_PREFIX "ln2/0.0.0");
-  register_lv2< Constant<ln10> >(LL_PREFIX "ln10/0.0.0");
-  register_lv2< Constant<pi> >(LL_PREFIX "pi/0.0.0");
-  register_lv2< Constant<pi_2> >(LL_PREFIX "pi_2/0.0.0");
-  register_lv2< Constant<pi_4> >(LL_PREFIX "pi_4/0.0.0");
-  register_lv2< Constant<_1_pi> >(LL_PREFIX "1_pi/0.0.0");
-  register_lv2< Constant<_2_pi> >(LL_PREFIX "2_pi/0.0.0");
-  register_lv2< Constant<_2_sqrtpi> >(LL_PREFIX"2_sqrtpi/0.0.0");
-  register_lv2< Constant<sqrt2> >(LL_PREFIX "sqrt2/0.0.0");
-  register_lv2< Constant<sqrt1_2> >(LL_PREFIX "sqrt1_2/0.0.0");
-}
+static LV2::Register< Constant<e> >         reg01(LL_PREFIX "e/0.0.0");
+static LV2::Register< Constant<log2e> >     reg02(LL_PREFIX "log2e/0.0.0");
+static LV2::Register< Constant<log10e> >    reg03(LL_PREFIX "log10e/0.0.0");
+static LV2::Register< Constant<ln2> >       reg04(LL_PREFIX "ln2/0.0.0");
+static LV2::Register< Constant<ln10> >      reg05(LL_PREFIX "ln10/0.0.0");
+static LV2::Register< Constant<pi> >        reg06(LL_PREFIX "pi/0.0.0");
+static LV2::Register< Constant<pi_2> >      reg07(LL_PREFIX "pi_2/0.0.0");
+static LV2::Register< Constant<pi_4> >      reg08(LL_PREFIX "pi_4/0.0.0");
+static LV2::Register< Constant<_1_pi> >     reg09(LL_PREFIX "1_pi/0.0.0");
+static LV2::Register< Constant<_2_pi> >     reg10(LL_PREFIX "2_pi/0.0.0");
+static LV2::Register< Constant<_2_sqrtpi> > reg11(LL_PREFIX"2_sqrtpi/0.0.0");
+static LV2::Register< Constant<sqrt2> >     reg12(LL_PREFIX "sqrt2/0.0.0");
+static LV2::Register< Constant<sqrt1_2> >   reg13(LL_PREFIX "sqrt1_2/0.0.0");
