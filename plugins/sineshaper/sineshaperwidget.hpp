@@ -51,6 +51,8 @@ public:
   
   sigc::signal<void, unsigned char> signal_preset_changed;
   
+  sigc::signal<void, unsigned char, const std::string&> signal_save_preset;
+  
 protected:
   
   class PresetColumns : public TreeModel::ColumnRecord {
@@ -88,6 +90,8 @@ protected:
   
   void do_change_preset();
   
+  void show_about();
+  
   
   Glib::RefPtr<Gdk::Pixbuf> m_dialg;
   std::vector<Gtk::Adjustment*> m_adjs;
@@ -95,6 +99,7 @@ protected:
   Gtk::TreeView* m_view;
   Gtk::CheckButton* m_prt_on;
   Gtk::CheckButton* m_prt_tie;
+  std::string m_bundle;
   
 };
 

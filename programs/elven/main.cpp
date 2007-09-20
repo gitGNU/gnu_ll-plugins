@@ -663,6 +663,8 @@ int main(int argc, char** argv) {
 	lv2h.signal_feedback.connect(mem_fun(*lv2gh, &LV2GUIHost::feedback));
 	lv2h.signal_port_event.
 	  connect(mem_fun(*lv2gh, &LV2GUIHost::port_event));
+	lv2h.signal_program_changed.
+	  connect(mem_fun(*lv2gh, &LV2GUIHost::current_program_changed));
 	lv2gh->write_port.connect(mem_fun(lv2h, &LV2Host::write_port));
 	lv2gh->command.connect(hide_return(mem_fun(lv2h, &LV2Host::command)));
 	lv2gh->request_program.connect(mem_fun(lv2h, &LV2Host::set_program));

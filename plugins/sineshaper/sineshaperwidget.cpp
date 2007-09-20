@@ -56,7 +56,8 @@ namespace {
 
 SineshaperWidget::SineshaperWidget(const std::string& bundle)
   : HBox(false, 6),
-    m_adjs(s_n_ports, 0) {
+    m_adjs(s_n_ports, 0),
+    m_bundle(bundle) {
   
   set_border_width(6);
   
@@ -83,8 +84,12 @@ SineshaperWidget::SineshaperWidget(const std::string& bundle)
   
   VBox* preset_vbox = manage(new VBox(false, 6));
   preset_vbox->pack_start(*init_preset_list(), PACK_EXPAND_WIDGET);
-  preset_vbox->pack_start(*manage(new Button("Save preset")), PACK_SHRINK);
-  preset_vbox->pack_start(*manage(new Button("About Sineshaper")), PACK_SHRINK);
+  Button* save = manage(new Button("Save preset"));
+  preset_vbox->pack_start(*save, PACK_SHRINK);
+  Button* about = manage(new Button("About Sineshaper"));
+  about->signal_clicked().
+    connect(mem_fun(*this, &SineshaperWidget::show_about));
+  preset_vbox->pack_start(*about, PACK_SHRINK);
   
   pack_start(*knob_vbox);
   pack_start(*preset_vbox);
@@ -387,4 +392,28 @@ void SineshaperWidget::bool_to_control(uint32_t port, bool value) {
     signal_control_changed(port, 1);
   else
     signal_control_changed(port, 0);
+}
+
+
+void SineshaperWidget::show_about() {
+  AboutDialog dlg;
+  dlg.set_name("Sineshaper");
+  dlg.set_version(VERSION);
+  dlg.set_logo(Gdk::Pixbuf::create_from_file(m_bundle + "icon.svg", 120, -1));
+  dlg.set_copyright("\u00a9 2006-2007 Lars Luthman <lars.luthman@gmail.com>");
+  dlg.set_website("http://ll-plugins.nongnu.org");
+  dlg.set_license("This program is free software: you can redistribute it and/or modify\n"
+		  "it under the terms of the GNU General Public License as published by\n"
+		  "the Free Software Foundation, either version 3 of the License, or\n"
+		  "(at your option) any later version.\n"
+		  "\n"
+		  "This program is distributed in the hope that it will be useful,\n"
+		  "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+		  "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+		  "GNU General Public License for more details.\n"
+		  "\n"
+		  "You should have received a copy of the GNU General Public License\n"
+		  "along with this program.  If not, see <http://www.gnu.org/licenses/>.\n");
+  dlg.show();
+  dlg.run();
 }

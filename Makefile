@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.301
+PACKAGE_VERSION = 0.1.302
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -129,9 +129,11 @@ lv2peg_ARCHIVES = libraries/paq/libpaq.a
 lv2peg_SOURCEDIR = programs/lv2peg
 
 elven_SOURCES = \
+	debug.hpp \
 	lv2guihost.hpp lv2guihost.cpp \
 	lv2host.hpp lv2host.cpp \
-	main.cpp
+	main.cpp \
+	midiutils.hpp
 elven_CFLAGS = `pkg-config --cflags jack gtkmm-2.4 lash-1.0 sigc++-2.0` -Iextensions/MidiPort -Iextensions/gtkgui -Iextensions/command -Ilibraries/paq -Ilibraries/components -I. -DVERSION=\"$(PACKAGE_VERSION)\"
 elven_LDFLAGS = `pkg-config --libs jack gtkmm-2.4 lash-1.0 sigc++-2.0` -lpthread
 elven_ARCHIVES = libraries/paq/libpaq.a
@@ -301,13 +303,14 @@ sineshaper_so_ARCHIVES = $(PLUGINARCHIVES)
 # Sineshaper GUI
 sineshaper_gtk_lv2_MODULES = sineshaper_gtk.so
 sineshaper_gtk_lv2_MANIFEST = gui_manifest.ttl
-sineshaper_gtk_lv2_DATA = sineshaper.glade dial.png sineshaper.png
+sineshaper_gtk_lv2_DATA = sineshaper.glade dial.png sineshaper.png icon.svg
 sineshaper_gtk_lv2_SOURCEDIR = plugins/sineshaper
 sineshaper_gtk_so_SOURCES = \
 	sineshaper_gtk.cpp \
 	sineshaperwidget.cpp sineshaperwidget.hpp \
 	skindial_gtkmm.cpp skindial_gtkmm.hpp
 sineshaper_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
+sineshaperwidget_cpp_CFLAGS = -DVERSION=\"$(PACKAGE_VERSION)\"
 sineshaper_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` 
 sineshaper_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a
 sineshaper_gtk_so_SOURCEDIR = plugins/sineshaper
@@ -369,11 +372,15 @@ EXTRA_DIST = COPYING \
 	libraries/components/chebyshevshaper.hpp \
 	libraries/components/dcblocker.hpp \
 	libraries/components/delay.hpp \
+	libraries/components/delayline.hpp \
 	libraries/components/distortion.hpp \
 	libraries/components/envelopegenerator.hpp \
+	libraries/components/filter.hpp \
 	libraries/components/frequencytable.hpp \
+	libraries/components/householderfdn.hpp \
 	libraries/components/ladspawrapper.hpp \
 	libraries/components/lv2-midifunctions.h \
+	libraries/components/markov.hpp \
 	libraries/components/monophonicmidinote.hpp \
 	libraries/components/monostep.hpp \
 	libraries/components/mooglpf.hpp \
