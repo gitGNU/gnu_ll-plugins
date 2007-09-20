@@ -85,6 +85,8 @@ SineshaperWidget::SineshaperWidget(const std::string& bundle)
   VBox* preset_vbox = manage(new VBox(false, 6));
   preset_vbox->pack_start(*init_preset_list(), PACK_EXPAND_WIDGET);
   Button* save = manage(new Button("Save preset"));
+  save->signal_clicked().
+    connect(mem_fun(*this, &SineshaperWidget::show_save));
   preset_vbox->pack_start(*save, PACK_SHRINK);
   Button* about = manage(new Button("About Sineshaper"));
   about->signal_clicked().
@@ -387,11 +389,58 @@ void SineshaperWidget::do_change_preset() {
 }
 
 
+Gtk::TreeIter SineshaperWidget::find_preset_row(unsigned char number) {
+  TreeStore::Children c = m_preset_store->children();
+  for (TreeStore::Children::iterator i = c.begin(); i != c.end(); ++i) {
+    if ((*i)[m_preset_columns.number] == number)
+      return i;
+  }
+  return c.end();
+}
+
+
 void SineshaperWidget::bool_to_control(uint32_t port, bool value) {
   if (value)
     signal_control_changed(port, 1);
   else
     signal_control_changed(port, 0);
+}
+
+
+void SineshaperWidget::show_save() {
+  Dialog dlg("Save program");
+  dlg.add_button(Stock::CANCEL, RESPONSE_CANCEL);
+  dlg.add_button(Stock::OK, RESPONSE_OK);
+  Table tbl(2, 2);
+  tbl.set_col_spacings(3);
+  tbl.set_row_spacings(3);
+  tbl.set_border_width(3);
+  Label lbl1("Name:");
+  Label lbl2("Number:");
+  Entry ent;
+  Adjustment adj(0, 0, 127);
+  SpinButton spb(adj);
+  TreeIter selected = m_view->get_selection()->get_selected();
+  if (selected != m_preset_store->children().end())
+    spb.set_value((*selected)[m_preset_columns.number]);
+  tbl.attach(lbl1, 0, 1, 0, 1);
+  tbl.attach(lbl2, 0, 1, 1, 2);
+  tbl.attach(ent, 1, 2, 0, 1);
+  tbl.attach(spb, 1, 2, 1, 2);
+  dlg.get_vbox()->pack_start(tbl);
+  dlg.show_all();
+  while (dlg.run() == RESPONSE_OK) {
+    if (find_preset_row((unsigned char)adj.get_value())) {
+      MessageDialog msg("There is already a preset with this number. Are you "
+			"sure that you want to overwrite it?", false,
+			MESSAGE_QUESTION, BUTTONS_YES_NO);
+      msg.show_all();
+      if (msg.run() == RESPONSE_NO)
+	continue;
+    }
+    signal_save_preset((unsigned char)adj.get_value(), ent.get_text().c_str());
+    break;
+  }
 }
 
 

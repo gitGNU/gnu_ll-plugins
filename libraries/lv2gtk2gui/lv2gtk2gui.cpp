@@ -58,14 +58,23 @@ void LV2Controller::request_program(unsigned char number) {
 }
 
 
+void LV2Controller::request_save(unsigned char number, const char* name) {
+  if (m_sfunc)
+    m_sfunc(m_ctrl, number, name);
+}
+
+
+
 LV2Controller::LV2Controller(LV2UI_Write_Function wfunc, 
 			     LV2UI_Command_Function cfunc,
-			     LV2UI_Program_Function pfunc,
+			     LV2UI_Program_Change_Function pfunc,
+			     LV2UI_Program_Save_Function sfunc,
                              LV2UI_Controller ctrl,
 			     const LV2_Host_Feature** features)
   : m_wfunc(wfunc),
     m_cfunc(cfunc),
     m_pfunc(pfunc),
+    m_sfunc(sfunc),
     m_ctrl(ctrl) {
   
 }

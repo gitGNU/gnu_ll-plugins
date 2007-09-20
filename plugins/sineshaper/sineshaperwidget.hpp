@@ -51,7 +51,7 @@ public:
   
   sigc::signal<void, unsigned char> signal_preset_changed;
   
-  sigc::signal<void, unsigned char, const std::string&> signal_save_preset;
+  sigc::signal<void, unsigned char, const char*> signal_save_preset;
   
 protected:
   
@@ -86,10 +86,14 @@ protected:
   Gtk::CheckButton* create_check(Gtk::VBox* vbox, const std::string& name, 
 				 uint32_t port);
   
+  Gtk::TreeIter find_preset_row(unsigned char number);
+  
   void bool_to_control(uint32_t port, bool value);
   
   void do_change_preset();
   
+  void show_save();
+
   void show_about();
   
   

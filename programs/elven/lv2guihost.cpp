@@ -72,7 +72,8 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
   m_block_gui = true;
   m_ui = m_desc->instantiate(m_desc, plugin_uri.c_str(), bundle_path.c_str(),
 			     &LV2GUIHost::_write_port, &LV2GUIHost::_command,
-			     &LV2GUIHost::_request_program, ctrl, &m_cwidget, 
+			     &LV2GUIHost::_request_program, 
+			     &LV2GUIHost::_save_program,ctrl, &m_cwidget, 
 			     const_cast<const LV2_Host_Feature**>(features));
   m_block_gui = false;
   if (!m_ui || !m_cwidget) {
@@ -189,5 +190,17 @@ void LV2GUIHost::_request_program(LV2UI_Controller ctrl, unsigned char number) {
   else {
     DBG2("GUI requested program change to "<<int(number));
     me->request_program(number);
+  }
+}
+
+
+void LV2GUIHost::_save_program(LV2UI_Controller ctrl, unsigned char number,
+			       const char* name) {
+  LV2GUIHost* me = static_cast<LV2GUIHost*>(ctrl);
+  if (me->m_block_gui)
+    DBG1("GUI requested program save while a GUI callback was running");
+  else {
+    DBG2("GUI requested program save to "<<int(number)<<", \""<<name<<"\"");
+    DBG0("Program save is not implemented!");
   }
 }

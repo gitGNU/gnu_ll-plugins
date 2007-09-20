@@ -72,6 +72,9 @@ protected:
 		       uint32_t argc, const char* const* argv);
   
   static void _request_program(LV2UI_Controller ctrl, unsigned char number);
+
+  static void _save_program(LV2UI_Controller ctrl, unsigned char number,
+			    const char* name);
   
   
   /** This is needed to cast void* (returned by dlsym()) to a function

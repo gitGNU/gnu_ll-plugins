@@ -41,7 +41,8 @@ namespace LV2G2GSupportFunctions {
 				  const char*                     bundle_path,
 				  LV2UI_Write_Function            write_func,
 				  LV2UI_Command_Function          command_func,
-				  LV2UI_Program_Function          program_func,
+				  LV2UI_Program_Change_Function   program_func,
+				  LV2UI_Program_Save_Function     save_func,
 				  LV2UI_Controller                ctrl,
 				  GtkWidget**                     widget,
 				  const LV2_Host_Feature**        features);
@@ -68,6 +69,9 @@ public:
       instance. */
   void request_program(unsigned char number);
   
+  /** Tell the plugin host to save the current plugin state to a program. */
+  void request_save(unsigned char number, const char* name);
+  
   /** Return data associated with an extension URI, or 0 if that extension
       is not supported or does not have any data for use in controllers. */
   void* extension_data(const std::string& URI);
@@ -81,18 +85,21 @@ protected:
 		     const char*                     bundle_path,
 		     LV2UI_Write_Function            write_function,
 		     LV2UI_Command_Function          command_function,
-		     LV2UI_Program_Function          program_function,
+		     LV2UI_Program_Change_Function   program_function,
+		     LV2UI_Program_Save_Function     save_function,
 		     LV2UI_Controller                ctrl,
 		     GtkWidget**                     widget,
 		     const LV2_Host_Feature**        features);
-
+  
   LV2Controller(LV2UI_Write_Function wfcn, LV2UI_Command_Function cfcn,
-		LV2UI_Program_Function pfcn, LV2UI_Controller ctrl, 
+		LV2UI_Program_Change_Function pfcn, 
+		LV2UI_Program_Save_Function sfcn, LV2UI_Controller ctrl, 
 		const LV2_Host_Feature** features);
   
   LV2UI_Write_Function m_wfunc;
   LV2UI_Command_Function m_cfunc;
-  LV2UI_Program_Function m_pfunc;
+  LV2UI_Program_Change_Function m_pfunc;
+  LV2UI_Program_Save_Function m_sfunc;
   LV2UI_Controller m_ctrl;
 };
 
@@ -117,7 +124,8 @@ namespace LV2G2GSupportFunctions {
 				  const char*                     bundle_path,
 				  LV2UI_Write_Function            write_func,
 				  LV2UI_Command_Function          command_func,
-				  LV2UI_Program_Function          program_func,
+				  LV2UI_Program_Change_Function   program_func,
+				  LV2UI_Program_Save_Function     save_func,
 				  LV2UI_Controller                ctrl,
 				  GtkWidget**                     widget,
 				  const LV2_Host_Feature**        features) {
@@ -127,7 +135,8 @@ namespace LV2G2GSupportFunctions {
     Gtk::Main::init_gtkmm_internals();
     
     LV2Controller* controller = new LV2Controller(write_func, command_func,
-						  program_func, ctrl, features);
+						  program_func, save_func,
+						  ctrl, features);
     T* t = new T(*controller, plugin_uri, bundle_path);
     t->m_controller = controller;
     *widget = static_cast<Gtk::Widget*>(t)->gobj();
@@ -213,7 +222,8 @@ private:
 		     const char*                     bundle_path,
 		     LV2UI_Write_Function            write_function,
 		     LV2UI_Command_Function          command_function,
-		     LV2UI_Program_Function          program_function,
+		     LV2UI_Program_Change_Function   program_function,
+		     LV2UI_Program_Save_Function     save_function,
 		     LV2UI_Controller                ctrl,
 		     GtkWidget**                     widget,
 		     const LV2_Host_Feature**        features);
