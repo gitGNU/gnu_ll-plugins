@@ -44,7 +44,7 @@ namespace LV2G2GSupportFunctions {
 				  LV2UI_Program_Change_Function   program_func,
 				  LV2UI_Program_Save_Function     save_func,
 				  LV2UI_Controller                ctrl,
-				  GtkWidget**                     widget,
+				  LV2UI_Widget*                   widget,
 				  const LV2_Host_Feature**        features);
 }
 
@@ -88,7 +88,7 @@ protected:
 		     LV2UI_Program_Change_Function   program_function,
 		     LV2UI_Program_Save_Function     save_function,
 		     LV2UI_Controller                ctrl,
-		     GtkWidget**                     widget,
+		     LV2UI_Widget*                   widget,
 		     const LV2_Host_Feature**        features);
   
   LV2Controller(LV2UI_Write_Function wfcn, LV2UI_Command_Function cfcn,
@@ -127,7 +127,7 @@ namespace LV2G2GSupportFunctions {
 				  LV2UI_Program_Change_Function   program_func,
 				  LV2UI_Program_Save_Function     save_func,
 				  LV2UI_Controller                ctrl,
-				  GtkWidget**                     widget,
+				  LV2UI_Widget*                   widget,
 				  const LV2_Host_Feature**        features) {
     
     // this is needed to initialise gtkmm stuff in case we're running in

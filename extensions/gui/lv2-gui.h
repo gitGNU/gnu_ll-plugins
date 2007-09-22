@@ -33,7 +33,7 @@
 	shared object files in an LV2 bundle and be referenced in the RDF file
 	using the triples (Turtle shown)
 <pre>    
-    @prefix guiext: <http://ll-plugins.nongnu.org/lv2/ext/ipgui/1#> .
+    @prefix guiext: <http://ll-plugins.nongnu.org/lv2/ext/gui/dev/1#> .
     <http://my.plugin>    guiext:gui    <http://my.plugingui> .
     <http://my.plugingui> guiext:binary <mygui.so> .
 </pre>

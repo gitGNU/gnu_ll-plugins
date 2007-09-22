@@ -3,13 +3,13 @@
 @prefix doap: <http://usefulinc.com/ns/doap#>.
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 @prefix llext: <http://ll-plugins.nongnu.org/lv2/ext/>.
-@prefix gg: <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui#>.
+@prefix guiext: <http://ll-plugins.nongnu.org/lv2/ext/gui/dev/1#>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0>
   a lv2:Plugin;
   doap:name "Klaviatur";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
-  gg:gui <http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0/gui>;
+  guiext:gui <http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0/gui>;
   ll:pegName "k";  
   
   lv2:port [
@@ -27,5 +27,6 @@
   ].
 
 <http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0/gui> 
-  gg:binary <klaviatur_gtk.so>;
-  gg:optionalFeature gg:noUserResize.
+  a guiext:GtkGUI;
+  guiext:binary <klaviatur_gtk.so>;
+  guiext:optionalFeature guiext:noUserResize.
