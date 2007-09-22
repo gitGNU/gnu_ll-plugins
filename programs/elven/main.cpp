@@ -665,9 +665,12 @@ int main(int argc, char** argv) {
 	  connect(mem_fun(*lv2gh, &LV2GUIHost::port_event));
 	lv2h.signal_program_changed.
 	  connect(mem_fun(*lv2gh, &LV2GUIHost::current_program_changed));
+	lv2h.signal_program_added.
+	  connect(mem_fun(*lv2gh, &LV2GUIHost::program_added));
 	lv2gh->write_port.connect(mem_fun(lv2h, &LV2Host::write_port));
 	lv2gh->command.connect(hide_return(mem_fun(lv2h, &LV2Host::command)));
 	lv2gh->request_program.connect(mem_fun(lv2h, &LV2Host::set_program));
+	lv2gh->save_program.connect(mem_fun(lv2h, &LV2Host::save_program));
       }
     }
 

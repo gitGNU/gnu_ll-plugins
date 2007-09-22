@@ -21,10 +21,15 @@
 
 ****************************************************************************/
 
+#include <iostream>
+
 #include <dlfcn.h>
 
 #include "debug.hpp"
 #include "lv2guihost.hpp"
+
+
+using namespace std;
 
 
 LV2GUIHost::LV2GUIHost(const std::string& gui_path, 
@@ -173,11 +178,19 @@ void LV2GUIHost::_write_port(LV2UI_Controller ctrl, uint32_t index,
 
 void LV2GUIHost::_command(LV2UI_Controller ctrl, 
 			  uint32_t argc, const char* const* argv) {
+
+  cerr<<__PRETTY_FUNCTION__<<endl;
+  cerr<<"POINTERS:"<<endl;
+  for (unsigned i = 0; i < argc; ++i)
+    cerr<<"  "<<(const void*)(argv[i])<<endl;
+
   LV2GUIHost* me = static_cast<LV2GUIHost*>(ctrl);
   if (me->m_block_gui)
     DBG1("GUI tried to send a command while a GUI callback was running");
   else {
-    DBG2("GUI sent command");
+    DBG2("GUI sent command:");
+    for (unsigned i = 0; i < argc; ++i)
+      DBG2("  '"<<argv[i]<<"'");
     me->command(argc, argv);
   }
 }
@@ -201,6 +214,6 @@ void LV2GUIHost::_save_program(LV2UI_Controller ctrl, unsigned char number,
     DBG1("GUI requested program save while a GUI callback was running");
   else {
     DBG2("GUI requested program save to "<<int(number)<<", \""<<name<<"\"");
-    DBG0("Program save is not implemented!");
+    me->save_program(number, name);
   }
 }

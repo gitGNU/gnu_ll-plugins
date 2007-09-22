@@ -41,6 +41,8 @@ public:
   sigc::signal<void, size_t>& signal_add_splitpoint();
   sigc::signal<void, size_t>& signal_remove_splitpoint();
   sigc::signal<void, size_t, size_t>& signal_move_splitpoint();
+  sigc::signal<void, size_t, size_t>& signal_play_preview();
+  sigc::signal<void>& signal_stop_preview();
   
 protected:
   
@@ -56,6 +58,7 @@ protected:
   void do_split_in_2();
   void do_split_in_3();
   void do_auto_split();
+  void do_preview_on_click(bool enable);
   
   void draw_channel(size_t channel, Glib::RefPtr<Gdk::Window> win,
 		    Glib::RefPtr<Gdk::GC> gc, int c, int h);
@@ -63,6 +66,8 @@ protected:
   sigc::signal<void, size_t> m_signal_add_splitpoint;
   sigc::signal<void, size_t> m_signal_remove_splitpoint;
   sigc::signal<void, size_t, size_t> m_signal_move_splitpoint;
+  sigc::signal<void, size_t, size_t> m_signal_play_preview;
+  sigc::signal<void> m_signal_stop_preview;
   
   Gdk::Color m_bg, m_fg, m_bgl, m_bgd, m_fgl, m_fgd, m_bgs, m_red, m_zero;
   
@@ -85,6 +90,8 @@ protected:
   size_t m_drag_segment;
   int m_drag_start_x;
   int m_drag_x;
+  
+  bool m_preview_on_click;
   
 };
 

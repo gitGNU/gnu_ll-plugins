@@ -28,6 +28,7 @@
 
 
 using namespace std;
+using namespace Gtk;
 using namespace Gtk::Menu_Helpers;
 
 
@@ -42,7 +43,8 @@ SampleView::SampleView()
     m_envelope(0),
     m_drag_segment(0),
     m_drag_start_x(-1),
-    m_drag_x(-1) {
+    m_drag_x(-1),
+    m_preview_on_click(true) {
   
   m_bg.set_rgb(55000, 55000, 60000);
   m_bgl.set_rgb(65000, 65000, 65000);
@@ -83,6 +85,17 @@ SampleView::SampleView()
   m_menu.items().
     push_back(MenuElem("Auto split", 
                        mem_fun(*this, &SampleView::do_auto_split)));
+  
+  m_menu.items().push_back(SeparatorElem());
+  
+  CheckMenuItem* cmi = manage(new CheckMenuItem("Preview on click"));
+  cmi->set_active(m_preview_on_click);
+  cmi->signal_toggled().
+    connect(compose(mem_fun(*this, &SampleView::do_preview_on_click),
+		    mem_fun(*cmi, &CheckMenuItem::get_active)));
+  cmi->show_all();
+  m_menu.items().push_back(*cmi);
+  
 }
 
 
@@ -247,6 +260,10 @@ bool SampleView::on_button_press_event(GdkEventButton* event) {
     for (unsigned i = 0; i < seg.size() - 1; ++i) {
       if (seg[i + 1] > frame) {
 	m_active_segment = i;
+	if (m_preview_on_click) {
+	  m_signal_play_preview(m_model->get_splitpoints()[i],
+				m_model->get_splitpoints()[i + 1]);
+	}
 	if (event->state & GDK_SHIFT_MASK && m_sel_begin >= 0) {
 	  m_sel_begin = m_sel_begin < i ? m_sel_begin : i;
 	  m_sel_end = m_sel_end > i ? m_sel_end : i;
@@ -304,6 +321,7 @@ bool SampleView::on_button_release_event(GdkEventButton* event) {
   // button 1 - inactivate the active segment
   if (event->button == 1 && m_active_segment >= 0) {
     m_active_segment = -1;
+    m_signal_stop_preview();
     queue_draw();
   }
   
@@ -434,13 +452,13 @@ void SampleView::do_auto_split() {
   // higher threshold means less detected onsets
   float threshold = 0.3;
   // too high value may cause too early onsets, too low may cause too early
-  float sensitivity = 0.5;
+  float sensitivity = 0.7;
   // the size of the circular buffer
   int risetime = int(m_model->get_rate() * 0.05);
   // the minimum time between detected onsets
   int deadtime = int(m_model->get_rate() * 0.2);
   // how far from the onset frame we may look for a perfect cut point
-  int slack = int(m_model->get_rate() * 0.01);
+  int slack = int(m_model->get_rate() * 0.003);
   
   float* buffer = new float[risetime];
   memset(buffer, 0, risetime * sizeof(float));
@@ -528,6 +546,11 @@ void SampleView::do_auto_split() {
 }
 
 
+void SampleView::do_preview_on_click(bool enable) {
+  m_preview_on_click = enable;
+}
+
+
 sigc::signal<void, size_t>& SampleView::signal_add_splitpoint() {
   return m_signal_add_splitpoint;
 }
@@ -540,6 +563,16 @@ sigc::signal<void, size_t>& SampleView::signal_remove_splitpoint() {
 
 sigc::signal<void, size_t, size_t>& SampleView::signal_move_splitpoint() {
   return m_signal_move_splitpoint;
+}
+
+
+sigc::signal<void, size_t, size_t>& SampleView::signal_play_preview() {
+  return m_signal_play_preview;
+}
+
+
+sigc::signal<void>& SampleView::signal_stop_preview() {
+  return m_signal_stop_preview;
 }
 
 

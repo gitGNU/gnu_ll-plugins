@@ -36,12 +36,17 @@ public:
   
   void set_chunk(const Chunk* chunk);
   
+  void set_region(const SampleBuffer& buffer, uint32_t begin, uint32_t end);
+  
   void render_to(float* left, float* right, uint32_t nframes, float gain);
   
 protected:
   
   const Chunk* m_chunk;
+  const SampleBuffer* m_buffer;
+  
   uint32_t m_pos;
+  uint32_t m_end;
 
 };
 

@@ -63,6 +63,8 @@ public:
 
   sigc::signal<void, unsigned char> request_program;
 
+  sigc::signal<void, unsigned char, const char*> save_program;
+
 protected:
   
   static void _write_port(LV2UI_Controller ctrl, uint32_t index, 

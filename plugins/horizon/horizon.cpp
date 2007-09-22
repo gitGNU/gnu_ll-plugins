@@ -74,6 +74,10 @@ public:
 
   char* command(uint32_t argc, const char*const* argv) {
     
+    cerr<<"Command with "<<argc<<" parameters:"<<endl;
+    for (unsigned i = 0; i < argc; ++i)
+      cerr<<"  "<<argv[i]<<endl;
+    
     // load a new sample
     if (argc == 2 && !strcmp(argv[0], "load_sample")) {
       if (load_sample(argv[1])) {
@@ -136,6 +140,23 @@ public:
       else
 	return strdup((string("Failed to move splitpoint ") + argv[2] + " to " +
 		       argv[3] + " in sample " + argv[1]).c_str());
+    }
+    
+    // play a preview of a sample region
+    else if (argc == 4 && !strcmp(argv[0], "play_preview")) {
+      if (play_preview(argv[1], atol(argv[2]), atol(argv[3])))
+	return 0;
+      else
+	return strdup((string("Failed to play preview ") + argv[1] + 
+		       " [" + argv[2] + ", " + argv[3] + ")").c_str());
+    }
+    
+    // stop a preview of a sample region
+    else if (argc == 2 && !strcmp(argv[0], "stop_preview")) {
+      if (stop_preview(argv[1]))
+	return 0;
+      else
+	return strdup("Failed to stop preview ");
     }
     
     // add a static effect to a sample
@@ -314,6 +335,27 @@ protected:
     }
     return false;
   }
+
+  
+  bool play_preview(const std::string& name, size_t start, size_t end) {
+    for (unsigned i = 0; i < m_samples.size(); ++i) {
+      if (m_samples[i]->get_name() == name) {
+	sem_wait(&m_lock);
+	m_mixer.play_preview(m_samples[i]->get_processed_buffer(), start, end);
+	sem_post(&m_lock);
+	return true;
+      }
+    }
+    return false;
+  }
+  
+  
+  bool stop_preview(const std::string& name) {
+    sem_wait(&m_lock);
+    m_mixer.stop();
+    sem_post(&m_lock);
+    return true;
+  }
   
   
   bool add_static_effect(const std::string& sample, size_t pos,
@@ -402,4 +444,4 @@ protected:
 };
 
 
-static LV2::Register<Horizon> reg(h_uri);
+static LV2::RegisterAdvanced<Horizon> reg(h_uri);

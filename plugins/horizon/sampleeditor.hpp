@@ -58,6 +58,8 @@ public:
   sigc::signal<void, const std::string&, size_t>& signal_remove_splitpoint();
   sigc::signal<void, const std::string&, size_t, size_t>& 
   signal_move_splitpoint();
+  sigc::signal<void, const std::string&, size_t, size_t>& signal_play_preview();
+  sigc::signal<void, const std::string&>& signal_stop_preview();
   sigc::signal<void, const std::string&, size_t, const std::string&>& 
   signal_add_static_effect();
   sigc::signal<void, const std::string&, size_t>& signal_remove_static_effect();
@@ -80,6 +82,8 @@ protected:
   sigc::signal<void, const std::string&, size_t> m_signal_remove_splitpoint;
   sigc::signal<void, const std::string&, size_t, size_t> 
   m_signal_move_splitpoint;
+  sigc::signal<void, const std::string&, size_t, size_t> m_signal_play_preview;
+  sigc::signal<void, const std::string&> m_signal_stop_preview;
   sigc::signal<void, const std::string&, size_t, const std::string&> 
   m_signal_add_static_effect;
   sigc::signal<void, const std::string&, size_t> m_signal_remove_static_effect;

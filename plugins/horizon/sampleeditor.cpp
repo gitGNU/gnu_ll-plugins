@@ -112,6 +112,11 @@ SampleEditor::SampleEditor()
   m_view.signal_move_splitpoint().
     connect(group(m_signal_move_splitpoint, 
 		  group(sigc::hide(get_sample), _1), _1, _2));
+  m_view.signal_play_preview().
+    connect(group(m_signal_play_preview, 
+		  group(sigc::hide(get_sample), _1), _1, _2));
+  m_view.signal_stop_preview().
+    connect(compose(m_signal_stop_preview, get_sample));
   m_sview.signal_add_effect().
     connect(group(m_signal_add_static_effect,
 		  group(sigc::hide(get_sample), _1), _1, _2));
@@ -155,6 +160,17 @@ SampleEditor::signal_remove_splitpoint() {
 sigc::signal<void, const std::string&, size_t, size_t>& 
 SampleEditor::signal_move_splitpoint() {
   return m_signal_move_splitpoint;
+}
+
+
+sigc::signal<void, const std::string&, size_t, size_t>& 
+SampleEditor::signal_play_preview() {
+  return m_signal_play_preview;
+}
+
+
+sigc::signal<void, const std::string&>& SampleEditor::signal_stop_preview() {
+  return m_signal_stop_preview;
 }
 
 

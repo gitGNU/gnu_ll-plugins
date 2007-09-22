@@ -47,6 +47,12 @@ void LV2Controller::write(uint32_t port, uint32_t buffer_size,
 
 
 void LV2Controller::command(uint32_t argc, const char* const* argv) {
+
+  cerr<<__PRETTY_FUNCTION__<<endl;
+  cerr<<"POINTERS:"<<endl;
+  for (unsigned i = 0; i < argc; ++i)
+    cerr<<"  "<<(const void*)(argv[i])<<endl;
+  
   if (m_cfunc)
     m_cfunc(m_ctrl, argc, argv);
 }

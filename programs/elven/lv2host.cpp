@@ -180,7 +180,15 @@ void LV2Host::deactivate() {
 
 
 char* LV2Host::command(uint32_t argc, const char* const* argv) {
-  DBG2("Calling command() with "<<argc<<" parameters");
+
+  cerr<<__PRETTY_FUNCTION__<<endl;
+  cerr<<"POINTERS:"<<endl;
+  for (unsigned i = 0; i < argc; ++i)
+    cerr<<"  "<<(const void*)(argv[i])<<endl;
+
+  DBG2("Calling command() with "<<argc<<" parameters:");
+  for (unsigned i = 0; i < argc; ++i)
+    DBG2("  '"<<argv[i]<<"'");
   if (m_comm_desc && m_comm_desc->command) {
     char* result = m_comm_desc->command(m_handle, argc, argv);
     if (result) {
@@ -239,6 +247,25 @@ void LV2Host::set_program(unsigned char program) {
 	set_control(piter->first, piter->second);
     }
   }
+}
+
+
+void LV2Host::save_program(unsigned char program, const char* name) {
+  if (program > 127) {
+    DBG0("Can not save program with number "<<int(program));
+    return;
+  }
+  LV2Preset preset;
+  preset.name = name;
+  for (unsigned i = 0; i < m_ports.size(); ++i) {
+    if (m_ports[i].type == ControlType && m_ports[i].direction == InputPort)
+      preset.values[i] = m_ports[i].value;
+  }
+  DBG2("Program \""<<name<<"\" added with number "<<int(program));
+  DBG0("WARNING: Saved programs are not persistent!");
+  m_presets[program] = preset;
+  signal_program_added(program, name);
+  signal_program_changed(program);
 }
 
 

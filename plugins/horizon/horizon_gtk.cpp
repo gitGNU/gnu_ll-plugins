@@ -71,6 +71,10 @@ public:
       connect(mem_fun(*this, &HorizonGUI::do_remove_splitpoint));
     m_sed.signal_move_splitpoint().
       connect(mem_fun(*this, &HorizonGUI::do_move_splitpoint));
+    m_sed.signal_play_preview().
+      connect(mem_fun(*this, &HorizonGUI::do_play_preview));
+    m_sed.signal_stop_preview().
+      connect(mem_fun(*this, &HorizonGUI::do_stop_preview));
     m_sed.signal_add_static_effect().
       connect(mem_fun(*this, &HorizonGUI::do_add_static_effect));
     m_sed.signal_remove_static_effect().
@@ -81,7 +85,7 @@ public:
   }
   
   
-  void tell_gui(uint32_t argc, const char* const* argv) {
+  void feedback(uint32_t argc, const char* const* argv) {
     cerr<<"GUI was told:";
     for (unsigned i = 0; i < argc; ++i)
       cerr<<" '"<<argv[i]<<"'";
@@ -166,7 +170,16 @@ protected:
     argv[1] = sample.c_str();
     ostringstream oss;
     oss<<frame;
-    argv[2] = oss.str().c_str();
+    string tmp = oss.str();
+    argv[2] = tmp.c_str();
+    cerr<<"Adding splitpoint "<<argv[2]<<endl;
+
+    cerr<<__PRETTY_FUNCTION__<<endl;
+    cerr<<"POINTERS:"<<endl;
+    cerr<<"  "<<(const void*)(argv[0])<<endl;
+    cerr<<"  "<<(const void*)(argv[1])<<endl;
+    cerr<<"  "<<(const void*)(argv[2])<<endl;
+
     m_ctrl.command(3, argv);
   }
       
@@ -175,7 +188,8 @@ protected:
     argv[1] = sample.c_str();
     ostringstream oss;
     oss<<frame;
-    argv[2] = oss.str().c_str();
+    string tmp = oss.str();
+    argv[2] = tmp.c_str();
     m_ctrl.command(3, argv);
   }
       
@@ -194,13 +208,36 @@ protected:
   }
   
   
+  void do_play_preview(const string& sample, size_t start, size_t end) {
+    const char* argv[] = { "play_preview", 0, 0, 0};
+    argv[1] = sample.c_str();
+    ostringstream oss;
+    oss<<start;
+    string a2 = oss.str();
+    argv[2] = a2.c_str();
+    oss.str("");
+    oss<<end;
+    string a3 = oss.str();
+    argv[3] = a3.c_str();
+    m_ctrl.command(4, argv);
+  }
+  
+  
+  void do_stop_preview(const string& sample) {
+    const char* argv[] = { "stop_preview", 0 };
+    argv[1] = sample.c_str();
+    m_ctrl.command(2, argv);
+  }
+  
+  
   void do_add_static_effect(const string& sample, size_t index, 
 			    const string& effect_uri) {
     const char* argv[] = { "add_static_effect", 0, 0, 0 };
     argv[1] = sample.c_str();
     ostringstream oss;
     oss<<index;
-    argv[2] = oss.str().c_str();
+    string tmp = oss.str();
+    argv[2] = tmp.c_str();
     argv[3] = effect_uri.c_str();
     m_ctrl.command(4, argv);
   }
@@ -211,7 +248,8 @@ protected:
     argv[1] = sample.c_str();
     ostringstream oss;
     oss<<index;
-    argv[2] = oss.str().c_str();
+    string tmp = oss.str();
+    argv[2] = tmp.c_str();
     m_ctrl.command(3, argv);
   }
   
@@ -221,7 +259,8 @@ protected:
     argv[1] = sample.c_str();
     ostringstream oss;
     oss<<index;
-    argv[2] = oss.str().c_str();
+    string tmp = oss.str();
+    argv[2] = tmp.c_str();
     argv[3] = yeah ? "1" : "0";
     m_ctrl.command(4, argv);
   }

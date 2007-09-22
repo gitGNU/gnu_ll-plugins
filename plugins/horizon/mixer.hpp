@@ -44,6 +44,9 @@ public:
   void run(uint32_t nframes);
   
   void play_chunk(const Chunk* chunk);
+  
+  void play_preview(const SampleBuffer& buffer, uint32_t start, uint32_t end);
+  
   void stop();
 
 protected:
