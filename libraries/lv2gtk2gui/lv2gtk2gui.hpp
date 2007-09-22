@@ -30,7 +30,7 @@
 
 #include <gtkmm.h>
 
-#include "lv2-gtk2gui.h"
+#include "lv2-gui.h"
 
 
 namespace LV2G2GSupportFunctions {
@@ -225,7 +225,7 @@ private:
 		     LV2UI_Program_Change_Function   program_function,
 		     LV2UI_Program_Save_Function     save_function,
 		     LV2UI_Controller                ctrl,
-		     GtkWidget**                     widget,
+		     LV2UI_Widget*                   widget,
 		     const LV2_Host_Feature**        features);
 
   friend void* LV2G2GSupportFunctions::extension_data(LV2UI_Handle instance, 

@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.304
+PACKAGE_VERSION = 0.1.305
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -85,7 +85,7 @@ libpaq_a_SOURCES = \
 libpaq_a_SOURCEDIR = libraries/paq
 
 liblv2_gtk2gui_a_SOURCES = lv2gtk2gui.hpp lv2gtk2gui.cpp
-liblv2_gtk2gui_a_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -I.
+liblv2_gtk2gui_a_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gui -I.
 liblv2_gtk2gui_a_SOURCEDIR = libraries/lv2gtk2gui
 
 libkeyboard_a_SOURCES = keyboard.hpp keyboard.cpp
@@ -134,7 +134,7 @@ elven_SOURCES = \
 	lv2host.hpp lv2host.cpp \
 	main.cpp \
 	midiutils.hpp
-elven_CFLAGS = `pkg-config --cflags jack gtkmm-2.4 lash-1.0 sigc++-2.0` -Iextensions/MidiPort -Iextensions/gtkgui -Iextensions/command -Ilibraries/paq -Ilibraries/components -I. -DVERSION=\"$(PACKAGE_VERSION)\"
+elven_CFLAGS = `pkg-config --cflags jack gtkmm-2.4 lash-1.0 sigc++-2.0` -Iextensions/MidiPort -Iextensions/gui -Iextensions/command -Ilibraries/paq -Ilibraries/components -I. -DVERSION=\"$(PACKAGE_VERSION)\"
 elven_LDFLAGS = `pkg-config --libs jack gtkmm-2.4 lash-1.0 sigc++-2.0` -lpthread
 elven_ARCHIVES = libraries/paq/libpaq.a
 elven_SOURCEDIR = programs/elven
@@ -169,7 +169,7 @@ klaviatur_so_SOURCES = klaviatur.cpp
 klaviatur_so_CFLAGS = $(PLUGINCFLAGS) -Iextensions/MidiPort -Ilibraries/components
 klaviatur_so_ARCHIVES = $(PLUGINARCHIVES)
 klaviatur_gtk_so_SOURCES = klaviatur_gtk.cpp
-klaviatur_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/lv2gtk2gui -Ilibraries/widgets -I.
+klaviatur_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gui -Ilibraries/lv2gtk2gui -Ilibraries/widgets -I.
 klaviatur_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` 
 klaviatur_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libkeyboard.a
 klaviatur_lv2_DATA = manifest.ttl klaviatur.ttl
@@ -182,7 +182,7 @@ trilobyte_so_SOURCES = trilobyte.cpp
 trilobyte_so_CFLAGS = $(ADVANCEDCFLAGS) -Iextensions/MidiPort -Iextensions/instrument -Ilibraries/components
 trilobyte_so_ARCHIVES = $(ADVANCEDARCHIVES)
 trilobyte_gtk_so_SOURCES = trilobyte_gtk.cpp
-trilobyte_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/lv2gtk2gui -Ilibraries/widgets -Ilibraries/components -I.
+trilobyte_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gui -Ilibraries/lv2gtk2gui -Ilibraries/widgets -Ilibraries/components -I.
 trilobyte_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4`
 trilobyte_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libpatternwidget.a
 trilobyte_gtk_so_SOURCEDIR = plugins/trilobyte
@@ -200,7 +200,7 @@ trilobeat_lv2_PEGFILES = trilobeat.peg
 trilobeat_lv2_SOURCEDIR = plugins/trilobeat
 #trilobeat_lv2_MODULES = trilobeat_gtk.so
 #trilobeat_gtk_so_SOURCES = trilobeat_gtk.cpp
-#trilobeat_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/lv2gtk2gui -Ilibraries/widgets -Ilibraries/components -I.
+#trilobeat_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gui -Ilibraries/lv2gtk2gui -Ilibraries/widgets -Ilibraries/components -I.
 #trilobeat_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4`
 #trilobeat_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libpatternwidget.a
 #trilobeat_gtk_so_SOURCEDIR = plugins/trilobeat
@@ -231,7 +231,7 @@ euphoria_gtk_lv2_SOURCEDIR = plugins/euphoria
 euphoria_gtk_so_SOURCES = \
 	euphoria_gtk.cpp \
 	euphoriawidget.cpp euphoriawidget.hpp
-euphoria_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0` -Iextensions/gtkgui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
+euphoria_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0` -Iextensions/gui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
 euphoria_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 cairomm-1.0` 
 euphoria_gtk_so_ARCHIVES = \
 	libraries/widgets/libvgknob.a \
@@ -284,7 +284,7 @@ horizon_gtk_so_SOURCES = \
 	sampleview.cpp sampleview.hpp \
 	triggereditor.cpp triggereditor.hpp \
 	horizon_gtk.cpp
-horizon_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0` -Iextensions/gtkgui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
+horizon_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0` -Iextensions/gui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
 horizon_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 cairomm-1.0` 
 horizon_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a
 
@@ -309,7 +309,7 @@ sineshaper_gtk_so_SOURCES = \
 	sineshaper_gtk.cpp \
 	sineshaperwidget.cpp sineshaperwidget.hpp \
 	skindial_gtkmm.cpp skindial_gtkmm.hpp
-sineshaper_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gtkgui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
+sineshaper_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
 sineshaperwidget_cpp_CFLAGS = -DVERSION=\"$(PACKAGE_VERSION)\"
 sineshaper_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` 
 sineshaper_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a

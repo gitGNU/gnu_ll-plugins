@@ -77,8 +77,9 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
   m_block_gui = true;
   m_ui = m_desc->instantiate(m_desc, plugin_uri.c_str(), bundle_path.c_str(),
 			     &LV2GUIHost::_write_port, &LV2GUIHost::_command,
-			     &LV2GUIHost::_request_program, 
-			     &LV2GUIHost::_save_program,ctrl, &m_cwidget, 
+			     &LV2GUIHost::_request_program,
+			     &LV2GUIHost::_save_program,ctrl, 
+			     reinterpret_cast<LV2UI_Widget*>(&m_cwidget),
 			     const_cast<const LV2_Host_Feature**>(features));
   m_block_gui = false;
   if (!m_ui || !m_cwidget) {
