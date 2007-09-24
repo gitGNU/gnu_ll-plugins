@@ -1,6 +1,6 @@
 /****************************************************************************
     
-    vumeter.cpp - simple audio meter plugin
+    vuwidget.hpp - simple VU meter
     
     Copyright (C) 2006-2007 Lars Luthman <lars.luthman@gmail.com>
     
@@ -21,47 +21,30 @@
 
 ****************************************************************************/
 
-#include <cmath>
-#include <cstring>
-#include <iostream>
+#ifndef VUWIDGET_HPP
+#define VUWIDGET_HPP
 
-#include "lv2plugin.hpp"
+#include <string>
+#include <vector>
+
+#include <gtkmm.h>
 
 
-using namespace std;
-
-
-class VUMeter : public LV2::Plugin {
+class VUWidget : public Gtk::DrawingArea {
 public:
   
-  VUMeter(double rate, const char*, const LV2_Host_Feature* const*) 
-    : LV2::Plugin(2),
-      m_value(0.0),
-      m_dy(1.0 / (1.0 * rate)){
-    
-  }
+  VUWidget();
   
-  
-  void run(uint32_t nframes) {
-    for (uint32_t i = 0; i < nframes; ++i) {
-      const float& f = abs(p(0)[i]);
-      if (f > m_value)
-	m_value = f;
-    }
-    *p(1) = m_value > 1e-10 ? m_value : 0;
-    if (m_value > m_dy * nframes)
-      m_value -= m_dy * nframes;
-    else
-      m_value = 0;
-  }
+  void set_value(float value);
   
 protected:
   
+  bool on_expose_event(GdkEventExpose* event);
+
   float m_value;
-  float m_dy;
-  
+  Gdk::Color m_bg, m_fg1, m_fg2, m_fg3;
+
 };
 
 
-static LV2::Register<VUMeter> 
-reg("http://ll-plugins.nongnu.org/lv2/dev/vumeter/0");
+#endif

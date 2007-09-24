@@ -686,6 +686,8 @@ int main(int argc, char** argv) {
     // wait until we are killed
     slot<void> lash_slot = bind(&check_lash_events, ref(lv2h));
     Glib::signal_timeout().connect(bind_return(lash_slot, true), 100);
+    Glib::signal_timeout().
+      connect(bind_return(mem_fun(lv2h, &LV2Host::run_main), true), 10);
     if (win) {
       kit.run(*win);
       win->show_all();

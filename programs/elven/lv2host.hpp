@@ -30,6 +30,7 @@
 #include <vector>
 
 #include <pthread.h>
+#include <semaphore.h>
 #include <dlfcn.h>
 
 #include <sigc++/slot.h>
@@ -65,6 +66,8 @@ struct LV2Port {
   float min_value;
   float max_value;
   float value;
+  float old_value;
+  bool notify;
 };
 
 
@@ -147,6 +150,9 @@ public:
   
   /** List all available plugins. */
   static void list_plugins();
+  
+  /** Run some checks and fire signals in the main thread. */
+  void run_main();
   
   sigc::signal<void, uint32_t, uint32_t, const void*> signal_port_event;
   
@@ -231,6 +237,9 @@ protected:
   
   // big lock
   pthread_mutex_t m_mutex;
+  
+  // output notification semaphore
+  sem_t m_notification_sem;
   
   std::map<unsigned char, LV2Preset> m_presets;
 };

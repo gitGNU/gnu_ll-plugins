@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.308
+PACKAGE_VERSION = 0.1.309
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -32,9 +32,10 @@ ifeq ($(build_experimental),yes)
 	libenvelopeeditor.a \
 	libshapereditor.a \
 	libspringeditor.a \
+	libpatternwidget.a \
 	libpdeditor.a \
 	libtransitioneditor.a \
-	libpatternwidget.a
+	libvuwidget.a
 endif
 
 
@@ -117,6 +118,10 @@ libpdeditor_a_SOURCEDIR = libraries/widgets
 libtransitioneditor_a_SOURCES = transitioneditor.hpp transitioneditor.cpp
 libtransitioneditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
 libtransitioneditor_a_SOURCEDIR = libraries/widgets
+
+libvuwidget_a_SOURCES = vuwidget.hpp vuwidget.cpp
+libvuwidget_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
+libvuwidget_a_SOURCEDIR = libraries/widgets
 
 libpatternwidget_a_SOURCES = patternwidget.hpp patternwidget.cpp
 libpatternwidget_a_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Ilibraries/components
@@ -381,7 +386,7 @@ vumeter_gtk_lv2_MANIFEST = gui_manifest.ttl
 vumeter_gtk_so_SOURCES = vumeter_gtk.cpp
 vumeter_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
 vumeter_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` 
-vumeter_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a
+vumeter_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libvuwidget.a
 
 
 # The shared headers need to go in the distribution too

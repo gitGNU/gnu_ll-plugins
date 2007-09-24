@@ -26,6 +26,7 @@
 #include <gtkmm.h>
 
 #include "lv2gtk2gui.hpp"
+#include "vuwidget.hpp"
 
 
 using namespace std;
@@ -38,14 +39,18 @@ public:
   
   VUMeterGUI(LV2Controller& ctrl, const std::string& URI, 
 	     const std::string& bundle_path) {
-    
+    add(m_vu);
+    m_vu.set_value(1.15);
   }
   
   void port_event(uint32_t port, uint32_t buffer_size, const void* buffer) {
-    
+    if (port == 1 && buffer_size == sizeof(float))
+      m_vu.set_value(*static_cast<const float*>(buffer));
   }
 
 protected:
+  
+  VUWidget m_vu;
   
 };
 
