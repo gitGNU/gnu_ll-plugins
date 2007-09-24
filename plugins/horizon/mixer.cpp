@@ -61,7 +61,7 @@ void Mixer::play_chunk(const Chunk* chunk) {
 void Mixer::play_preview(const SampleBuffer& buffer, 
 			 uint32_t start, uint32_t end) {
   m_voice.set_region(buffer, start, end);
-  m_gain = 0.5;
+  m_gain = 1.0;
 }
 
 

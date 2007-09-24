@@ -40,7 +40,6 @@ public:
   VUMeterGUI(LV2Controller& ctrl, const std::string& URI, 
 	     const std::string& bundle_path) {
     add(m_vu);
-    m_vu.set_value(1.15);
   }
   
   void port_event(uint32_t port, uint32_t buffer_size, const void* buffer) {

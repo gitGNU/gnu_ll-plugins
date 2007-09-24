@@ -81,9 +81,9 @@ bool VUWidget::on_expose_event(GdkEventExpose* event) {
     unsigned i = m_peak * 0.8 * n;
     if (i >= n)
       i = n - 1;
-    if (m_peak <= 0.6)
+    if (m_peak * 0.8 <= 0.6)
       gc->set_foreground(m_fg1);
-    else if (m_peak <= 0.8)
+    else if (m_peak * 0.8 <= 0.8)
       gc->set_foreground(m_fg2);
     else
       gc->set_foreground(m_fg3);
