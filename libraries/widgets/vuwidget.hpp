@@ -40,8 +40,13 @@ public:
 protected:
   
   bool on_expose_event(GdkEventExpose* event);
-
+  
+  void clear_peak();
+  
   float m_value;
+  float m_peak;
+  sigc::connection m_peak_connection;
+  
   Gdk::Color m_bg, m_fg1, m_fg2, m_fg3;
 
 };

@@ -27,7 +27,8 @@
 
 
 VUWidget::VUWidget() 
-  : m_value(0) {
+  : m_value(0),
+    m_peak(0) {
   set_size_request(16, 150);
   m_bg.set_rgb(10000, 10000, 15000);
   m_fg1.set_rgb(0, 65000, 65000);
@@ -43,6 +44,12 @@ VUWidget::VUWidget()
   
 void VUWidget::set_value(float value) {
   m_value = value;
+  if (m_value > m_peak) {
+    m_peak = m_value;
+    m_peak_connection.disconnect();
+    m_peak_connection = Glib::signal_timeout().
+      connect(bind_return(mem_fun(*this, &VUWidget::clear_peak), false), 3000);
+  }
   queue_draw();
 }
   
@@ -69,4 +76,26 @@ bool VUWidget::on_expose_event(GdkEventExpose* event) {
     win->draw_rectangle(gc, true, 2, get_height() - (2 + 3 * i + 3), 
 			get_width() - 4, 2);
   }
+  
+  if (m_peak > 0) {
+    unsigned i = m_peak * 0.8 * n;
+    if (i >= n)
+      i = n - 1;
+    if (m_peak <= 0.6)
+      gc->set_foreground(m_fg1);
+    else if (m_peak <= 0.8)
+      gc->set_foreground(m_fg2);
+    else
+      gc->set_foreground(m_fg3);
+    win->draw_rectangle(gc, true, 2, get_height() - (2 + 3 * i + 3), 
+			get_width() - 4, 2);
+  }
+
 }
+
+
+void VUWidget::clear_peak() {
+  m_peak = 0;
+  queue_draw();
+}
+
