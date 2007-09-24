@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.307
+PACKAGE_VERSION = 0.1.308
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -62,7 +62,9 @@ ifeq ($(build_experimental),yes)
 	sineshaper.lv2 \
 	sineshaper_gtk.lv2 \
 	trilobeat.lv2 \
-	trilobyte.lv2
+	trilobyte.lv2 \
+	vumeter.lv2 \
+	vumeter_gtk.lv2
 endif
 
 
@@ -361,6 +363,25 @@ math-functions_so_CFLAGS = $(PLUGINCFLAGS)
 math-functions_so_ARCHIVES = $(PLUGINARCHIVES)
 math-functions_lv2_DATA = manifest.ttl math-functions.ttl
 math-functions_lv2_SOURCEDIR = plugins/math-functions
+
+
+# VU meter
+vumeter_lv2_MODULES = vumeter.so
+vumeter_so_SOURCES = vumeter.cpp
+vumeter_so_CFLAGS = $(PLUGINCFLAGS)
+vumeter_so_ARCHIVES = $(PLUGINARCHIVES)
+vumeter_lv2_DATA = manifest.ttl vumeter.ttl
+vumeter_lv2_SOURCEDIR = plugins/vumeter
+
+
+# VU meter GUI
+vumeter_gtk_lv2_MODULES = vumeter_gtk.so
+vumeter_gtk_lv2_SOURCEDIR = plugins/vumeter
+vumeter_gtk_lv2_MANIFEST = gui_manifest.ttl
+vumeter_gtk_so_SOURCES = vumeter_gtk.cpp
+vumeter_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
+vumeter_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` 
+vumeter_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a
 
 
 # The shared headers need to go in the distribution too

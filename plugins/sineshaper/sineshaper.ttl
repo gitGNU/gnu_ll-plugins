@@ -23,7 +23,6 @@ plug:delay      rdfs:label "Delay".
   a lv2:Plugin;
   doap:name "Sineshaper";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
-  ll:standaloneGui <sineshaper_gtk>;
   ll:defaultPresets <presets.ttl>;
   ll:svgIcon <icon.svg>;
   ll:pegName "s";
