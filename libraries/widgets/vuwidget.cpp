@@ -34,11 +34,17 @@ VUWidget::VUWidget()
   m_fg1.set_rgb(0, 65000, 65000);
   m_fg2.set_rgb(65000, 45000, 0);
   m_fg3.set_rgb(65000, 0, 0);
+  m_fg1b.set_rgb(8500, 16000, 26000);
+  m_fg2b.set_rgb(16000, 14000, 12500);
+  m_fg3b.set_rgb(16000, 8500, 12500);
   Glib::RefPtr<Gdk::Colormap> cmap = Gdk::Colormap::get_system();
   cmap->alloc_color(m_bg);
   cmap->alloc_color(m_fg1);
   cmap->alloc_color(m_fg2);
   cmap->alloc_color(m_fg3);
+  cmap->alloc_color(m_fg1b);
+  cmap->alloc_color(m_fg2b);
+  cmap->alloc_color(m_fg3b);
 }
 
   
@@ -62,15 +68,29 @@ bool VUWidget::on_expose_event(GdkEventExpose* event) {
   gc->set_foreground(m_fg1);
   unsigned int n = (get_height() - 4) / 3;
   int level = 1;
+  bool active = true;
   for (unsigned i = 0; i < n; ++i) {
-    if (m_value * 0.8 * n <= i)
-      break;
+    if (m_value * 0.8 * n <= i) {
+      active = false;
+      if (level == 1)
+	gc->set_foreground(m_fg1b);
+      else if (level == 2)
+	gc->set_foreground(m_fg2b);
+      if (level == 3)
+	gc->set_foreground(m_fg3b);
+    }
     if (level == 1 && 0.6 * n <= i) {
-      gc->set_foreground(m_fg2);
+      if (active)
+	gc->set_foreground(m_fg2);
+      else
+	gc->set_foreground(m_fg2b);
       level = 2;
     }
     if (level == 2 && 0.8 * n <= i) {
-      gc->set_foreground(m_fg3);
+      if (active)
+	gc->set_foreground(m_fg3);
+      else
+	gc->set_foreground(m_fg3b);
       level = 3;
     }
     win->draw_rectangle(gc, true, 2, get_height() - (2 + 3 * i + 3), 

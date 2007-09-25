@@ -33,9 +33,9 @@
 class VUWidget : public Gtk::DrawingArea {
 public:
   
-  VUWidget();
+  VUWidget(bool stereo);
   
-  void set_value(float value);
+  void set_value(float left, float right);
   
 protected:
   
@@ -47,7 +47,7 @@ protected:
   float m_peak;
   sigc::connection m_peak_connection;
   
-  Gdk::Color m_bg, m_fg1, m_fg2, m_fg3;
+  Gdk::Color m_bg, m_fg1, m_fg2, m_fg3, m_fg1b, m_fg2b, m_fg3b;
 
 };
 
