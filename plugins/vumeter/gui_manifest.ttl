@@ -2,16 +2,30 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix guiext: <http://ll-plugins.nongnu.org/lv2/ext/gui/dev/1#>.
 @prefix plug: <http://ll-plugins.nongnu.org/lv2/dev/vumeter/0/>.
+@prefix plug2: <http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0/>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/vumeter/0>
   rdfs:seeAlso <>;
   guiext:gui plug:gui.
+
+<http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0>
+  rdfs:seeAlso <>;
+  guiext:gui plug2:gui.
 
 plug:gui
   a guiext:GtkGUI;
   guiext:binary <vumeter_gtk.so>;
   guiext:portNotification [ guiext:plugin <http://ll-plugins.nongnu.org/lv2/dev/vumeter/0>;
                             guiext:portIndex 1 ].
+
+plug2:gui
+  a guiext:GtkGUI;
+  guiext:binary <vumeter_gtk.so>;
+  guiext:portNotification 
+    [ guiext:plugin <http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0>;
+      guiext:portIndex 1 ],
+    [ guiext:plugin <http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0>;
+      guiext:portIndex 3 ].
 
 
 

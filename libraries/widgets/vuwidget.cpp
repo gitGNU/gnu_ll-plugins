@@ -26,10 +26,18 @@
 #include "vuwidget.hpp"
 
 
-VUWidget::VUWidget() 
-  : m_value(0),
-    m_peak(0) {
-  set_size_request(16, 150);
+VUWidget::VUWidget(unsigned channels) 
+  : m_channels(channels),
+    m_values(new float[m_channels]),
+    m_peaks(new float[m_channels]),
+    m_peak_connections(new sigc::connection[m_channels]) {
+  
+  for (unsigned c = 0; c < m_channels; ++c) {
+    m_values[c] = 0.0;
+    m_peaks[c] = 0.0;
+  }
+  
+  set_size_request(4 + 12 * m_channels, 150);
   m_bg.set_rgb(10000, 10000, 15000);
   m_fg1.set_rgb(0, 65000, 65000);
   m_fg2.set_rgb(65000, 45000, 0);
@@ -47,14 +55,22 @@ VUWidget::VUWidget()
   cmap->alloc_color(m_fg3b);
 }
 
+
+VUWidget::~VUWidget() {
+  delete [] m_values;
+  delete [] m_peaks;
+  delete [] m_peak_connections;
+}
+
   
-void VUWidget::set_value(float value) {
-  m_value = value;
-  if (m_value > m_peak) {
-    m_peak = m_value;
-    m_peak_connection.disconnect();
-    m_peak_connection = Glib::signal_timeout().
-      connect(bind_return(mem_fun(*this, &VUWidget::clear_peak), false), 3000);
+void VUWidget::set_value(unsigned channel, float value) {
+  m_values[channel] = value;
+  if (m_values[channel] > m_peaks[channel]) {
+    m_peaks[channel] = m_values[channel];
+    m_peak_connections[channel].disconnect();
+    m_peak_connections[channel] = Glib::signal_timeout().
+      connect(bind_return(bind(mem_fun(*this, &VUWidget::clear_peak), channel),
+			  false), 3000);
   }
   queue_draw();
 }
@@ -65,57 +81,59 @@ bool VUWidget::on_expose_event(GdkEventExpose* event) {
   Glib::RefPtr<Gdk::GC> gc = Gdk::GC::create(win);
   gc->set_foreground(m_bg);
   win->draw_rectangle(gc, true, 0, 0, get_width(), get_height());
-  gc->set_foreground(m_fg1);
   unsigned int n = (get_height() - 4) / 3;
-  int level = 1;
-  bool active = true;
-  for (unsigned i = 0; i < n; ++i) {
-    if (m_value * 0.8 * n <= i) {
-      active = false;
-      if (level == 1)
-	gc->set_foreground(m_fg1b);
-      else if (level == 2)
-	gc->set_foreground(m_fg2b);
-      if (level == 3)
-	gc->set_foreground(m_fg3b);
+  
+  for (unsigned c = 0; c < m_channels; ++c) {
+    int x = 2 + c * ((get_width() - 3) / m_channels);
+    int w = (get_width() - 3) / m_channels - 2;
+    gc->set_foreground(m_fg1);
+    int level = 1;
+    bool active = true;
+    for (unsigned i = 0; i < n; ++i) {
+      if (m_values[c] * 0.8 * n <= i) {
+	active = false;
+	if (level == 1)
+	  gc->set_foreground(m_fg1b);
+	else if (level == 2)
+	  gc->set_foreground(m_fg2b);
+	if (level == 3)
+	  gc->set_foreground(m_fg3b);
+      }
+      if (level == 1 && 0.6 * n <= i) {
+	if (active)
+	  gc->set_foreground(m_fg2);
+	else
+	  gc->set_foreground(m_fg2b);
+	level = 2;
+      }
+      if (level == 2 && 0.8 * n <= i) {
+	if (active)
+	  gc->set_foreground(m_fg3);
+	else
+	  gc->set_foreground(m_fg3b);
+	level = 3;
+      }
+      win->draw_rectangle(gc, true, x, get_height() - (2 + 3 * i + 3), w, 2);
     }
-    if (level == 1 && 0.6 * n <= i) {
-      if (active)
+    
+    if (m_peaks[c] > 0) {
+      unsigned i = m_peaks[c] * 0.8 * n;
+      if (i >= n)
+	i = n - 1;
+      if (m_peaks[c] * 0.8 <= 0.6)
+	gc->set_foreground(m_fg1);
+      else if (m_peaks[c] * 0.8 <= 0.8)
 	gc->set_foreground(m_fg2);
       else
-	gc->set_foreground(m_fg2b);
-      level = 2;
-    }
-    if (level == 2 && 0.8 * n <= i) {
-      if (active)
 	gc->set_foreground(m_fg3);
-      else
-	gc->set_foreground(m_fg3b);
-      level = 3;
+      win->draw_rectangle(gc, true, x, get_height() - (2 + 3 * i + 3), w, 2);
     }
-    win->draw_rectangle(gc, true, 2, get_height() - (2 + 3 * i + 3), 
-			get_width() - 4, 2);
   }
-  
-  if (m_peak > 0) {
-    unsigned i = m_peak * 0.8 * n;
-    if (i >= n)
-      i = n - 1;
-    if (m_peak * 0.8 <= 0.6)
-      gc->set_foreground(m_fg1);
-    else if (m_peak * 0.8 <= 0.8)
-      gc->set_foreground(m_fg2);
-    else
-      gc->set_foreground(m_fg3);
-    win->draw_rectangle(gc, true, 2, get_height() - (2 + 3 * i + 3), 
-			get_width() - 4, 2);
-  }
-
 }
 
 
-void VUWidget::clear_peak() {
-  m_peak = 0;
+void VUWidget::clear_peak(unsigned channel) {
+  m_peaks[channel] = 0.0;
   queue_draw();
 }
 

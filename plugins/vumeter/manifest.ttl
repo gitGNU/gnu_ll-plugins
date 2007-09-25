@@ -7,3 +7,8 @@
   lv2:binary <vumeter.so>;
   rdfs:seeAlso <vumeter.ttl>.
 
+<http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0>
+  a lv2:Plugin;
+  lv2:binary <vumeter.so>;
+  rdfs:seeAlso <vumeter.ttl>.
+

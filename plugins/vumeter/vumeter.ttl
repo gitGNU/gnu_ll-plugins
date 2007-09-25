@@ -22,3 +22,38 @@
     lv2:symbol "level";
     lv2:name "Level";
   ].
+
+
+<http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0>
+  a lv2:Plugin;
+  doap:name "VU meter (Stereo)";
+  doap:license <http://usefulinc.com/doap/licenses/gpl>;
+  ll:pegName "v2";
+  
+  lv2:port [
+    a lv2:AudioPort, lv2:InputPort;
+    lv2:index 0;
+    lv2:symbol "input_l";
+    lv2:name "Input L";
+  ],
+  
+  [
+    a lv2:ControlPort, lv2:OutputPort;
+    lv2:index 1;
+    lv2:symbol "level_l";
+    lv2:name "Level L";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:InputPort;
+    lv2:index 2;
+    lv2:symbol "input_r";
+    lv2:name "Input R";
+  ],
+  
+  [
+    a lv2:ControlPort, lv2:OutputPort;
+    lv2:index 3;
+    lv2:symbol "level_r";
+    lv2:name "Level R";
+  ].

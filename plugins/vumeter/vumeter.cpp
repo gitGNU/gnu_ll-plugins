@@ -31,37 +31,42 @@
 using namespace std;
 
 
+template <unsigned C>
 class VUMeter : public LV2::Plugin {
 public:
   
   VUMeter(double rate, const char*, const LV2_Host_Feature* const*) 
-    : LV2::Plugin(2),
-      m_value(0.0),
+    : LV2::Plugin(2 * C),
       m_dy(1.0 / (1.0 * rate)){
-    
+    for (unsigned i = 0; i < C; ++i)
+      m_values[i] = 0.0;
   }
   
   
   void run(uint32_t nframes) {
-    for (uint32_t i = 0; i < nframes; ++i) {
-      const float& f = abs(p(0)[i]);
-      if (f > m_value)
-	m_value = f;
+    for (unsigned c = 0; c < C; ++c) {
+      for (uint32_t i = 0; i < nframes; ++i) {
+	const float& f = abs(p(2 * c)[i]);
+	if (f > m_values[c])
+	  m_values[c] = f;
+      }
+      *p(2 * c + 1) = m_values[c] > 1e-10 ? m_values[c] : 0;
+      if (m_values[c] > m_dy * nframes)
+	m_values[c] -= m_dy * nframes;
+      else
+	m_values[c] = 0.0;
     }
-    *p(1) = m_value > 1e-10 ? m_value : 0;
-    if (m_value > m_dy * nframes)
-      m_value -= m_dy * nframes;
-    else
-      m_value = 0;
   }
   
 protected:
   
-  float m_value;
+  float m_values[C];
   float m_dy;
   
 };
 
 
-static LV2::Register<VUMeter> 
-reg("http://ll-plugins.nongnu.org/lv2/dev/vumeter/0");
+static LV2::Register< VUMeter<1> > 
+reg1("http://ll-plugins.nongnu.org/lv2/dev/vumeter/0");
+static LV2::Register< VUMeter<2> > 
+reg2("http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0");

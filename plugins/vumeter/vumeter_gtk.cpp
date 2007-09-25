@@ -34,17 +34,21 @@ using namespace Gtk;
 using namespace sigc;
 
 
+template <unsigned C>
 class VUMeterGUI : public LV2GTK2GUI {
 public:
   
   VUMeterGUI(LV2Controller& ctrl, const std::string& URI, 
-	     const std::string& bundle_path) {
+	     const std::string& bundle_path) 
+    : m_vu(C) {
     add(m_vu);
   }
   
   void port_event(uint32_t port, uint32_t buffer_size, const void* buffer) {
-    if (port == 1 && buffer_size == sizeof(float))
-      m_vu.set_value(*static_cast<const float*>(buffer));
+    for (unsigned c = 0; c < C; ++c) {
+      if (port == 2 * c + 1 && buffer_size == sizeof(float))
+	m_vu.set_value(c, *static_cast<const float*>(buffer));
+    }
   }
 
 protected:
@@ -56,5 +60,6 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  register_lv2gtk2gui<VUMeterGUI>("http://ll-plugins.nongnu.org/lv2/dev/vumeter/0/gui");
+  register_lv2gtk2gui< VUMeterGUI<1> >("http://ll-plugins.nongnu.org/lv2/dev/vumeter/0/gui");
+  register_lv2gtk2gui< VUMeterGUI<2> >("http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0/gui");
 }

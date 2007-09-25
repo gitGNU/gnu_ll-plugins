@@ -33,19 +33,21 @@
 class VUWidget : public Gtk::DrawingArea {
 public:
   
-  VUWidget(bool stereo);
+  VUWidget(unsigned channels);
+  ~VUWidget();
   
-  void set_value(float left, float right);
+  void set_value(unsigned channel, float value);
   
 protected:
   
   bool on_expose_event(GdkEventExpose* event);
   
-  void clear_peak();
+  void clear_peak(unsigned channel);
   
-  float m_value;
-  float m_peak;
-  sigc::connection m_peak_connection;
+  unsigned m_channels;
+  float* m_values;
+  float* m_peaks;
+  sigc::connection* m_peak_connections;
   
   Gdk::Color m_bg, m_fg1, m_fg2, m_fg3, m_fg1b, m_fg2b, m_fg3b;
 
