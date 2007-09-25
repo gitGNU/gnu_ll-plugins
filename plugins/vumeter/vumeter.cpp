@@ -28,9 +28,6 @@
 #include "lv2plugin.hpp"
 
 
-using namespace std;
-
-
 template <unsigned C>
 class VUMeter : public LV2::Plugin {
 public:
