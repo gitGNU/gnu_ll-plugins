@@ -1,12 +1,14 @@
 @prefix lv2:  <http://lv2plug.in/ns/lv2core#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix doap: <http://usefulinc.com/ns/doap#>.
+@prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 
 
 <http://ll-plugins.nongnu.org/lv2/dev/vumeter/0>
   a lv2:Plugin;
   doap:name "VU meter";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
+  ll:svgIcon <icon.svg>;
   ll:pegName "v";
   
   lv2:port [
@@ -28,6 +30,7 @@
   a lv2:Plugin;
   doap:name "VU meter (Stereo)";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
+  ll:svgIcon <icon.svg>;
   ll:pegName "v2";
   
   lv2:port [

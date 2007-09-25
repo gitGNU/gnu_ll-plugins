@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.313
+PACKAGE_VERSION = 0.1.314
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -375,7 +375,7 @@ vumeter_lv2_MODULES = vumeter.so
 vumeter_so_SOURCES = vumeter.cpp
 vumeter_so_CFLAGS = $(PLUGINCFLAGS)
 vumeter_so_ARCHIVES = $(PLUGINARCHIVES)
-vumeter_lv2_DATA = manifest.ttl vumeter.ttl
+vumeter_lv2_DATA = manifest.ttl vumeter.ttl icon.svg
 vumeter_lv2_SOURCEDIR = plugins/vumeter
 
 
