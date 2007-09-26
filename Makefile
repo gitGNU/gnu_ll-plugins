@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.315
+PACKAGE_VERSION = 0.1.316
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -51,6 +51,8 @@ ifeq ($(build_experimental),yes)
 	arpeggiator.lv2 \
 	audio_identity.lv2 \
 	control2midi.lv2 \
+	envelope.lv2 \
+	envelope_gtk.lv2 \
 	euphoria.lv2 \
 	euphoria_gtk.lv2 \
 	horizon.lv2 \
@@ -220,7 +222,6 @@ euphoria_lv2_SOURCEDIR = plugins/euphoria
 euphoria_so_SOURCES = \
 	euphoria.cpp \
 	shaper.hpp shaper.cpp \
-	envelope.hpp \
 	pdoscillator.hpp \
 	wsvoice.cpp wsvoice.hpp \
 	pdvoice.hpp pdvoice.cpp \
@@ -387,6 +388,25 @@ vumeter_gtk_so_SOURCES = vumeter_gtk.cpp
 vumeter_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
 vumeter_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` 
 vumeter_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libvuwidget.a
+
+
+# Envelope
+envelope_lv2_MODULES = envelope.so
+envelope_so_SOURCES = envelope.cpp
+envelope_so_CFLAGS = $(ADVANCEDCFLAGS) -Ilibraries/components
+envelope_so_ARCHIVES = $(ADVANCEDARCHIVES)
+envelope_lv2_DATA = manifest.ttl envelope.ttl icon.svg
+envelope_lv2_SOURCEDIR = plugins/envelope
+
+
+# VU meter GUI
+envelope_gtk_lv2_MODULES = envelope_gtk.so
+envelope_gtk_lv2_SOURCEDIR = plugins/envelope
+envelope_gtk_lv2_MANIFEST = gui_manifest.ttl
+envelope_gtk_so_SOURCES = envelope_gtk.cpp
+envelope_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
+envelope_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4` 
+envelope_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libenvelopeeditor.a
 
 
 # The shared headers need to go in the distribution too

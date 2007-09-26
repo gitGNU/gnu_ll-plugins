@@ -1,0 +1,43 @@
+#ifndef plugins_envelope_envelope_peg
+#define plugins_envelope_envelope_peg
+
+
+#ifndef PEG_STRUCT
+#define PEG_STRUCT
+typedef struct {
+  float min;
+  float max;
+  float default_value;
+  char toggled;
+  char integer;
+  char logarithmic;
+} peg_data_t;
+#endif
+
+/* <http://ll-plugins.nongnu.org/lv2/dev/envelope/0> */
+
+static const char e_uri[] = "http://ll-plugins.nongnu.org/lv2/dev/envelope/0";
+
+enum e_port_enum {
+  e_attack,
+  e_decay,
+  e_sustain,
+  e_release,
+  e_trigger,
+  e_gate,
+  e_output,
+  e_n_ports
+};
+
+static const peg_data_t e_ports[] = {
+  { -3.40282e+38, 3.40282e+38, -3.40282e+38, 0, 0, 0 }, 
+  { -3.40282e+38, 3.40282e+38, -3.40282e+38, 0, 0, 0 }, 
+  { -3.40282e+38, 3.40282e+38, -3.40282e+38, 0, 0, 0 }, 
+  { -3.40282e+38, 3.40282e+38, -3.40282e+38, 0, 0, 0 }, 
+  { -3.40282e+38, 3.40282e+38, -3.40282e+38, 0, 0, 0 }, 
+  { -3.40282e+38, 3.40282e+38, -3.40282e+38, 0, 0, 0 }, 
+  { -3.40282e+38, 3.40282e+38, -3.40282e+38, 0, 0, 0 }, 
+};
+
+
+#endif /* plugins_envelope_envelope_peg */

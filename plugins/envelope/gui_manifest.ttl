@@ -1,0 +1,13 @@
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix guiext: <http://ll-plugins.nongnu.org/lv2/ext/gui/dev/1#>.
+@prefix plug: <http://ll-plugins.nongnu.org/lv2/dev/envelope/0/>.
+
+<http://ll-plugins.nongnu.org/lv2/dev/envelope/0>
+  rdfs:seeAlso <>;
+  guiext:gui plug:gui.
+
+plug:gui
+  a guiext:GtkGUI;
+  guiext:binary <envelope_gtk.so>.
+
