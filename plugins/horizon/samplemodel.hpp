@@ -49,7 +49,7 @@ public:
   double get_rate() const;
   size_t get_channels() const;
   const std::string& get_name() const;
-  const PeakData* const* get_peak_data(size_t channel) const;
+  const std::vector<PeakData>* get_peak_data(size_t channel) const;
   const float* get_data(size_t channel) const;
   const std::vector<size_t>& get_splitpoints() const;
   const EffectStackModel& get_effect_stack_model() const;
@@ -67,7 +67,7 @@ protected:
   bool load_channel(size_t channel, const std::string& name);
   void generate_peak_data();
   
-  PeakData* m_peak_data[2][3];
+  std::vector<PeakData> m_peak_data[2][3];
   
   std::string m_name;
   size_t m_length;

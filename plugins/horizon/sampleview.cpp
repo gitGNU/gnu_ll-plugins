@@ -579,7 +579,7 @@ sigc::signal<void>& SampleView::signal_stop_preview() {
 void SampleView::draw_channel(size_t channel, Glib::RefPtr<Gdk::Window> win,
 			      Glib::RefPtr<Gdk::GC> gc, int c, int h) {
   
-  const SampleModel::PeakData* peak = 0;
+  const vector<SampleModel::PeakData>* peak = 0;
   float scale = 0;
   size_t scroll = size_t(m_scroll_adj.get_value());
   size_t lines = get_width();
@@ -618,29 +618,29 @@ void SampleView::draw_channel(size_t channel, Glib::RefPtr<Gdk::Window> win,
   else {
     if (m_scale < 8) {
       scale = pow(2.0, m_scale - 4);
-      peak = m_model->get_peak_data(channel)[0];
+      peak = &m_model->get_peak_data(channel)[0];
     }
     
     else if (m_scale < 12) {
       scale = pow(2.0, m_scale - 8);
-      peak = m_model->get_peak_data(channel)[1];
+      peak = &m_model->get_peak_data(channel)[1];
     }
     
     else {
       scale = pow(2.0, m_scale - 12);
-      peak = m_model->get_peak_data(channel)[2];
+      peak = &m_model->get_peak_data(channel)[2];
     }
     
     if (peak) {
       size_t scroll = size_t(m_scroll_adj.get_value());
       for (size_t i = scroll; i < scroll + lines; ++i) {
-	float min = peak[int(i*scale)].min;
-	float max = peak[int(i*scale)].max;
+	float min = (*peak)[int(i*scale)].min;
+	float max = (*peak)[int(i*scale)].max;
 	for (size_t j = 0; j < scale; ++j) {
-	  min = min < peak[int(i*scale + j)].min ? 
-	    min : peak[int(i*scale + j)].min;
-	  max = max > peak[int(i*scale + j)].max ? 
-	    max : peak[int(i*scale + j)].max;
+	  min = min < (*peak)[int(i*scale + j)].min ? 
+	    min : (*peak)[int(i*scale + j)].min;
+	  max = max > (*peak)[int(i*scale + j)].max ? 
+	    max : (*peak)[int(i*scale + j)].max;
 	}
 	
 	win->draw_line(gc, i - scroll, c + int(h * min),

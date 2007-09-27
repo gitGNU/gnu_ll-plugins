@@ -36,12 +36,6 @@ SampleModel::SampleModel(const std::string& name, size_t length, double rate,
     m_right(0),
     m_stereo(right != "") {
   
-  // clear the peak data structures
-  for (unsigned i = 0; i < 2; ++i) {
-    for (unsigned j = 0; j < 3; ++j)
-      m_peak_data[i][j] = 0;
-  }
-  
   // add splitpoints at start and end
   m_seg.push_back(0);
   m_seg.push_back(length);
@@ -62,14 +56,8 @@ SampleModel::SampleModel(const std::string& name, size_t length, double rate,
 SampleModel::~SampleModel() {
   if (m_left) {
     munmap(m_left, m_length * sizeof(float));
-    delete [] m_peak_data[0][1];
-    delete [] m_peak_data[0][1];
-    delete [] m_peak_data[0][2];
-    if (m_stereo) {
-      delete [] m_peak_data[1][1];
-      delete [] m_peak_data[1][1];
-      delete [] m_peak_data[1][2];
-    }
+    if (m_stereo)
+      munmap(m_right, m_length * sizeof(float));
   }
 }
 
@@ -94,7 +82,7 @@ size_t SampleModel::get_channels() const {
 }
 
 
-const SampleModel::PeakData* const* 
+const std::vector<SampleModel::PeakData>* 
 SampleModel::get_peak_data(size_t channel) const {
   return m_peak_data[channel];
 }
@@ -221,22 +209,20 @@ bool SampleModel::load_channel(size_t channel, const std::string& name) {
 
 
 void SampleModel::generate_peak_data() {
-  // clear the peak data structures
-  for (unsigned i = 0; i < 2; ++i) {
-    for (unsigned j = 0; j < 3; ++j) {
-      delete [] m_peak_data[i][j];
-      m_peak_data[i][j] = 0;
-    }
-  }
   
-  // allocate peak data arrays
-  m_peak_data[0][0] = new PeakData[m_length / 16 + 1];
-  m_peak_data[0][1] = new PeakData[m_length / (16*16) + 1];
-  m_peak_data[0][2] = new PeakData[m_length / (16*16*16) + 1];
+  // resize peak data vectors
+  m_peak_data[0][0].resize(m_length / 16 + 1);
+  m_peak_data[0][1].resize(m_length / (16*16) + 1);
+  m_peak_data[0][2].resize(m_length / (16*16*16) + 1);
   if (m_stereo) {
-    m_peak_data[1][0] = new PeakData[m_length / 16 + 1];
-    m_peak_data[1][1] = new PeakData[m_length / (16*16) + 1];
-    m_peak_data[1][2] = new PeakData[m_length / (16*16*16) + 1];
+    m_peak_data[1][0].resize(m_length / 16 + 1);
+    m_peak_data[1][1].resize(m_length / (16*16) + 1);
+    m_peak_data[1][2].resize(m_length / (16*16*16) + 1);
+  }
+  else {
+    m_peak_data[1][0].clear();
+    m_peak_data[1][1].clear();
+    m_peak_data[1][2].clear();
   }
   
   // peak level 0
@@ -247,6 +233,8 @@ void SampleModel::generate_peak_data() {
       cmin = get_data(c)[16 * i];
       cmax = get_data(c)[16 * i];
       for (unsigned j = 1; j < 16; ++j) {
+	if (16 * i + j >= m_length)
+	  break;
 	cmin = cmin < get_data(c)[16 * i + j] ? cmin : get_data(c)[16 * i + j];
 	cmax = cmax > get_data(c)[16 * i + j] ? cmax : get_data(c)[16 * i + j];
       }
@@ -261,6 +249,8 @@ void SampleModel::generate_peak_data() {
       cmin = m_peak_data[c][0][16 * i].min;
       cmax = m_peak_data[c][0][16 * i].max;
       for (unsigned j = 1; j < 16; ++j) {
+	if (16 * i + j >= m_length / 16 + 1)
+	  break;
 	cmin = cmin < m_peak_data[c][0][16 * i + j].min ? 
 	  cmin : m_peak_data[c][0][16 * i + j].min;
 	cmax = cmax > m_peak_data[c][0][16 * i + j].max ? 
@@ -277,6 +267,8 @@ void SampleModel::generate_peak_data() {
       cmin = m_peak_data[c][1][16 * i].min;
       cmax = m_peak_data[c][1][16 * i].max;
       for (unsigned j = 1; j < 16; ++j) {
+	if (16 * i + j >= m_length / (16*16) + 1)
+	  break;
 	cmin = cmin < m_peak_data[c][1][16 * i + j].min ? 
 	  cmin : m_peak_data[c][1][16 * i + j].min;
 	cmax = cmax > m_peak_data[c][1][16 * i + j].max ?
