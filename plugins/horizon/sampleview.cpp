@@ -96,6 +96,11 @@ SampleView::SampleView()
   cmi->show_all();
   m_menu.items().push_back(*cmi);
   
+  // DnD
+  vector<TargetEntry> dnd_targets;
+  dnd_targets.push_back(TargetEntry("x-org.nongnu.ll-plugins/horizon-segment"));
+  drag_source_set(dnd_targets);
+
 }
 
 
@@ -366,6 +371,14 @@ bool SampleView::on_scroll_event(GdkEventScroll* event) {
 void SampleView::on_size_allocate(Gtk::Allocation& a) {
   DrawingArea::on_size_allocate(a);
   m_scroll_adj.set_page_size(a.get_width());
+}
+
+
+void SampleView::on_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context,
+				  Gtk::SelectionData& selection_data, 
+				  guint info, guint time) {
+  selection_data.set(selection_data.get_target(), 8,
+		     (const guchar*)"I'm Data!", 9);
 }
 
 

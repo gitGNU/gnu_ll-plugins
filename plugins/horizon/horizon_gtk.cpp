@@ -32,6 +32,7 @@
 #include "sampleeditor.hpp"
 #include "chunkeditor.hpp"
 #include "triggereditor.hpp"
+#include "horizonkeyboard.hpp"
 
 
 using namespace std;
@@ -56,6 +57,7 @@ public:
     vbox->pack_start(m_sed);
     vbox->pack_start(m_ced, false, false);
     vbox->pack_start(m_ted, false, false);
+    vbox->pack_start(m_kb, false, false);
     hbox->pack_start(*vbox);
     pack_start(*hbox);
     
@@ -294,6 +296,7 @@ protected:
   SampleEditor m_sed;
   ChunkEditor m_ced;
   TriggerEditor m_ted;
+  HorizonKeyboard m_kb;
   
 };
 

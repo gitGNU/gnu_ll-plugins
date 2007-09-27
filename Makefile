@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.318
+PACKAGE_VERSION = 0.1.319
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -283,6 +283,7 @@ horizon_gtk_so_SOURCES = \
 	effectmodel.cpp effectmodel.hpp \
 	effectstackmodel.cpp effectstackmodel.hpp \
 	effectstackview.cpp effectstackview.hpp \
+	horizonkeyboard.cpp horizonkeyboard.hpp \
 	labelslider.cpp labelslider.hpp \
 	lfo_gui.cpp lfo_gui.hpp \
 	mod_gui.cpp mod_gui.hpp \
@@ -294,7 +295,7 @@ horizon_gtk_so_SOURCES = \
 	horizon_gtk.cpp
 horizon_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0` -Iextensions/gui -Ilibraries/widgets -Ilibraries/lv2gtk2gui -I.
 horizon_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 cairomm-1.0` 
-horizon_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a
+horizon_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libkeyboard.a
 
 # Sineshaper
 sineshaper_lv2_MODULES = sineshaper.so

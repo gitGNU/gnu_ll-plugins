@@ -52,7 +52,10 @@ protected:
   virtual bool on_button_release_event(GdkEventButton* event);
   virtual bool on_scroll_event(GdkEventScroll* event);
   virtual void on_size_allocate(Gtk::Allocation& allocation);
-  
+  virtual void on_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context,
+				Gtk::SelectionData& selection_data, 
+				guint info, guint time);
+
   void do_add_splitpoint();
   void do_merge();
   void do_split_in_2();
