@@ -44,6 +44,8 @@ SampleView::SampleView()
     m_drag_segment(0),
     m_drag_start_x(-1),
     m_drag_x(-1),
+    m_press_x(-1),
+    m_press_y(-1),
     m_preview_on_click(true) {
   
   m_bg.set_rgb(55000, 55000, 60000);
@@ -96,11 +98,6 @@ SampleView::SampleView()
   cmi->show_all();
   m_menu.items().push_back(*cmi);
   
-  // DnD
-  vector<TargetEntry> dnd_targets;
-  dnd_targets.push_back(TargetEntry("x-org.nongnu.ll-plugins/horizon-segment"));
-  drag_source_set(dnd_targets);
-
 }
 
 
@@ -248,6 +245,17 @@ bool SampleView::on_motion_notify_event(GdkEventMotion* event) {
     m_drag_x = int(event->x);
     queue_draw();
   }
+  else {
+    if (m_press_x != -1 && m_press_y != -1 && 
+	drag_check_threshold(m_press_x, m_press_y, event->x, event->y) &&
+	m_model && m_sel_begin >= 0 && m_sel_end >= m_sel_begin) {
+      vector<TargetEntry> dnd_targets;
+      dnd_targets.
+	push_back(TargetEntry("x-org.nongnu.ll-plugins/horizon-segment"));
+      drag_begin(TargetList::create(dnd_targets), Gdk::ACTION_LINK, 1, 
+		 reinterpret_cast<GdkEvent*>(event));
+    }
+  }
   return true;
 }
 
@@ -257,8 +265,10 @@ bool SampleView::on_button_press_event(GdkEventButton* event) {
   if (!m_model)
     return true;
   
-  // button 1 - activate and select
+  // button 1 - activate and select and start drag
   if (event->button == 1) {
+    m_press_x = event->x;
+    m_press_y = event->y;
     size_t frame = size_t((m_scroll_adj.get_value() + event->x) * 
 			  pow(2.0, m_scale));
     const vector<size_t>& seg = m_model->get_splitpoints();
@@ -278,8 +288,7 @@ bool SampleView::on_button_press_event(GdkEventButton* event) {
 	queue_draw();
 	return true;
       }
-    }
-	   
+    }	   
   }
   
   // button 2 - move the splitpoints

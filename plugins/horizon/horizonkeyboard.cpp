@@ -34,7 +34,7 @@ using namespace std;
 HorizonKeyboard::HorizonKeyboard() {
   vector<TargetEntry> dnd_targets;
   dnd_targets.push_back(TargetEntry("x-org.nongnu.ll-plugins/horizon-segment"));
-  drag_dest_set(dnd_targets);
+  drag_dest_set(dnd_targets, DEST_DEFAULT_ALL, Gdk::ACTION_LINK);
 }
 
 

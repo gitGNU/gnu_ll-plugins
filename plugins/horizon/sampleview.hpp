@@ -94,6 +94,9 @@ protected:
   int m_drag_start_x;
   int m_drag_x;
   
+  int m_press_x;
+  int m_press_y;
+  
   bool m_preview_on_click;
   
 };
