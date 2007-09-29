@@ -22,8 +22,6 @@
 ****************************************************************************/
 
 #include <cmath>
-#include <cstring>
-#include <iostream>
 
 #include "lv2plugin.hpp"
 
@@ -43,9 +41,8 @@ public:
   void run(uint32_t nframes) {
     for (unsigned c = 0; c < C; ++c) {
       for (uint32_t i = 0; i < nframes; ++i) {
-	float f = abs(p(2 * c)[i]);
-	if (f > m_values[c])
-	  m_values[c] = f;
+	float f = std::abs(p(2 * c)[i]);
+	m_values[c] = f > m_values[c] ? f : m_values[c];
       }
       *p(2 * c + 1) = m_values[c] > 1e-10 ? m_values[c] : 0;
       if (m_values[c] > m_dy * nframes)
