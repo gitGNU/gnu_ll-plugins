@@ -57,14 +57,17 @@ public:
   
   /** Constructs a new Keyboard widget.
       @param octaves The number of octaves. The number of keys will be 12 *
-      @c octaves + 1 (i.e. for 1 octave you will get two C keys)
+                     @c octaves + 1 (i.e. for 1 octave you will get two C keys)
+      @param octave_offset The initial octave offset - the number of octaves
+                           that the leftmost key is transposed.
       @param keywidth The width in pixels of the white keys
       @param bkeywidth The width in pixels of the black keys
       @param keyheight The height in pixels of the white keys
       @param bkeyheight The height in pixels of the black keys */
-  Keyboard(unsigned int octaves = 3, unsigned int keywidth = 21, 
-           unsigned int bkeywidth = 14, unsigned int keyheight = 80, 
-           unsigned int bkeyheight = 50, ClickBehaviour cb = CLICK_ON);
+  Keyboard(unsigned int octaves = 3, unsigned int octave_offset = 3,
+	   unsigned int keywidth = 21, unsigned int bkeywidth = 14, 
+	   unsigned int keyheight = 80, unsigned int bkeyheight = 50, 
+	   ClickBehaviour cb = CLICK_ON);
   
   /** Turn a key on. If the key is already on nothing happens. */
   void key_on(unsigned char key);
@@ -92,6 +95,7 @@ protected:
   virtual bool on_button_press_event(GdkEventButton* event);
   virtual bool on_button_release_event(GdkEventButton* event);
   virtual bool on_motion_notify_event(GdkEventMotion* event);
+  virtual bool on_scroll_event(GdkEventScroll* event);
   virtual void on_realize();
   virtual bool on_expose_event(GdkEventExpose* event);
   // @}
@@ -136,7 +140,11 @@ protected:
   const unsigned int m_bkeywidth;
   const unsigned int m_keyheight;
   const unsigned int m_bkeyheight;
-
+  
+  double m_text_size;
+  
+  unsigned int m_octave_offset;
+  
   unsigned char m_moused_key;
   ClickBehaviour m_click_behaviour;
   bool m_motion_turns_on;

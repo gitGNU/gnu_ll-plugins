@@ -86,7 +86,10 @@ public:
     
     m_kb.signal_segments_dropped.
       connect(mem_fun(*this, &HorizonGUI::segments_dropped_on_keyboard));
-    
+    m_kb.signal_key_on().
+      connect(bind(mem_fun(*this, &HorizonGUI::do_send_note), true));
+    m_kb.signal_key_off().
+      connect(bind(mem_fun(*this, &HorizonGUI::do_send_note), false));
   }
   
   
@@ -295,6 +298,12 @@ protected:
     string tmp = oss.str();
     argv[1] = tmp.c_str();
     m_ctrl.command(5, argv);
+  }
+  
+  
+  void do_send_note(unsigned char key, bool on) {
+    unsigned char event[] = { on ? 0x90 : 0x80, key, 64 };
+    m_ctrl.write(h_midi_input, 3, event);
   }
   
   

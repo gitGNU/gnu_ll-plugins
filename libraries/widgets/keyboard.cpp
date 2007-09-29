@@ -21,8 +21,8 @@
 
 ****************************************************************************/
 
-#include <iostream>
 #include <cassert>
+#include <sstream>
 
 using namespace std;
 
@@ -35,9 +35,10 @@ using namespace Gdk;
 using namespace Glib;
 
 
-Keyboard::Keyboard(unsigned int octaves, unsigned int keywidth, 
-                   unsigned int bkeywidth, unsigned int keyheight, 
-                   unsigned int bkeyheight, ClickBehaviour cb)
+Keyboard::Keyboard(unsigned int octaves, unsigned int octave_offset,
+		   unsigned int keywidth, unsigned int bkeywidth, 
+		   unsigned int keyheight, unsigned int bkeyheight, 
+		   ClickBehaviour cb)
   : m_white("#FFFFFF"),
     m_black("#000000"),
     m_grey1("#AAAAAA"),
@@ -50,6 +51,7 @@ Keyboard::Keyboard(unsigned int octaves, unsigned int keywidth,
     m_bkeywidth(bkeywidth),
     m_keyheight(keyheight),
     m_bkeyheight(bkeyheight),
+    m_octave_offset(octave_offset <= 9 ? octave_offset : 9),
     m_moused_key(255),
     m_click_behaviour(cb),
     m_motion_turns_on(true) {
@@ -79,6 +81,10 @@ Keyboard::Keyboard(unsigned int octaves, unsigned int keywidth,
   m_keymap['7'] = 22;
   m_keymap['u'] = 23;
   m_keymap['i'] = 24;
+  m_keymap['9'] = 25;
+  m_keymap['o'] = 26;
+  m_keymap['0'] = 27;
+  m_keymap['p'] = 28;
   
   set_size_request((octaves * 7 + 1) * keywidth + 1, keyheight + 1);
   
@@ -90,8 +96,21 @@ Keyboard::Keyboard(unsigned int octaves, unsigned int keywidth,
   cmap->alloc_color(m_green1);
   cmap->alloc_color(m_green2);
   
+  // compute the text size
+  RefPtr<Pango::Layout> l = Pango::Layout::create(get_pango_context());
+  l->set_text("10");
+  Pango::FontDescription fd;
+  fd.set_family("monospace");
+  fd.set_absolute_size(PANGO_SCALE * 100);
+  l->set_font_description(fd);
+  Pango::Rectangle r = l->get_logical_extents();
+  int wanted_width = int((m_keywidth - 4) * 2.0 / 3.0);
+  m_text_size = PANGO_SCALE * 100 / 
+    (r.get_width() / (wanted_width * PANGO_SCALE));
+  
   add_events(KEY_PRESS_MASK | KEY_RELEASE_MASK |
-             BUTTON_PRESS_MASK | BUTTON_RELEASE_MASK | BUTTON1_MOTION_MASK);
+             BUTTON_PRESS_MASK | BUTTON_RELEASE_MASK | 
+	     BUTTON1_MOTION_MASK | SCROLL_MASK);
   show_all();
 }
 
@@ -99,8 +118,8 @@ Keyboard::Keyboard(unsigned int octaves, unsigned int keywidth,
 bool Keyboard::on_key_press_event(GdkEventKey* event) {
   std::map<int, unsigned char>::const_iterator iter;
   iter = m_keymap.find(event->keyval);
-  if (iter != m_keymap.end())
-    key_on(iter->second);
+  if (iter != m_keymap.end() && iter->second + m_octave_offset * 12 < 128)
+    key_on(iter->second + m_octave_offset * 12);
   return true;
 }
 
@@ -108,8 +127,9 @@ bool Keyboard::on_key_press_event(GdkEventKey* event) {
 bool Keyboard::on_key_release_event(GdkEventKey* event) {
   std::map<int, unsigned char>::const_iterator iter;
   iter = m_keymap.find(event->keyval);
-  if (iter != m_keymap.end() && iter->second != m_moused_key)
-    key_off(iter->second);
+  if (iter != m_keymap.end() && 
+      iter->second + m_octave_offset * 12 != m_moused_key)
+    key_off(iter->second + m_octave_offset * 12);
   return true;
 }
 
@@ -189,6 +209,21 @@ bool Keyboard::on_motion_notify_event(GdkEventMotion* event) {
 }
 
 
+bool Keyboard::on_scroll_event(GdkEventScroll* event) {
+  if (event->direction == GDK_SCROLL_UP && m_octave_offset < 11 - m_octaves) {
+    ++m_octave_offset;
+    queue_draw();
+  }
+  else if (event->direction == GDK_SCROLL_DOWN && m_octave_offset > 0) {
+    --m_octave_offset;
+    queue_draw();
+  }
+  return true;
+}
+
+
+
+
 void Keyboard::on_realize() {
   DrawingArea::on_realize();
   m_win = get_window();
@@ -199,18 +234,17 @@ void Keyboard::on_realize() {
 
 bool Keyboard::on_expose_event(GdkEventExpose* event) {
   
-  unsigned char a = pixel_to_key(event->area.x, m_keyheight / 2, true);
-  unsigned char b = pixel_to_key(event->area.x + event->area.width, 
+  unsigned int a = pixel_to_key(event->area.x, m_keyheight / 2, true);
+  unsigned int b = pixel_to_key(event->area.x + event->area.width, 
                                  m_bkeyheight + 1, true);
   
   m_gc->set_foreground(m_white);
   
-  m_win->draw_rectangle(m_gc, false, event->area.x, event->area.y,
-                        event->area.width, event->area.height);
-  
-  b = (b < m_octaves * 12 ? b : m_octaves * 12);
+  b = (b < (m_octaves + m_octave_offset) * 12 ? 
+       b : (m_octaves + m_octave_offset) * 12);
+  b = b < 128 ? b : 127;
   int x = 0;
-  for (unsigned char k = 0; k <= b; ++k) {
+  for (unsigned int k = m_octave_offset * 12; k <= b; ++k) {
     if (k >= a)
       draw_white_key(k, x, m_keys_on[k]);
     x += m_keywidth;
@@ -222,13 +256,15 @@ bool Keyboard::on_expose_event(GdkEventExpose* event) {
 
   x = 0;
   a = (a == 0 ? a : a - 1);
-  b = (b == m_octaves * 12 ? b : b + 1);
-  for (unsigned char k = 0; k <= b; ++k) {
+  b = (b == (m_octaves + m_octave_offset) * 12 ? b : b + 1);
+  b = b < 128 ? b : 127;
+  for (unsigned int k = m_octave_offset * 12; k <= b; ++k) {
     x += m_keywidth;
     if ((k % 12 == 0 || k % 12 == 2 || 
-         k % 12 == 5 || k % 12 == 7 || k % 12 == 9) && k != m_octaves * 12) {
+         k % 12 == 5 || k % 12 == 7 || k % 12 == 9) && 
+	k != (m_octaves + m_octave_offset) * 12) {
       ++k;
-      if (k >= a)
+      if (k >= a && k <= b)
         draw_black_key(x, m_keys_on[k]);
     }
   }
@@ -252,7 +288,8 @@ void Keyboard::draw_white_key(unsigned char k, int x, bool on) {
     m_gc->set_foreground(m_grey1);
     m_win->draw_line(m_gc, x + 1, 1, x + 1, m_keyheight - 1);
     
-    if (k % 12 != 4 && k % 12 != 11 && k != m_octaves * 12) {
+    if (k % 12 != 4 && k % 12 != 11 && k != 127 &&
+	k != (m_octaves + m_octave_offset) * 12) {
       m_win->draw_line(m_gc, x + m_keywidth - m_bkeywidth / 2, m_bkeyheight,
                        x + m_keywidth - m_bkeywidth / 2 + m_bkeywidth - 1, 
                        m_bkeyheight);
@@ -277,6 +314,21 @@ void Keyboard::draw_white_key(unsigned char k, int x, bool on) {
     m_gc->set_foreground(m_black);
     m_win->draw_point(m_gc, x + m_keywidth - 1, m_keyheight - 1);
     m_win->draw_point(m_gc, x + 1, m_keyheight - 1);
+  }
+  
+  if (k % 12 == 0) {
+    m_gc->set_foreground(m_grey2);
+    RefPtr<Pango::Layout> l = Pango::Layout::create(get_pango_context());
+    ostringstream oss;
+    oss<<int(k / 12);
+    l->set_text(oss.str());
+    Pango::FontDescription fd;
+    fd.set_family("monospace");
+    fd.set_absolute_size(m_text_size);
+    l->set_font_description(fd);
+    Pango::Rectangle r = l->get_pixel_logical_extents();
+    int ly = m_keyheight - r.get_height() - (on ? 1 : 2);
+    m_win->draw_layout(m_gc, x + 2, ly, l);
   }
 }
 
@@ -348,9 +400,11 @@ unsigned char Keyboard::pixel_to_key(int x, int y, bool only_white_keys,
                                      bool clamp) const {
   if (clamp) {
     if (x < 0)
-      return 0;
-    if (x > int((m_octaves * 7 + 1) * m_keywidth + 1))
-      return m_octaves * 12;
+      return m_octave_offset * 12;
+    if (x > int((m_octaves * 7 + 1) * m_keywidth + 1)) {
+      unsigned int k = (m_octaves + m_octave_offset) * 12;
+      return k < 128 ? k : 127;
+    }
   }
   
   if (x < 0 || y < 0 || 
@@ -359,8 +413,11 @@ unsigned char Keyboard::pixel_to_key(int x, int y, bool only_white_keys,
   
   unsigned char k = 255;
   
+  int note = (x / m_keywidth) % 7;
+  int octave = x / (m_keywidth * 7);
+  
   // which white key is it on?
-  switch ((x / m_keywidth) % 7) {
+  switch (note) {
   case 0: k = 0; break;
   case 1: k = 2; break;
   case 2: k = 4; break;
@@ -379,7 +436,9 @@ unsigned char Keyboard::pixel_to_key(int x, int y, bool only_white_keys,
       ++k;
   }
   
-  return 12 * int(x / (m_keywidth * 7)) + k;
+  unsigned int i = 12 * (m_octave_offset + octave) + k;
+  
+  return i < 128 ? i : 255;
 }
 
 
@@ -402,7 +461,7 @@ void Keyboard::key_to_rect(unsigned char k, int& x, int& y,
   case 10: a = 6; break;
   case 11: a = 6; break;
   }
-  a += 7 * int(k / 12);
+  a += 7 * (int(k / 12) - m_octave_offset);
   
   // is it a black key?
   if (k % 12 == 1 || k % 12 == 3 || 
