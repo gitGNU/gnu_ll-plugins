@@ -43,7 +43,7 @@ public:
   void run(uint32_t nframes) {
     for (unsigned c = 0; c < C; ++c) {
       for (uint32_t i = 0; i < nframes; ++i) {
-	const float& f = abs(p(2 * c)[i]);
+	float f = abs(p(2 * c)[i]);
 	if (f > m_values[c])
 	  m_values[c] = f;
       }

@@ -32,6 +32,7 @@
 #include "sampleeditor.hpp"
 #include "chunkeditor.hpp"
 #include "triggereditor.hpp"
+#include "actiontriggermodel.hpp"
 #include "horizonkeyboard.hpp"
 
 
@@ -46,7 +47,9 @@ public:
   
   HorizonGUI(LV2Controller& ctrl, const std::string& URI, 
               const std::string& bundle_path) 
-    : m_ctrl(ctrl) {
+    : m_ctrl(ctrl),
+      m_kb(m_atm),
+      m_autochunk_number(1) {
     
     HBox* hbox = manage(new HBox(false, 6));
     hbox->set_border_width(6);
@@ -147,6 +150,15 @@ public:
     
     else if (argc == 4 && !strcmp(argv[0], "static_effect_bypassed")) {
       m_sed.bypass_static_effect(argv[1], atol(argv[2]), atol(argv[3]));
+    }
+    
+    else if (argc == 5 && !strcmp(argv[0], "chunk_added")) {
+
+    }
+    
+    else if (argc == 5 && !strcmp(argv[0], "trigger_added")) {
+      m_atm.add_action(argv[4], argv[2], argv[3]);
+      m_atm.map_action(argv[4], atoi(argv[1]), atoi(argv[1]));
     }
     
   }
@@ -331,8 +343,11 @@ protected:
   void segments_dropped_on_keyboard(const string& sample, 
 				    unsigned first, unsigned last,
 				    unsigned char key) {
-    do_add_chunk(sample, first, last, "chunk");
-    do_add_trigger(key, sample, "chunk", sample + "/chunk/play");
+    ostringstream oss;
+    oss<<"Auto chunk "<<(m_autochunk_number++);
+    string chunk = oss.str();
+    do_add_chunk(sample, first, last, chunk);
+    do_add_trigger(key, sample, chunk, sample + "/" + chunk + "/play");
   }
   
 protected:
@@ -343,7 +358,9 @@ protected:
   SampleEditor m_sed;
   ChunkEditor m_ced;
   TriggerEditor m_ted;
+  ActionTriggerModel m_atm;
   HorizonKeyboard m_kb;
+  unsigned long m_autochunk_number;
   
 };
 

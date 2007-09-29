@@ -23,6 +23,7 @@
 #include <iostream>
 
 #include "horizonkeyboard.hpp"
+#include "actiontriggermodel.hpp"
 
 
 using namespace Glib;
@@ -31,13 +32,16 @@ using namespace Gtk;
 using namespace std;
 
 
-HorizonKeyboard::HorizonKeyboard() {
+HorizonKeyboard::HorizonKeyboard(ActionTriggerModel& atm)
+  : m_atm(atm) {
   vector<TargetEntry> dnd_targets;
   dnd_targets.push_back(TargetEntry("x-org.nongnu.ll-plugins/horizon-segment"));
   drag_dest_set(dnd_targets, DEST_DEFAULT_ALL, Gdk::ACTION_LINK);
   int w, h;
   get_size_request(w, h);
   set_size_request(w, h + 10);
+  sigc::slot<void> redraw = mem_fun(*this, &HorizonKeyboard::queue_draw);
+  m_atm.signal_action_added.connect(sigc::hide(redraw));
 }
 
 
@@ -58,4 +62,28 @@ void HorizonKeyboard::on_drag_data_received(const RefPtr<DragContext>& context,
   unsigned char key = pixel_to_key(x, y);
   if (first != -1 && last != -1 && key < 128)
     signal_segments_dropped(str.substr(0, j), first, last, key);
+}
+
+
+bool HorizonKeyboard::on_expose_event(GdkEventExpose* event) {
+  Keyboard::on_expose_event(event);
+  std::map<string, ActionTriggerModel::ActionModel*>::const_iterator iter;
+  const std::map<string, ActionTriggerModel::ActionModel*>& actions = 
+    m_atm.get_actions();
+  for (iter = actions.begin(); iter != actions.end(); ++iter) {
+    const unsigned char& k = iter->second->first;
+    if (k != 255) {
+      if (k >= m_octave_offset * 12 && 
+	  k <= (m_octave_offset + m_octaves) * 12) {
+	int x, y, w, h;
+	key_to_rect(k, x, y, w, h);
+	m_gc->set_foreground(m_green1);
+	m_win->draw_rectangle(m_gc, true, x, m_keyheight + 2, 
+			      w, get_height() - m_keyheight - 3);
+	m_gc->set_foreground(m_green2);
+	m_win->draw_rectangle(m_gc, false, x, m_keyheight + 2, 
+			      w, get_height() - m_keyheight - 3);
+      }
+    }
+  }
 }

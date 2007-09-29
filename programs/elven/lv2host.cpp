@@ -105,6 +105,7 @@ void LV2Host::list_plugins() {
 
 void LV2Host::run_main() {
   if (!sem_trywait(&m_notification_sem)) {
+    DBG2("Semaphore posted");
     while (!sem_trywait(&m_notification_sem));
     for (unsigned i = 0; i < m_ports.size(); ++i) {
       if (m_ports[i].notify && m_ports[i].direction == OutputPort) {

@@ -486,7 +486,7 @@ protected:
 	m_trigger.add_action(action);
 	m_trigger.map_action(action, key);
 	cerr<<"Mapped "<<sample<<"/"<<chunk<<" to key "<<int(key)<<endl;
-	feedback("ssss", "trigger_added", sample.c_str(), 
+	feedback("sisss", "trigger_added", key, sample.c_str(), 
 		 chunk.c_str(), name.c_str());
 	return true;
       }

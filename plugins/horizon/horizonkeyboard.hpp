@@ -23,23 +23,32 @@
 #ifndef HORIZONKEYBOARD_HPP
 #define HORIZONKEYBOARD_HPP
 
+#include <vector>
+
 #include "keyboard.hpp"
+
+
+class ActionTriggerModel;
 
 
 class HorizonKeyboard : public Keyboard {
 public:
 
-  HorizonKeyboard();
+  HorizonKeyboard(ActionTriggerModel& atm);
   
   sigc::signal<void, const std::string&, unsigned, unsigned, unsigned char> 
   signal_segments_dropped;
   
 protected:
 
-  void on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context,
-			     int x, int y, const Gtk::SelectionData& data,
-			     guint info, guint time);
-
+  virtual void on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& 
+				     context, int x, int y, 
+				     const Gtk::SelectionData& data,
+				     guint info, guint time);
+  virtual bool on_expose_event(GdkEventExpose* event);
+  
+  ActionTriggerModel& m_atm;
+  
 };
 
 

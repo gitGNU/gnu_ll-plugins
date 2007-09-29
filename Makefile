@@ -10,7 +10,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.322
+PACKAGE_VERSION = 0.1.323
 PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
@@ -278,6 +278,7 @@ horizon_gtk_lv2_MODULES = horizon_gtk.so
 horizon_gtk_lv2_MANIFEST = gui_manifest.ttl
 horizon_gtk_lv2_SOURCEDIR = plugins/horizon
 horizon_gtk_so_SOURCES = \
+	actiontriggermodel.cpp actiontriggermodel.hpp \
 	chunkeditor.cpp chunkeditor.hpp \
 	controlsourcegui.cpp controlsourcegui.hpp \
 	effectmodel.cpp effectmodel.hpp \
