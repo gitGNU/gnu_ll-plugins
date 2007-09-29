@@ -42,5 +42,17 @@ void HorizonKeyboard::on_drag_data_received(const RefPtr<DragContext>& context,
 					    int x, int y, 
 					    const SelectionData& data,
 					    guint info, guint time) {
-  cerr<<data.get_data_type()<<": "<<data.get_data_as_string()<<endl;
+  unsigned first = -1, last = -1;
+  string str = data.get_data_as_string();
+  string::size_type i = str.rfind(" ");
+  if (i != string::npos)
+    last = atol(str.substr(i + 1).c_str());
+  string::size_type j = str.rfind(" ", i - 1);
+  if (j != string::npos)
+    first = atol(str.substr(j + 1, i - j).c_str());
+  cerr<<data.get_data_type()<<": '"<<str.substr(0, j)<<"' "
+      <<first<<" - "<<last<<endl;
+  unsigned char key = pixel_to_key(x, y);
+  if (first != -1 && last != -1 && key < 128)
+    signal_segments_dropped(str.substr(0, j), first, last, key);
 }

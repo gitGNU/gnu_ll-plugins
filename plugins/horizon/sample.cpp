@@ -32,11 +32,6 @@ Sample::Sample(const std::string& filename)
     m_proc_sample(0) {
   
   if (is_valid()) {
-    m_chunks.push_back(new Chunk(*this, 0, 1));
-    m_chunks.push_back(new Chunk(*this, 1, 2));
-    m_chunks.push_back(new Chunk(*this, 2, 3));
-    m_chunks.push_back(new Chunk(*this, 3, 4));
-    
     for (unsigned i = filename.length() - 1; i >= 0; --i) {
       if (filename[i] == '/') {
 	m_name = filename.substr(i + 1);
@@ -87,6 +82,15 @@ const std::string& Sample::get_name() const {
 }
 
 
+const Chunk* Sample::find_chunk(const std::string& name) const {
+  for (unsigned i = 0; i < m_chunks.size(); ++i) {
+    if (m_chunks[i]->get_name() == name)
+      return m_chunks[i];
+  }
+  return 0;
+}
+
+
 void Sample::set_name(const std::string& name) {
   m_name = name;
 }
@@ -130,6 +134,15 @@ bool Sample::remove_static_effect(size_t pos) {
 bool Sample::bypass_static_effect(size_t pos, bool bypass) {
   if (m_static_fx.bypass_effect(pos, bypass)) {
     apply_effect_stack();
+    return true;
+  }
+  return false;
+}
+
+
+bool Sample::add_chunk(size_t first, size_t last, const std::string& name) {
+  if (first <= last && last + 1 < m_seg.get_segments().size()) {
+    m_chunks.push_back(new Chunk(*this, first, last + 1, name));
     return true;
   }
   return false;

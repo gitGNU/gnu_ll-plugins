@@ -23,10 +23,12 @@
 #include "chunk.hpp"
 
   
-Chunk::Chunk(const Sample& sample, uint32_t start, uint32_t end)
+Chunk::Chunk(const Sample& sample, uint32_t start, uint32_t end,
+	     const std::string& name)
   : m_sample(sample),
     m_start(start),
-    m_end(end) {
+    m_end(end),
+    m_name(name) {
 
 }
   
@@ -43,4 +45,9 @@ uint32_t Chunk::get_end() const {
 
 const Sample& Chunk::get_sample() const {
   return m_sample;
+}
+
+
+const std::string& Chunk::get_name() const {
+  return m_name;
 }

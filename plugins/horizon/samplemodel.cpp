@@ -230,6 +230,11 @@ void SampleModel::generate_peak_data() {
     for (int c = 0; c < (m_stereo ? 2 : 1); ++c) {
       float& cmin = m_peak_data[c][0][i].min;
       float& cmax = m_peak_data[c][0][i].max;
+      if (16 * i >= m_length) {
+	cmin = 0;
+	cmax = 0;
+	break;
+      }
       cmin = get_data(c)[16 * i];
       cmax = get_data(c)[16 * i];
       for (unsigned j = 1; j < 16; ++j) {

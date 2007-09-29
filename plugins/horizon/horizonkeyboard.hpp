@@ -30,7 +30,10 @@ class HorizonKeyboard : public Keyboard {
 public:
 
   HorizonKeyboard();
-
+  
+  sigc::signal<void, const std::string&, unsigned, unsigned, unsigned char> 
+  signal_segments_dropped;
+  
 protected:
 
   void on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context,

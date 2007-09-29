@@ -23,9 +23,10 @@
 #ifndef CHUNK_HPP
 #define CHUNK_HPP
 
-#include <stdint.h>
-
+#include <string>
 #include <vector>
+
+#include <stdint.h>
 
 
 class Envelope;
@@ -36,13 +37,16 @@ class Sample;
 class Chunk {
 public:
   
-  Chunk(const Sample& sample, uint32_t start, uint32_t end);
+  Chunk(const Sample& sample, uint32_t start, uint32_t end, 
+	const std::string& name);
   
   uint32_t get_start() const;
   
   uint32_t get_end() const;
   
   const Sample& get_sample() const;  
+
+  const std::string& get_name() const;
   
 protected:
   
@@ -51,7 +55,7 @@ protected:
   const Sample& m_sample;
   uint32_t m_start;
   uint32_t m_end;
-  
+  std::string m_name;
 };
 
 

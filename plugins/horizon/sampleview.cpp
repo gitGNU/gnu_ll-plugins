@@ -22,6 +22,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <sstream>
 
 #include "samplemodel.hpp"
 #include "sampleview.hpp"
@@ -386,8 +387,11 @@ void SampleView::on_size_allocate(Gtk::Allocation& a) {
 void SampleView::on_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context,
 				  Gtk::SelectionData& selection_data, 
 				  guint info, guint time) {
-  selection_data.set(selection_data.get_target(), 8,
-		     (const guchar*)"I'm Data!", 9);
+  ostringstream oss;
+  oss<<m_model->get_name()<<" "<<m_sel_begin<<" "<<m_sel_end;
+  string tmp = oss.str();
+  selection_data.set(selection_data.get_target(), 8, 
+		     reinterpret_cast<const guint8*>(tmp.c_str()), tmp.size());
 }
 
 

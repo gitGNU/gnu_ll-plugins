@@ -84,6 +84,9 @@ public:
     m_sed.signal_bypass_static_effect().
       connect(mem_fun(*this, &HorizonGUI::do_bypass_static_effect));
     
+    m_kb.signal_segments_dropped.
+      connect(mem_fun(*this, &HorizonGUI::segments_dropped_on_keyboard));
+    
   }
   
   
@@ -268,6 +271,33 @@ protected:
   }
   
   
+  void do_add_chunk(const string& sample, size_t from, size_t to, 
+		    const string& name) {
+    const char* argv[] = { "add_chunk", sample.c_str(), 0, 0, name.c_str() };
+    ostringstream oss;
+    oss<<from;
+    string tmp1 = oss.str();
+    argv[2] = tmp1.c_str();
+    oss.str("");
+    oss<<to;
+    string tmp2 = oss.str();
+    argv[3] = tmp2.c_str();
+    m_ctrl.command(5, argv);
+  }
+  
+  
+  void do_add_trigger(unsigned char key, const string& sample, 
+		      const string& chunk, const string& name) {
+    const char* argv[] = { "add_trigger", 0, sample.c_str(),
+			   chunk.c_str(), name.c_str() };
+    ostringstream oss;
+    oss<<int(key);
+    string tmp = oss.str();
+    argv[1] = tmp.c_str();
+    m_ctrl.command(5, argv);
+  }
+  
+  
   void set_control(uint32_t port, float value) {
 
   }
@@ -286,6 +316,14 @@ protected:
   
   void set_program(unsigned char number) {
 
+  }
+  
+  
+  void segments_dropped_on_keyboard(const string& sample, 
+				    unsigned first, unsigned last,
+				    unsigned char key) {
+    do_add_chunk(sample, first, last, "chunk");
+    do_add_trigger(key, sample, "chunk", sample + "/chunk/play");
   }
   
 protected:

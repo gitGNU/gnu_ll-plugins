@@ -201,6 +201,26 @@ public:
 		       argv[1]).c_str());
     }
     
+    // add a chunk
+    else if (argc == 5 && !strcmp(argv[0], "add_chunk")) {
+      if (add_chunk(argv[1], atol(argv[2]), atol(argv[3]), argv[4])) {
+	cerr<<"Added chunk "<<argv[4]<<" to sample "<<argv[1]<<endl;
+	return 0;
+      }
+      else
+	return strdup("Failed to add chunk");
+    }
+    
+    // add a trigger
+    else if (argc == 5 && !strcmp(argv[0], "add_trigger")) {
+      if (add_trigger(atoi(argv[1]), argv[2], argv[3], argv[4])) {
+	cerr<<"Added trigger "<<argv[4]<<endl;
+	return 0;
+      }
+      else
+	return strdup("Failed to add trigger");
+    }
+    
     return strdup("Unknown command!");
   }
   
@@ -227,6 +247,7 @@ protected:
 		long(buf.get_length()), buf.get_rate(), 
 		buf.get_shm_name(0).c_str(), buf.get_shm_name(1).c_str());
     
+    /*
     Action* a1 = new Action(*m_samples[n]->get_chunks()[0]);
     Action* a2 = new Action(*m_samples[n]->get_chunks()[1]);
     Action* a3 = new Action(*m_samples[n]->get_chunks()[2]);
@@ -239,6 +260,7 @@ protected:
     m_trigger.map_action(a3, 62 + n * 4);
     m_trigger.add_action(a4);
     m_trigger.map_action(a4, 63 + n * 4);
+    */
     
     return true;
   }
@@ -428,6 +450,45 @@ protected:
 	}
 	else
 	  return false;
+      }
+    }
+    return false;
+  }
+
+  
+  bool add_chunk(const std::string& sample, size_t first, size_t last,
+		 const std::string& name) {
+    for (unsigned i = 0; i < m_samples.size(); ++i) {
+      if (m_samples[i]->get_name() == sample) {
+	if (m_samples[i]->add_chunk(first, last, name)) {
+	  feedback("ssiis", "chunk_added", sample.c_str(), 
+		   first, last, name.c_str());
+	  return true;
+	}
+	else
+	  return false;
+      }
+    }
+    return false;
+  }
+  
+  
+  bool add_trigger(unsigned char key, const std::string& sample,
+		   const std::string& chunk, const std::string& name) {
+    if (key > 127)
+      return false;
+    for (unsigned i = 0; i < m_samples.size(); ++i) {
+      if (m_samples[i]->get_name() == sample) {
+	const Chunk* c = m_samples[i]->find_chunk(chunk);
+	if (!c)
+	  return false;
+	Action* action = new Action(*c);
+	m_trigger.add_action(action);
+	m_trigger.map_action(action, key);
+	cerr<<"Mapped "<<sample<<"/"<<chunk<<" to key "<<int(key)<<endl;
+	feedback("ssss", "trigger_added", sample.c_str(), 
+		 chunk.c_str(), name.c_str());
+	return true;
       }
     }
     return false;

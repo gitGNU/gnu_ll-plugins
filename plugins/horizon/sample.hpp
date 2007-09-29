@@ -47,6 +47,7 @@ public:
   const EffectStack& get_effect_stack() const;
   const std::vector<Chunk*>& get_chunks() const;
   const std::string& get_name() const;
+  const Chunk* find_chunk(const std::string& name) const;
   
   void set_name(const std::string& name);
   bool add_splitpoint(size_t frame);
@@ -54,8 +55,9 @@ public:
   bool move_splitpoint(size_t frame, size_t newframe);
   const Effect* add_static_effect(size_t pos, const std::string& effect_uri);
   bool remove_static_effect(size_t pos);
-  bool bypass_static_effect(size_t pos, bool bypass);
-    
+  bool bypass_static_effect(size_t pos, bool bypass); 
+  bool add_chunk(size_t first, size_t last, const std::string& name);
+  
 protected:
   
   void apply_effect_stack();
