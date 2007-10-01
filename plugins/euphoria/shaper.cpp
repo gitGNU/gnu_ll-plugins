@@ -36,6 +36,7 @@ Shaper::Shaper(unsigned int rate)
   : m_rate(rate) {
   for (int i = 0; i < 10; ++i)
     m_tables[i] = new float[WAVETABLE_SIZE];
+  set_string("-1 -1 1 1");
 }
 
 
