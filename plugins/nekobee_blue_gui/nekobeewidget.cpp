@@ -161,6 +161,20 @@ bool NekobeeWidget::on_expose_event(GdkEventExpose* event) {
   ::Cairo::RefPtr< ::Cairo::Context > cc = win->create_cairo_context();
   cc->set_line_join(::Cairo::LINE_JOIN_ROUND);
   
+  // soften edges
+  Gdk::Color bg = get_style()->get_bg(STATE_NORMAL);
+  cc->move_to(46, 0);
+  cc->line_to(144, 0);
+  cc->line_to(191, 62);
+  cc->line_to(143, 126);
+  cc->line_to(46, 126);
+  cc->line_to(-2, 63);
+  cc->line_to(46, 0);
+  cc->set_line_width(2);
+  cc->set_source_rgba(bg.get_red() / 65535.0, bg.get_green() / 65535.0, 
+		      bg.get_blue() / 65535.0, 1.0);
+  cc->stroke();
+  
   // bars
   draw_bar(cc, 61, 65, 76, 84, 46, 123, 2, 65, Tuning);
   draw_bar(cc, 113, 84, 119.5, 75.767, 164, 95.267, 143, 123, Cutoff);
