@@ -1,0 +1,13 @@
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix guiext: <http://ll-plugins.nongnu.org/lv2/ext/gui/dev/1#>.
+
+<http://nekosynth.co.uk/wiki/nekobee>
+  rdfs:seeAlso <>;
+  guiext:gui <http://ll-plugins.nongnu.org/lv2/dev/nekobee_blue_gui/0.0.0>.
+
+<http://ll-plugins.nongnu.org/lv2/dev/nekobee_blue_gui/0.0.0>
+  a guiext:GtkGUI;
+  guiext:binary <nekobee_blue_gui.so>.
+
+

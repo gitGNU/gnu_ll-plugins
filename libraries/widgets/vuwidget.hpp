@@ -49,7 +49,8 @@ protected:
   float* m_peaks;
   sigc::connection* m_peak_connections;
   
-  Gdk::Color m_bg, m_fg1, m_fg2, m_fg3, m_fg1b, m_fg2b, m_fg3b;
+  Gdk::Color m_bg, m_fg1, m_fg2, m_fg3, m_fg1b, m_fg2b, m_fg3b, 
+    m_shadow, m_light;
 
 };
 

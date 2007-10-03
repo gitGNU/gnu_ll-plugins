@@ -49,13 +49,16 @@ public:
     // initialise control widgets
     m_kb.set_flags(m_kb.get_flags() | CAN_FOCUS);
     m_cc.set_digits(0);
-    m_cc.set_draw_value(false);
+    m_cc.set_draw_value(true);
+    m_cc.set_value_pos(POS_RIGHT);
     m_cc.set_value(0);
     m_pitch.set_digits(0);
-    m_pitch.set_draw_value(false);
+    m_pitch.set_draw_value(true);
+    m_pitch.set_value_pos(POS_RIGHT);
     m_pitch.set_value(0);
     m_vel.set_digits(0);
-    m_vel.set_draw_value(false);
+    m_vel.set_draw_value(true);
+    m_vel.set_value_pos(POS_RIGHT);
     m_vel.set_value(64);
     m_cc_sbn.set_range(0, 127);
     m_cc_sbn.set_increments(1, 16);

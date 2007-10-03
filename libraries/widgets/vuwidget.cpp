@@ -39,6 +39,8 @@ VUWidget::VUWidget(unsigned channels)
   
   set_size_request(4 + 12 * m_channels, 150);
   m_bg.set_rgb(10000, 10000, 15000);
+  m_shadow.set_rgb(3000, 3000, 5000);
+  m_light.set_rgb(30000, 30000, 30000);
   m_fg1.set_rgb(0, 65000, 65000);
   m_fg2.set_rgb(65000, 45000, 0);
   m_fg3.set_rgb(65000, 0, 0);
@@ -47,6 +49,8 @@ VUWidget::VUWidget(unsigned channels)
   m_fg3b.set_rgb(16000, 8500, 12500);
   Glib::RefPtr<Gdk::Colormap> cmap = Gdk::Colormap::get_system();
   cmap->alloc_color(m_bg);
+  cmap->alloc_color(m_shadow);
+  cmap->alloc_color(m_light);
   cmap->alloc_color(m_fg1);
   cmap->alloc_color(m_fg2);
   cmap->alloc_color(m_fg3);
@@ -79,9 +83,17 @@ void VUWidget::set_value(unsigned channel, float value) {
 bool VUWidget::on_expose_event(GdkEventExpose* event) {
   Glib::RefPtr<Gdk::Window> win = get_window();
   Glib::RefPtr<Gdk::GC> gc = Gdk::GC::create(win);
+  
   gc->set_foreground(m_bg);
   win->draw_rectangle(gc, true, 0, 0, get_width(), get_height());
   unsigned int n = (get_height() - 4) / 3;
+  
+  gc->set_foreground(m_light);
+  win->draw_line(gc, 0, get_height() - 1, get_width() - 1, get_height() - 1);
+  win->draw_line(gc, get_width() - 1, 0, get_width() - 1, get_height() - 1);
+  gc->set_foreground(m_shadow);
+  win->draw_line(gc, 0, 0, get_width(), 0);
+  win->draw_line(gc, 0, 0, 0, get_height());
   
   for (unsigned c = 0; c < m_channels; ++c) {
     int x = 2 + c * ((get_width() - 3) / m_channels);
