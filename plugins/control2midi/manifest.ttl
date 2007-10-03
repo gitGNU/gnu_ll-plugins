@@ -3,7 +3,7 @@
 @prefix doap: <http://usefulinc.com/ns/doap#>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/control2midi/0.0.0>
-  a lv2:Plugin, lv2:UtilityPlugin;
+  a lv2:Plugin, lv2:ConverterPlugin;
   lv2:binary <control2midi.so>;
   rdfs:seeAlso <control2midi.ttl>.
 
