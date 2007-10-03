@@ -165,10 +165,10 @@ bool NekobeeWidget::on_expose_event(GdkEventExpose* event) {
   Gdk::Color bg = get_style()->get_bg(STATE_NORMAL);
   cc->move_to(46, 0);
   cc->line_to(144, 0);
-  cc->line_to(191, 62);
+  cc->line_to(191.5, 63);
   cc->line_to(143, 126);
   cc->line_to(46, 126);
-  cc->line_to(-2, 63);
+  cc->line_to(-1, 63);
   cc->line_to(46, 0);
   cc->set_line_width(2);
   cc->set_source_rgba(bg.get_red() / 65535.0, bg.get_green() / 65535.0, 
