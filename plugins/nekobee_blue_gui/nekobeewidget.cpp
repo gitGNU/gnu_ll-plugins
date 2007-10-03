@@ -61,6 +61,11 @@ NekobeeWidget::NekobeeWidget(const string& bundle)
   m_max_values[Volume] = 1.0;
   m_signals[Volume] = &signal_volume_changed;
 
+  m_control_names[Waveform] = "Waveform";
+  m_min_values[Waveform] = 0.0;
+  m_max_values[Waveform] = 1.0;
+  m_signals[Waveform] = &signal_waveform_changed;
+  
   // compute the text size
   RefPtr<Pango::Layout> l = Pango::Layout::create(get_pango_context());
   l->set_text(m_control_names[Resonance]);
