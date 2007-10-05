@@ -14,7 +14,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.331
+PACKAGE_VERSION = 0.1.332
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
@@ -28,7 +28,7 @@ PKG_DEPS = \
 	sndfile>=1.0.16
 
 
-ARCHIVES = libpaq.a
+ARCHIVES =
 ifeq ($(build_experimental),yes)
   ARCHIVES += \
 	libenvelopeeditor.a \
