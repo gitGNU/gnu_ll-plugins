@@ -726,8 +726,8 @@ bool LV2Host::load_plugin() {
       .where(uriref, extension_predicate, ll("dont-use-this-extension"))
       .run(data);
     if (qr.size() > 0 && 
-	(qr[0][extension_predicate]->name == lv2("requiredHostFeature") ||
-	 qr[0][extension_predicate]->name == lv2("optionalHostFeature"))) {
+	(qr[0][extension_predicate]->name == lv2("requiredFeature") ||
+	 qr[0][extension_predicate]->name == lv2("optionalFeature"))) {
       usesCommands = true;
       DBG2("This plugin uses the command extension");
     }

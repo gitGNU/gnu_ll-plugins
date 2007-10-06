@@ -9,7 +9,7 @@
   a lv2:Plugin;
   doap:name "Trilobyte";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
-  lv2:requiredHostFeature ll:dont-use-this-extension;
+  lv2:requiredFeature ll:dont-use-this-extension;
   ll:gtk2Gui <trilobyte_gtk.so>;
   ll:pegName "k";  
   gg:gui <http://ll-plugins.nongnu.org/lv2/dev/trilobyte/0.0.0/gui>;
