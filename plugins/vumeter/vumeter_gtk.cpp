@@ -25,7 +25,7 @@
 
 #include <gtkmm.h>
 
-#include "lv2gtk2gui.hpp"
+#include "lv2gui.hpp"
 #include "vuwidget.hpp"
 
 
@@ -35,10 +35,10 @@ using namespace sigc;
 
 
 template <unsigned C>
-class VUMeterGUI : public LV2GTK2GUI {
+class VUMeterGUI : public LV2::GUI {
 public:
   
-  VUMeterGUI(LV2Controller& ctrl, const std::string& URI, 
+  VUMeterGUI(LV2::Controller& ctrl, const std::string& URI, 
 	     const std::string& bundle_path) 
     : m_vu(C) {
     add(m_vu);
@@ -60,6 +60,6 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  register_lv2gtk2gui< VUMeterGUI<1> >("http://ll-plugins.nongnu.org/lv2/dev/vumeter/0/gui");
-  register_lv2gtk2gui< VUMeterGUI<2> >("http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0/gui");
+  LV2::register_lv2gtk2gui< VUMeterGUI<1> >("http://ll-plugins.nongnu.org/lv2/dev/vumeter/0/gui");
+  LV2::register_lv2gtk2gui< VUMeterGUI<2> >("http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0/gui");
 }

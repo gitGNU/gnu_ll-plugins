@@ -26,7 +26,7 @@
 
 #include <gtkmm.h>
 
-#include "lv2gtk2gui.hpp"
+#include "lv2gui.hpp"
 #include "envelopeeditor.hpp"
 
 
@@ -35,10 +35,10 @@ using namespace Gtk;
 using namespace sigc;
 
 
-class EnvelopeGUI : public LV2GTK2GUI {
+class EnvelopeGUI : public LV2::GUI {
 public:
   
-  EnvelopeGUI(LV2Controller& ctrl, const std::string& URI, 
+  EnvelopeGUI(LV2::Controller& ctrl, const std::string& URI, 
 	      const std::string& bundle_path) 
     : m_ctrl(ctrl) {
     add(m_ee);
@@ -59,7 +59,7 @@ protected:
   }
   
   
-  LV2Controller& m_ctrl;
+  LV2::Controller& m_ctrl;
   EnvelopeEditor m_ee;
   
 };
@@ -67,5 +67,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  register_lv2gtk2gui<EnvelopeGUI>("http://ll-plugins.nongnu.org/lv2/dev/envelope/0/gui");
+  LV2::register_lv2gtk2gui<EnvelopeGUI>("http://ll-plugins.nongnu.org/lv2/dev/envelope/0/gui");
 }

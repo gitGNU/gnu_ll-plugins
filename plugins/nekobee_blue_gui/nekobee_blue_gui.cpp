@@ -25,7 +25,7 @@
 
 #include <gtkmm.h>
 
-#include "lv2gtk2gui.hpp"
+#include "lv2gui.hpp"
 #include "nekobeewidget.hpp"
 
 
@@ -34,10 +34,10 @@ using namespace Gtk;
 using namespace sigc;
 
 
-class NekobeeBlueGUI : public LV2GTK2GUI {
+class NekobeeBlueGUI : public LV2::GUI {
 public:
   
-  NekobeeBlueGUI(LV2Controller& ctrl, const std::string& URI, 
+  NekobeeBlueGUI(LV2::Controller& ctrl, const std::string& URI, 
 		 const std::string& bundle_path)
     : m_nkb(bundle_path),
       m_ctrl(ctrl) {
@@ -88,12 +88,12 @@ protected:
   }
   
   NekobeeWidget m_nkb;
-  LV2Controller& m_ctrl;
+  LV2::Controller& m_ctrl;
   
 };
 
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  register_lv2gtk2gui<NekobeeBlueGUI>("http://ll-plugins.nongnu.org/lv2/dev/nekobee_blue_gui/0.0.0");
+  LV2::register_lv2gtk2gui<NekobeeBlueGUI>("http://ll-plugins.nongnu.org/lv2/dev/nekobee_blue_gui/0.0.0");
 }

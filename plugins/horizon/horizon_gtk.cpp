@@ -26,7 +26,7 @@
 
 #include <gtkmm.h>
 
-#include "lv2gtk2gui.hpp"
+#include "lv2gui.hpp"
 #include "horizon.peg"
 #include "controlsourcegui.hpp"
 #include "sampleeditor.hpp"
@@ -41,11 +41,11 @@ using namespace Gtk;
 using namespace sigc;
 
 
-class HorizonGUI : public LV2GTK2GUI {
+class HorizonGUI : public LV2::GUI {
 public:
 
   
-  HorizonGUI(LV2Controller& ctrl, const std::string& URI, 
+  HorizonGUI(LV2::Controller& ctrl, const std::string& URI, 
               const std::string& bundle_path) 
     : m_ctrl(ctrl),
       m_kb(m_atm),
@@ -352,7 +352,7 @@ protected:
   
 protected:
   
-  LV2Controller& m_ctrl;
+  LV2::Controller& m_ctrl;
   
   ControlSourceGUI m_csg;
   SampleEditor m_sed;
@@ -367,5 +367,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  register_lv2gtk2gui<HorizonGUI>(string(h_uri) + "/gui");
+  LV2::register_lv2gtk2gui<HorizonGUI>(string(h_uri) + "/gui");
 }
