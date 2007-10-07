@@ -1,20 +1,10 @@
-# By default, this Makefile only builds and installs software that is
-# considered to be somewhat finished and stable. If you want to build other
-# software as well, that may be buggy or completely broken, you need to run
-# make like this: 
-#
-#   make build_experimental=yes
-#   make build_experimental=yes install
-#
-# ...or edit this file to set the variable "build_experimental" to "yes".
-#
 # This package requires that the lv2-c++-tools package is already installed.
 # It can be downloaded using CVS from the module lv2-c++-tools in the same
 # repository as the one you downloaded ll-plugins from.
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.336
+PACKAGE_VERSION = 0.1.337
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
@@ -28,9 +18,7 @@ PKG_DEPS = \
 	sndfile>=1.0.16
 
 
-ARCHIVES =
-ifeq ($(build_experimental),yes)
-  ARCHIVES += \
+ARCHIVES = \
 	libenvelopeeditor.a \
 	libkeyboard.a \
 	libpatternwidget.a \
@@ -40,17 +28,10 @@ ifeq ($(build_experimental),yes)
 	libtransitioneditor.a \
 	libvgknob.a \
 	libvuwidget.a
-endif
 
+PROGRAMS = elven
 
-PROGRAMS = 
-ifeq ($(build_experimental),yes)
-  PROGRAMS += elven
-endif
-
-
-ifeq ($(build_experimental),yes)
-  LV2_BUNDLES = \
+LV2_BUNDLES = \
 	arpeggiator.lv2 \
 	audio_identity.lv2 \
 	control2midi.lv2 \
@@ -73,7 +54,6 @@ ifeq ($(build_experimental),yes)
 	trilobyte.lv2 \
 	vumeter.lv2 \
 	vumeter_gtk.lv2
-endif
 
 
 # Archives with useful code bits

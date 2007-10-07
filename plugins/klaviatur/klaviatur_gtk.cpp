@@ -35,6 +35,20 @@ using namespace sigc;
 using namespace Gtk;
 
 
+namespace {
+  
+  class SLabel : public Label {
+  public:
+    SLabel(const std::string& label, const AlignmentEnum& align = ALIGN_LEFT) 
+      : Label(std::string("<small>") + label + "</small>", align) {
+      set_use_markup(true);
+    }
+  };
+
+}
+
+
+
 class KlaviaturGUI : public LV2::GUI {
 public:
   
@@ -42,23 +56,21 @@ public:
                const std::string& bundle_path) 
     : m_cc(0, 128, 1),
       m_pitch(-8192, 8192, 1),
-      m_vel(1, 128, 1) {
+      m_vel(1, 128, 1),
+      m_kb(3, 3, 15, 10, 55, 36) {
 
     pack_start(m_vbox);
     
     // initialise control widgets
     m_kb.set_flags(m_kb.get_flags() | CAN_FOCUS);
     m_cc.set_digits(0);
-    m_cc.set_draw_value(true);
-    m_cc.set_value_pos(POS_RIGHT);
+    m_cc.set_draw_value(false);
     m_cc.set_value(0);
     m_pitch.set_digits(0);
-    m_pitch.set_draw_value(true);
-    m_pitch.set_value_pos(POS_RIGHT);
+    m_pitch.set_draw_value(false);
     m_pitch.set_value(0);
     m_vel.set_digits(0);
-    m_vel.set_draw_value(true);
-    m_vel.set_value_pos(POS_RIGHT);
+    m_vel.set_draw_value(false);
     m_vel.set_value(64);
     m_cc_sbn.set_range(0, 127);
     m_cc_sbn.set_increments(1, 16);
@@ -69,14 +81,15 @@ public:
     Table* table = manage(new Table(3, 3));
     table->set_border_width(6);
     table->set_spacings(6);
-    table->attach(*manage(new Label("CC:", ALIGN_LEFT)), 0, 1, 0, 1, FILL); 
+    table->attach(*manage(new SLabel("CC:", ALIGN_LEFT)), 0, 1, 0, 1, FILL); 
     table->attach(m_cc_sbn, 1, 2, 0, 1, FILL);
     table->attach(m_cc, 2, 3, 0, 1);
-    table->attach(*manage(new Label("Pitch:", ALIGN_LEFT)), 0, 2, 1, 2, FILL);
+    table->attach(*manage(new SLabel("Pitch:", ALIGN_LEFT)), 0, 2, 1, 2, FILL);
     table->attach(m_pitch, 2, 3, 1, 2);
-    table->attach(*manage(new Label("Velocity:", ALIGN_LEFT)),0, 2, 2, 3, FILL);
+    table->attach(*manage(new SLabel("Velocity:", ALIGN_LEFT)),0, 2, 2, 3, FILL);
     table->attach(m_vel, 2, 3, 2, 3);
-    Expander* exp = manage(new Expander("Controls"));
+    Expander* exp = manage(new Expander);
+    exp->set_label_widget(*manage(new SLabel("Controls:")));
     exp->add(*table);
     m_vbox.pack_start(*exp);
     m_vbox.pack_start(m_kb);

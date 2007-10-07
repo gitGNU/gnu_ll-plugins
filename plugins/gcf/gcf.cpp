@@ -29,13 +29,11 @@
 using namespace std;
 
 
-/** This is the class that contains all the code and data for the audio
-    identity plugin. */
 class GCF : public LV2::Plugin {
 public:
   
   GCF(double rate, const char*, const LV2_Host_Feature* const*) 
-    : LV2::Plugin(2),
+    : LV2::Plugin(3),
       m_rate(rate),
       m_counter(0),
       m_frames(0),
@@ -46,6 +44,8 @@ public:
   
   
   void run(uint32_t nframes) {
+    
+    // simple zero-crossing counter
     for (uint32_t i = 0; i < nframes; ++i) {
       ++m_frames;
       if (m_below && p(0)[i] > 0) {
@@ -63,6 +63,11 @@ public:
       *p(1) = 0;
     else
       *p(1) = m_rate / acc;
+    
+    // MPM algorithm
+    
+    
+    
   }
 
 protected:
