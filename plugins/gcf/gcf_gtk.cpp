@@ -58,5 +58,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  LV2::register_lv2gtk2gui<GCFGUI>("http://ll-plugins.nongnu.org/lv2/dev/gcf/0/gui");
+  LV2::GUI::register_class<GCFGUI>("http://ll-plugins.nongnu.org/lv2/dev/gcf/0/gui");
 }

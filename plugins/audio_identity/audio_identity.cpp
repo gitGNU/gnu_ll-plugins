@@ -34,7 +34,7 @@ using namespace std;
 class AudioIdentity : public LV2::Plugin {
 public:
   
-  AudioIdentity(double, const char*, const LV2_Host_Feature* const*) 
+  AudioIdentity(double, const char*, const LV2_Feature* const*) 
     : LV2::Plugin(2) {
     
   }

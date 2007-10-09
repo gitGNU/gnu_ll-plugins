@@ -69,7 +69,7 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
   }
   
   // build the feature list
-  LV2_Host_Feature** features = new LV2_Host_Feature*[1];
+  LV2_Feature** features = new LV2_Feature*[1];
   features[0] = 0;
   
   // create a GUI instance
@@ -80,7 +80,7 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
 			     &LV2GUIHost::_request_program,
 			     &LV2GUIHost::_save_program,ctrl, 
 			     reinterpret_cast<LV2UI_Widget*>(&m_cwidget),
-			     const_cast<const LV2_Host_Feature**>(features));
+			     const_cast<const LV2_Feature**>(features));
   m_block_gui = false;
   if (!m_ui || !m_cwidget) {
     DBG0("Could not create an UI instance");

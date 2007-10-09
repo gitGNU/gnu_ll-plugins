@@ -95,5 +95,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  LV2::register_lv2gtk2gui<NekobeeBlueGUI>("http://ll-plugins.nongnu.org/lv2/dev/nekobee_blue_gui/0.0.0");
+  LV2::GUI::register_class<NekobeeBlueGUI>("http://ll-plugins.nongnu.org/lv2/dev/nekobee_blue_gui/0.0.0");
 }

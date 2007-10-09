@@ -44,7 +44,7 @@ public:
   
   
   Horizon(double rate, const char* bundle_path, 
-	  const LV2_Host_Feature* const* f)
+	  const LV2_Feature* const* f)
     : LV2::Advanced(h_n_ports),
       m_trigger(m_mixer) {
     

@@ -367,5 +367,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  LV2::register_lv2gtk2gui<HorizonGUI>(string(h_uri) + "/gui");
+  LV2::GUI::register_class<HorizonGUI>(string(h_uri) + "/gui");
 }

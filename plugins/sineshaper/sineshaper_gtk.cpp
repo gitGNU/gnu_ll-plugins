@@ -87,5 +87,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  LV2::register_lv2gtk2gui<SineshaperGUI>("http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/gui");
+  LV2::GUI::register_class<SineshaperGUI>("http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/gui");
 }

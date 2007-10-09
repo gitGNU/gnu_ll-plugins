@@ -30,7 +30,7 @@ template <unsigned C>
 class VUMeter : public LV2::Plugin {
 public:
   
-  VUMeter(double rate, const char*, const LV2_Host_Feature* const*) 
+  VUMeter(double rate, const char*, const LV2_Feature* const*) 
     : LV2::Plugin(2 * C),
       m_dy(1.0 / (1.0 * rate)){
     for (unsigned i = 0; i < C; ++i)

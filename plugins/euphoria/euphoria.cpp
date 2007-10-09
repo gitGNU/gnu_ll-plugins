@@ -115,7 +115,7 @@ FrequencyTable EuphoriaVoice::m_table;
 class Euphoria : public LV2::Advanced {
 public:
   
-  Euphoria(double rate, const char*, const LV2_Host_Feature* const*) 
+  Euphoria(double rate, const char*, const LV2_Feature* const*) 
     : LV2::Advanced(e_n_ports),
       m_handler(3, rate),
       m_trigger(0),

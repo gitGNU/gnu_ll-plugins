@@ -149,5 +149,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  LV2::register_lv2gtk2gui<KlaviaturGUI>(std::string(k_uri) + "/gui");
+  LV2::GUI::register_class<KlaviaturGUI>(std::string(k_uri) + "/gui");
 }

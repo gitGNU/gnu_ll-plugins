@@ -54,7 +54,8 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     m_handle(0),
     m_desc(0),
     m_comm_desc(0),
-    m_midimap(128, -1) {
+    m_midimap(128, -1),
+    m_ports_updated(false) {
   
   DBG2("Creating plugin loader...");
   
@@ -848,11 +849,11 @@ bool LV2Host::load_plugin() {
   }
   
   // instantiate the plugin
-  LV2_Host_Feature command_feature = {
+  LV2_Feature command_feature = {
     "<http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension>",
     &m_comm_host_desc
   };
-  const LV2_Host_Feature* features[] = { &command_feature, 0 };
+  const LV2_Feature* features[] = { &command_feature, 0 };
   m_handle = m_desc->instantiate(m_desc, m_rate, m_bundle.c_str(), features);
   
   if (!m_handle) {

@@ -60,6 +60,6 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  LV2::register_lv2gtk2gui< VUMeterGUI<1> >("http://ll-plugins.nongnu.org/lv2/dev/vumeter/0/gui");
-  LV2::register_lv2gtk2gui< VUMeterGUI<2> >("http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0/gui");
+  LV2::GUI::register_class< VUMeterGUI<1> >("http://ll-plugins.nongnu.org/lv2/dev/vumeter/0/gui");
+  LV2::GUI::register_class< VUMeterGUI<2> >("http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0/gui");
 }

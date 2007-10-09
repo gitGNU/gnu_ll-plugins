@@ -40,7 +40,7 @@ using namespace std;
 class Trilobyte : public LV2::Advanced {
 public:
 
-  Trilobyte(double rate, const char* bundle, const LV2_Host_Feature* const* f)
+  Trilobyte(double rate, const char* bundle, const LV2_Feature* const* f)
     : LV2::Advanced(k_n_ports),
       m_seq(32),
       m_invrate(1.0 / rate),

@@ -33,7 +33,7 @@
 class EnvelopePlugin : public LV2::Advanced {
 public:
   
-  EnvelopePlugin(double rate, const char*, const LV2_Host_Feature* const*) 
+  EnvelopePlugin(double rate, const char*, const LV2_Feature* const*) 
     : LV2::Advanced(e_n_ports),
       m_eg(uint32_t(rate)) {
     

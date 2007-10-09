@@ -4,7 +4,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.338
+PACKAGE_VERSION = 0.1.339
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
@@ -12,7 +12,7 @@ PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
 	liblo>=0.22 \
-	lv2-plugin>=0.1.338 \
+	lv2-plugin>=0.1.348 \
 	lv2-gui>=0.1.338 \
 	paq>=0.1.338 \
 	sndfile>=1.0.16
@@ -34,6 +34,7 @@ PROGRAMS = elven
 LV2_BUNDLES = \
 	arpeggiator.lv2 \
 	audio_identity.lv2 \
+	beep.lv2 \
 	control2midi.lv2 \
 	envelope.lv2 \
 	envelope_gtk.lv2 \
@@ -115,24 +116,35 @@ PLUGINCFLAGS = `pkg-config --cflags lv2-plugin`
 ADVANCEDARCHIVES = $(PLUGINARCHIVES)
 ADVANCEDCFLAGS = $(PLUGINCFLAGS)
 
+# Beep
+beep_lv2_MODULES = beep.so
+beep_lv2_DATA = manifest.ttl beep.ttl
+beep_lv2_SOURCEDIR = plugins/beep
+beep_so_SOURCES = beep.cpp
+beep_so_CFLAGS = $(PLUGINCFLAGS)
+beep_so_LDFLAGS = $(PLUGINARCHIVES)
+
 # Control2MIDI
 control2midi_lv2_MODULES = control2midi.so
+control2midi_lv2_DATA = manifest.ttl control2midi.ttl
+control2midi_lv2_SOURCEDIR = plugins/control2midi
 control2midi_so_SOURCES = control2midi.cpp
 control2midi_so_CFLAGS = $(PLUGINCFLAGS)
 control2midi_so_LDFLAGS = $(PLUGINARCHIVES)
-control2midi_lv2_DATA = manifest.ttl control2midi.ttl
-control2midi_lv2_SOURCEDIR = plugins/control2midi
 
 # Phase distortion oscillator
 phase-distortion-osc_lv2_MODULES = phase-distortion-osc.so
+phase-distortion-osc_lv2_DATA = manifest.ttl phase-distortion-osc.ttl
+phase-distortion-osc_lv2_SOURCEDIR = plugins/phase-distortion-osc
 phase-distortion-osc_so_SOURCES = phase-distortion-osc.cpp
 phase-distortion-osc_so_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components
 phase-distortion-osc_so_LDFLAGS = $(PLUGINARCHIVES)
-phase-distortion-osc_lv2_DATA = manifest.ttl phase-distortion-osc.ttl
-phase-distortion-osc_lv2_SOURCEDIR = plugins/phase-distortion-osc
 
 # Klaviatur
 klaviatur_lv2_MODULES = klaviatur.so klaviatur_gtk.so
+klaviatur_lv2_DATA = manifest.ttl klaviatur.ttl
+klaviatur_lv2_PEGFILES = klaviatur.peg
+klaviatur_lv2_SOURCEDIR = plugins/klaviatur
 klaviatur_so_SOURCES = klaviatur.cpp
 klaviatur_so_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components
 klaviatur_so_LDFLAGS = $(PLUGINARCHIVES)
@@ -140,9 +152,6 @@ klaviatur_gtk_so_SOURCES = klaviatur_gtk.cpp
 klaviatur_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui` -Ilibraries/widgets
 klaviatur_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
 klaviatur_gtk_so_ARCHIVES = libraries/widgets/libkeyboard.a
-klaviatur_lv2_DATA = manifest.ttl klaviatur.ttl
-klaviatur_lv2_PEGFILES = klaviatur.peg
-klaviatur_lv2_SOURCEDIR = plugins/klaviatur
 
 # Trilobyte
 trilobyte_lv2_MODULES = trilobyte.so

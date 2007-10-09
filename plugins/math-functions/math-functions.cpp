@@ -55,7 +55,7 @@ namespace {
 template <unary_f F, bool A>
 class Unary : public LV2::Plugin {
 public:
-  Unary(double, const char*, const LV2_Host_Feature* const*) 
+  Unary(double, const char*, const LV2_Feature* const*) 
     : LV2::Plugin(2) {
     
   }
@@ -71,7 +71,7 @@ public:
 template <unary_f F, bool A>
 class UnaryGuard : public LV2::Plugin {
 public:
-  UnaryGuard(double, const char*, const LV2_Host_Feature* const*) 
+  UnaryGuard(double, const char*, const LV2_Feature* const*) 
     : LV2::Plugin(2) {
     
   }
@@ -90,7 +90,7 @@ public:
 template <unary_f F, bool A, float& MIN, float& MAX>
 class UnaryRange : public LV2::Plugin {
 public:
-  UnaryRange(double, const char*, const LV2_Host_Feature* const*) 
+  UnaryRange(double, const char*, const LV2_Feature* const*) 
     : LV2::Plugin(2) {
     
   }
@@ -109,7 +109,7 @@ public:
 template <unary_f F, bool A, float& MIN>
 class UnaryMin : public LV2::Plugin {
 public:
-  UnaryMin(double, const char*, const LV2_Host_Feature* const*) 
+  UnaryMin(double, const char*, const LV2_Feature* const*) 
     : LV2::Plugin(2) {
     
   }
@@ -127,7 +127,7 @@ public:
 template <binary_f F, bool A>
 class Binary : public LV2::Plugin {
 public:
-  Binary(double, const char*, const LV2_Host_Feature* const*) 
+  Binary(double, const char*, const LV2_Feature* const*) 
     : LV2::Plugin(3) {
     
   }
@@ -144,7 +144,7 @@ public:
 template <binary_f F, bool A>
 class BinaryGuard : public LV2::Plugin {
 public:
-  BinaryGuard(double, const char*, const LV2_Host_Feature* const*) 
+  BinaryGuard(double, const char*, const LV2_Feature* const*) 
     : LV2::Plugin(3) {
     
   }
@@ -164,7 +164,7 @@ public:
 template <bool A>
 class Modf : public LV2::Plugin {
 public:
-  Modf(double, const char*, const LV2_Host_Feature* const*) 
+  Modf(double, const char*, const LV2_Feature* const*) 
     : LV2::Plugin(3) {
     
   }

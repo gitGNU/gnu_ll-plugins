@@ -67,5 +67,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  LV2::register_lv2gtk2gui<EnvelopeGUI>("http://ll-plugins.nongnu.org/lv2/dev/envelope/0/gui");
+  LV2::GUI::register_class<EnvelopeGUI>("http://ll-plugins.nongnu.org/lv2/dev/envelope/0/gui");
 }

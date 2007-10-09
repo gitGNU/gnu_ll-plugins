@@ -1,0 +1,26 @@
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix doap: <http://usefulinc.com/ns/doap#>.
+@prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
+@prefix llext: <http://ll-plugins.nongnu.org/lv2/ext/>.
+
+
+<http://ll-plugins.nongnu.org/lv2/dev/beep/0>
+  a lv2:Plugin;
+  doap:name "Beep";
+  doap:license <http://usefulinc.com/doap/licenses/gpl>;
+  ll:pegName "b";
+  
+  lv2:port [
+    a llext:MidiPort, lv2:InputPort;
+    lv2:index 0;
+    lv2:symbol "midi";
+    lv2:name "MIDI";
+  ],
+  
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 1;
+    lv2:symbol "output";
+    lv2:name "Output";
+  ].
