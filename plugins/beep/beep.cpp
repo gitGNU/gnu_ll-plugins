@@ -76,12 +76,16 @@ public:
   
   Beep(double rate, const char* bundle, const LV2_Feature* const* features)
     : LV2::Synth<BeepVoice>(b_n_ports, b_midi) {
-    m_voices.push_back(new BeepVoice(rate));
-    m_voices.push_back(new BeepVoice(rate));
+    add_voices(new BeepVoice(rate),
+	       new BeepVoice(rate),
+	       new BeepVoice(rate),
+	       new BeepVoice(rate),
+	       new BeepVoice(rate),
+	       new BeepVoice(rate));
     add_audio_ports(b_output);
   }
   
 };
 
 
-static LV2::Register<Beep> reg(b_uri);
+struct Init { Init() { LV2::Plugin::register_class<Beep>(b_uri); } } init;
