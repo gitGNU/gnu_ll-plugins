@@ -88,4 +88,4 @@ public:
 };
 
 
-struct Init { Init() { LV2::Plugin::register_class<Beep>(b_uri); } } init;
+static unsigned _ = LV2::Plugin::register_class<Beep>(b_uri);
