@@ -32,8 +32,9 @@ using namespace std;
 
 struct BeepVoice : LV2::Voice {
   
-  BeepVoice(double rate) 
-    : m_phase(0),
+  BeepVoice(double rate)
+    : m_rate(rate),
+      m_phase(0),
       m_freq(0), 
       m_key(LV2::INVALID_KEY) {
   
@@ -57,13 +58,14 @@ struct BeepVoice : LV2::Voice {
       for (uint32_t i = from; i < to; ++i) {
 	m_phase = m_phase > 0.3 ? -0.3 : m_phase;
 	p(b_output)[i] += m_phase;
-	m_phase += m_freq / 48000.0;
+	m_phase += m_freq / m_rate;
       }
     }
   }
   
 protected:
   
+  float m_rate;
   float m_phase;
   float m_freq;
   unsigned char m_key;
