@@ -4,7 +4,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.353
+PACKAGE_VERSION = 0.1.354
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
@@ -12,7 +12,7 @@ PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
 	liblo>=0.22 \
-	lv2-plugin>=0.1.351 \
+	lv2-plugin>=0.1.352 \
 	lv2-gui>=0.1.338 \
 	paq>=0.1.338 \
 	sndfile>=1.0.16
@@ -36,13 +36,7 @@ LV2_BUNDLES = \
 	audio_identity.lv2 \
 	beep.lv2 \
 	control2midi.lv2 \
-	envelope.lv2 \
-	envelope_gtk.lv2 \
-	euphoria.lv2 \
-	euphoria_gtk.lv2 \
 	gcf.lv2 \
-	horizon.lv2 \
-	horizon_gtk.lv2 \
 	klaviatur.lv2 \
 	midi_identity.lv2 \
 	math-constants.lv2 \
@@ -51,10 +45,16 @@ LV2_BUNDLES = \
 	phase-distortion-osc.lv2 \
 	sineshaper.lv2 \
 	sineshaper_gtk.lv2 \
-	trilobeat.lv2 \
-	trilobyte.lv2 \
 	vumeter.lv2 \
-	vumeter_gtk.lv2
+	vumeter_gtk.lv2 \
+	envelope.lv2 \
+	envelope_gtk.lv2
+#	euphoria.lv2 \
+#	euphoria_gtk.lv2 \
+#	horizon.lv2 \
+#	horizon_gtk.lv2 \
+#	trilobeat.lv2 \
+#	trilobyte.lv2 \
 
 
 # Archives with useful code bits

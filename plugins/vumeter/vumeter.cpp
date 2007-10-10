@@ -27,16 +27,17 @@
 
 
 template <unsigned C>
-class VUMeter : public LV2::Plugin {
+class VUMeter : public LV2::Plugin< VUMeter<C> > {
 public:
+
+  using LV2::Plugin< VUMeter<C> >::p;
   
   VUMeter(double rate, const char*, const LV2_Feature* const*) 
-    : LV2::Plugin(2 * C),
-      m_dy(1.0 / (1.0 * rate)){
+    : LV2::Plugin< VUMeter<C> >(2 * C),
+      m_dy(1.0 / (1.0 * rate)) {
     for (unsigned i = 0; i < C; ++i)
       m_values[i] = 0.0;
   }
-  
   
   void run(uint32_t nframes) {
     for (unsigned c = 0; c < C; ++c) {
@@ -60,7 +61,5 @@ protected:
 };
 
 
-static LV2::Register< VUMeter<1> > 
-reg1("http://ll-plugins.nongnu.org/lv2/dev/vumeter/0");
-static LV2::Register< VUMeter<2> > 
-reg2("http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0");
+static unsigned _1 = VUMeter<1>::register_class("http://ll-plugins.nongnu.org/lv2/dev/vumeter/0");
+static unsigned _2 = VUMeter<2>::register_class("http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0");

@@ -27,11 +27,11 @@
 
 /** This is the class that contains all the code and data for the Sineshaper
     synth plugin. */
-class Control2MIDI : public LV2::Plugin {
+class Control2MIDI : public LV2::Plugin<Control2MIDI> {
 public:
   
   Control2MIDI(double, const char*, const LV2_Feature* const*) 
-    : LV2::Plugin(5),
+    : LV2::Plugin<Control2MIDI>(5),
       m_last_value(0),
       m_last_cc(0) { 
     
@@ -82,5 +82,4 @@ protected:
 };
 
 
-static LV2::Register<Control2MIDI>
-reg("http://ll-plugins.nongnu.org/lv2/dev/control2midi/0.0.0");
+static unsigned _ = Control2MIDI::register_class("http://ll-plugins.nongnu.org/lv2/dev/control2midi/0.0.0");

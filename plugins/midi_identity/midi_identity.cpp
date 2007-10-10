@@ -29,11 +29,11 @@
 
 /** This is the class that contains all the code and data for the MIDI 
     identity plugin. */
-class MIDIIdentity : public LV2::Plugin {
+class MIDIIdentity : public LV2::Plugin<MIDIIdentity> {
 public:
   
   MIDIIdentity(double, const char*, const LV2_Feature* const*) 
-    : LV2::Plugin(2) {
+    : LV2::Plugin<MIDIIdentity>(2) {
     
   }
   
@@ -60,5 +60,4 @@ public:
 };
 
 
-static LV2::Register<MIDIIdentity> 
-reg("http://ll-plugins.nongnu.org/lv2/dev/midi_identity/0.0.0");
+static unsigned _ = MIDIIdentity::register_class("http://ll-plugins.nongnu.org/lv2/dev/midi_identity/0.0.0");

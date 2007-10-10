@@ -29,11 +29,11 @@
 using namespace std;
 
 
-class GCF : public LV2::Plugin {
+class GCF : public LV2::Plugin<GCF> {
 public:
   
   GCF(double rate, const char*, const LV2_Feature* const*) 
-    : LV2::Plugin(3),
+    : LV2::Plugin<GCF>(3),
       m_rate(rate),
       m_counter(0),
       m_frames(0),
@@ -85,5 +85,4 @@ protected:
 };
 
 
-static LV2::Register<GCF> 
-reg("http://ll-plugins.nongnu.org/lv2/dev/gcf/0");
+static unsigned _ = GCF::register_class("http://ll-plugins.nongnu.org/lv2/dev/gcf/0");

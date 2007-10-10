@@ -31,11 +31,11 @@ using namespace std;
 
 /** This is the class that contains all the code and data for the audio
     identity plugin. */
-class AudioIdentity : public LV2::Plugin {
+class AudioIdentity : public LV2::Plugin<AudioIdentity> {
 public:
   
   AudioIdentity(double, const char*, const LV2_Feature* const*) 
-    : LV2::Plugin(2) {
+    : LV2::Plugin<AudioIdentity>(2) {
     
   }
   
@@ -47,5 +47,4 @@ public:
 };
 
 
-static LV2::Register<AudioIdentity> 
-reg("http://ll-plugins.nongnu.org/lv2/dev/audio_identity/0.0.0");
+static unsigned _ = AudioIdentity::register_class("http://ll-plugins.nongnu.org/lv2/dev/audio_identity/0.0.0");

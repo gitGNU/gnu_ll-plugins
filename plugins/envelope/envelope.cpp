@@ -26,15 +26,16 @@
 #include <iostream>
 
 #include "envelope.hpp"
-#include "lv2advanced.hpp"
+#include "lv2plugin.hpp"
 #include "envelope.peg"
 
 
-class EnvelopePlugin : public LV2::Advanced {
+class EnvelopePlugin : 
+  public LV2::Plugin<EnvelopePlugin, LV2::CommandExt, true> {
 public:
   
-  EnvelopePlugin(double rate, const char*, const LV2_Feature* const*) 
-    : LV2::Advanced(e_n_ports),
+  EnvelopePlugin(double rate, const char*, const LV2_Feature* const* f) 
+    : LV2::Plugin<EnvelopePlugin, LV2::CommandExt, true>(e_n_ports, f),
       m_eg(uint32_t(rate)) {
     
   }
@@ -49,7 +50,7 @@ public:
   char* command(uint32_t argc, const char* const* argv) {
     if (argc == 2 && !strcmp("envelope", argv[0])) {
       m_eg.set_string(argv[1]);
-      feedback("ss", "envelope", argv[1]);
+      feedback(2, argv);
       return 0;
     }
     return strdup("Unknown command");
@@ -62,5 +63,4 @@ protected:
 };
 
 
-static LV2::RegisterAdvanced<EnvelopePlugin>
-reg("http://ll-plugins.nongnu.org/lv2/dev/envelope/0");
+static unsigned _ = EnvelopePlugin::register_class(e_uri);

@@ -76,8 +76,8 @@ protected:
 class Beep : public LV2::Synth<BeepVoice, Beep> {
 public:
   
-  Beep(double rate, const char* bundle, const LV2_Feature* const* features)
-    : LV2::Synth<BeepVoice, Beep>(b_n_ports, b_midi) {
+  Beep(double rate, const char* bundle, const LV2_Feature* const* f)
+    : LV2::Synth<BeepVoice, Beep>(b_n_ports, f, b_midi) {
     add_voices(new BeepVoice(rate),
 	       new BeepVoice(rate),
 	       new BeepVoice(rate),
@@ -90,4 +90,4 @@ public:
 };
 
 
-static unsigned _ = LV2::Plugin::register_class<Beep>(b_uri);
+static unsigned _ = Beep::register_class(b_uri);

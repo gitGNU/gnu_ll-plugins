@@ -842,15 +842,16 @@ bool LV2Host::load_plugin() {
   // get the command descriptor (if it has one)
   if (usesCommands) {
     if (m_desc->extension_data)
-      m_comm_desc = (LV2_CommandDescriptor*)(m_desc->extension_data("<http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension>"));
+      m_comm_desc = (LV2_CommandDescriptor*)(m_desc->extension_data("http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension"));
     if (!m_comm_desc) {
       DBG0(m_uri<<" does not use the command extension like the RDF said it should");
+      return false;
     }
   }
   
   // instantiate the plugin
   LV2_Feature command_feature = {
-    "<http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension>",
+    "http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension",
     &m_comm_host_desc
   };
   const LV2_Feature* features[] = { &command_feature, 0 };

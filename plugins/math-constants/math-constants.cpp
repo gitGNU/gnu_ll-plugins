@@ -50,14 +50,14 @@ namespace {
 /** This is a template plugin class with a single output port that returns 
     a constant value. */
 template <float& Output>
-class Constant : public LV2::Plugin {
+class Constant : public LV2::Plugin< Constant<Output> > {
 public:
   Constant(double, const char*, const LV2_Feature* const*) 
-    : LV2::Plugin(1) {
+    : LV2::Plugin< Constant<Output> >(1) {
     
   }
   void run(uint32_t sample_count) {
-    *static_cast<float*>(m_ports[0]) = Output;
+    *static_cast<float*>(LV2::Plugin< Constant<Output> >::m_ports[0]) = Output;
   }
 };
 
@@ -65,16 +65,16 @@ public:
 #define LL_PREFIX "http://ll-plugins.nongnu.org/lv2/dev/math-constant-"
 
 
-static LV2::Register< Constant<e> >         reg01(LL_PREFIX "e/0.0.0");
-static LV2::Register< Constant<log2e> >     reg02(LL_PREFIX "log2e/0.0.0");
-static LV2::Register< Constant<log10e> >    reg03(LL_PREFIX "log10e/0.0.0");
-static LV2::Register< Constant<ln2> >       reg04(LL_PREFIX "ln2/0.0.0");
-static LV2::Register< Constant<ln10> >      reg05(LL_PREFIX "ln10/0.0.0");
-static LV2::Register< Constant<pi> >        reg06(LL_PREFIX "pi/0.0.0");
-static LV2::Register< Constant<pi_2> >      reg07(LL_PREFIX "pi_2/0.0.0");
-static LV2::Register< Constant<pi_4> >      reg08(LL_PREFIX "pi_4/0.0.0");
-static LV2::Register< Constant<_1_pi> >     reg09(LL_PREFIX "1_pi/0.0.0");
-static LV2::Register< Constant<_2_pi> >     reg10(LL_PREFIX "2_pi/0.0.0");
-static LV2::Register< Constant<_2_sqrtpi> > reg11(LL_PREFIX"2_sqrtpi/0.0.0");
-static LV2::Register< Constant<sqrt2> >     reg12(LL_PREFIX "sqrt2/0.0.0");
-static LV2::Register< Constant<sqrt1_2> >   reg13(LL_PREFIX "sqrt1_2/0.0.0");
+static unsigned _1 = Constant<e>::register_class(LL_PREFIX "e/0.0.0");
+static unsigned _2 = Constant<log2e>::register_class(LL_PREFIX "log2e/0.0.0");
+static unsigned _3 = Constant<log10e>::register_class(LL_PREFIX "log10e/0.0.0");
+static unsigned _4 = Constant<ln2>::register_class(LL_PREFIX "ln2/0.0.0");
+static unsigned _5 = Constant<ln10>::register_class(LL_PREFIX "ln10/0.0.0");
+static unsigned _6 = Constant<pi>::register_class(LL_PREFIX "pi/0.0.0");
+static unsigned _7 = Constant<pi_2>::register_class(LL_PREFIX "pi_2/0.0.0");
+static unsigned _8 = Constant<pi_4>::register_class(LL_PREFIX "pi_4/0.0.0");
+static unsigned _9 = Constant<_1_pi>::register_class(LL_PREFIX "1_pi/0.0.0");
+static unsigned _10 = Constant<_2_pi>::register_class(LL_PREFIX "2_pi/0.0.0");
+static unsigned _11 = Constant<_2_sqrtpi>::register_class(LL_PREFIX"2_sqrtpi/0.0.0");
+static unsigned _12 = Constant<sqrt2>::register_class(LL_PREFIX "sqrt2/0.0.0");
+static unsigned _13 = Constant<sqrt1_2>::register_class(LL_PREFIX "sqrt1_2/0.0.0");

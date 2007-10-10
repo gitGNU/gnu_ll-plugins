@@ -25,12 +25,12 @@
 #include "pdosc.hpp"
 
 
-class PhaseDistortionOscillator : public LV2::Plugin {
+class PhaseDistortionOscillator : public LV2::Plugin<PhaseDistortionOscillator>{
 public:
   
   PhaseDistortionOscillator(double rate, const char*, 
                             const LV2_Feature* const*) 
-    : LV2::Plugin(4),
+    : LV2::Plugin<PhaseDistortionOscillator>(4),
       m_osc(rate) {
 
   }
@@ -65,5 +65,4 @@ protected:
 };
 
 
-static LV2::Register<PhaseDistortionOscillator>
-reg("http://ll-plugins.nongnu.org/lv2/dev/phase-distortion-osc/0.0.0");
+static unsigned _ = PhaseDistortionOscillator::register_class("http://ll-plugins.nongnu.org/lv2/dev/phase-distortion-osc/0.0.0");

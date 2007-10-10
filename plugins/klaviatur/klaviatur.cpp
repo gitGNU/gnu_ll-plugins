@@ -26,12 +26,12 @@
 #include "lv2-midifunctions.h"
 
 
-class Klaviatur : public LV2::Plugin {
+class Klaviatur : public LV2::Plugin<Klaviatur> {
 public:
 
   Klaviatur(double rate, const char* bundle, 
 	    const LV2_Feature* const* f)
-    : LV2::Plugin(k_n_ports) {
+    : LV2::Plugin<Klaviatur>(k_n_ports) {
     
   }
   
@@ -58,4 +58,4 @@ public:
 };
 
 
-static LV2::Register<Klaviatur> reg(k_uri);
+static unsigned _ = Klaviatur::register_class(k_uri);

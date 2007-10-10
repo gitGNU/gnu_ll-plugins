@@ -308,8 +308,6 @@ clean:
 # GLOBAL INSTALL
 ARCHIVES_INST = $(filter-out $(ARCHIVES_NOINST),$(ARCHIVES))
 install-archives: $(patsubst %,install-%,$(subst .,_,$(ARCHIVES_INST)))
-	echo $(ARCHIVES)
-	echo $(ARCHIVES_NOINST)
 
 PROGRAMS_INST = $(filter-out $(PROGRAMS_NOINST),$(PROGRAMS))
 install-programs: $(patsubst %,install-%,$(subst .,_,$(PROGRAMS_INST)))
