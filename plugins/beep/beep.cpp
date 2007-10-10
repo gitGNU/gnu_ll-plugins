@@ -73,18 +73,18 @@ protected:
 };
 
 
-class Beep : public LV2::Synth<BeepVoice> {
+class Beep : public LV2::Synth<BeepVoice, Beep> {
 public:
   
   Beep(double rate, const char* bundle, const LV2_Feature* const* features)
-    : LV2::Synth<BeepVoice>(b_n_ports, b_midi) {
+    : LV2::Synth<BeepVoice, Beep>(b_n_ports, b_midi) {
     add_voices(new BeepVoice(rate),
 	       new BeepVoice(rate),
 	       new BeepVoice(rate),
 	       new BeepVoice(rate),
 	       new BeepVoice(rate),
 	       new BeepVoice(rate));
-    add_audio_ports(b_output);
+    add_audio_outputs(b_output);
   }
   
 };
