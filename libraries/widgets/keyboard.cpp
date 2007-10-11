@@ -135,6 +135,7 @@ bool Keyboard::on_key_release_event(GdkEventKey* event) {
 
 
 bool Keyboard::on_button_press_event(GdkEventButton* event) {
+  grab_focus();
   if (event->button != 1)
     return false;
   unsigned char k = pixel_to_key(int(event->x), int(event->y));
