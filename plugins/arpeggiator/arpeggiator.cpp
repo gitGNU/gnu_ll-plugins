@@ -22,25 +22,25 @@
 ****************************************************************************/
 
 #include <cstring>
-#include <iostream>
 
-#include "lv2plugin.hpp"
-#include "lv2-midiport.h"
+#include <lv2plugin.hpp>
+#include <lv2-midifunctions.h>
 
 
 using namespace std;
 
 
-/** This is the class that contains all the code and data for the Sineshaper
-    synth plugin. */
+/** A plugin that takes chord MIDI input and writes arpeggio MIDI output. */
 class Arpeggiator : public LV2::Plugin<Arpeggiator> {
 public:
   
-  Arpeggiator(double, const char*, const LV2_Feature* const* f) 
-    : LV2::Plugin<Arpeggiator>(5),
+  Arpeggiator(double rate, const char*, const LV2_Feature* const* f) 
+    : LV2::Plugin<Arpeggiator>(5, f),
+      m_rate(rate),
       m_num_keys(0),
       m_frame_counter(0),
-      m_next_key(0) {
+      m_next_key(0),
+      m_last_key(0) {
 
   }
   
@@ -54,41 +54,35 @@ public:
   
   void run(uint32_t nframes) {
     
-    float& npb = *static_cast<float*>(m_ports[0]);
-    float& plength = *static_cast<float*>(m_ports[1]);
-    float& direction = *static_cast<float*>(m_ports[2]);
-    LV2_MIDI* midi_in = static_cast<LV2_MIDI*>(m_ports[3]);
-    LV2_MIDI* midi_out = static_cast<LV2_MIDI*>(m_ports[4]);
+    float& npb = *p(0);
+    float& plength = *p(1);
+    float& direction = *p(2);
+    LV2_MIDIState midi_in = { p<LV2_MIDI>(3), nframes, 0 };
+    p<LV2_MIDI>(4)->event_count = 0;
+    p<LV2_MIDI>(4)->size = 0;
+    LV2_MIDIState midi_out = { p<LV2_MIDI>(4), nframes, 0 };
     
-    const unsigned char* in_data = midi_in->data;
-    unsigned long last_timestamp = 0;
-    unsigned long timestamp;
-    size_t in_data_size;
-    unsigned char* out_data = midi_out->data;
-    
-    midi_out->event_count = 0;
-    midi_out->size = 0;
+    double event_time;
+    uint32_t event_size;
+    unsigned char* event_data;
+    double frames_done = 0;
     
     // iterate over incoming MIDI events
-    for (size_t in_event = 0; in_event < midi_in->event_count; ++in_event) {
+    while (true) {
+      lv2midi_get_event(&midi_in, &event_time, &event_size, &event_data);
+      lv2midi_step(&midi_in);
+      if (event_time > frames_done)
+        generate_events(&midi_out, frames_done, event_time);
+      frames_done = event_time;
       
-      timestamp = *reinterpret_cast<const unsigned long*>(in_data);
-      in_data += sizeof(unsigned long);
-      in_data_size = *reinterpret_cast<const size_t*>(in_data);
-      in_data += sizeof(size_t);
+      if (frames_done >= nframes)
+	break;
       
-      // generate events for the time between last event and this event
-      if (timestamp > last_timestamp)
-        generate_events(midi_out, out_data, last_timestamp, timestamp);
-      
-      last_timestamp = timestamp;
-      
-      if (in_data_size == 3) {
-        const unsigned char& key = in_data[1];
+      if (event_size == 3) {
+        const unsigned char& key = event_data[1];
         
         // note off - erase the key from the array
-        if (((in_data[0] & 0xF0) == 0x80) ||
-            ((in_data[0] & 0xF0) == 0x90 && in_data[2] == 0)) {
+        if ((event_data[0] & 0xF0) == 0x80) {
           unsigned pos = 0;
           for ( ; pos < m_num_keys && m_keys[pos] != key; ++pos);
           if (pos < m_num_keys) {
@@ -97,14 +91,11 @@ public:
               --m_next_key;
             for (unsigned i = pos; i < m_num_keys; ++i)
               m_keys[i] = m_keys[i + 1];
-            //for (unsigned i = 0; i < m_num_keys; ++i)
-            //  cerr<<" "<<int(m_keys[i]);
-            //cerr<<endl;
           }
         }
           
         // note on - insert the key in the array
-        else if ((in_data[0] & 0xF0) == 0x90) {
+        else if ((event_data[0] & 0xF0) == 0x90) {
           unsigned pos = 0;
           for ( ; pos < m_num_keys && m_keys[pos] < key; ++pos);
           if (m_keys[pos] != key || pos == m_num_keys) {
@@ -112,10 +103,6 @@ public:
               m_keys[i] = m_keys[i - 1];
             m_keys[pos] = key;
             ++m_num_keys;
-            
-            //for (unsigned i = 0; i < m_num_keys; ++i)
-            //  cerr<<" "<<int(m_keys[i]);
-            //cerr<<endl;
             if (m_next_key > pos)
               ++m_next_key;
           }
@@ -123,61 +110,48 @@ public:
         
       }
       
-      in_data += in_data_size;
     }
     
-    // generate events for the time between the last event and the 
-    // end of the cycle
-    generate_events(midi_out, out_data, last_timestamp, nframes);
-    
-    m_frame_counter += nframes;
-    
-    midi_out->size = out_data - midi_out->data;
   }
   
   
-  void generate_events(LV2_MIDI* midi_out, unsigned char*& out_data,
-                       unsigned long from, unsigned long to) {
+  void generate_events(LV2_MIDIState* midi_out, uint32_t from, uint32_t to) {
 
     if (m_num_keys == 0)
       return;
     
-    unsigned long step_length = 12000;
-    unsigned long frame = m_frame_counter + from + 
-      step_length - ((m_frame_counter + from) % step_length);
-    
-    
-    
-    
-    size_t event_size = sizeof(unsigned long) + sizeof(size_t) + 3;
-    
-    for ( ; frame < m_frame_counter + to; frame += step_length) {
+    if (*p(0) <= 0) {
+      m_frame_counter = 0;
+      return;
+    }
       
-      //cerr<<"writing event at frame "<<(frame - m_frame_counter)<<endl;
-
-      if (out_data - midi_out->data + event_size >= midi_out->capacity)
-        return;
-      unsigned long step = frame / step_length;
-      *reinterpret_cast<unsigned long*>(out_data) = frame - m_frame_counter;
-      out_data += sizeof(unsigned long);
-      *reinterpret_cast<size_t*>(out_data) = 3;
-      out_data += sizeof(size_t);
-      out_data[0] = 0x90;
-      out_data[1] = m_keys[m_next_key];
-      out_data[2] = 0x60;
-      out_data += 3;
-      ++midi_out->event_count;
+    uint32_t step_length = m_rate / *p(0);
+    
+    uint32_t frame = from + m_frame_counter;
+    frame = frame >= from ? frame : from;
+    
+    for ( ; frame < to; frame += step_length) {
+      unsigned char data[] = { 0x80, m_last_key, 0x60 };
+      lv2midi_put_event(midi_out, frame, 3, data);
+      data[0] = 0x90;
+      data[1] = m_keys[m_next_key];
+      lv2midi_put_event(midi_out, frame, 3, data);
+      m_last_key = data[1];
       m_next_key = (m_next_key + 1) % m_num_keys;
     }
+    
+    m_frame_counter = frame - to;
   }
   
                        
 protected:
   
+  double m_rate;
   int m_keys[128];
   unsigned char m_num_keys;
-  unsigned long m_frame_counter;
+  uint32_t m_frame_counter;
   unsigned char m_next_key;
+  unsigned char m_last_key;
   
 };
 
