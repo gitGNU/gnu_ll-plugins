@@ -23,7 +23,8 @@
 
 #include <cstring>
 
-#include "lv2advanced.hpp"
+#include <lv2plugin.hpp>
+
 #include "pdosc.hpp"
 #include "voicehandler.hpp"
 #include "frequencytable.hpp"
@@ -112,11 +113,11 @@ public:
 FrequencyTable EuphoriaVoice::m_table;
 
 
-class Euphoria : public LV2::Advanced {
+class Euphoria : public LV2::Plugin<Euphoria, LV2::CommandExt, true> {
 public:
   
-  Euphoria(double rate, const char*, const LV2_Feature* const*) 
-    : LV2::Advanced(e_n_ports),
+  Euphoria(double rate, const char*, const LV2_Feature* const* f) 
+    : LV2::Plugin<Euphoria, LV2::CommandExt, true>(e_n_ports),
       m_handler(3, rate),
       m_trigger(0),
       m_dist(rate),
@@ -224,4 +225,4 @@ protected:
 };
 
 
-static LV2::RegisterAdvanced<Euphoria> reg(e_uri);
+static unsigned _ = Euphoria::register_class(e_uri);

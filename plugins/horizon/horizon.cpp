@@ -27,11 +27,12 @@
 
 #include <semaphore.h>
 
+#include <lv2plugin.hpp>
+
 #include "action.hpp"
 #include "actiontrigger.hpp"
 #include "effect.hpp"
 #include "horizon.peg"
-#include "lv2advanced.hpp"
 #include "mixer.hpp"
 #include "sample.hpp"
 
@@ -39,13 +40,12 @@
 using namespace std;
 
 
-class Horizon : public LV2::Advanced {
+class Horizon : public LV2::Plugin<Horizon, LV2::CommandExt, true> {
 public:
   
   
-  Horizon(double rate, const char* bundle_path, 
-	  const LV2_Feature* const* f)
-    : LV2::Advanced(h_n_ports),
+  Horizon(double rate, const char* bundle_path, const LV2_Feature* const* f)
+    : LV2::Plugin<Horizon, LV2::CommandExt, true>(h_n_ports, f),
       m_trigger(m_mixer) {
     
     sem_init(&m_lock, 0, 1);
@@ -505,4 +505,4 @@ protected:
 };
 
 
-static LV2::RegisterAdvanced<Horizon> reg(h_uri);
+static unsigned _ = Horizon::register_class(h_uri);

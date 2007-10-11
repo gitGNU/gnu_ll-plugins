@@ -4,7 +4,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.354
+PACKAGE_VERSION = 0.1.355
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
@@ -12,7 +12,7 @@ PKG_DEPS = \
 	jack>=0.102.27 \
 	lash-1.0>=0.5.1 \
 	liblo>=0.22 \
-	lv2-plugin>=0.1.352 \
+	lv2-plugin>=0.1.353 \
 	lv2-gui>=0.1.338 \
 	paq>=0.1.338 \
 	sndfile>=1.0.16
@@ -48,11 +48,11 @@ LV2_BUNDLES = \
 	vumeter.lv2 \
 	vumeter_gtk.lv2 \
 	envelope.lv2 \
-	envelope_gtk.lv2
-#	euphoria.lv2 \
-#	euphoria_gtk.lv2 \
-#	horizon.lv2 \
-#	horizon_gtk.lv2 \
+	envelope_gtk.lv2 \
+	euphoria.lv2 \
+	euphoria_gtk.lv2 \
+	horizon.lv2 \
+	horizon_gtk.lv2
 #	trilobeat.lv2 \
 #	trilobyte.lv2 \
 
