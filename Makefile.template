@@ -292,6 +292,9 @@ DEPDIRS = $(shell for i in . */ */*/ */*/*/ */*/*/*/; do echo -n " -I$$i"; done)
 	@$(CC) -MM $(DEPDIRS) $(PKG_DEPDIRS) -MT $@ -o $@.dep $<
 	@cat $@.dep >> $@
 	@rm -f $@.dep
+	@cat $@ | sed -e 's/ *\\$$//' -e 's/^[^:]*: *//' -e 's/^ *//' -e 's/ /\n/' | sed -e 's/[^ ]$$/&:/' > $@.alltgts
+	@cat $@.alltgts >> $@
+	@rm -f $@.alltgts
 	@echo .
 
 Makefile.deps: $(DEP_FILES)
