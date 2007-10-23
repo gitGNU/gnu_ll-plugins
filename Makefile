@@ -4,7 +4,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.360
+PACKAGE_VERSION = 0.1.361
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
@@ -345,7 +345,8 @@ math-constants_lv2_MODULES = math-constants.so
 math-constants_so_SOURCES = math-constants.cpp
 math-constants_so_CFLAGS = $(PLUGINCFLAGS)
 math-constants_so_LDFLAGS = $(PLUGINARCHIVES)
-math-constants_lv2_DATA = manifest.ttl math-constants.ttl
+math-constants_lv2_DATA = manifest.ttl math-constants.ttl \
+	e.svg pi.svg pi_2.svg pi_4.svg 1_pi.svg 2_pi.svg
 math-constants_lv2_SOURCEDIR = plugins/math-constants
 
 # Math functions
