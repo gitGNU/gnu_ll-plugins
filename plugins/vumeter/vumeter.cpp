@@ -32,8 +32,7 @@ public:
 
   using LV2::Plugin< VUMeter<C> >::p;
   
-  VUMeter(double rate, const char*, const LV2_Feature* const*) 
-    : LV2::Plugin< VUMeter<C> >(2 * C),
+  VUMeter(double rate) : LV2::Plugin< VUMeter<C> >(2 * C),
       m_dy(1.0 / (1.0 * rate)) {
     for (unsigned i = 0; i < C; ++i)
       m_values[i] = 0.0;

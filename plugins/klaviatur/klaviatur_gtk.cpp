@@ -52,7 +52,7 @@ namespace {
 class KlaviaturGUI : public LV2::GUI<KlaviaturGUI> {
 public:
   
-  KlaviaturGUI(const std::string& URI, const std::string& bundle_path) 
+  KlaviaturGUI(const std::string& URI) 
     : m_cc(0, 128, 1),
       m_pitch(-8192, 8192, 1),
       m_vel(1, 128, 1),

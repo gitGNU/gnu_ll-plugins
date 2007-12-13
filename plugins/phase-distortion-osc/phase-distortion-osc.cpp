@@ -28,8 +28,7 @@
 class PhaseDistortionOscillator : public LV2::Plugin<PhaseDistortionOscillator>{
 public:
   
-  PhaseDistortionOscillator(double rate, const char*, 
-                            const LV2_Feature* const*) 
+  PhaseDistortionOscillator(double rate) 
     : LV2::Plugin<PhaseDistortionOscillator>(4),
       m_osc(rate) {
 

@@ -34,8 +34,8 @@ using namespace std;
 class Arpeggiator : public LV2::Plugin<Arpeggiator> {
 public:
   
-  Arpeggiator(double rate, const char*, const LV2_Feature* const* f) 
-    : LV2::Plugin<Arpeggiator>(5, f),
+  Arpeggiator(double rate) 
+    : LV2::Plugin<Arpeggiator>(5),
       m_rate(rate),
       m_num_keys(0),
       m_frame_counter(0),

@@ -116,7 +116,7 @@ FrequencyTable EuphoriaVoice::m_table;
 class Euphoria : public LV2::Plugin<Euphoria, LV2::CommandExt, true> {
 public:
   
-  Euphoria(double rate, const char*, const LV2_Feature* const* f) 
+  Euphoria(double rate) 
     : LV2::Plugin<Euphoria, LV2::CommandExt, true>(e_n_ports),
       m_handler(3, rate),
       m_trigger(0),

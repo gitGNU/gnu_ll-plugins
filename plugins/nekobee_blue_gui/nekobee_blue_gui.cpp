@@ -37,8 +37,8 @@ using namespace sigc;
 class NekobeeBlueGUI : public LV2::GUI<NekobeeBlueGUI> {
 public:
   
-  NekobeeBlueGUI(const std::string& URI, const std::string& bundle_path)
-    : m_nkb(bundle_path) {
+  NekobeeBlueGUI(const std::string& URI)
+    : m_nkb(bundle_path()) {
     
     pack_start(m_nkb);
     

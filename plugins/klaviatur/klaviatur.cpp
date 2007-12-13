@@ -29,9 +29,7 @@
 class Klaviatur : public LV2::Plugin<Klaviatur> {
 public:
 
-  Klaviatur(double rate, const char* bundle, 
-	    const LV2_Feature* const* f)
-    : LV2::Plugin<Klaviatur>(k_n_ports) {
+  Klaviatur(double rate) : LV2::Plugin<Klaviatur>(k_n_ports) {
     
   }
   

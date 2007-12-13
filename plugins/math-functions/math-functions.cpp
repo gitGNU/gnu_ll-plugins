@@ -58,8 +58,7 @@ public:
 
   typedef LV2::Plugin< Unary<F, A> > Parent;
 
-  Unary(double, const char*, const LV2_Feature* const*) 
-    : Parent(2) {
+  Unary(double) : Parent(2) {
     
   }
   void run(uint32_t sample_count) {
@@ -77,8 +76,7 @@ public:
   
   typedef LV2::Plugin< UnaryGuard<F, A> > Parent;
   
-  UnaryGuard(double, const char*, const LV2_Feature* const*) 
-    : Parent(2) {
+  UnaryGuard(double) : Parent(2) {
     
   }
   void run(uint32_t sample_count) {
@@ -99,8 +97,7 @@ public:
 
   typedef LV2::Plugin< UnaryRange<F, A, MIN, MAX> > Parent;
 
-  UnaryRange(double, const char*, const LV2_Feature* const*) 
-    : Parent(2) {
+  UnaryRange(double) : Parent(2) {
     
   }
   void run(uint32_t sample_count) {
@@ -121,8 +118,7 @@ public:
 
   typedef LV2::Plugin< UnaryMin<F, A, MIN> > Parent;
 
-  UnaryMin(double, const char*, const LV2_Feature* const*) 
-    : Parent(2) {
+  UnaryMin(double) : Parent(2) {
     
   }
   void run(uint32_t sample_count) {
@@ -142,8 +138,7 @@ public:
   
   typedef LV2::Plugin< Binary<F, A> > Parent;
   
-  Binary(double, const char*, const LV2_Feature* const*) 
-    : Parent(3) {
+  Binary(double) : Parent(3) {
     
   }
   void run(uint32_t sample_count) {
@@ -162,8 +157,7 @@ public:
 
   typedef LV2::Plugin< BinaryGuard<F, A> > Parent;
 
-  BinaryGuard(double, const char*, const LV2_Feature* const*) 
-    : Parent(3) {
+  BinaryGuard(double) : Parent(3) {
     
   }
   void run(uint32_t sample_count) {
@@ -185,8 +179,7 @@ public:
 
   typedef LV2::Plugin< Modf<A> > Parent;
 
-  Modf(double, const char*, const LV2_Feature* const*) 
-    : Parent(3) {
+  Modf(double) : Parent(3) {
     
   }
   void run(uint32_t sample_count) {

@@ -32,8 +32,7 @@
 class MIDIIdentity : public LV2::Plugin<MIDIIdentity> {
 public:
   
-  MIDIIdentity(double, const char*, const LV2_Feature* const*) 
-    : LV2::Plugin<MIDIIdentity>(2) {
+  MIDIIdentity(double) : LV2::Plugin<MIDIIdentity>(2) {
     
   }
   

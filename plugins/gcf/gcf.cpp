@@ -32,7 +32,7 @@ using namespace std;
 class GCF : public LV2::Plugin<GCF> {
 public:
   
-  GCF(double rate, const char*, const LV2_Feature* const*) 
+  GCF(double rate) 
     : LV2::Plugin<GCF>(3),
       m_rate(rate),
       m_counter(0),

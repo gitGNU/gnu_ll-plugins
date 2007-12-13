@@ -38,7 +38,7 @@ using namespace sigc;
 class EuphoriaGUI : public LV2::GUI<EuphoriaGUI> {
 public:
   
-  EuphoriaGUI(const std::string& URI, const std::string& bundle_path) {
+  EuphoriaGUI(const std::string& URI) {
     pack_start(m_euph);
     m_euph.signal_control_changed.
       connect(mem_fun(*this, &EuphoriaGUI::control_changed));

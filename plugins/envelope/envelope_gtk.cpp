@@ -38,7 +38,7 @@ using namespace sigc;
 class EnvelopeGUI : public LV2::GUI<EnvelopeGUI> {
 public:
   
-  EnvelopeGUI(const std::string& URI, const std::string& bundle_path) {
+  EnvelopeGUI(const std::string& URI) {
     add(m_ee);
     m_ee.signal_apply.connect(mem_fun(*this, &EnvelopeGUI::do_apply));
   }

@@ -52,8 +52,7 @@ namespace {
 template <float& Output>
 class Constant : public LV2::Plugin< Constant<Output> > {
 public:
-  Constant(double, const char*, const LV2_Feature* const*) 
-    : LV2::Plugin< Constant<Output> >(1) {
+  Constant(double) : LV2::Plugin< Constant<Output> >(1) {
     
   }
   void run(uint32_t sample_count) {

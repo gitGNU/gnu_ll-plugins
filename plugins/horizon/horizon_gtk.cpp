@@ -45,7 +45,7 @@ class HorizonGUI : public LV2::GUI<HorizonGUI> {
 public:
 
   
-  HorizonGUI(const std::string& URI, const std::string& bundle_path) 
+  HorizonGUI(const std::string& URI) 
     : m_kb(m_atm),
       m_autochunk_number(1) {
     

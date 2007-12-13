@@ -37,8 +37,8 @@ using namespace Gtk;
 class GCFGUI : public LV2::GUI<GCFGUI> {
 public:
   
-  GCFGUI(const std::string& URI, const std::string& bundle_path)
-    : m_twd(bundle_path) {
+  GCFGUI(const std::string& URI)
+    : m_twd(bundle_path()) {
     add(m_twd);
     m_twd.show();
   }

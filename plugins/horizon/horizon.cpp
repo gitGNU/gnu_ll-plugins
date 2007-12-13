@@ -44,8 +44,8 @@ class Horizon : public LV2::Plugin<Horizon, LV2::CommandExt, true> {
 public:
   
   
-  Horizon(double rate, const char* bundle_path, const LV2_Feature* const* f)
-    : LV2::Plugin<Horizon, LV2::CommandExt, true>(h_n_ports, f),
+  Horizon(double rate)
+    : LV2::Plugin<Horizon, LV2::CommandExt, true>(h_n_ports),
       m_trigger(m_mixer) {
     
     sem_init(&m_lock, 0, 1);

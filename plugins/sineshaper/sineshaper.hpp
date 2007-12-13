@@ -38,8 +38,7 @@
 class SineShaper : public LV2::Plugin<SineShaper> {
 public:
   
-  SineShaper(double frame_rate, const char* bundle_path, 
-             const LV2_Feature* const* host_features);
+  SineShaper(double frame_rate);
   
   void run(uint32_t sample_count);
   

@@ -34,8 +34,8 @@ class EnvelopePlugin :
   public LV2::Plugin<EnvelopePlugin, LV2::CommandExt, true> {
 public:
   
-  EnvelopePlugin(double rate, const char*, const LV2_Feature* const* f) 
-    : LV2::Plugin<EnvelopePlugin, LV2::CommandExt, true>(e_n_ports, f),
+  EnvelopePlugin(double rate) 
+    : LV2::Plugin<EnvelopePlugin, LV2::CommandExt, true>(e_n_ports),
       m_eg(uint32_t(rate)) {
     
   }

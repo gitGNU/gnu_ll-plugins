@@ -38,7 +38,7 @@ template <unsigned C>
 class VUMeterGUI : public LV2::GUI< VUMeterGUI<C> > {
 public:
   
-  VUMeterGUI(const std::string& URI, const std::string& bundle_path) 
+  VUMeterGUI(const std::string& URI) 
     : m_vu(C) {
     LV2::GUI< VUMeterGUI<C> >::add(m_vu);
   }

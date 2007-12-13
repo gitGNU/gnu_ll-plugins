@@ -37,8 +37,8 @@ using namespace sigc;
 class SineshaperGUI : public LV2::GUI<SineshaperGUI> {
 public:
   
-  SineshaperGUI(const std::string& URI, const std::string& bundle_path)
-    : m_sshp(bundle_path) {
+  SineshaperGUI(const std::string& URI)
+    : m_sshp(bundle_path()) {
     
     pack_start(m_sshp);
 
