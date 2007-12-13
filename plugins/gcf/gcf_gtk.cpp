@@ -34,11 +34,10 @@ using namespace sigc;
 using namespace Gtk;
 
 
-class GCFGUI : public LV2::GUI {
+class GCFGUI : public LV2::GUI<GCFGUI> {
 public:
   
-  GCFGUI(LV2::Controller& ctrl, const std::string& URI, 
-	 const std::string& bundle_path)
+  GCFGUI(const std::string& URI, const std::string& bundle_path)
     : m_twd(bundle_path) {
     add(m_twd);
     m_twd.show();
@@ -58,5 +57,5 @@ protected:
 
 void initialise() __attribute__((constructor));
 void initialise() {
-  LV2::GUI::register_class<GCFGUI>("http://ll-plugins.nongnu.org/lv2/dev/gcf/0/gui");
+  GCFGUI::register_class("http://ll-plugins.nongnu.org/lv2/dev/gcf/0/gui");
 }

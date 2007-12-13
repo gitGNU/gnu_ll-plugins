@@ -41,14 +41,12 @@ using namespace Gtk;
 using namespace sigc;
 
 
-class HorizonGUI : public LV2::GUI {
+class HorizonGUI : public LV2::GUI<HorizonGUI> {
 public:
 
   
-  HorizonGUI(LV2::Controller& ctrl, const std::string& URI, 
-              const std::string& bundle_path) 
-    : m_ctrl(ctrl),
-      m_kb(m_atm),
+  HorizonGUI(const std::string& URI, const std::string& bundle_path) 
+    : m_kb(m_atm),
       m_autochunk_number(1) {
     
     HBox* hbox = manage(new HBox(false, 6));
@@ -169,20 +167,20 @@ protected:
   void do_load_sample(const string& filename) {
     const char* argv[] = { "load_sample", 0 };
     argv[1] = filename.c_str();
-    m_ctrl.command(2, argv);
+    // XXX m_ctrl.command(2, argv);
   }
       
   void do_delete_sample(const string& sample) {
     const char* argv[] = { "delete_sample", 0 };
     argv[1] = sample.c_str();
-    m_ctrl.command(2, argv);
+    // XXX m_ctrl.command(2, argv);
   }
       
   void do_rename_sample(const string& old_name, const string& new_name) {
     const char* argv[] = { "rename_sample", 0, 0 };
     argv[1] = old_name.c_str();
     argv[2] = new_name.c_str();
-    m_ctrl.command(3, argv);
+    // XXX m_ctrl.command(3, argv);
   }
   
   void do_add_splitpoint(const string& sample, size_t frame) {
@@ -200,7 +198,7 @@ protected:
     cerr<<"  "<<(const void*)(argv[1])<<endl;
     cerr<<"  "<<(const void*)(argv[2])<<endl;
 
-    m_ctrl.command(3, argv);
+    // XXX m_ctrl.command(3, argv);
   }
       
   void do_remove_splitpoint(const string& sample, size_t frame) {
@@ -210,7 +208,7 @@ protected:
     oss<<frame;
     string tmp = oss.str();
     argv[2] = tmp.c_str();
-    m_ctrl.command(3, argv);
+    // XXX m_ctrl.command(3, argv);
   }
       
   void do_move_splitpoint(const string& sample, size_t frame, size_t newframe) {
@@ -224,7 +222,7 @@ protected:
     oss<<newframe;
     string a3 = oss.str();
     argv[3] = a3.c_str();
-    m_ctrl.command(4, argv);
+    // XXX m_ctrl.command(4, argv);
   }
   
   
@@ -239,14 +237,14 @@ protected:
     oss<<end;
     string a3 = oss.str();
     argv[3] = a3.c_str();
-    m_ctrl.command(4, argv);
+    // XXX m_ctrl.command(4, argv);
   }
   
   
   void do_stop_preview(const string& sample) {
     const char* argv[] = { "stop_preview", 0 };
     argv[1] = sample.c_str();
-    m_ctrl.command(2, argv);
+    // XXX m_ctrl.command(2, argv);
   }
   
   
@@ -259,7 +257,7 @@ protected:
     string tmp = oss.str();
     argv[2] = tmp.c_str();
     argv[3] = effect_uri.c_str();
-    m_ctrl.command(4, argv);
+    // XXX m_ctrl.command(4, argv);
   }
   
   
@@ -270,7 +268,7 @@ protected:
     oss<<index;
     string tmp = oss.str();
     argv[2] = tmp.c_str();
-    m_ctrl.command(3, argv);
+    // XXX m_ctrl.command(3, argv);
   }
   
   
@@ -282,7 +280,7 @@ protected:
     string tmp = oss.str();
     argv[2] = tmp.c_str();
     argv[3] = yeah ? "1" : "0";
-    m_ctrl.command(4, argv);
+    // XXX m_ctrl.command(4, argv);
   }
   
   
@@ -297,7 +295,7 @@ protected:
     oss<<to;
     string tmp2 = oss.str();
     argv[3] = tmp2.c_str();
-    m_ctrl.command(5, argv);
+    // XXX m_ctrl.command(5, argv);
   }
   
   
@@ -309,13 +307,13 @@ protected:
     oss<<int(key);
     string tmp = oss.str();
     argv[1] = tmp.c_str();
-    m_ctrl.command(5, argv);
+    // XXX m_ctrl.command(5, argv);
   }
   
   
   void do_send_note(unsigned char key, bool on) {
     unsigned char event[] = { on ? 0x90 : 0x80, key, 64 };
-    m_ctrl.write(h_midi_input, 3, event);
+    // XXX m_ctrl.write(h_midi_input, 3, event);
   }
   
   
@@ -352,8 +350,6 @@ protected:
   
 protected:
   
-  LV2::Controller& m_ctrl;
-  
   ControlSourceGUI m_csg;
   SampleEditor m_sed;
   ChunkEditor m_ced;
@@ -365,7 +361,4 @@ protected:
 };
 
 
-void initialise() __attribute__((constructor));
-void initialise() {
-  LV2::GUI::register_class<HorizonGUI>(string(h_uri) + "/gui");
-}
+static int _ = HorizonGUI::register_class((string(h_uri) + "/gui").c_str());

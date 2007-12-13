@@ -49,11 +49,10 @@ namespace {
 
 
 
-class KlaviaturGUI : public LV2::GUI {
+class KlaviaturGUI : public LV2::GUI<KlaviaturGUI> {
 public:
   
-  KlaviaturGUI(LV2::Controller& ctrl, const std::string& URI, 
-               const std::string& bundle_path) 
+  KlaviaturGUI(const std::string& URI, const std::string& bundle_path) 
     : m_cc(0, 128, 1),
       m_pitch(-8192, 8192, 1),
       m_vel(1, 128, 1),
@@ -97,43 +96,42 @@ public:
     
     // connect signals
     m_kb.signal_key_on().
-      connect(bind(mem_fun(*this, &KlaviaturGUI::handle_keypress), ref(ctrl)));
+      connect(mem_fun(*this, &KlaviaturGUI::handle_keypress));
     m_kb.signal_key_off().
-      connect(bind(mem_fun(*this, &KlaviaturGUI::handle_keyrelease),ref(ctrl)));
+      connect(mem_fun(*this, &KlaviaturGUI::handle_keyrelease));
     m_cc.signal_value_changed().
-      connect(bind(mem_fun(*this, &KlaviaturGUI::handle_cc_change), ref(ctrl)));
+      connect(mem_fun(*this, &KlaviaturGUI::handle_cc_change));
     m_cc_sbn.signal_value_changed().
-      connect(bind(mem_fun(*this, &KlaviaturGUI::handle_cc_change), ref(ctrl)));
+      connect(mem_fun(*this, &KlaviaturGUI::handle_cc_change));
     m_pitch.signal_value_changed().
-      connect(bind(mem_fun(*this, &KlaviaturGUI::handle_pitch_change), 
-                   ref(ctrl)));
+      connect(mem_fun(*this, &KlaviaturGUI::handle_pitch_change));
   }
   
 protected:
 
-  void handle_keypress(unsigned char key, LV2::Controller& ctrl) {
+  void handle_keypress(unsigned char key) {
     unsigned char data[3] = { 0x90, key + 36, int(m_vel.get_value()) };
-    ctrl.write(k_midi_input, 3, data);
+    write(k_midi_input, 3, data);
   }
   
   
-  void handle_keyrelease(unsigned char key, LV2::Controller& ctrl) {
+  void handle_keyrelease(unsigned char key) {
     unsigned char data[3] = { 0x80, key + 36, 64 };
-    ctrl.write(k_midi_input, 3, data);
+    write(k_midi_input, 3, data);
   }
   
   
-  void handle_cc_change(LV2::Controller& ctrl) {
+  void handle_cc_change() {
     unsigned char data[3] = { 0xB0, int(m_cc_sbn.get_value()),
                               int(m_cc.get_value()) };
-    ctrl.write(k_midi_input, 3, data);
+    write(k_midi_input, 3, data);
   }
   
   
-  void handle_pitch_change(LV2::Controller& ctrl) {
+  void handle_pitch_change() {
     int value = int(m_pitch.get_value()) + 8192;
     unsigned char data[3] = { 0xE0, int(value & 127), int(value >> 7) };
-    ctrl.write(k_midi_input, 3, data);
+    write(k_midi_input, 3, data);
   }
   
   
@@ -147,7 +145,6 @@ protected:
 };
 
 
-void initialise() __attribute__((constructor));
-void initialise() {
-  LV2::GUI::register_class<KlaviaturGUI>(std::string(k_uri) + "/gui");
-}
+static int _ = 
+  KlaviaturGUI::register_class((std::string(k_uri) + "/gui").c_str());
+

@@ -35,12 +35,10 @@ using namespace Gtk;
 using namespace sigc;
 
 
-class EnvelopeGUI : public LV2::GUI {
+class EnvelopeGUI : public LV2::GUI<EnvelopeGUI> {
 public:
   
-  EnvelopeGUI(LV2::Controller& ctrl, const std::string& URI, 
-	      const std::string& bundle_path) 
-    : m_ctrl(ctrl) {
+  EnvelopeGUI(const std::string& URI, const std::string& bundle_path) {
     add(m_ee);
     m_ee.signal_apply.connect(mem_fun(*this, &EnvelopeGUI::do_apply));
   }
@@ -55,17 +53,13 @@ protected:
   void do_apply() {
     std::string tmp = m_ee.get_string();
     const char* argv[] = { "envelope", tmp.c_str() };
-    m_ctrl.command(2, argv);
+    // XXX command(2, argv);
   }
   
   
-  LV2::Controller& m_ctrl;
   EnvelopeEditor m_ee;
   
 };
 
 
-void initialise() __attribute__((constructor));
-void initialise() {
-  LV2::GUI::register_class<EnvelopeGUI>("http://ll-plugins.nongnu.org/lv2/dev/envelope/0/gui");
-}
+static int _ = EnvelopeGUI::register_class("http://ll-plugins.nongnu.org/lv2/dev/envelope/0/gui");

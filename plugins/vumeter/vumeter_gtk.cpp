@@ -35,13 +35,12 @@ using namespace sigc;
 
 
 template <unsigned C>
-class VUMeterGUI : public LV2::GUI {
+class VUMeterGUI : public LV2::GUI< VUMeterGUI<C> > {
 public:
   
-  VUMeterGUI(LV2::Controller& ctrl, const std::string& URI, 
-	     const std::string& bundle_path) 
+  VUMeterGUI(const std::string& URI, const std::string& bundle_path) 
     : m_vu(C) {
-    add(m_vu);
+    LV2::GUI< VUMeterGUI<C> >::add(m_vu);
   }
   
   void port_event(uint32_t port, uint32_t buffer_size, const void* buffer) {
@@ -58,8 +57,6 @@ protected:
 };
 
 
-void initialise() __attribute__((constructor));
-void initialise() {
-  LV2::GUI::register_class< VUMeterGUI<1> >("http://ll-plugins.nongnu.org/lv2/dev/vumeter/0/gui");
-  LV2::GUI::register_class< VUMeterGUI<2> >("http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0/gui");
-}
+
+static int _1 = VUMeterGUI<1>::register_class("http://ll-plugins.nongnu.org/lv2/dev/vumeter/0/gui");
+static int _2 = VUMeterGUI<2>::register_class("http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0/gui");

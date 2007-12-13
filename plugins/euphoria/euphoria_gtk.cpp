@@ -35,21 +35,17 @@ using namespace Gtk;
 using namespace sigc;
 
 
-class EuphoriaGUI : public LV2::GUI {
+class EuphoriaGUI : public LV2::GUI<EuphoriaGUI> {
 public:
   
-  EuphoriaGUI(LV2::Controller& ctrl, const std::string& URI, 
-              const std::string& bundle_path)
-    : m_ctrl(ctrl) {
-    
+  EuphoriaGUI(const std::string& URI, const std::string& bundle_path) {
     pack_start(m_euph);
-
     m_euph.signal_control_changed.
       connect(mem_fun(*this, &EuphoriaGUI::control_changed));
-    m_euph.signal_configure.
-      connect(mem_fun(*this, &EuphoriaGUI::configure_changed));
-    m_euph.signal_program_selected.
-      connect(mem_fun(ctrl, &LV2::Controller::request_program));
+    // XXX m_euph.signal_configure.
+    //  connect(mem_fun(*this, &EuphoriaGUI::configure_changed));
+    // XXX m_euph.signal_program_selected.
+    //  connect(mem_fun(ctrl, &LV2::Controller::request_program));
   }
   
   void port_event(uint32_t port, uint32_t buffer_size, const void* buffer) {
@@ -80,21 +76,17 @@ public:
 protected:
   
   void control_changed(uint32_t port, float value) {
-    m_ctrl.write(port, sizeof(float), &value);
+    write(port, sizeof(float), &value);
   }
   
   void configure_changed(const string& key, const string& value) {
-    const char* array[] = { key.c_str(), value.c_str() };
-    m_ctrl.command(2, array);
+    // XXX const char* array[] = { key.c_str(), value.c_str() };
+    // m_ctrl.command(2, array);
   }
   
   EuphoriaWidget m_euph;
-  LV2::Controller& m_ctrl;
   
 };
 
 
-void initialise() __attribute__((constructor));
-void initialise() {
-  LV2::GUI::register_class<EuphoriaGUI>(string(e_uri) + "/gui");
-}
+static int _ = EuphoriaGUI::register_class((string(e_uri) + "/gui").c_str());

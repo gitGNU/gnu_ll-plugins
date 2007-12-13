@@ -76,9 +76,7 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
   LV2UI_Controller ctrl = static_cast<LV2UI_Controller>(this);
   m_block_gui = true;
   m_ui = m_desc->instantiate(m_desc, plugin_uri.c_str(), bundle_path.c_str(),
-			     &LV2GUIHost::_write_port, &LV2GUIHost::_command,
-			     &LV2GUIHost::_request_program,
-			     &LV2GUIHost::_save_program,ctrl, 
+			     &LV2GUIHost::_write_port, ctrl, 
 			     reinterpret_cast<LV2UI_Widget*>(&m_cwidget),
 			     const_cast<const LV2_Feature**>(features));
   m_block_gui = false;
@@ -121,47 +119,47 @@ void LV2GUIHost::port_event(uint32_t index, uint32_t buffer_size,
  
  
 void LV2GUIHost::feedback(uint32_t argc, const char* const* argv) {
-  if (m_ui && m_desc && m_desc->feedback) {
+  /*if (m_ui && m_desc && m_desc->feedback) {
     m_block_gui = true;
-    m_desc->feedback(m_ui, argc, argv);
+    // XXX m_desc->feedback(m_ui, argc, argv);
     m_block_gui = false;
-  }
+    }*/
 }
 
 
 void LV2GUIHost::program_added(unsigned char number, const char* name) {
-  if (m_ui && m_desc && m_desc->program_added) {
+  /*if (m_ui && m_desc && m_desc->program_added) {
     m_block_gui = true;
-    m_desc->program_added(m_ui, number, name);
+    // XXX m_desc->program_added(m_ui, number, name);
     m_block_gui = false;
-  }
+    }*/
 }
 
   
 void LV2GUIHost::program_removed(unsigned char number) {
-  if (m_ui && m_desc && m_desc->program_removed) {
+  /*if (m_ui && m_desc && m_desc->program_removed) {
     m_block_gui = true;
-    m_desc->program_removed(m_ui, number);
+    // XXX m_desc->program_removed(m_ui, number);
     m_block_gui = false;
-  }
+    }*/
 }
  
  
 void LV2GUIHost::programs_cleared() {
-  if (m_ui && m_desc && m_desc->programs_cleared) {
+  /*if (m_ui && m_desc && m_desc->programs_cleared) {
     m_block_gui = true;
-    m_desc->programs_cleared(m_ui);
+    // XXX m_desc->programs_cleared(m_ui);
     m_block_gui = false;
-  }
+    }*/
 }
 
   
 void LV2GUIHost::current_program_changed(unsigned char number) {
-  if (m_ui && m_desc && m_desc->current_program_changed) {
+  /*if (m_ui && m_desc && m_desc->current_program_changed) {
     m_block_gui = true;
-    m_desc->current_program_changed(m_ui, number);
+    // XXX m_desc->current_program_changed(m_ui, number);
     m_block_gui = false;
-  }
+    }*/
 }
 
 

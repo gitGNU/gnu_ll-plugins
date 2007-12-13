@@ -34,22 +34,20 @@ using namespace Gtk;
 using namespace sigc;
 
 
-class SineshaperGUI : public LV2::GUI {
+class SineshaperGUI : public LV2::GUI<SineshaperGUI> {
 public:
   
-  SineshaperGUI(LV2::Controller& ctrl, const std::string& URI, 
-              const std::string& bundle_path)
-    : m_sshp(bundle_path),
-      m_ctrl(ctrl) {
+  SineshaperGUI(const std::string& URI, const std::string& bundle_path)
+    : m_sshp(bundle_path) {
     
     pack_start(m_sshp);
 
     m_sshp.signal_control_changed.
       connect(mem_fun(*this, &SineshaperGUI::request_control_change));
-    m_sshp.signal_preset_changed.
+    /*m_sshp.signal_preset_changed.
       connect(mem_fun(ctrl, &LV2::Controller::request_program));
     m_sshp.signal_save_preset.
-      connect(mem_fun(ctrl, &LV2::Controller::request_save));
+    connect(mem_fun(ctrl, &LV2::Controller::request_save));*/
   }
   
   void port_event(uint32_t port, uint32_t buffer_size, const void* buffer) {
@@ -76,16 +74,12 @@ public:
 protected:
   
   void request_control_change(uint32_t port, float value) {
-    m_ctrl.write(port, sizeof(float), &value);
+    write(port, sizeof(float), &value);
   }
   
   SineshaperWidget m_sshp;
-  LV2::Controller& m_ctrl;
   
 };
 
 
-void initialise() __attribute__((constructor));
-void initialise() {
-  LV2::GUI::register_class<SineshaperGUI>("http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/gui");
-}
+static int _ = SineshaperGUI::register_class("http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/gui");

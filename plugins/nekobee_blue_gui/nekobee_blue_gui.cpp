@@ -34,13 +34,11 @@ using namespace Gtk;
 using namespace sigc;
 
 
-class NekobeeBlueGUI : public LV2::GUI {
+class NekobeeBlueGUI : public LV2::GUI<NekobeeBlueGUI> {
 public:
   
-  NekobeeBlueGUI(LV2::Controller& ctrl, const std::string& URI, 
-		 const std::string& bundle_path)
-    : m_nkb(bundle_path),
-      m_ctrl(ctrl) {
+  NekobeeBlueGUI(const std::string& URI, const std::string& bundle_path)
+    : m_nkb(bundle_path) {
     
     pack_start(m_nkb);
     
@@ -84,16 +82,12 @@ public:
 protected:
   
   void request_control_change(uint32_t port, float value) {
-    m_ctrl.write(port, sizeof(float), &value);
+    write(port, sizeof(float), &value);
   }
   
   NekobeeWidget m_nkb;
-  LV2::Controller& m_ctrl;
   
 };
 
 
-void initialise() __attribute__((constructor));
-void initialise() {
-  LV2::GUI::register_class<NekobeeBlueGUI>("http://ll-plugins.nongnu.org/lv2/dev/nekobee_blue_gui/0.0.0");
-}
+static int _ = NekobeeBlueGUI::register_class("http://ll-plugins.nongnu.org/lv2/dev/nekobee_blue_gui/0.0.0");
