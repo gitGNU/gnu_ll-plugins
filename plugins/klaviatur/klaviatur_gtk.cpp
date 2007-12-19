@@ -57,7 +57,7 @@ public:
       m_pitch(-8192, 8192, 1),
       m_vel(1, 128, 1),
       m_kb(3, 3, 17, 10, 55, 36) {
-
+    
     pack_start(m_vbox);
     
     // initialise control widgets

@@ -247,7 +247,7 @@ void lv2midi2jackmidi(LV2Port& port, jack_port_t* jack_port,
   LV2_MIDI* input_buf = static_cast<LV2_MIDI*>(port.buffer);
   LV2_MIDIState in = { static_cast<LV2_MIDI*>(port.buffer), nframes, 0 };
   
-  jack_midi_clear_buffer(output_buf);
+  jack_midi_clear_buffer(output_buf, nframes);
   
   // iterate over all MIDI events and write them to the JACK port
   for (size_t i = 0; i < input_buf->event_count; ++i) {
@@ -261,7 +261,8 @@ void lv2midi2jackmidi(LV2Port& port, jack_port_t* jack_port,
     
     // write JACK MIDI event
     jack_midi_event_write(output_buf, jack_nframes_t(timestamp), 
-                          reinterpret_cast<jack_midi_data_t*>(data), data_size);
+                          reinterpret_cast<jack_midi_data_t*>(data), data_size,
+			  nframes);
   }
 }
 
@@ -277,7 +278,7 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
   void* input_buf = jack_port_get_buffer(jack_port, nframes);
   jack_midi_event_t input_event;
   jack_nframes_t input_event_index = 0;
-  jack_nframes_t input_event_count = jack_midi_get_event_count(input_buf);
+  jack_nframes_t input_event_count = jack_midi_get_event_count(input_buf, nframes);
   jack_nframes_t timestamp;
   LV2_MIDI* output_buf = static_cast<LV2_MIDI*>(port.buffer);
   output_buf->event_count = 0;
@@ -287,7 +288,7 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
   for (unsigned int i = 0; i < input_event_count; ++i) {
     
     // retrieve JACK MIDI event
-    jack_midi_event_get(&input_event, input_buf, i);
+    jack_midi_event_get(&input_event, input_buf, i, nframes);
     
     DBG3("Received MIDI event from JACK on port "<<port.symbol
          <<": "<<midi2str(input_event.size, input_event.buffer));

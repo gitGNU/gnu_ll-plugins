@@ -3,7 +3,7 @@
 @prefix doap: <http://usefulinc.com/ns/doap#>.
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 @prefix llext: <http://ll-plugins.nongnu.org/lv2/ext/>.
-@prefix guiext: <http://ll-plugins.nongnu.org/lv2/ext/gui/dev/1#>.
+@prefix guiext: <http://ll-plugins.nongnu.org/lv2/ext/gui#>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0>
   a lv2:Plugin;

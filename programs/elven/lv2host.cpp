@@ -735,7 +735,7 @@ bool LV2Host::load_plugin() {
     
     // GUI plugin path
     Variable gui_uri, gui_path;
-    Namespace gg("<http://ll-plugins.nongnu.org/lv2/ext/gui/dev/1#>");
+    Namespace gg("<http://ll-plugins.nongnu.org/lv2/ext/gui#>");
     qr = select(gui_uri, gui_path)
       .where(uriref, gg("gui"), gui_uri)
       .where(gui_uri, gg("binary"), gui_path)
