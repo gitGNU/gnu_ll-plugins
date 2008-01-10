@@ -47,8 +47,8 @@ public:
       connect(mem_fun(*this, &SineshaperGUI::write_control));
     m_sshp.signal_preset_changed.
       connect(mem_fun(*this, &SineshaperGUI::change_program));
-    /*m_sshp.signal_save_preset.
-    connect(mem_fun(ctrl, &LV2::Controller::request_save));*/
+    m_sshp.signal_save_preset.
+      connect(mem_fun(*this, &SineshaperGUI::save_program));
   }
   
   void port_event(uint32_t port, uint32_t buffer_size, const void* buffer) {
