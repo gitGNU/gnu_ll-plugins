@@ -39,7 +39,7 @@ class SineshaperGUI : public LV2::GUI<SineshaperGUI, LV2::Programs<false> > {
 public:
   
   SineshaperGUI(const std::string& URI)
-    : m_sshp(bundle_path(), false) {
+    : m_sshp(bundle_path(), host_supports_programs()) {
     
     pack_start(m_sshp);
 
