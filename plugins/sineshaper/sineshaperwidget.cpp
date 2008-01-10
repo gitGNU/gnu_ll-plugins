@@ -54,10 +54,12 @@ namespace {
 }
 
 
-SineshaperWidget::SineshaperWidget(const std::string& bundle)
+SineshaperWidget::SineshaperWidget(const std::string& bundle, 
+				   bool show_programs)
   : HBox(false, 6),
     m_adjs(s_n_ports, 0),
-    m_bundle(bundle) {
+    m_bundle(bundle),
+    m_show_programs(show_programs) {
   
   set_border_width(6);
   
@@ -82,19 +84,22 @@ SineshaperWidget::SineshaperWidget(const std::string& bundle)
   knob_vbox->pack_start(*init_shaper_controls());
   knob_vbox->pack_start(*knob_hbox);
   
-  VBox* preset_vbox = manage(new VBox(false, 6));
-  preset_vbox->pack_start(*init_preset_list(), PACK_EXPAND_WIDGET);
-  Button* save = manage(new Button("Save preset"));
-  save->signal_clicked().
-    connect(mem_fun(*this, &SineshaperWidget::show_save));
-  preset_vbox->pack_start(*save, PACK_SHRINK);
-  Button* about = manage(new Button("About Sineshaper"));
-  about->signal_clicked().
-    connect(mem_fun(*this, &SineshaperWidget::show_about));
-  preset_vbox->pack_start(*about, PACK_SHRINK);
-  
   pack_start(*knob_vbox);
-  pack_start(*preset_vbox);
+  
+  if (m_show_programs) {
+    VBox* preset_vbox = manage(new VBox(false, 6));
+    preset_vbox->pack_start(*init_preset_list(), PACK_EXPAND_WIDGET);
+    Button* save = manage(new Button("Save preset"));
+    save->signal_clicked().
+      connect(mem_fun(*this, &SineshaperWidget::show_save));
+    preset_vbox->pack_start(*save, PACK_SHRINK);
+    Button* about = manage(new Button("About Sineshaper"));
+    about->signal_clicked().
+      connect(mem_fun(*this, &SineshaperWidget::show_about));
+    preset_vbox->pack_start(*about, PACK_SHRINK);
+    
+    pack_start(*preset_vbox);
+  }
   
 }
 
@@ -110,38 +115,45 @@ void SineshaperWidget::set_control(uint32_t port, float value) {
 
 
 void SineshaperWidget::add_preset(unsigned char number, const char* name) {
-  remove_preset(number);
-  ListStore::iterator iter = m_preset_store->append();
-  (*iter)[m_preset_columns.number] = number;
-  (*iter)[m_preset_columns.name] = name;
+  if (m_show_programs) {
+    remove_preset(number);
+    ListStore::iterator iter = m_preset_store->append();
+    (*iter)[m_preset_columns.number] = number;
+    (*iter)[m_preset_columns.name] = name;
+  }
 }
   
 
 void SineshaperWidget::remove_preset(unsigned char number) {
-  TreeNodeChildren c = m_preset_store->children();
-  for (TreeIter iter = c.begin(); iter != c.end(); ++iter) {
-    if ((*iter)[m_preset_columns.number] == number) {
-      m_preset_store->erase(iter);
-      break;
+  if (m_show_programs) {
+    TreeNodeChildren c = m_preset_store->children();
+    for (TreeIter iter = c.begin(); iter != c.end(); ++iter) {
+      if ((*iter)[m_preset_columns.number] == number) {
+	m_preset_store->erase(iter);
+	break;
+      }
     }
   }
 }
   
 
 void SineshaperWidget::clear_presets() {
-  m_preset_store->clear();
+  if (m_show_programs)
+    m_preset_store->clear();
 }
   
 
 void SineshaperWidget::set_preset(unsigned char number) {
-  if (number > 127)
-    m_view->get_selection()->unselect_all();
-  else {
-    TreeNodeChildren c = m_preset_store->children();
-    for (TreeIter iter = c.begin(); iter != c.end(); ++iter) {
-      if ((*iter)[m_preset_columns.number] == number) {
-	m_view->get_selection()->select(iter);
-	break;
+  if (m_show_programs) {
+    if (number > 127)
+      m_view->get_selection()->unselect_all();
+    else {
+      TreeNodeChildren c = m_preset_store->children();
+      for (TreeIter iter = c.begin(); iter != c.end(); ++iter) {
+	if ((*iter)[m_preset_columns.number] == number) {
+	  m_view->get_selection()->select(iter);
+	  break;
+	}
       }
     }
   }
@@ -449,7 +461,7 @@ void SineshaperWidget::show_about() {
   dlg.set_name("Sineshaper");
   dlg.set_version(VERSION);
   dlg.set_logo(Gdk::Pixbuf::create_from_file(m_bundle + "icon.svg", 120, -1));
-  dlg.set_copyright("\u00a9 2006-2007 Lars Luthman <lars.luthman@gmail.com>");
+  dlg.set_copyright("\u00a9 2006-2008 Lars Luthman <lars.luthman@gmail.com>");
   dlg.set_website("http://ll-plugins.nongnu.org");
   dlg.set_license("This program is free software: you can redistribute it and/or modify\n"
 		  "it under the terms of the GNU General Public License as published by\n"

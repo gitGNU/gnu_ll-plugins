@@ -39,15 +39,15 @@ class SineshaperGUI : public LV2::GUI<SineshaperGUI, LV2::Programs<false> > {
 public:
   
   SineshaperGUI(const std::string& URI)
-    : m_sshp(bundle_path()) {
+    : m_sshp(bundle_path(), false) {
     
     pack_start(m_sshp);
 
     m_sshp.signal_control_changed.
       connect(mem_fun(*this, &SineshaperGUI::write_control));
-    /*m_sshp.signal_preset_changed.
-      connect(mem_fun(ctrl, &LV2::Controller::request_program));
-    m_sshp.signal_save_preset.
+    m_sshp.signal_preset_changed.
+      connect(mem_fun(*this, &SineshaperGUI::change_program));
+    /*m_sshp.signal_save_preset.
     connect(mem_fun(ctrl, &LV2::Controller::request_save));*/
   }
   

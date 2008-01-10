@@ -35,7 +35,7 @@
 class SineshaperWidget : public Gtk::HBox {
 public:
   
-  SineshaperWidget(const std::string& bundle);
+  SineshaperWidget(const std::string& bundle, bool show_programs);
   
   void set_control(uint32_t port, float value);
   
@@ -104,6 +104,7 @@ protected:
   Gtk::CheckButton* m_prt_on;
   Gtk::CheckButton* m_prt_tie;
   std::string m_bundle;
+  bool m_show_programs;
   
 };
 
