@@ -42,6 +42,10 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
     m_widget(0),
     m_block_gui(false) {
   
+  // initialise the host descriptor for the program extension
+  m_ui_hdesc.change_program = &LV2GUIHost::_request_program;
+  m_ui_hdesc.save_program = &LV2GUIHost::_save_program;
+  
   // open the module
   DBG2("Loading "<<gui_path);
   void* module = dlopen(gui_path.c_str(), RTLD_LAZY);

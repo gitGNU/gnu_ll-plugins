@@ -8,6 +8,5 @@
 
 <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/gui> 
   a guiext:GtkGUI;
-  guiext:binary <sineshaper_gtk.so>.
-
-
+  guiext:binary <sineshaper_gtk.so>;
+  guiext:optionalFeature guiext:ext_programs.

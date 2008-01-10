@@ -31,11 +31,11 @@
 
 
 class EnvelopePlugin : 
-  public LV2::Plugin<EnvelopePlugin, LV2::CommandExt, true> {
+  public LV2::Plugin<EnvelopePlugin, LV2::CommandExt<true> > {
 public:
   
   EnvelopePlugin(double rate) 
-    : LV2::Plugin<EnvelopePlugin, LV2::CommandExt, true>(e_n_ports),
+    : LV2::Plugin<EnvelopePlugin, LV2::CommandExt<true> >(e_n_ports),
       m_eg(uint32_t(rate)) {
     
   }

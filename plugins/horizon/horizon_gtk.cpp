@@ -41,7 +41,7 @@ using namespace Gtk;
 using namespace sigc;
 
 
-class HorizonGUI : public LV2::GUI<HorizonGUI> {
+class HorizonGUI : public LV2::GUI<HorizonGUI, LV2::NoUserResize<true> > {
 public:
 
   

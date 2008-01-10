@@ -40,12 +40,12 @@
 using namespace std;
 
 
-class Horizon : public LV2::Plugin<Horizon, LV2::CommandExt, true> {
+class Horizon : public LV2::Plugin<Horizon, LV2::CommandExt<true> > {
 public:
   
   
   Horizon(double rate)
-    : LV2::Plugin<Horizon, LV2::CommandExt, true>(h_n_ports),
+    : LV2::Plugin<Horizon, LV2::CommandExt<true> >(h_n_ports),
       m_trigger(m_mixer) {
     
     sem_init(&m_lock, 0, 1);

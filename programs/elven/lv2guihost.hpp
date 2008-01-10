@@ -31,6 +31,7 @@
 
 #include "lv2.h"
 #include "lv2-gui.h"
+#include "lv2-gui-programs.h"
 
 
 class LV2GUIHost {
@@ -97,6 +98,8 @@ protected:
   Gtk::Widget* m_widget;
   
   bool m_block_gui;
+  
+  LV2UI_Programs_HDesc m_ui_hdesc;
 };
 
 
