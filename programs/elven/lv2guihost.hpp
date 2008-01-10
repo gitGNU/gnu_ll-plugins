@@ -92,14 +92,15 @@ protected:
   }
 
   
-  const LV2UI_Descriptor* m_desc;
+  LV2UI_Descriptor const* m_desc;
+  LV2UI_Programs_GDesc const* m_pdesc;
   LV2UI_Handle m_ui;
   GtkWidget* m_cwidget;
   Gtk::Widget* m_widget;
   
   bool m_block_gui;
   
-  LV2UI_Programs_HDesc m_ui_hdesc;
+  LV2UI_Programs_HDesc m_phdesc;
 };
 
 

@@ -37,14 +37,15 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
 		       const std::string& plugin_uri, 
 		       const std::string& bundle_path)
   : m_desc(0),
+    m_pdesc(0),
     m_ui(0),
     m_cwidget(0),
     m_widget(0),
     m_block_gui(false) {
   
   // initialise the host descriptor for the program extension
-  m_ui_hdesc.change_program = &LV2GUIHost::_request_program;
-  m_ui_hdesc.save_program = &LV2GUIHost::_save_program;
+  m_phdesc.change_program = &LV2GUIHost::_request_program;
+  m_phdesc.save_program = &LV2GUIHost::_save_program;
   
   // open the module
   DBG2("Loading "<<gui_path);
@@ -72,9 +73,23 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
     return;
   }
   
+  // get extension data
+  if (m_desc->extension_data) {
+    m_pdesc = static_cast<LV2UI_Programs_GDesc const*>(m_desc->extension_data("http://ll-plugins.nongnu.org/lv2/ext/gui#ext_programs"));
+    if (m_pdesc)
+      DBG2("The plugin GUI supports the program feature");
+    else
+      DBG2("The plugin GUI does not support the program feature");
+  }
+  else
+    DBG2("The plugin GUI has no extension_data() callback");
+  
   // build the feature list
-  LV2_Feature** features = new LV2_Feature*[1];
-  features[0] = 0;
+  LV2_Feature** features = new LV2_Feature*[2];
+  LV2_Feature programs_feature = 
+    { "http://ll-plugins.nongnu.org/lv2/ext/gui#ext_programs", &m_phdesc };
+  features[0] = &programs_feature;
+  features[1] = 0;
   
   // create a GUI instance
   LV2UI_Controller ctrl = static_cast<LV2UI_Controller>(this);
@@ -132,38 +147,38 @@ void LV2GUIHost::feedback(uint32_t argc, const char* const* argv) {
 
 
 void LV2GUIHost::program_added(unsigned char number, const char* name) {
-  /*if (m_ui && m_desc && m_desc->program_added) {
+  if (m_ui && m_pdesc && m_pdesc->program_added) {
     m_block_gui = true;
-    // XXX m_desc->program_added(m_ui, number, name);
+    m_pdesc->program_added(m_ui, number, name);
     m_block_gui = false;
-    }*/
+  }
 }
 
   
 void LV2GUIHost::program_removed(unsigned char number) {
-  /*if (m_ui && m_desc && m_desc->program_removed) {
+  if (m_ui && m_pdesc && m_pdesc->program_removed) {
     m_block_gui = true;
-    // XXX m_desc->program_removed(m_ui, number);
+    m_pdesc->program_removed(m_ui, number);
     m_block_gui = false;
-    }*/
+  }
 }
  
  
 void LV2GUIHost::programs_cleared() {
-  /*if (m_ui && m_desc && m_desc->programs_cleared) {
+  if (m_ui && m_pdesc && m_pdesc->programs_cleared) {
     m_block_gui = true;
-    // XXX m_desc->programs_cleared(m_ui);
+    m_pdesc->programs_cleared(m_ui);
     m_block_gui = false;
-    }*/
+  }
 }
 
   
 void LV2GUIHost::current_program_changed(unsigned char number) {
-  /*if (m_ui && m_desc && m_desc->current_program_changed) {
+  if (m_ui && m_pdesc && m_pdesc->current_program_changed) {
     m_block_gui = true;
-    // XXX m_desc->current_program_changed(m_ui, number);
+    m_pdesc->current_program_changed(m_ui, number);
     m_block_gui = false;
-    }*/
+  }
 }
 
 

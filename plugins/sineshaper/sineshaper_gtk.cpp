@@ -27,6 +27,7 @@
 
 #include "lv2gui.hpp"
 #include "sineshaperwidget.hpp"
+#include "sineshaper.peg"
 
 
 using namespace std;
@@ -34,7 +35,7 @@ using namespace Gtk;
 using namespace sigc;
 
 
-class SineshaperGUI : public LV2::GUI<SineshaperGUI> {
+class SineshaperGUI : public LV2::GUI<SineshaperGUI, LV2::Programs<false> > {
 public:
   
   SineshaperGUI(const std::string& URI)
@@ -43,7 +44,7 @@ public:
     pack_start(m_sshp);
 
     m_sshp.signal_control_changed.
-      connect(mem_fun(*this, &SineshaperGUI::request_control_change));
+      connect(mem_fun(*this, &SineshaperGUI::write_control));
     /*m_sshp.signal_preset_changed.
       connect(mem_fun(ctrl, &LV2::Controller::request_program));
     m_sshp.signal_save_preset.
@@ -54,7 +55,7 @@ public:
     //cerr<<__PRETTY_FUNCTION__<<" "<<port<<", "<<value<<endl;
     m_sshp.set_control(port, *static_cast<const float*>(buffer));
   }
-
+  
   void program_added(unsigned char number, const char* name) {
     m_sshp.add_preset(number, name);
   }
@@ -73,13 +74,9 @@ public:
   
 protected:
   
-  void request_control_change(uint32_t port, float value) {
-    write(port, sizeof(float), &value);
-  }
-  
   SineshaperWidget m_sshp;
   
 };
 
 
-static int _ = SineshaperGUI::register_class("http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/gui");
+static int _ = SineshaperGUI::register_class((string(s_uri) + "/gui").c_str());
