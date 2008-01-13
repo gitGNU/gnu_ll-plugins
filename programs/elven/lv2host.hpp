@@ -87,6 +87,9 @@ public:
   /** Returns true if the plugin was loaded OK. */
   bool is_valid() const;
   
+  /** Returns the URI for the loaded plugin. */
+  const std::string& get_plugin_uri() const;
+  
   /** Returns a vector of objects containing information about the plugin's 
       ports. */
   const std::vector<LV2Port>& get_ports() const;

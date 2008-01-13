@@ -639,7 +639,7 @@ int main(int argc, char** argv) {
 	gui_bundle = gui_path.substr(0, pos + 5);
 
       lv2gh = new LV2GUIHost(gui_path, lv2h.get_gui_uri(), 
-			     plugin_uri, gui_bundle);
+			     lv2h.get_plugin_uri(), gui_bundle);
       if (!lv2gh->is_valid()) {
 	delete lv2gh;
 	lv2gh = 0;

@@ -98,6 +98,11 @@ LV2Host::~LV2Host() {
 }
 
 
+const std::string& LV2Host::get_plugin_uri() const {
+  return m_uri;
+}
+
+
 void LV2Host::list_plugins() {
   vector<string> search_dirs = get_search_dirs();
   scan_manifests(search_dirs, &LV2Host::print_uri);
