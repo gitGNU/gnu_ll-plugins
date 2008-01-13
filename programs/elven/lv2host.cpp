@@ -553,7 +553,7 @@ bool LV2Host::load_plugin() {
       m_binary = qr[0][binary]->name;
     }
     else {
-      DBG0("No valid plugin found");
+      DBG0("A required property (binary, name or license) is missing");
       return false;
     }
     

@@ -21,6 +21,7 @@
 
 ****************************************************************************/
 
+#include <clocale>
 #include <csignal>
 #include <cstdlib>
 #include <fstream>
@@ -490,6 +491,11 @@ void print_help(const char* argv0) {
 
 
 int main(int argc, char** argv) {
+  
+  setlocale(LC_NUMERIC, "C");
+  
+  // prevent GTK from ruining our locale settings
+  gtk_disable_setlocale();
   
   Gtk::Main kit(argc, argv);
   
