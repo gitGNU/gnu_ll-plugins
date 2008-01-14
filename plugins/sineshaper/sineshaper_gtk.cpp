@@ -55,11 +55,11 @@ public:
     m_sshp.set_control(port, *static_cast<const float*>(buffer));
   }
   
-  void program_added(unsigned char number, const char* name) {
+  void program_added(uint32_t number, const char* name) {
     m_sshp.add_preset(number, name);
   }
   
-  void program_removed(unsigned char number) {
+  void program_removed(uint32_t number) {
     m_sshp.remove_preset(number);
   }
   
@@ -67,7 +67,7 @@ public:
     m_sshp.clear_presets();
   }
   
-  void current_program_changed(unsigned char number) {
+  void current_program_changed(uint32_t number) {
     m_sshp.set_preset(number);
   }
   

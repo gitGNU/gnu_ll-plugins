@@ -50,21 +50,21 @@ public:
   
   void feedback(uint32_t argc, const char* const* argv);
   
-  void program_added(unsigned char number, const char* name);
+  void program_added(uint32_t number, const char* name);
   
-  void program_removed(unsigned char number);
+  void program_removed(uint32_t number);
   
   void programs_cleared();
   
-  void current_program_changed(unsigned char number);
+  void current_program_changed(uint32_t number);
   
   sigc::signal<void, uint32_t, uint32_t, const void*> write_port;
   
   sigc::signal<void, uint32_t, const char* const*> command;
 
-  sigc::signal<void, unsigned char> request_program;
+  sigc::signal<void, uint32_t> request_program;
 
-  sigc::signal<void, unsigned char, const char*> save_program;
+  sigc::signal<void, uint32_t, const char*> save_program;
 
 protected:
   
@@ -74,9 +74,9 @@ protected:
   static void _command(LV2UI_Controller ctrl, 
 		       uint32_t argc, const char* const* argv);
   
-  static void _request_program(LV2UI_Controller ctrl, unsigned char number);
+  static void _request_program(LV2UI_Controller ctrl, uint32_t number);
 
-  static void _save_program(LV2UI_Controller ctrl, unsigned char number,
+  static void _save_program(LV2UI_Controller ctrl, uint32_t number,
 			    const char* name);
   
   

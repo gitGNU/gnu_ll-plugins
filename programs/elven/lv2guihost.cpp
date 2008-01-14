@@ -146,7 +146,7 @@ void LV2GUIHost::feedback(uint32_t argc, const char* const* argv) {
 }
 
 
-void LV2GUIHost::program_added(unsigned char number, const char* name) {
+void LV2GUIHost::program_added(uint32_t number, const char* name) {
   if (m_ui && m_pdesc && m_pdesc->program_added) {
     m_block_gui = true;
     m_pdesc->program_added(m_ui, number, name);
@@ -155,7 +155,7 @@ void LV2GUIHost::program_added(unsigned char number, const char* name) {
 }
 
   
-void LV2GUIHost::program_removed(unsigned char number) {
+void LV2GUIHost::program_removed(uint32_t number) {
   if (m_ui && m_pdesc && m_pdesc->program_removed) {
     m_block_gui = true;
     m_pdesc->program_removed(m_ui, number);
@@ -173,7 +173,7 @@ void LV2GUIHost::programs_cleared() {
 }
 
   
-void LV2GUIHost::current_program_changed(unsigned char number) {
+void LV2GUIHost::current_program_changed(uint32_t number) {
   if (m_ui && m_pdesc && m_pdesc->current_program_changed) {
     m_block_gui = true;
     m_pdesc->current_program_changed(m_ui, number);
@@ -214,7 +214,7 @@ void LV2GUIHost::_command(LV2UI_Controller ctrl,
 }
 
   
-void LV2GUIHost::_request_program(LV2UI_Controller ctrl, unsigned char number) {
+void LV2GUIHost::_request_program(LV2UI_Controller ctrl, uint32_t number) {
   LV2GUIHost* me = static_cast<LV2GUIHost*>(ctrl);
   if (me->m_block_gui)
     DBG1("GUI requested program change while a GUI callback was running");
@@ -225,7 +225,7 @@ void LV2GUIHost::_request_program(LV2UI_Controller ctrl, unsigned char number) {
 }
 
 
-void LV2GUIHost::_save_program(LV2UI_Controller ctrl, unsigned char number,
+void LV2GUIHost::_save_program(LV2UI_Controller ctrl, uint32_t number,
 			       const char* name) {
   LV2GUIHost* me = static_cast<LV2GUIHost*>(ctrl);
   if (me->m_block_gui)

@@ -39,19 +39,19 @@ public:
   
   void set_control(uint32_t port, float value);
   
-  void add_preset(unsigned char number, const char* name);
+  void add_preset(uint32_t number, const char* name);
   
-  void remove_preset(unsigned char number);
+  void remove_preset(uint32_t number);
   
   void clear_presets();
   
-  void set_preset(unsigned char number);
+  void set_preset(uint32_t number);
   
   sigc::signal<void, uint32_t, float> signal_control_changed;
   
-  sigc::signal<void, unsigned char> signal_preset_changed;
+  sigc::signal<void, uint32_t> signal_preset_changed;
   
-  sigc::signal<void, unsigned char, const char*> signal_save_preset;
+  sigc::signal<void, uint32_t, const char*> signal_save_preset;
   
 protected:
   

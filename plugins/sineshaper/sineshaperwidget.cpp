@@ -114,7 +114,7 @@ void SineshaperWidget::set_control(uint32_t port, float value) {
 }
 
 
-void SineshaperWidget::add_preset(unsigned char number, const char* name) {
+void SineshaperWidget::add_preset(uint32_t number, const char* name) {
   if (m_show_programs) {
     remove_preset(number);
     ListStore::iterator iter = m_preset_store->append();
@@ -124,7 +124,7 @@ void SineshaperWidget::add_preset(unsigned char number, const char* name) {
 }
   
 
-void SineshaperWidget::remove_preset(unsigned char number) {
+void SineshaperWidget::remove_preset(uint32_t number) {
   if (m_show_programs) {
     TreeNodeChildren c = m_preset_store->children();
     for (TreeIter iter = c.begin(); iter != c.end(); ++iter) {
@@ -143,7 +143,7 @@ void SineshaperWidget::clear_presets() {
 }
   
 
-void SineshaperWidget::set_preset(unsigned char number) {
+void SineshaperWidget::set_preset(uint32_t number) {
   if (m_show_programs) {
     if (number > 127)
       m_view->get_selection()->unselect_all();
@@ -394,7 +394,7 @@ Gtk::CheckButton* SineshaperWidget::create_check(Gtk::VBox* vbox,
  
 void SineshaperWidget::do_change_preset() {
   if (m_view->get_selection()->count_selected_rows() == 0)
-    signal_preset_changed(128);
+    signal_preset_changed(numeric_limits<uint32_t>::max());
   else
     signal_preset_changed(m_view->get_selection()->
 			  get_selected()->get_value(m_preset_columns.number));
@@ -450,7 +450,7 @@ void SineshaperWidget::show_save() {
       if (msg.run() == RESPONSE_NO)
 	continue;
     }
-    signal_save_preset((unsigned char)adj.get_value(), ent.get_text().c_str());
+    signal_save_preset((uint32_t)adj.get_value(), ent.get_text().c_str());
     break;
   }
 }
