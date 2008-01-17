@@ -75,7 +75,7 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
   
   // get extension data
   if (m_desc->extension_data) {
-    m_pdesc = static_cast<LV2UI_Programs_GDesc const*>(m_desc->extension_data("http://ll-plugins.nongnu.org/lv2/ext/gui#ext_programs"));
+    m_pdesc = static_cast<LV2UI_Programs_GDesc const*>(m_desc->extension_data("http://ll-plugins.nongnu.org/lv2/ext/ui#ext_programs"));
     if (m_pdesc)
       DBG2("The plugin GUI supports the program feature");
     else
@@ -87,7 +87,7 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
   // build the feature list
   LV2_Feature** features = new LV2_Feature*[2];
   LV2_Feature programs_feature = 
-    { "http://ll-plugins.nongnu.org/lv2/ext/gui#ext_programs", &m_phdesc };
+    { "http://ll-plugins.nongnu.org/lv2/ext/ui#ext_programs", &m_phdesc };
   features[0] = &programs_feature;
   features[1] = 0;
   
@@ -95,7 +95,7 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
   LV2UI_Controller ctrl = static_cast<LV2UI_Controller>(this);
   m_block_gui = true;
   m_ui = m_desc->instantiate(m_desc, plugin_uri.c_str(), bundle_path.c_str(),
-			     &LV2GUIHost::_write_port, ctrl, 
+			     &LV2GUIHost::_write_port, ctrl, 0,
 			     reinterpret_cast<LV2UI_Widget*>(&m_cwidget),
 			     const_cast<const LV2_Feature**>(features));
   m_block_gui = false;

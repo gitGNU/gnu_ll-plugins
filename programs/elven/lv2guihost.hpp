@@ -30,7 +30,7 @@
 #include <sigc++/sigc++.h>
 
 #include "lv2.h"
-#include "lv2-gui.h"
+#include "lv2-ui.h"
 #include "lv2-gui-programs.h"
 
 

@@ -3,7 +3,7 @@
 @prefix doap: <http://usefulinc.com/ns/doap#>.
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 @prefix llext: <http://ll-plugins.nongnu.org/lv2/ext/>.
-@prefix guiext: <http://ll-plugins.nongnu.org/lv2/ext/gui#>.
+@prefix guiext: <http://ll-plugins.nongnu.org/lv2/ext/ui#>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0>
   a lv2:Plugin;
@@ -27,6 +27,6 @@
   ].
 
 <http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0/gui> 
-  a guiext:GtkGUI;
+  a guiext:GtkUI;
   guiext:binary <klaviatur_gtk.so>;
   guiext:optionalFeature guiext:noUserResize.
