@@ -742,7 +742,7 @@ bool LV2Host::load_plugin() {
     Variable gui_uri, gui_path;
     Namespace gg("<http://ll-plugins.nongnu.org/lv2/ext/ui#>");
     qr = select(gui_uri, gui_path)
-      .where(uriref, gg("gui"), gui_uri)
+      .where(uriref, gg("ui"), gui_uri)
       .where(gui_uri, gg("binary"), gui_path)
       .where(gui_uri, rdf("type"), gg("GtkUI"))
       .run(data);

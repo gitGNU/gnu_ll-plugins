@@ -4,7 +4,7 @@
 
 <http://nekosynth.co.uk/wiki/nekobee>
   rdfs:seeAlso <>;
-  guiext:gui <http://ll-plugins.nongnu.org/lv2/dev/nekobee_blue_gui/0.0.0>.
+  guiext:ui <http://ll-plugins.nongnu.org/lv2/dev/nekobee_blue_gui/0.0.0>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/nekobee_blue_gui/0.0.0>
   a guiext:GtkUI;

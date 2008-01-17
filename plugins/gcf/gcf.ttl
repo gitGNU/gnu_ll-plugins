@@ -7,7 +7,7 @@
   a lv2:Plugin;
   doap:name "GCF";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
-  guiext:gui <http://ll-plugins.nongnu.org/lv2/dev/gcf/0/gui>;
+  guiext:ui <http://ll-plugins.nongnu.org/lv2/dev/gcf/0/gui>;
   
   lv2:port [
     a lv2:AudioPort, lv2:InputPort;

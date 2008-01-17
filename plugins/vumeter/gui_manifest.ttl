@@ -6,7 +6,7 @@
 
 <http://ll-plugins.nongnu.org/lv2/dev/vumeter/0>
   rdfs:seeAlso <>;
-  guiext:gui plug:gui.
+  guiext:ui plug:gui.
 
 <http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0>
   rdfs:seeAlso <>;
