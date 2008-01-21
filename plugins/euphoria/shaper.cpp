@@ -58,6 +58,8 @@ float Shaper::run(float input, float max_freq) {
   if (table < 0)
     return 0;
   int itable = int(table);
+  // clamp to [-0.99, 0.99]
+  input = (fabs(input + 0.99) - fabs(input - 0.99)) / 2;
   int index = int((input + 1) * (WAVETABLE_SIZE - 1) / 2);
   if (table >= 9)
     return m_tables[9][index];

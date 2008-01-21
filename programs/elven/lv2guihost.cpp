@@ -47,6 +47,9 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
   m_phdesc.change_program = &LV2GUIHost::_request_program;
   m_phdesc.save_program = &LV2GUIHost::_save_program;
   
+  // initialise the host descriptor for the command extension
+  m_chdesc.command = &LV2GUIHost::_command;
+  
   // open the module
   DBG2("Loading "<<gui_path);
   void* module = dlopen(gui_path.c_str(), RTLD_LAZY);
@@ -80,15 +83,23 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
       DBG2("The plugin GUI supports the program feature");
     else
       DBG2("The plugin GUI does not support the program feature");
+    m_cdesc = static_cast<LV2UI_Command_GDesc const*>(m_desc->extension_data("http://ll-plugins.nongnu.org/lv2/ext/ui#ext_command"));
+    if (m_cdesc)
+      DBG2("The plugin GUI supports the command feature");
+    else
+      DBG2("The plugin GUI does not support the command feature");
   }
   else
     DBG2("The plugin GUI has no extension_data() callback");
   
   // build the feature list
-  LV2_Feature** features = new LV2_Feature*[2];
+  LV2_Feature** features = new LV2_Feature*[3];
   LV2_Feature programs_feature = 
     { "http://ll-plugins.nongnu.org/lv2/ext/ui#ext_programs", &m_phdesc };
+  LV2_Feature command_feature = 
+    { "http://ll-plugins.nongnu.org/lv2/ext/ui#ext_command", &m_chdesc };
   features[0] = &programs_feature;
+  features[0] = &command_feature;
   features[1] = 0;
   
   // create a GUI instance
@@ -138,11 +149,11 @@ void LV2GUIHost::port_event(uint32_t index, uint32_t buffer_size,
  
  
 void LV2GUIHost::feedback(uint32_t argc, const char* const* argv) {
-  /*if (m_ui && m_desc && m_desc->feedback) {
+  if (m_ui && m_cdesc && m_cdesc->feedback) {
     m_block_gui = true;
-    // XXX m_desc->feedback(m_ui, argc, argv);
+    m_cdesc->feedback(m_ui, argc, argv);
     m_block_gui = false;
-    }*/
+  }
 }
 
 

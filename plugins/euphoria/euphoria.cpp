@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 #include <cstring>
+#include <iostream>
 
 #include <lv2plugin.hpp>
 
@@ -91,10 +92,9 @@ public:
   
   void run(float& left, float& right, float& shape, float& smoothness,
            float& attack, float& decay, float& release, float& mrk_freq) {
-    
     m_wsvoice.run(&left, &right, 1, shape, smoothness, attack, decay, 0.5,
 		  release, m_freq);
-    m_pdvoice.run(&left, &right, 1);
+    //m_pdvoice.run(&left, &right, 1);
   }
   
   //protected:
@@ -159,6 +159,7 @@ public:
       }
     }
     
+    
     // apply effects
     m_dist.run(left, right, nframes, *p(e_dist_switch), *p(e_dist_drive), 
 	       *p(e_dist_set), *p(e_dist_tone), *p(e_dist_mix));
@@ -176,10 +177,15 @@ public:
       left[i] *= *p(e_gain);
       right[i] *= *p(e_gain);
     }
+    
   }
   
   
   char* command(uint32_t argc, const char* const* argv) {
+    
+    for (uint32_t i = 0; i < argc; ++i)
+      std::cout<<argv[i]<<" ";
+    std::cout<<endl;
     
     if (argc != 2)
       return strdup("Unknown command");

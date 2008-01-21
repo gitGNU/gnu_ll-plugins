@@ -35,15 +35,21 @@ using namespace Gtk;
 using namespace sigc;
 
 
-class EuphoriaGUI : public LV2::GUI<EuphoriaGUI> {
+class EuphoriaGUI : public LV2::GUI<EuphoriaGUI, LV2::CommandGUI<false> > {
 public:
   
   EuphoriaGUI(const std::string& URI) {
+    
+    if (!host_supports_commands())
+      cout<<"No commands!"<<endl;
+    else
+      cout<<"Got commands!"<<endl;
+    
     pack_start(m_euph);
     m_euph.signal_control_changed.
       connect(mem_fun(*this, &EuphoriaGUI::control_changed));
-    // XXX m_euph.signal_configure.
-    //  connect(mem_fun(*this, &EuphoriaGUI::configure_changed));
+    m_euph.signal_configure.
+      connect(mem_fun(*this, &EuphoriaGUI::configure_changed));
     // XXX m_euph.signal_program_selected.
     //  connect(mem_fun(ctrl, &LV2::Controller::request_program));
   }
@@ -80,8 +86,8 @@ protected:
   }
   
   void configure_changed(const string& key, const string& value) {
-    // XXX const char* array[] = { key.c_str(), value.c_str() };
-    // m_ctrl.command(2, array);
+    const char* array[] = { key.c_str(), value.c_str() };
+    command(2, array);
   }
   
   EuphoriaWidget m_euph;

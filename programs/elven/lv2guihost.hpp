@@ -32,6 +32,7 @@
 #include "lv2.h"
 #include "lv2-ui.h"
 #include "lv2-gui-programs.h"
+#include "lv2-ui-command.h"
 
 
 class LV2GUIHost {
@@ -60,11 +61,11 @@ public:
   
   sigc::signal<void, uint32_t, uint32_t, const void*> write_port;
   
-  sigc::signal<void, uint32_t, const char* const*> command;
+  sigc::signal<void, uint32_t, char const* const*> command;
 
   sigc::signal<void, uint32_t> request_program;
 
-  sigc::signal<void, uint32_t, const char*> save_program;
+  sigc::signal<void, uint32_t, char const*> save_program;
 
 protected:
   
@@ -72,7 +73,7 @@ protected:
 			  uint32_t buffer_size, const void* buffer);
   
   static void _command(LV2UI_Controller ctrl, 
-		       uint32_t argc, const char* const* argv);
+		       uint32_t argc, char const* const* argv);
   
   static void _request_program(LV2UI_Controller ctrl, uint32_t number);
 
@@ -94,6 +95,7 @@ protected:
   
   LV2UI_Descriptor const* m_desc;
   LV2UI_Programs_GDesc const* m_pdesc;
+  LV2UI_Command_GDesc const* m_cdesc;
   LV2UI_Handle m_ui;
   GtkWidget* m_cwidget;
   Gtk::Widget* m_widget;
@@ -101,6 +103,7 @@ protected:
   bool m_block_gui;
   
   LV2UI_Programs_HDesc m_phdesc;
+  LV2UI_Command_HDesc m_chdesc;
 };
 
 
