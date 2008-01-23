@@ -1,0 +1,206 @@
+/****************************************************************************
+    
+    rudolf556widget.cpp - GUI for the Rudolf 556 drum machine
+    
+    Copyright (C) 2008 Lars Luthman <lars.luthman@gmail.com>
+    
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+    
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor,
+    Boston, MA  02110-1301  USA
+
+****************************************************************************/
+
+#include "rudolf556widget.hpp"
+
+
+using namespace Gdk;
+using namespace Glib;
+using namespace Gtk;
+using namespace sigc;
+using namespace std;
+
+
+Rudolf556Widget::Rudolf556Widget(const string& bundle) 
+  : m_bundle(bundle),
+    m_controls(18),
+    m_active_control(18) {
+  
+  set_size_request(300, 257);
+  add_events(SCROLL_MASK | BUTTON_PRESS_MASK);
+  
+  m_controls[0].x = 40.5;
+  m_controls[0].y = 68.5;
+  m_controls[1].x = 40.5;
+  m_controls[1].y = 99;
+  m_controls[2].x = 40.5;
+  m_controls[2].y = 129;
+  m_controls[3].x = 72.8;
+  m_controls[3].y = 68.5;
+  m_controls[4].x = 72.8;
+  m_controls[4].y = 99;
+  m_controls[5].x = 72.8;
+  m_controls[5].y = 129;
+  m_controls[6].x = 131;
+  m_controls[6].y = 68.5;
+  m_controls[7].x = 131;
+  m_controls[7].y = 99;
+  m_controls[8].x = 131;
+  m_controls[8].y = 129;
+  m_controls[9].x = 163.5;
+  m_controls[9].y = 68.5;
+  m_controls[10].x = 163.5;
+  m_controls[10].y = 99;
+  m_controls[11].x = 163.5;
+  m_controls[11].y = 129;
+  m_controls[12].x = 225;
+  m_controls[12].y = 68.5;
+  m_controls[13].x = 225;
+  m_controls[13].y = 99;
+  m_controls[14].x = 225;
+  m_controls[14].y = 129;
+  m_controls[15].x = 258;
+  m_controls[15].y = 68.5;
+  m_controls[16].x = 258;
+  m_controls[16].y = 99;
+  m_controls[17].x = 258;
+  m_controls[17].y = 129; 
+}
+
+
+void Rudolf556Widget::set_control(unsigned control, float value) {
+  if (control - 1 >= m_controls.size())
+    return;
+  value = value < 0 ? 0 : value;
+  value = value > 1 ? 1 : value;
+  m_controls[control - 1].value = value;
+  queue_draw();
+}
+
+
+void Rudolf556Widget::on_realize() {
+  DrawingArea::on_realize();
+  RefPtr<Pixbuf> pixbuf = Pixbuf::create_from_file(m_bundle + "rudolf556.png");
+  RefPtr<Pixmap> pixmap = Pixmap::create(get_window(), 
+					 pixbuf->get_width(), 
+					 pixbuf->get_height());
+  RefPtr<Bitmap> bitmap;
+  pixbuf->render_pixmap_and_mask(pixmap, bitmap, 10);
+  RefPtr<Style> s = get_style()->copy();
+  s->set_bg_pixmap(STATE_NORMAL, pixmap);
+  s->set_bg_pixmap(STATE_ACTIVE, pixmap);
+  s->set_bg_pixmap(STATE_PRELIGHT, pixmap);
+  s->set_bg_pixmap(STATE_SELECTED, pixmap);
+  s->set_bg_pixmap(STATE_INSENSITIVE, pixmap);
+  set_style(s);
+  get_window()->shape_combine_mask(bitmap, 0, 0);
+}
+
+
+bool Rudolf556Widget::on_expose_event(GdkEventExpose* event) {
+  
+  RefPtr<Gdk::Window> win = get_window();
+  ::Cairo::RefPtr< ::Cairo::Context > cc = win->create_cairo_context();
+  cc->set_line_cap(::Cairo::LINE_CAP_ROUND);
+  
+  float a = 0.125;
+  for (unsigned i = 0; i < m_controls.size(); ++i) {
+    float const& x = m_controls[i].x;
+    float const& y = m_controls[i].y;
+    float value = m_controls[i].value;
+    value = value < 0 ? 0 : value;
+    value = value > 1 ? 1 : value;
+    cc->save();
+    cc->translate(x, y);
+    cc->rotate((0.25 + a + 0.75 * value) * 2 * M_PI);
+    cc->move_to(12, 0);
+    cc->line_to(14, 0);
+    cc->restore();
+    cc->set_source_rgba(0, 0, 0, 1);
+    cc->set_line_width(4);
+    cc->stroke();
+    if (i == m_active_control) {
+      cc->arc(x, y, 9.5, 0.0, 2 * M_PI);
+      cc->set_source_rgba(1, 1, 0, 1);
+      cc->set_line_width(2);
+      cc->stroke();
+    }
+  }
+  
+  return true;
+}
+
+
+bool Rudolf556Widget::on_button_press_event(GdkEventButton* event) {
+  if (event->button != 1)
+    return false;
+  int x = event->x;
+  int y = event->y;
+  unsigned c = find_control(x, y);
+  if (c < m_controls.size()) {
+    m_active_control = c;
+    m_deactivate_conn.disconnect();
+    m_deactivate_conn = signal_timeout().
+      connect(mem_fun(*this, &Rudolf556Widget::deactivate_controls), 2000);
+    queue_draw();
+  }
+  return true;
+}
+
+
+bool Rudolf556Widget::on_scroll_event(GdkEventScroll* event) {
+  int x = event->x;
+  int y = event->y;
+  unsigned c = find_control(x, y);
+  if (c >= m_controls.size())
+    return true;
+  
+  m_active_control = c;
+  m_deactivate_conn.disconnect();
+  m_deactivate_conn = signal_timeout().
+    connect(mem_fun(*this, &Rudolf556Widget::deactivate_controls), 2000);
+  
+  float step = 0.1;
+  if (event->state & GDK_SHIFT_MASK)
+    step *= 0.1;
+  if (event->direction == GDK_SCROLL_UP) {
+    m_controls[c].value += step;
+    m_controls[c].value = m_controls[c].value > 1 ? 1 : m_controls[c].value;
+    signal_control_changed(c + 1, m_controls[c].value);
+    queue_draw();
+  }
+  else if (event->direction == GDK_SCROLL_DOWN) {
+    m_controls[c].value -= step;
+    m_controls[c].value = m_controls[c].value < 0 ? 0 : m_controls[c].value;
+    signal_control_changed(c + 1, m_controls[c].value);
+    queue_draw();
+  }
+  
+  return true;
+}
+
+
+unsigned Rudolf556Widget::find_control(float x, float y) {
+  for (unsigned i = 0; i < m_controls.size(); ++i) {
+    float d = sqrt(pow(x - m_controls[i].x, 2) + pow(y - m_controls[i].y, 2));
+    if (d < 15)
+      return i;
+  }
+  return m_controls.size();
+}
+
+
+bool Rudolf556Widget::deactivate_controls() {
+  m_active_control = m_controls.size();
+  queue_draw();
+}
