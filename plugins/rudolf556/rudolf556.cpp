@@ -86,19 +86,21 @@ public:
       float h;
       uint32_t n = m_len1 - m_frame;
       n = n < to - from ? n : to - from;
+      float* buf1;
+      float* buf2;
       if (m_h < 0.5) {
 	h = 2 * m_h;
-	for (uint32_t i = 0; i < n; ++i) {
-	  p(r_output_mix)[from + i] += 
-	    0.6 * m_v * ((1-h) * m_buf1[m_frame + i] + h * m_buf2[m_frame + i]);
-	}
+	buf1 = m_buf1;
+	buf2 = m_buf2;
       }
       else {
 	h = 2 * m_h - 1;
-	for (uint32_t i = 0; i < n; ++i) {
-	  p(r_output_mix)[from + i] += 
-	    0.6 * m_v * ((1-h) * m_buf2[m_frame + i] + h * m_buf3[m_frame + i]);
-	}
+	buf1 = m_buf2;
+	buf2 = m_buf3;
+      }
+      for (uint32_t i = 0; i < n; ++i) {
+	p(r_output_mix)[from + i] += 
+	  0.6 * m_v * ((1-h) * buf1[m_frame + i] + h * buf2[m_frame + i]);
       }
       m_frame += n;
       if (m_frame >= m_len1) {
