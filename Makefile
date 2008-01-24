@@ -4,7 +4,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.378
+PACKAGE_VERSION = 0.1.379
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
@@ -267,11 +267,11 @@ horizon_gtk_so_ARCHIVES = libraries/widgets/libkeyboard.a
 # Rudolf 556
 rudolf556_lv2_MODULES = rudolf556.so
 rudolf556_lv2_DATA = \
-	manifest.ttl \
-	rudolf556.ttl \
-	bass_h00.wav bass_h05.wav bass_h10.wav \
-	snare_bonk.wav snare_noise.wav \
-	hihat_base.wav hihat_hit.wav
+	manifest.ttl rudolf556.ttl \
+	icon.svg \
+	bass_h00.flac bass_h05.flac bass_h10.flac \
+	snare_bonk.flac snare_noise.flac \
+	hihat_base.flac hihat_hit.flac
 rudolf556_lv2_SOURCEDIR = plugins/rudolf556
 rudolf556_lv2_PEGFILES = rudolf556.peg
 rudolf556_so_SOURCES = rudolf556.cpp

@@ -91,11 +91,16 @@ void Rudolf556Widget::set_control(unsigned control, float value) {
 void Rudolf556Widget::on_realize() {
   DrawingArea::on_realize();
   RefPtr<Pixbuf> pixbuf = Pixbuf::create_from_file(m_bundle + "rudolf556.png");
-  RefPtr<Pixmap> pixmap = Pixmap::create(get_window(), 
-					 pixbuf->get_width(), 
-					 pixbuf->get_height());
+  int w = pixbuf->get_width();
+  int h = pixbuf->get_height();
+  RefPtr<Pixmap> pixmap = Pixmap::create(get_window(), w, h);
   RefPtr<Bitmap> bitmap;
-  pixbuf->render_pixmap_and_mask(pixmap, bitmap, 10);
+  pixbuf->render_pixmap_and_mask(pixmap, bitmap, 1);
+  RefPtr<GC> gc = GC::create(pixmap);
+  Gdk::Color bg = get_style()->get_bg(STATE_NORMAL);
+  gc->set_foreground(bg);
+  pixmap->draw_rectangle(gc, true, 0, 0, w, h);
+  pixmap->draw_pixbuf(gc, pixbuf, 0, 0, 0, 0, w, h, RGB_DITHER_NONE, 0, 0);
   RefPtr<Style> s = get_style()->copy();
   s->set_bg_pixmap(STATE_NORMAL, pixmap);
   s->set_bg_pixmap(STATE_ACTIVE, pixmap);

@@ -9,6 +9,7 @@
   a lv2:Plugin;
   doap:name "Rudolf 556";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
+  ll:svgIcon <icon.svg>;
   ll:pegName "r";  
   
   lv2:port [
