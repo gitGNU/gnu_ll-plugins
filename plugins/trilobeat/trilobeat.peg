@@ -14,9 +14,9 @@ typedef struct {
 } peg_data_t;
 #endif
 
-/* <http://ll-plugins.nongnu.org/lv2/dev/trilobeat/0.0.0> */
+/* <http://ll-plugins.nongnu.org/lv2/dev/trilobeat/0> */
 
-static const char k_uri[] = "http://ll-plugins.nongnu.org/lv2/dev/trilobeat/0.0.0";
+static const char k_uri[] = "http://ll-plugins.nongnu.org/lv2/dev/trilobeat/0";
 
 enum k_port_enum {
   k_trigger,

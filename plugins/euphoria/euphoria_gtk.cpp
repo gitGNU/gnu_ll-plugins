@@ -35,7 +35,7 @@ using namespace Gtk;
 using namespace sigc;
 
 
-class EuphoriaGUI : public LV2::GUI<EuphoriaGUI, LV2::CommandGUI<false> > {
+class EuphoriaGUI : public LV2::GUI<EuphoriaGUI, LV2::CommandGUI<true> > {
 public:
   
   EuphoriaGUI(const std::string& URI) {

@@ -4,7 +4,7 @@
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 @prefix llext: <http://ll-plugins.nongnu.org/lv2/ext/>.
 
-<http://ll-plugins.nongnu.org/lv2/dev/trilobeat/0.0.0>
+<http://ll-plugins.nongnu.org/lv2/dev/trilobeat/0>
   a lv2:Plugin;
   doap:name "Trilobeat";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;

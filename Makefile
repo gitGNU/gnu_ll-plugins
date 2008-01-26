@@ -4,7 +4,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.379
+PACKAGE_VERSION = 0.1.380
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
@@ -53,8 +53,9 @@ LV2_BUNDLES = \
 	euphoria.lv2 \
 	euphoria_gtk.lv2 \
 	horizon.lv2 \
-	horizon_gtk.lv2
-#	trilobeat.lv2 \
+	horizon_gtk.lv2 \
+	trilobeat.lv2 \
+	trilobeat_gtk.lv2 
 #	trilobyte.lv2 \
 
 
@@ -164,7 +165,7 @@ trilobyte_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui` -Ilibraries/wi
 trilobyte_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui`
 trilobyte_gtk_so_ARCHIVES = libraries/widgets/libpatternwidget.a
 trilobyte_gtk_so_SOURCEDIR = plugins/trilobyte
-trilobyte_lv2_DATA = manifest.ttl trilobyte.ttl patternbg.png
+trilobyte_lv2_DATA = manifest.ttl trilobyte.ttl
 trilobyte_lv2_PEGFILES = trilobyte.peg
 trilobyte_lv2_SOURCEDIR = plugins/trilobyte
 
@@ -173,9 +174,23 @@ trilobeat_lv2_MODULES = trilobeat.so
 trilobeat_so_SOURCES = trilobeat.cpp
 trilobeat_so_CFLAGS = $(ADVANCEDCFLAGS) -Ilibraries/components
 trilobeat_so_LDFLAGS = $(ADVANCEDARCHIVES)
-trilobeat_lv2_DATA = manifest.ttl trilobeat.ttl patternbg.png
+trilobeat_lv2_DATA = manifest.ttl trilobeat.ttl
 trilobeat_lv2_PEGFILES = trilobeat.peg
 trilobeat_lv2_SOURCEDIR = plugins/trilobeat
+
+# Trilobeat GUI
+trilobeat_gtk_lv2_MODULES = trilobeat_gtk.so
+trilobeat_gtk_lv2_MANIFEST = gui_manifest.ttl
+trilobeat_gtk_so_SOURCES = \
+	trilobeat_gtk.cpp \
+	gridwidget.cpp gridwidget.hpp \
+	keynamewidget.cpp keynamewidget.hpp
+trilobeat_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui`
+trilobeat_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
+trilobeat_gtk_lv2_DATA = gridbg.png keynamebg.png
+trilobeat_gtk_lv2_SOURCEDIR = plugins/trilobeat
+
+
 #trilobeat_lv2_MODULES = trilobeat_gtk.so
 #trilobeat_gtk_so_SOURCES = trilobeat_gtk.cpp
 #trilobeat_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gui -Ilibraries/lv2gtk2gui -Ilibraries/widgets -Ilibraries/components -I.

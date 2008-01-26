@@ -899,10 +899,10 @@ bool LV2Host::print_uri(const string& bundle) {
 
 void LV2Host::feedback(uint32_t argc, const char* const* argv) {
   cout<<"Plugin said:";
-  signal_feedback(argc, argv);
   for (unsigned i = 0; i < argc; ++i)
     cout<<" "<<"'"<<argv[i]<<"'";
   cout<<endl;
+  signal_feedback(argc, argv);
 }
 
 

@@ -27,26 +27,25 @@
 #include <vector>
 #include <iostream>
 
-#include "lv2advanced.hpp"
+#include "lv2plugin.hpp"
 #include "trilobeat.peg"
 #include "lv2-midifunctions.h"
-#include "monostep.hpp"
-#include "frequencytable.hpp"
 
 
 using namespace std;
 
 
-class Trilobeat : public LV2::Advanced {
+class Trilobeat : public LV2::Plugin<Trilobeat, LV2::CommandExt<true> > {
 public:
 
-  Trilobeat(double rate, const char* bundle, const LV2_Feature* const* f)
-    : LV2::Advanced(k_n_ports),
-      m_seq(32),
+  Trilobeat(double rate)
+    : LV2::Plugin<Trilobeat, LV2::CommandExt<true> >(k_n_ports),
+      m_seq(128, std::vector<unsigned char>(s_steps)),
       m_invrate(1.0 / rate),
       m_rate(rate),
       m_step(0),
-      m_playing(128, false) {
+      m_frame_offset(0),
+      m_keyinfo(128) {
     
   }
   
@@ -54,72 +53,123 @@ public:
   void run(uint32_t nframes) {
     
     unsigned char on[] = { 0x90, 0x00, 0x64 };
-    unsigned char off[] = { 0x80, 0x00, 0x64 };
+    unsigned char off[] = { 0x80, 0x00, 0x00 };
     
-    double spm = (*p(k_bpm) < 1 ? 1 : *p(k_bpm)) * 8;
-    double fpb = 60 * m_rate / spm;
-    double ipart, fpart;
-    fpart = modf(m_step, &ipart);
-    int step = int(ipart);
-    step -= (fpart == 0 ? 1 : 0);
-    double next_event = fpart * fpb;
+    // steps per minute (4 steps per beat)
+    double spm = (*p(k_bpm) < 1 ? 1 : *p(k_bpm)) * 4;
+    
+    // frames per step
+    double fps = 60 * m_rate / spm;
+    
+    // reset MIDI port
     LV2_MIDIState out = { p<LV2_MIDI>(k_midi_out), nframes, 0 };
     out.midi->size = 0;
     out.midi->event_count = 0;
     
-    while (next_event < nframes) {
-      ++step;
-      step %= 32;
-      
-      // write events here
-
-      next_event += fpb;
+    while (m_frame_offset < nframes) {
+      ++m_step;
+      m_step %= 32;
+      for (unsigned char key = 0; key < 128; ++key) {
+	if (m_seq[key][m_step]) {
+	  off[1] = key;
+	  lv2midi_put_event(&out, m_frame_offset, 3, off);
+	  on[1] = key;
+	  on[2] = m_seq[key][m_step];
+	  lv2midi_put_event(&out, m_frame_offset, 3, on);
+	}
+      }
+      m_frame_offset += fps;
     }
-    
-    m_step += nframes / fpb;
-    m_step -= (m_step >= 32 ? 32 : 0);
+    m_frame_offset -= nframes;
   }
   
   
-  char* command(uint32_t argc, const char* const* argv) {
+  char* command(uint32_t argc, char const* const* argv) {
+
+    if (argc == 4 && !strncmp(argv[0], "set", 3)) {
+      int key = atoi(argv[1]);
+      int step = atoi(argv[2]);
+      int velocity = atoi(argv[3]);
+      if (key < 0 || key > 127)
+        return strdup("Invalid key number");
+      if (step < 0 || step > s_steps)
+        return strdup("Invalid step number");
+      if (velocity < 0 || velocity > 127)
+        return strdup("Invalid velocity");
+      m_seq[key][step] = velocity;
+      feedback(argc, argv);
+      return 0;
+    }
     
-    if (argc != 2)
-      return strdup("Unknown command");
-    
-    const char* key = argv[0];
-    const char* value = argv[1];
-    
-    if (!strncmp(key, "seq", 3)) {
-      int s = atoi(key + 3);
-      if (s < 0 || s > 127)
-        return strdup("INCORRECT SEQUENCE NUMBER");
-      istringstream iss(value);
-      int n;
-      iss>>n;
-      if (n != 32)
-        return strdup("INCORRECT SEQUENCE LENGTH");
-      for (int i = 0; i < n; ++i) {
-        int on, note, slide, velocity;
-        iss>>on>>note>>slide>>velocity;
-        m_seq[i].on = on;
-        m_seq[i].note = note;
-        m_seq[i].slide = slide;
-        m_seq[i].velocity = velocity;
+    else if (argc == 2 && !strncmp(argv[0], "new_names", 9)) {
+      istringstream iss(argv[1]);
+      iss>>ws;
+      while (!iss.eof()) {
+	int key;
+	iss>>key;
+	string name;
+	getline(iss, name);
+	iss>>ws;
+	if (key >= 0 && key < 128) {
+	  // .active is read by the run() thread, but it's just a boolean
+	  // and nothing catastrophic will happen if it is misread - it should
+	  // be OK to set it without locking
+	  m_keyinfo[key].active = true;
+	  m_keyinfo[key].name = name;
+	  char tmp[4];
+	  sprintf(tmp, "%d", key);
+	  char const* cmd[] = { "keyname", tmp, name.c_str() };
+	  feedback(3, cmd);
+	}
+	else
+	  break;
       }
       return 0;
     }
     
-    return strdup("UNKNOWN KEY");
+    else if (argc == 4 && !strncmp(argv[0], "velocity", 8)) {
+      int key = atoi(argv[1]);
+      int step = atoi(argv[2]);
+      int velocity = atoi(argv[3]);
+      if (key < 0 || key >= 128)
+	return strdup("Invalid key number");
+      if (step < 0 || step >= s_steps)
+	return strdup("Invalid step number");
+      if (velocity >= 128)
+	return strdup("Invalid velocity number");
+      bool changed = m_seq[key][step] != velocity;
+      // this is read by the run() thread, but it's just a boolean and 
+      // nothing catastrophic will happen if it is misread - it should
+      // be OK to set it without locking
+      m_seq[key][step] = velocity;
+      if (changed)
+	feedback(4, argv);
+      return 0;
+    }
+      
+    return strdup("Unknown command");
   }
   
 protected:
   
-  std::vector<MonoStep> m_seq;
+  struct KeyInfo {
+    KeyInfo(bool a = false, std::string const& n = "") : active(a), name(n) { }
+    bool active;
+    std::string name;
+  };
+  
+  static unsigned s_steps;
+  
+  std::vector< std::vector<unsigned char> > m_seq;
   float m_invrate;
   float m_rate;
-  double m_step;
-  std::vector<bool> m_playing;
+  unsigned m_step;
+  double m_frame_offset;
+  std::vector<KeyInfo> m_keyinfo;
 };
 
 
-static LV2::RegisterAdvanced<Trilobeat> reg(k_uri);
+unsigned Trilobeat::s_steps = 32;
+
+
+static int _ = Trilobeat::register_class(k_uri);

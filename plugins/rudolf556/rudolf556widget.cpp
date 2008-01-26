@@ -21,6 +21,8 @@
 
 ****************************************************************************/
 
+#include <cstring>
+
 #include "rudolf556widget.hpp"
 
 
@@ -151,6 +153,16 @@ bool Rudolf556Widget::on_button_press_event(GdkEventButton* event) {
     return false;
   int x = event->x;
   int y = event->y;
+  
+  // check if it's in the drag area
+  if (x >= 10 && x <= 24 && y >= 14 && y <= 38) {
+    vector<TargetEntry> dnd_targets;
+    dnd_targets.push_back(TargetEntry("x-org.nongnu.ll-plugins/keynames"));
+    dnd_targets.push_back(TargetEntry("text/plain"));
+    drag_begin(TargetList::create(dnd_targets), Gdk::ACTION_COPY, 1, 
+	       reinterpret_cast<GdkEvent*>(event));
+  }
+  
   unsigned c = find_control(x, y);
   if (c < m_controls.size()) {
     m_active_control = c;
@@ -192,6 +204,22 @@ bool Rudolf556Widget::on_scroll_event(GdkEventScroll* event) {
   }
   
   return true;
+}
+
+
+void Rudolf556Widget::on_drag_data_get(const RefPtr<DragContext>& context,
+				       SelectionData& selection_data, 
+				       guint info, guint time) {
+  static char const keynames[] = 
+    "60 Bass 1\n"
+    "62 Bass 2\n"
+    "64 Snare 1\n"
+    "65 Snare 2\n"
+    "67 Hihat 1\n"
+    "69 Hihat 2\n";
+  selection_data.set(selection_data.get_target(), 8, 
+		     reinterpret_cast<const guint8*>(keynames),
+		     strlen(keynames));
 }
 
 

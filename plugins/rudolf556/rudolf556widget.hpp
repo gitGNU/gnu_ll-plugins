@@ -52,6 +52,9 @@ protected:
   bool on_expose_event(GdkEventExpose* event);
   bool on_button_press_event(GdkEventButton* event);
   bool on_scroll_event(GdkEventScroll* event);
+  void on_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context,
+			Gtk::SelectionData& selection_data, 
+			guint info, guint time);
   
   unsigned find_control(float x, float y);
   bool deactivate_controls();

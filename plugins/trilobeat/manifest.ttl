@@ -10,7 +10,7 @@ ll:SequencerPlugin a rdfs:Class ;
 Plugins that can be used to sequence instruments and other plugins
 """ .
 
-<http://ll-plugins.nongnu.org/lv2/dev/trilobeat/0.0.0>
+<http://ll-plugins.nongnu.org/lv2/dev/trilobeat/0>
   a lv2:Plugin, ll:SequencerPlugin;
   lv2:binary <trilobeat.so>;
   rdfs:seeAlso <trilobeat.ttl>.
