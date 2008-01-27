@@ -54,6 +54,7 @@ protected:
   virtual bool on_key_press_event(GdkEventKey* event);
   virtual bool on_key_release_event(GdkEventKey* event);
   virtual void on_realize();
+  virtual bool on_scroll_event(GdkEventScroll* event);
   // @}
   
   unsigned char row2key(int y);

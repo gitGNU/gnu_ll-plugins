@@ -119,26 +119,32 @@ bool GridWidget::on_expose_event(GdkEventExpose* event) {
     if (m_active_keys[key]) {
       for (int step = 0; step < m_steps; ++step) {
 	if (m_seq[key][step]) {
+	  int dx = (127 - m_seq[key][step]) / 21;
+	  dx = dx > 5 ? 5 : dx;
+	  int dy = (127 - m_seq[key][step]) / 21;
+	  dy = dy > 5 ? 5 : dy;
 	  m_gc->set_foreground(m_blue);
 	  m_win->draw_rectangle(m_gc, true, 
-				m_swidth * step, m_sheight * row,
-				m_swidth - 2, m_sheight - 2);
+				m_swidth * step + dx, m_sheight * row + dy,
+				m_swidth - 2 - 2 * dx, m_sheight - 2 - 2 * dy);
 	  m_gc->set_foreground(m_dark);
 	  m_win->draw_line(m_gc, 
-			   m_swidth * step + m_swidth - 2, 
-			   m_sheight * row + m_sheight - 2,
-			   m_swidth * step + m_swidth - 2, 
-			   m_sheight * row);
+			   m_swidth * step + m_swidth - 2 - dx, 
+			   m_sheight * row + m_sheight - 2 - dy,
+			   m_swidth * step + m_swidth - 2 - dx, 
+			   m_sheight * row + dy);
 	  m_win->draw_line(m_gc, 
-			   m_swidth * step + m_swidth - 2, 
-			   m_sheight * row + m_sheight - 2,
-			   m_swidth * step, 
-			   m_sheight * row + m_sheight - 2);
+			   m_swidth * step + m_swidth - 2 - dx, 
+			   m_sheight * row + m_sheight - 2 - dy,
+			   m_swidth * step + dx, 
+			   m_sheight * row + m_sheight - 2 - dy);
 	  m_gc->set_foreground(m_light);
-	  m_win->draw_line(m_gc, m_swidth * step, m_sheight * row,
-			   m_swidth * step, m_sheight * row + m_sheight - 2);
-	  m_win->draw_line(m_gc, m_swidth * step, m_sheight * row,
-			   m_swidth * step + m_swidth - 2, m_sheight * row);
+	  m_win->draw_line(m_gc, m_swidth * step + dx, m_sheight * row + dy,
+			   m_swidth * step + dx, 
+			   m_sheight * row + m_sheight - 2 - dy);
+	  m_win->draw_line(m_gc, m_swidth * step + dx, m_sheight * row + dy,
+			   m_swidth * step + m_swidth - 2 - dx, 
+			   m_sheight * row + dy);
 	}
       }
       ++row;
@@ -234,6 +240,38 @@ void GridWidget::on_realize() {
     set_style(s);
   }
 }
+
+
+bool GridWidget::on_scroll_event(GdkEventScroll* event) {
+  int row = event->y / m_sheight;
+  int step = event->x / m_swidth;
+  if (step < 0 || step >= m_steps)
+    return false;
+  unsigned char key = row2key(row);
+  if (key > 127)
+    return false;
+  int inc = 21;
+  if (event->state & GDK_SHIFT_MASK)
+    inc = 1;
+  unsigned char& velocity = m_seq[key][step];
+  if (velocity) {
+    m_active_y = row;
+    m_active_x = step;
+    if (event->direction == GDK_SCROLL_UP && velocity < 127) {
+      velocity += inc;
+      velocity = velocity > 127 ? 127 : velocity;
+      signal_velocity_changed(key, step, velocity);
+    }
+    else if (event->direction == GDK_SCROLL_DOWN && velocity > 1) {
+      velocity = velocity < inc + 1 ? 1 : velocity - inc;
+      signal_velocity_changed(key, step, velocity);
+    }
+  }
+  return true;
+}
+
+
+
 
 
 unsigned char GridWidget::row2key(int row) {
