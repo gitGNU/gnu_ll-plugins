@@ -175,12 +175,6 @@ public:
 	p(r_output_mix)[from + m_frame - f0] += m_last_sample;
       }
       
-      // if we're done with this note, reset
-      if (m_frame >= m_end) {
-	m_frame = 0;
-	m_key = LV2::INVALID_KEY;
-      }
-      
       break;
     }
       
@@ -216,10 +210,6 @@ public:
 	p(r_output_mix)[from + m_frame - f0] += m_last_sample;
       }
 
-      if (m_frame >= m_end) {
-	m_frame = 0;
-	m_key = LV2::INVALID_KEY;
-      }
       break;
     }
       
@@ -257,13 +247,15 @@ public:
 	p(r_output_mix)[from + m_frame - f0] += m_last_sample;
       }
 
-      if (m_frame >= m_end) {
-	m_frame = 0;
-	m_key = LV2::INVALID_KEY;
-      }
       break;
     }
       
+    }
+
+    // if we're done with this note, reset
+    if (m_frame >= m_end) {
+      m_frame = 0;
+      m_key = LV2::INVALID_KEY;
     }
     
   }
