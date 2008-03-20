@@ -38,6 +38,7 @@
 
 #include "lv2.h"
 #include "lv2-command.h"
+#include <lv2_uri_map.h>
 #include "ringbuffer.hpp"
 
 
@@ -199,6 +200,10 @@ protected:
   static void feedback_wrapper(void* me, uint32_t argc, 
 			       const char* const* argv);
   
+  static uint32_t uri_to_id(LV2_URI_Map_Callback_Data callback_data,
+			    const char* umap, const char* uri);
+  
+  
   template <typename T> T get_symbol(const std::string& name) {
     union {
       void* s;
@@ -221,6 +226,7 @@ protected:
   const LV2_CommandDescriptor* m_comm_desc;
   
   LV2_CommandHostDescriptor m_comm_host_desc;
+  LV2_URI_Map_Feature m_urimap_host_desc;
   
   std::vector<LV2Port> m_ports;
   bool m_ports_updated;

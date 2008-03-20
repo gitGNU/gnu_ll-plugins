@@ -65,6 +65,9 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   m_comm_host_desc.feedback = &LV2Host::feedback_wrapper;
   m_comm_host_desc.host_data = this;
   
+  m_urimap_host_desc.callback_data = 0;
+  m_urimap_host_desc.uri_to_id = &LV2Host::uri_to_id;
+  
   // get the directories to look in
   vector<string> search_dirs = get_search_dirs();
   
@@ -861,7 +864,8 @@ bool LV2Host::load_plugin() {
     "http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension",
     &m_comm_host_desc
   };
-  const LV2_Feature* features[] = { &command_feature, 0 };
+  LV2_Feature urimap_feature = { LV2_URI_MAP_URI, &m_urimap_host_desc };
+  const LV2_Feature* features[] = { &command_feature, &urimap_feature, 0 };
   m_handle = m_desc->instantiate(m_desc, m_rate, m_bundle.c_str(), features);
   
   if (!m_handle) {
@@ -912,4 +916,13 @@ void LV2Host::feedback_wrapper(void* me, uint32_t argc,
 			       const char* const* argv) {
   std::cerr<<__PRETTY_FUNCTION__<<endl;
   static_cast<LV2Host*>(me)->feedback(argc, argv);
+}
+
+
+uint32_t LV2Host::uri_to_id(LV2_URI_Map_Callback_Data callback_data,
+			    const char* umap, const char* uri) {
+  if (umap && !strcmp(umap, LV2_EVENT_URI) &&
+      !strcmp(uri, "http://lv2plug.in/ns/ext/midi#MidiEvent"))
+    return 1;
+  return 0;
 }
