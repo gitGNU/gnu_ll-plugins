@@ -194,7 +194,9 @@ void LV2GUIHost::current_program_changed(uint32_t number) {
 
 
 void LV2GUIHost::_write_port(LV2UI_Controller ctrl, uint32_t index, 
-			     uint32_t buffer_size, const void* buffer) {
+			     uint32_t buffer_size, uint32_t format,
+			     const void* buffer) {
+  // XXX handle format stuff here
   LV2GUIHost* me = static_cast<LV2GUIHost*>(ctrl);
   if (me->m_block_gui)
     DBG1("GUI requested write to input port while a GUI callback was running");

@@ -39,8 +39,7 @@
 
 #include "lv2guihost.hpp"
 #include "lv2host.hpp"
-#include "lv2-midiport.h"
-#include "lv2-midifunctions.h"
+#include <lv2_event_helpers.h>
 #include "debug.hpp"
 #include "midiutils.hpp"
 
@@ -241,12 +240,10 @@ void lv2midi2jackmidi(LV2Port& port, jack_port_t* jack_port,
   DBG4("Translating MIDI events from LV2 to JACK for port "<<port.symbol);
 
   
-  double timestamp;
-  uint32_t data_size;
-  unsigned char* data = 0;
   void* output_buf = jack_port_get_buffer(jack_port, nframes);
-  LV2_MIDI* input_buf = static_cast<LV2_MIDI*>(port.buffer);
-  LV2_MIDIState in = { static_cast<LV2_MIDI*>(port.buffer), nframes, 0 };
+  LV2_Event_Buffer* input_buf = static_cast<LV2_Event_Buffer*>(port.buffer);
+  LV2_Event_Iterator iter;
+  lv2_event_begin(&iter, input_buf);
   
   jack_midi_clear_buffer(output_buf);
   
@@ -254,15 +251,19 @@ void lv2midi2jackmidi(LV2Port& port, jack_port_t* jack_port,
   for (size_t i = 0; i < input_buf->event_count; ++i) {
     
     // retrieve LV2 MIDI event
-    lv2midi_get_event(&in, &timestamp, &data_size, &data);
-    lv2midi_step(&in);
+    uint8_t* data;
+    LV2_Event* ev = lv2_event_get(&iter, &data);
+    lv2_event_increment(&iter);
     
-    DBG3("Received MIDI event from the plugin on port "<<port.symbol
-         <<": "<<midi2str(data_size, data));
-    
-    // write JACK MIDI event
-    jack_midi_event_write(output_buf, jack_nframes_t(timestamp), 
-                          reinterpret_cast<jack_midi_data_t*>(data), data_size);
+    if (ev->type == 1) {
+      DBG3("Received MIDI event from the plugin on port "<<port.symbol
+	   <<": "<<midi2str(ev->size, data));
+      
+      // write JACK MIDI event
+      jack_midi_event_write(output_buf, jack_nframes_t(ev->frames), 
+			    reinterpret_cast<jack_midi_data_t*>(data), 
+			    ev->size);
+    }
   }
 }
 
@@ -280,7 +281,10 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
   jack_nframes_t input_event_index = 0;
   jack_nframes_t input_event_count = jack_midi_get_event_count(input_buf);
   jack_nframes_t timestamp;
-  LV2_MIDI* output_buf = static_cast<LV2_MIDI*>(port.buffer);
+  LV2_Event_Buffer* output_buf = static_cast<LV2_Event_Buffer*>(port.buffer);
+  lv2_event_buffer_reset(output_buf, 0, output_buf->data);
+  LV2_Event_Iterator iter;
+  lv2_event_begin(&iter, output_buf);
   output_buf->event_count = 0;
   
   // iterate over all incoming JACK MIDI events
@@ -292,8 +296,6 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
     
     DBG3("Received MIDI event from JACK on port "<<port.symbol
          <<": "<<midi2str(input_event.size, input_event.buffer));
-        
-
     
     if ((data - output_buf->data) + sizeof(double) + 
         sizeof(size_t) + input_event.size >= output_buf->capacity)
@@ -335,23 +337,17 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
     
     else {
       // write LV2 MIDI event
-      *reinterpret_cast<double*>(data) = input_event.time;
-      data += sizeof(double);
-      *reinterpret_cast<size_t*>(data) = input_event.size;
-      data += sizeof(size_t);
-      memcpy(data, input_event.buffer, input_event.size);
+      lv2_event_write(&iter, input_event.time, 0, 1, 
+		      input_event.size, input_event.buffer);
       
+      // XXX add normalisation again
       // normalise note events if needed
-      if ((input_event.size == 3) && ((data[0] & 0xF0) == 0x90) && 
+      /*if ((input_event.size == 3) && ((data[0] & 0xF0) == 0x90) && 
           (data[2] == 0))
         data[0] = 0x80 | (data[0] & 0x0F);
-      
-      data += input_event.size;
-      ++output_buf->event_count;
+      */
     }
   }
-
-  output_buf->size = data - output_buf->data;
   
 }
 
@@ -600,9 +596,7 @@ int main(int argc, char** argv) {
                                   JACK_DEFAULT_MIDI_TYPE,
                                   (lv2port.direction == InputPort ?
                                    JackPortIsInput : JackPortIsOutput), 0);
-        LV2_MIDI* mbuf = new LV2_MIDI;
-        mbuf->capacity = 8192;
-        mbuf->data = new unsigned char[8192];
+        LV2_Event_Buffer* mbuf = lv2_event_buffer_new(8192, 0);
         lv2port.buffer = mbuf;
       }
       

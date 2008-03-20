@@ -70,7 +70,8 @@ public:
 protected:
   
   static void _write_port(LV2UI_Controller ctrl, uint32_t index, 
-			  uint32_t buffer_size, const void* buffer);
+			  uint32_t buffer_size, uint32_t format, 
+			  const void* buffer);
   
   static void _command(LV2UI_Controller ctrl, 
 		       uint32_t argc, char const* const* argv);

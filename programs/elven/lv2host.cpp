@@ -37,8 +37,7 @@
 #include <namespaces.hpp>
 
 #include "lv2host.hpp"
-#include "lv2-midiport.h"
-#include "lv2-midifunctions.h"
+#include "lv2_event_helpers.h"
 #include "debug.hpp"
 #include "midiutils.hpp"
 
@@ -179,11 +178,13 @@ void LV2Host::run(unsigned long nframes) {
       DBG3("Received MIDI event from the main thread for port "
 	   <<m_ports[e->port].symbol<<": "
 	   <<midi2str(e->event_size, e->data));
-      LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[e->port].buffer);
-      LV2_MIDIState state = { midi, nframes, 0 };
+      LV2_Event_Buffer* midi = 
+	static_cast<LV2_Event_Buffer*>(m_ports[e->port].buffer);
+      LV2_Event_Iterator iter;
+      lv2_event_begin(&iter, midi);
       // XXX DANGER! Can't set the timestamp to 0 since other events may
       // have been written to the buffer already!
-      lv2midi_put_event(&state, 0, e->event_size, e->data);
+      lv2_event_write(&iter, 0, 0, 1, e->event_size, e->data);
       e->written = true;
     }
     
@@ -545,6 +546,7 @@ bool LV2Host::load_plugin() {
     Namespace lv2("<http://lv2plug.in/ns/lv2core#>");
     Namespace ll("<http://ll-plugins.nongnu.org/lv2/namespace#>");
     Namespace llext("<http://ll-plugins.nongnu.org/lv2/ext/>");
+    Namespace ev("<http://lv2plug.in/ns/ext/event#>");
     Namespace mm("<http://ll-plugins.nongnu.org/lv2/ext/midimap#>");
     Variable name, license, binary;
     qr = select(name, binary)
@@ -608,7 +610,7 @@ bool LV2Host::load_plugin() {
 	  m_ports[p].direction = OutputPort;
 	else if (pclass == lv2("AudioPort"))
 	  m_ports[p].type = AudioType;
-	else if (pclass == llext("MidiPort"))
+	else if (pclass == ev("EventPort"))
 	  m_ports[p].type = MidiType;
 	else if (pclass == lv2("ControlPort"))
 	  m_ports[p].type = ControlType;
