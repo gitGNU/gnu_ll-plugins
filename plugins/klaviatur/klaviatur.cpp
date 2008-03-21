@@ -23,35 +23,43 @@
 
 #include "lv2plugin.hpp"
 #include "klaviatur.peg"
-#include "lv2-midifunctions.h"
+#include "lv2_event_helpers.h"
 
 
-class Klaviatur : public LV2::Plugin<Klaviatur> {
+class Klaviatur : public LV2::Plugin<Klaviatur, LV2::UriMapExt<true> > {
 public:
 
-  Klaviatur(double rate) : LV2::Plugin<Klaviatur>(k_n_ports) {
+  Klaviatur(double rate) 
+    : LV2::Plugin<Klaviatur, LV2::UriMapExt<true> >(k_n_ports),
+      m_midi_type(uri_to_id(LV2_EVENT_URI,
+			    "http://lv2plug.in/ns/ext/midi#MidiEvent")) {
     
   }
   
   
   void run(uint32_t nframes) {
-
-    LV2_MIDIState in = { p<LV2_MIDI>(k_midi_input), nframes, 0 };
-    LV2_MIDIState out = { p<LV2_MIDI>(k_midi_output), nframes, 0 };
     
-    out.midi->size = 0;
-    out.midi->event_count = 0;
+    LV2_Event_Buffer* inbuf = p<LV2_Event_Buffer>(k_midi_input);
+    LV2_Event_Buffer* outbuf = p<LV2_Event_Buffer>(k_midi_output);
+    lv2_event_buffer_reset(outbuf, inbuf->stamp_type, outbuf->data);
+    LV2_Event_Iterator in, out;
+    lv2_event_begin(&in, inbuf);
+    lv2_event_begin(&out, outbuf);
     
-    double event_time;
-    uint32_t event_size;
-    unsigned char* event;
-
-    while (lv2midi_get_event(&in, &event_time, &event_size, &event) < nframes){
-      lv2midi_put_event(&out, event_time, event_size, event);
-      lv2midi_step(&in);
+    while (lv2_event_is_valid(&in)) {
+      uint8_t* data;
+      LV2_Event* ev = lv2_event_get(&in, &data);
+      lv2_event_increment(&in);
+      // XXX handle type 0 events
+      if (ev->type == m_midi_type)
+	lv2_event_write_event(&out, ev, data);
     }
     
   }
+  
+protected:
+  
+  uint32_t m_midi_type;
   
 };
 

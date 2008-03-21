@@ -27,7 +27,7 @@
 #include <iostream>
 #include <vector>
 
-#include "lv2-midiport.h"
+#include <lv2_event_helpers.h>
 
 
 template <typename V> class VoiceHandler {
@@ -47,7 +47,7 @@ public:
   
   inline void set_voices(unsigned voices);
   
-  inline void set_midi_port(LV2_MIDI* port);
+  inline void set_midi_port(LV2_Event_Buffer* port);
   
   inline void run(uint32_t frame);
   
@@ -55,7 +55,7 @@ public:
   
 protected:
   
-  LV2_MIDI* m_port;
+  LV2_Event_Buffer* m_port;
   uint32_t m_offset;
   std::vector<VoiceInfo> m_voices;
   uint32_t m_rate;
@@ -88,7 +88,8 @@ template <typename V> void VoiceHandler<V>::set_voices(unsigned voices) {
 }
 
 
-template <typename V> void VoiceHandler<V>::set_midi_port(LV2_MIDI* port) {
+template <typename V> 
+void VoiceHandler<V>::set_midi_port(LV2_Event_Buffer* port) {
   m_port = port;
   m_offset = 0;
 }

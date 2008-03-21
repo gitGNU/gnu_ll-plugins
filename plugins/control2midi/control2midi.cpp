@@ -21,29 +21,34 @@
 
 ****************************************************************************/
 
-#include "lv2plugin.hpp"
-#include "lv2-midiport.h"
+#include <lv2plugin.hpp>
+#include <lv2_event_helpers.h>
 
 
 /** This is the class that contains all the code and data for the Sineshaper
     synth plugin. */
-class Control2MIDI : public LV2::Plugin<Control2MIDI> {
+class Control2MIDI : public LV2::Plugin<Control2MIDI, LV2::UriMapExt<true> > {
 public:
   
   Control2MIDI(double) 
-    : LV2::Plugin<Control2MIDI>(5),
+    : LV2::Plugin<Control2MIDI, LV2::UriMapExt<true> >(5),
       m_last_value(0),
-      m_last_cc(0) { 
+      m_last_cc(0),
+      m_midi_type(uri_to_id(LV2_EVENT_URI, 
+			    "http://lv2plug.in/ns/ext/midi#MidiEvent")) { 
     
   }
   
   void run(uint32_t sample_count) {
     
-    float value = *static_cast<float*>(m_ports[0]);
-    float min = *static_cast<float*>(m_ports[1]);
-    float max = *static_cast<float*>(m_ports[2]);
-    float cc = *static_cast<float*>(m_ports[3]);
-    LV2_MIDI* midi = static_cast<LV2_MIDI*>(m_ports[4]);
+    float value = *p(0);
+    float min = *p(1);
+    float max = *p(2);
+    float cc = *p(3);
+    LV2_Event_Buffer* midi = p<LV2_Event_Buffer>(4);
+    lv2_event_buffer_reset(midi, midi->stamp_type, midi->data);
+    LV2_Event_Iterator iter;
+    lv2_event_begin(&iter, midi);
     
     unsigned char ccc = (unsigned char)cc;
     
@@ -54,23 +59,13 @@ public:
     else if (value > max)
       value = max;
 
-    midi->event_count = 0;
-    
     unsigned char cvalue = (unsigned char)((value - min) * 127 / (max - min));
-    if ((ccc != m_last_cc || cvalue != m_last_value) &&
-        midi->capacity >= sizeof(double) + sizeof(size_t) + 3) {
-
-      *(double*)(midi->data) = 0;
-      *(size_t*)(midi->data + sizeof(double)) = 3;
+    if (ccc != m_last_cc || cvalue != m_last_value) {
       unsigned char bytes[] = { 0xB0, ccc, cvalue };
-      memcpy(midi->data + sizeof(double) + sizeof(size_t), bytes, 3);
-      midi->event_count = 1;
-      
+      lv2_event_write(&iter, 0, 0, m_midi_type, 3, bytes);
       m_last_cc = ccc;
       m_last_value = cvalue;
     }
-    
-    midi->size = sizeof(double) + sizeof(size_t) + 3;
     
   }
   
@@ -78,6 +73,7 @@ protected:
   
   unsigned char m_last_value;
   unsigned char m_last_cc;
+  uint32_t m_midi_type;
   
 };
 

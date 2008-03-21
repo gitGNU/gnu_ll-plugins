@@ -35,7 +35,7 @@
 
 /** This is the class that contains all the code and data for the Sineshaper
     synth plugin. */
-class SineShaper : public LV2::Plugin<SineShaper> {
+class SineShaper : public LV2::Plugin<SineShaper, LV2::UriMapExt<true> > {
 public:
   
   SineShaper(double frame_rate);
@@ -90,6 +90,8 @@ protected:
   unsigned char m_active_key;
   
   float m_pitchbend;
+  
+  uint32_t m_midi_type;
   
 };
 

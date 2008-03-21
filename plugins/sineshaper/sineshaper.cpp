@@ -25,15 +25,14 @@
 
 #include "sineshaper.hpp"
 #include "sineshaperports.hpp"
-#include "lv2-midiport.h"
-#include "midiiterator.hpp"
+#include <lv2_event_helpers.h>
 
 
 using namespace std;
 
 
 SineShaper::SineShaper(double frame_rate) 
-  : LV2::Plugin<SineShaper>(SINESHAPER_PORT_COUNT),
+  : LV2::Plugin<SineShaper, LV2::UriMapExt<true> >(SINESHAPER_PORT_COUNT),
     m_vibrato_lfo(frame_rate),
     m_tremolo_lfo(frame_rate),
     m_shaper_lfo(frame_rate),
@@ -65,7 +64,9 @@ SineShaper::SineShaper(double frame_rate)
     m_velocity(0.5f),
     m_pitch(440.0f),
     m_active_key(Key::NoKey),
-    m_pitchbend(1.0f) {
+    m_pitchbend(1.0f),
+    m_midi_type(uri_to_id(LV2_EVENT_URI, 
+			  "http://lv2plug.in/ns/ext/midi#MidiEvent")) {
   
 }
 
@@ -111,29 +112,32 @@ void SineShaper::run(uint32_t sample_count) {
   bool tie_overlapping = (*p(PRT_TIE) > 0.5);
   
   float* output = p(OUT);
-
-  LV2_MIDI* midi = p<LV2_MIDI>(MIDI);
   
+  LV2_Event_Iterator iter;
+  lv2_event_begin(&iter, p<LV2_Event_Buffer>(MIDI));
   
   static const unsigned long param_slide_time = 60;
   static const float twelfth_root_of_2 = pow(2, 1/12.0);
   
   unsigned long midi_offset = 0;
   
-  MIDIIterator iter = MIDIIterator::begin(midi);
-  MIDIIterator midi_end = MIDIIterator::end(midi);
-  
   // this is the main loop!
+  // XXX and it's awful! break the MIDI handling out of the inner loop!
+  // XXX or port to LV2::Synth!
   for (unsigned long i = 0; i < sample_count; ++i) {
     
     unsigned long freq_slide_time = (unsigned long)(porta_time * m_frame_rate);
     unsigned long vel_slide_time = (unsigned long)(porta_time * m_frame_rate);
+    uint8_t* data = 0;
+    LV2_Event* ev = 0;
     
     // handle any MIDI events that occur in this frame
-    // XXX this really should go into a separate component
-    for ( ; iter != midi_end && (unsigned long)iter->timestamp() == i; ++iter) {
+    for (; lv2_event_is_valid(&iter) && 
+	   (ev = lv2_event_get(&iter, &data), ev->frames == i); 
+	 lv2_event_increment(&iter)) {
       
-      const unsigned char* data = iter->data();
+      if (ev->type != m_midi_type)
+	continue;
       
       // note on
       if ((data[0] & 0xF0) == 0x90) {

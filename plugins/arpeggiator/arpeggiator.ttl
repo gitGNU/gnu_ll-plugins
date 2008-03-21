@@ -1,6 +1,7 @@
 @prefix lv2:  <http://lv2plug.in/ns/lv2core#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix doap: <http://usefulinc.com/ns/doap#>.
+@prefix ev: <http://lv2plug.in/ns/ext/event#>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/arpeggiator/0.0.0>
   a lv2:Plugin;
@@ -34,14 +35,16 @@
   ],
 
   [
-    a lv2:InputPort, <http://ll-plugins.nongnu.org/lv2/ext/MidiPort>;
+    a lv2:InputPort, ev:EventPort;
     lv2:index 3;
+    ev:supportsEvent <http://lv2plug.in/ns/ext/midi#MidiEvent>;
     lv2:symbol "input";
     lv2:name "MIDI input";
   ],
 
   [
-    a lv2:OutputPort, <http://ll-plugins.nongnu.org/lv2/ext/MidiPort>;
+    a lv2:OutputPort, ev:EventPort;
+    ev:supportsEvent <http://lv2plug.in/ns/ext/midi#MidiEvent>;
     lv2:index 4;
     lv2:symbol "output";
     lv2:name "MIDI output";

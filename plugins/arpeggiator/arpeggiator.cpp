@@ -24,24 +24,26 @@
 #include <cstring>
 
 #include <lv2plugin.hpp>
-#include <lv2-midifunctions.h>
+#include <lv2_event_helpers.h>
 
 
 using namespace std;
 
 
 /** A plugin that takes chord MIDI input and writes arpeggio MIDI output. */
-class Arpeggiator : public LV2::Plugin<Arpeggiator> {
+class Arpeggiator : public LV2::Plugin<Arpeggiator, LV2::UriMapExt<true> > {
 public:
   
   Arpeggiator(double rate) 
-    : LV2::Plugin<Arpeggiator>(5),
+    : LV2::Plugin<Arpeggiator, LV2::UriMapExt<true> >(5),
       m_rate(rate),
       m_num_keys(0),
       m_frame_counter(0),
       m_next_key(0),
-      m_last_key(0) {
-
+      m_last_key(0),
+      m_midi_type(uri_to_id(LV2_EVENT_URI, 
+			    "http://lv2plug.in/ns/ext/midi#MidiEvent")) {
+    
   }
   
   
@@ -57,10 +59,12 @@ public:
     float& npb = *p(0);
     float& plength = *p(1);
     float& direction = *p(2);
-    LV2_MIDIState midi_in = { p<LV2_MIDI>(3), nframes, 0 };
-    p<LV2_MIDI>(4)->event_count = 0;
-    p<LV2_MIDI>(4)->size = 0;
-    LV2_MIDIState midi_out = { p<LV2_MIDI>(4), nframes, 0 };
+    
+    LV2_Event_Iterator iter_in, iter_out;
+    lv2_event_begin(&iter_in, p<LV2_Event_Buffer>(3));
+    LV2_Event_Buffer* outbuf = p<LV2_Event_Buffer>(4);
+    lv2_event_buffer_reset(outbuf, outbuf->stamp_type, outbuf->data);
+    lv2_event_begin(&iter_out, outbuf);
     
     double event_time;
     uint32_t event_size;
@@ -69,16 +73,21 @@ public:
     
     // iterate over incoming MIDI events
     while (true) {
-      lv2midi_get_event(&midi_in, &event_time, &event_size, &event_data);
-      lv2midi_step(&midi_in);
+      uint32_t event_time = nframes;
+      LV2_Event* ev = 0;
+      if (lv2_event_is_valid(&iter_in)) {
+	ev = lv2_event_get(&iter_in, &event_data);
+	event_time = ev->frames;
+	lv2_event_increment(&iter_in);
+      }
       if (event_time > frames_done)
-        generate_events(&midi_out, frames_done, event_time);
+        generate_events(&iter_out, frames_done, event_time);
       frames_done = event_time;
       
-      if (frames_done >= nframes)
+      if (!ev)
 	break;
       
-      if (event_size == 3) {
+      if (ev->type == m_midi_type && ev->size == 3) {
         const unsigned char& key = event_data[1];
         
         // note off - erase the key from the array
@@ -115,7 +124,8 @@ public:
   }
   
   
-  void generate_events(LV2_MIDIState* midi_out, uint32_t from, uint32_t to) {
+  void generate_events(LV2_Event_Iterator* midi_out, 
+		       uint32_t from, uint32_t to) {
 
     if (m_num_keys == 0)
       return;
@@ -132,10 +142,10 @@ public:
     
     for ( ; frame < to; frame += step_length) {
       unsigned char data[] = { 0x80, m_last_key, 0x60 };
-      lv2midi_put_event(midi_out, frame, 3, data);
+      lv2_event_write(midi_out, frame, 0, m_midi_type, 3, data);
       data[0] = 0x90;
       data[1] = m_keys[m_next_key];
-      lv2midi_put_event(midi_out, frame, 3, data);
+      lv2_event_write(midi_out, frame, 0, m_midi_type, 3, data);
       m_last_key = data[1];
       m_next_key = (m_next_key + 1) % m_num_keys;
     }
@@ -152,6 +162,7 @@ protected:
   uint32_t m_frame_counter;
   unsigned char m_next_key;
   unsigned char m_last_key;
+  uint32_t m_midi_type;
   
 };
 
