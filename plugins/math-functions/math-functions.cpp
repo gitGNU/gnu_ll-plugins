@@ -195,84 +195,43 @@ public:
 #define LL_PREFIX "http://ll-plugins.nongnu.org/lv2/dev/math-function-"
 
 
-static unsigned _01 = 
-  Unary<&atan, true>::register_class(LL_PREFIX "atan/0.0.0");
-static unsigned _03 = 
-  Unary<&atan, false>::register_class(LL_PREFIX "atan-ctrl/0.0.0");
-static unsigned _04 = 
-  Unary<&ceil, true>::register_class(LL_PREFIX "ceil/0.0.0");
-static unsigned _05 = 
-  Unary<&ceil, false>::register_class(LL_PREFIX "ceil-ctrl/0.0.0");
-static unsigned _06 = 
-  Unary<&cos, true>::register_class(LL_PREFIX "cos/0.0.0");
-static unsigned _07 = 
-  Unary<&cos, false>::register_class(LL_PREFIX "cos-ctrl/0.0.0");
-static unsigned _08 = 
-  Unary<&cosh, true>::register_class(LL_PREFIX "cosh/0.0.0");
-static unsigned _09 = 
-  Unary<&cosh, false>::register_class(LL_PREFIX "cosh-ctrl/0.0.0");
-static unsigned _10 = 
-  Unary<&exp, true>::register_class(LL_PREFIX "exp/0.0.0");
-static unsigned _11 = 
-  Unary<&exp, false>::register_class(LL_PREFIX "exp-ctrl/0.0.0");
-static unsigned _12 = 
-  Unary<&abs, true>::register_class(LL_PREFIX "abs/0.0.0");
-static unsigned _13 = 
-  Unary<&abs, false>::register_class(LL_PREFIX "abs-ctrl/0.0.0");
-static unsigned _14 = 
-  Unary<&floor, true>::register_class(LL_PREFIX "floor/0.0.0");
-static unsigned _15 = 
-  Unary<&floor, false>::register_class(LL_PREFIX "floor-ctrl/0.0.0");
-static unsigned _16 = 
-  Unary<&sin, true>::register_class(LL_PREFIX "sin/0.0.0");
-static unsigned _17 = 
-  Unary<&sin, false>::register_class(LL_PREFIX "sin-ctrl/0.0.0");
-static unsigned _18 = 
-  Unary<&sinh, true>::register_class(LL_PREFIX "sinh/0.0.0");
-static unsigned _19 = 
-  Unary<&sinh, false>::register_class(LL_PREFIX "sinh-ctrl/0.0.0");
-static unsigned _20 = 
-  UnaryMin<&log, true, epsilon>::register_class(LL_PREFIX "log/0.0.0");
-static unsigned _21 = 
-  UnaryMin<&log, false, epsilon>::register_class(LL_PREFIX "log-ctrl/0.0.0");
-static unsigned _22 = 
-  UnaryMin<&log10, true, epsilon>::register_class(LL_PREFIX "log10/0.0.0");
-static unsigned _23 = 
-  UnaryMin<&log10, false,epsilon>::register_class(LL_PREFIX "log10-ctrl/0.0.0");
-static unsigned _24 = 
-  UnaryMin<&sqrt, true, zero>::register_class(LL_PREFIX "sqrt/0.0.0");
-static unsigned _25 = 
-  UnaryMin<&sqrt, false, zero>::register_class(LL_PREFIX "sqrt-ctrl/0.0.0");
-static unsigned _26 = 
-  UnaryRange<&acos, true, neg1, pos1>::register_class(LL_PREFIX "acos/0.0.0");
-static unsigned _27 = 
-  UnaryRange<&acos,false,neg1,pos1>::register_class(LL_PREFIX"acos-ctrl/0.0.0");
-static unsigned _28 = 
-  UnaryRange<&asin, true, neg1, pos1>::register_class(LL_PREFIX "asin/0.0.0");
-static unsigned _29 = 
-  UnaryRange<&asin,false,neg1,pos1>::register_class(LL_PREFIX"asin-ctrl/0.0.0");
-static unsigned _30 = 
-  UnaryGuard<&tan, true>::register_class(LL_PREFIX "tan/0.0.0");
-static unsigned _31 = 
-  UnaryGuard<&tan, false>::register_class(LL_PREFIX "tan-ctrl/0.0.0");
-static unsigned _32 = 
-  UnaryGuard<&tanh, true>::register_class(LL_PREFIX "tanh/0.0.0");
-static unsigned _33 = 
-  UnaryGuard<&tanh, false>::register_class(LL_PREFIX "tanh-ctrl/0.0.0");
-static unsigned _34 = 
-  Binary<&atan2, true>::register_class(LL_PREFIX "atan2/0.0.0");
-static unsigned _35 = 
-  Binary<&atan2, false>::register_class(LL_PREFIX "atan2-ctrl/0.0.0");
-static unsigned _36 = 
-  BinaryGuard<&fmod, true>::register_class(LL_PREFIX "fmod/0.0.0");
-static unsigned _37 = 
-  BinaryGuard<&fmod, false>::register_class(LL_PREFIX "fmod-ctrl/0.0.0");
-static unsigned _38 = 
-  BinaryGuard<&pow, true>::register_class(LL_PREFIX "pow/0.0.0");
-static unsigned _39 = 
-  BinaryGuard<&pow, false>::register_class(LL_PREFIX "pow-ctrl/0.0.0");
-static unsigned _41 = 
-  Modf<true>::register_class(LL_PREFIX "modf/0.0.0");
-static unsigned _42 = 
-  Modf<false>::register_class(LL_PREFIX "modf-ctrl/0.0.0");
-
+static unsigned _ = (Unary<&atan, true>::register_class(LL_PREFIX "atan/0.0.0"),
+		     Unary<&atan, false>::register_class(LL_PREFIX "atan-ctrl/0.0.0"),
+		     Unary<&ceil, true>::register_class(LL_PREFIX "ceil/0.0.0"),
+		     Unary<&ceil, false>::register_class(LL_PREFIX "ceil-ctrl/0.0.0"),
+		     Unary<&cos, true>::register_class(LL_PREFIX "cos/0.0.0"),
+		     Unary<&cos, false>::register_class(LL_PREFIX "cos-ctrl/0.0.0"),
+		     Unary<&cosh, true>::register_class(LL_PREFIX "cosh/0.0.0"),
+		     Unary<&cosh, false>::register_class(LL_PREFIX "cosh-ctrl/0.0.0"),
+		     Unary<&exp, true>::register_class(LL_PREFIX "exp/0.0.0"),
+		     Unary<&exp, false>::register_class(LL_PREFIX "exp-ctrl/0.0.0"),
+		     Unary<&abs, true>::register_class(LL_PREFIX "abs/0.0.0"),
+		     Unary<&abs, false>::register_class(LL_PREFIX "abs-ctrl/0.0.0"),
+		     Unary<&floor, true>::register_class(LL_PREFIX "floor/0.0.0"),
+		     Unary<&floor, false>::register_class(LL_PREFIX "floor-ctrl/0.0.0"),
+		     Unary<&sin, true>::register_class(LL_PREFIX "sin/0.0.0"),
+		     Unary<&sin, false>::register_class(LL_PREFIX "sin-ctrl/0.0.0"),
+		     Unary<&sinh, true>::register_class(LL_PREFIX "sinh/0.0.0"),
+		     Unary<&sinh, false>::register_class(LL_PREFIX "sinh-ctrl/0.0.0"),
+		     UnaryMin<&log, true, epsilon>::register_class(LL_PREFIX "log/0.0.0"),
+		     UnaryMin<&log, false, epsilon>::register_class(LL_PREFIX "log-ctrl/0.0.0"),
+		     UnaryMin<&log10, true, epsilon>::register_class(LL_PREFIX "log10/0.0.0"),
+		     UnaryMin<&log10, false,epsilon>::register_class(LL_PREFIX "log10-ctrl/0.0.0"),
+		     UnaryMin<&sqrt, true, zero>::register_class(LL_PREFIX "sqrt/0.0.0"),
+		     UnaryMin<&sqrt, false, zero>::register_class(LL_PREFIX "sqrt-ctrl/0.0.0"),
+		     UnaryRange<&acos, true, neg1, pos1>::register_class(LL_PREFIX "acos/0.0.0"),
+		     UnaryRange<&acos,false,neg1,pos1>::register_class(LL_PREFIX"acos-ctrl/0.0.0"),
+		     UnaryRange<&asin, true, neg1, pos1>::register_class(LL_PREFIX "asin/0.0.0"),
+		     UnaryRange<&asin,false,neg1,pos1>::register_class(LL_PREFIX"asin-ctrl/0.0.0"),
+		     UnaryGuard<&tan, true>::register_class(LL_PREFIX "tan/0.0.0"),
+		     UnaryGuard<&tan, false>::register_class(LL_PREFIX "tan-ctrl/0.0.0"),
+		     UnaryGuard<&tanh, true>::register_class(LL_PREFIX "tanh/0.0.0"),
+		     UnaryGuard<&tanh, false>::register_class(LL_PREFIX "tanh-ctrl/0.0.0"),
+		     Binary<&atan2, true>::register_class(LL_PREFIX "atan2/0.0.0"),
+		     Binary<&atan2, false>::register_class(LL_PREFIX "atan2-ctrl/0.0.0"),
+		     BinaryGuard<&fmod, true>::register_class(LL_PREFIX "fmod/0.0.0"),
+		     BinaryGuard<&fmod, false>::register_class(LL_PREFIX "fmod-ctrl/0.0.0"),
+		     BinaryGuard<&pow, true>::register_class(LL_PREFIX "pow/0.0.0"),
+		     BinaryGuard<&pow, false>::register_class(LL_PREFIX "pow-ctrl/0.0.0"),
+		     Modf<true>::register_class(LL_PREFIX "modf/0.0.0"),
+		     Modf<false>::register_class(LL_PREFIX "modf-ctrl/0.0.0"));

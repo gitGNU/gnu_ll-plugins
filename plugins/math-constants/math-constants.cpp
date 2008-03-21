@@ -64,16 +64,16 @@ public:
 #define LL_PREFIX "http://ll-plugins.nongnu.org/lv2/dev/math-constant-"
 
 
-static unsigned _1 = Constant<e>::register_class(LL_PREFIX "e/0.0.0");
-static unsigned _2 = Constant<log2e>::register_class(LL_PREFIX "log2e/0.0.0");
-static unsigned _3 = Constant<log10e>::register_class(LL_PREFIX "log10e/0.0.0");
-static unsigned _4 = Constant<ln2>::register_class(LL_PREFIX "ln2/0.0.0");
-static unsigned _5 = Constant<ln10>::register_class(LL_PREFIX "ln10/0.0.0");
-static unsigned _6 = Constant<pi>::register_class(LL_PREFIX "pi/0.0.0");
-static unsigned _7 = Constant<pi_2>::register_class(LL_PREFIX "pi_2/0.0.0");
-static unsigned _8 = Constant<pi_4>::register_class(LL_PREFIX "pi_4/0.0.0");
-static unsigned _9 = Constant<_1_pi>::register_class(LL_PREFIX "1_pi/0.0.0");
-static unsigned _10 = Constant<_2_pi>::register_class(LL_PREFIX "2_pi/0.0.0");
-static unsigned _11 = Constant<_2_sqrtpi>::register_class(LL_PREFIX"2_sqrtpi/0.0.0");
-static unsigned _12 = Constant<sqrt2>::register_class(LL_PREFIX "sqrt2/0.0.0");
-static unsigned _13 = Constant<sqrt1_2>::register_class(LL_PREFIX "sqrt1_2/0.0.0");
+static unsigned _ = (Constant<e>::register_class(LL_PREFIX "e/0.0.0"),
+		     Constant<log2e>::register_class(LL_PREFIX "log2e/0.0.0"),
+		     Constant<log10e>::register_class(LL_PREFIX "log10e/0.0.0"),
+		     Constant<ln2>::register_class(LL_PREFIX "ln2/0.0.0"),
+		     Constant<ln10>::register_class(LL_PREFIX "ln10/0.0.0"),
+		     Constant<pi>::register_class(LL_PREFIX "pi/0.0.0"),
+		     Constant<pi_2>::register_class(LL_PREFIX "pi_2/0.0.0"),
+		     Constant<pi_4>::register_class(LL_PREFIX "pi_4/0.0.0"),
+		     Constant<_1_pi>::register_class(LL_PREFIX "1_pi/0.0.0"),
+		     Constant<_2_pi>::register_class(LL_PREFIX "2_pi/0.0.0"),
+		     Constant<_2_sqrtpi>::register_class(LL_PREFIX "2_sqrtpi/0.0.0"),
+		     Constant<sqrt2>::register_class(LL_PREFIX "sqrt2/0.0.0"),
+		     Constant<sqrt1_2>::register_class(LL_PREFIX "sqrt1_2/0.0.0"));
