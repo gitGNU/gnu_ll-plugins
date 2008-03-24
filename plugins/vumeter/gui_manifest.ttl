@@ -13,13 +13,17 @@
   guiext:gui plug2:gui.
 
 plug:gui
-  a guiext:GtkGUI;
+  a guiext:GtkUI;
+  guiext:requiredFeature guiext:makeResident;
   guiext:binary <vumeter_gtk.so>;
-  guiext:portNotification [ guiext:plugin <http://ll-plugins.nongnu.org/lv2/dev/vumeter/0>;
-                            guiext:portIndex 1 ].
+  guiext:portNotification [ 
+    guiext:plugin <http://ll-plugins.nongnu.org/lv2/dev/vumeter/0>;
+    guiext:portIndex 1 
+  ].
 
 plug2:gui
   a guiext:GtkUI;
+  guiext:requiredFeature guiext:makeResident;
   guiext:binary <vumeter_gtk.so>;
   guiext:portNotification 
     [ guiext:plugin <http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0>;

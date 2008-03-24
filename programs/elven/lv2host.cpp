@@ -757,7 +757,20 @@ bool LV2Host::load_plugin() {
       m_plugingui = qr[0][gui_path]->name;
       m_plugingui = m_plugingui.substr(8, m_plugingui.size() - 9);
       DBG2("Found GUI plugin file "<<m_plugingui);
+      Variable req;
+      qr = select(req)
+	.where(qr[0][gui_uri]->name, gg("requiredFeature"), req)
+	.filter(req != gg("makeResident"))
+	.filter(req != gg("makeSONameResident"))
+	.run(data);
+      if (qr.size() > 0) {
+	m_guiuri = "";
+	m_plugingui = "";
+	DBG2("GUI requires unsupported feature "<<qr[0][req]->name);
+      }
     }
+    else
+      DBG2("Plugin has no GUI");
     
     // icon path
     Variable icon_path;

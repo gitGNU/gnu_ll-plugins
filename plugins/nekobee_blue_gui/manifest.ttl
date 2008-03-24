@@ -8,6 +8,7 @@
 
 <http://ll-plugins.nongnu.org/lv2/dev/nekobee_blue_gui/0.0.0>
   a guiext:GtkUI;
+  guiext:requiredFeature guiext:makeResident;
   guiext:binary <nekobee_blue_gui.so>.
 
 

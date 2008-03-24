@@ -25,6 +25,7 @@
 
 <http://ll-plugins.nongnu.org/lv2/dev/gcf/0/gui> 
   a guiext:GtkUI;
+  guiext:requiredFeature guiext:makeResident;
   guiext:binary <gcf_gtk.so>;
   guiext:portNotification 
     [ guiext:plugin <http://ll-plugins.nongnu.org/lv2/dev/gcf/0>;

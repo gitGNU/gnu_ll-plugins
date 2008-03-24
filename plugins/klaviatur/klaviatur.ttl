@@ -30,5 +30,6 @@
 
 <http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0/gui> 
   a guiext:GtkUI;
+  guiext:requiredFeature guiext:makeResident;
   guiext:binary <klaviatur_gtk.so>;
   guiext:optionalFeature guiext:noUserResize.

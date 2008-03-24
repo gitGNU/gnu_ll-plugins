@@ -8,5 +8,6 @@
 
 <http://ll-plugins.nongnu.org/lv2/dev/rudolf556/0/gui> 
   a guiext:GtkUI;
+  guiext:requiredFeature guiext:makeResident;
   guiext:binary <rudolf556_gtk.so>;
   guiext:optionalFeature guiext:fixedSize.
