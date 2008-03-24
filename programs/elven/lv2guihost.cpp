@@ -106,7 +106,7 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
   LV2UI_Controller ctrl = static_cast<LV2UI_Controller>(this);
   m_block_gui = true;
   m_ui = m_desc->instantiate(m_desc, plugin_uri.c_str(), bundle_path.c_str(),
-			     &LV2GUIHost::_write_port, ctrl, 0,
+			     &LV2GUIHost::_write_port, ctrl,
 			     reinterpret_cast<LV2UI_Widget*>(&m_cwidget),
 			     const_cast<const LV2_Feature**>(features));
   m_block_gui = false;
