@@ -43,7 +43,8 @@ public:
     LV2::GUI< VUMeterGUI<C> >::add(m_vu);
   }
   
-  void port_event(uint32_t port, uint32_t buffer_size, const void* buffer) {
+  void port_event(uint32_t port, uint32_t buffer_size, 
+		  uint32_t format, const void* buffer) {
     for (unsigned c = 0; c < C; ++c) {
       if (port == 2 * c + 1 && buffer_size == sizeof(float))
 	m_vu.set_value(c, *static_cast<const float*>(buffer));

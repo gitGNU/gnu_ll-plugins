@@ -60,7 +60,8 @@ public:
       connect(bind<0>(mem_fun(*this, &NekobeeBlueGUI::request_control_change), 8));
   }
   
-  void port_event(uint32_t port, uint32_t buffer_size, const void* buffer) {
+  void port_event(uint32_t port, uint32_t buffer_size, 
+		  uint32_t format, const void* buffer) {
     if (port == 1)
       m_nkb.set_waveform(*static_cast<const float*>(buffer));
     else if (port == 2)

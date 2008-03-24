@@ -45,7 +45,8 @@ public:
       connect(mem_fun(*this, &Rudolf556GUI::write_control));
   }
   
-  void port_event(uint32_t port, uint32_t buffer_size, void const* buffer) {
+  void port_event(uint32_t port, uint32_t buffer_size, 
+		  uint32_t format, void const* buffer) {
     m_rud.set_control(port, *static_cast<float const*>(buffer));
   }
 

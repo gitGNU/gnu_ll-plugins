@@ -158,7 +158,8 @@ public:
   /** Run some checks and fire signals in the main thread. */
   void run_main();
   
-  sigc::signal<void, uint32_t, uint32_t, const void*> signal_port_event;
+  sigc::signal<void, uint32_t, uint32_t, uint32_t, const void*> 
+  signal_port_event;
   
   sigc::signal<void, unsigned char> signal_program_changed;
   

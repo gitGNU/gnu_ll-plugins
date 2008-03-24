@@ -47,7 +47,8 @@ public:
   
   Gtk::Widget& get_widget();
   
-  void port_event(uint32_t index, uint32_t buffer_size, const void* buffer);
+  void port_event(uint32_t index, uint32_t buffer_size, 
+		  uint32_t format, const void* buffer);
   
   void feedback(uint32_t argc, const char* const* argv);
   

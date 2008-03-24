@@ -139,10 +139,10 @@ Gtk::Widget& LV2GUIHost::get_widget() {
   
 
 void LV2GUIHost::port_event(uint32_t index, uint32_t buffer_size, 
-			    const void* buffer) {
+			    uint32_t format, const void* buffer) {
   if (m_ui && m_desc && m_desc->port_event) {
     m_block_gui = true;
-    m_desc->port_event(m_ui, index, buffer_size, buffer);
+    m_desc->port_event(m_ui, index, buffer_size, format, buffer);
     m_block_gui = false;
   }
 }

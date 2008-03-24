@@ -650,7 +650,7 @@ int main(int argc, char** argv) {
 	// update the port controls in the GUI
 	for (uint32_t i = 0; i < ports.size(); ++i) {
 	  if (ports[i].type == ControlType && ports[i].direction == InputPort)
-	    lv2gh->port_event(i, sizeof(float), ports[i].buffer);
+	    lv2gh->port_event(i, sizeof(float), 0, ports[i].buffer);
 	}
 	
 	// update the program controls in the GUI

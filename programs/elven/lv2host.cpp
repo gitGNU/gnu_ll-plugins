@@ -117,7 +117,7 @@ void LV2Host::run_main() {
     while (!sem_trywait(&m_notification_sem));
     for (unsigned i = 0; i < m_ports.size(); ++i) {
       if (m_ports[i].notify && m_ports[i].direction == OutputPort) {
-	signal_port_event(i, sizeof(float), &m_ports[i].old_value);
+	signal_port_event(i, sizeof(float), 0, &m_ports[i].old_value);
 	DBG2("Sending port event for output port "<<i);
       }
     }
@@ -264,7 +264,7 @@ void LV2Host::set_control(uint32_t index, float value) {
     m_ports[index].value = value;
     m_ports_updated = true;
     pthread_mutex_unlock(&m_mutex);
-    signal_port_event(index, sizeof(float), &value);
+    signal_port_event(index, sizeof(float), 0, &value);
   }
 }
 
