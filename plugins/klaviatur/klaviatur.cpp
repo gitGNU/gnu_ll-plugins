@@ -21,7 +21,7 @@
 
 ****************************************************************************/
 
-#include "lv2plugin.hpp"
+#include <lv2plugin.hpp>
 #include "klaviatur.peg"
 #include "lv2_event_helpers.h"
 

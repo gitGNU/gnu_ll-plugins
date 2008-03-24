@@ -22,8 +22,9 @@
   ],
 
   [
-    a llext:MidiPort, lv2:OutputPort;
+    a ev:EventPort, lv2:OutputPort;
     lv2:index 1;
+    ev:supportsEvent <http://lv2plug.in/ns/ext/midi#MidiEvent>;
     lv2:symbol "midi_output";
     lv2:name "MIDI output";
   ].
