@@ -78,12 +78,12 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
   
   // get extension data
   if (m_desc->extension_data) {
-    m_pdesc = static_cast<LV2UI_Programs_GDesc const*>(m_desc->extension_data("http://ll-plugins.nongnu.org/lv2/ext/ui#ext_programs"));
+    m_pdesc = static_cast<LV2UI_Programs_GDesc const*>(m_desc->extension_data("http://lv2plug.in/ns/extensions/ui#ext_programs"));
     if (m_pdesc)
       DBG2("The plugin GUI supports the program feature");
     else
       DBG2("The plugin GUI does not support the program feature");
-    m_cdesc = static_cast<LV2UI_Command_GDesc const*>(m_desc->extension_data("http://ll-plugins.nongnu.org/lv2/ext/ui#ext_command"));
+    m_cdesc = static_cast<LV2UI_Command_GDesc const*>(m_desc->extension_data("http://lv2plug.in/ns/extensions/ui#ext_command"));
     if (m_cdesc)
       DBG2("The plugin GUI supports the command feature");
     else
@@ -95,9 +95,9 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
   // build the feature list
   LV2_Feature** features = new LV2_Feature*[3];
   LV2_Feature programs_feature = 
-    { "http://ll-plugins.nongnu.org/lv2/ext/ui#ext_programs", &m_phdesc };
+    { "http://lv2plug.in/ns/extensions/ui#ext_programs", &m_phdesc };
   LV2_Feature command_feature = 
-    { "http://ll-plugins.nongnu.org/lv2/ext/ui#ext_command", &m_chdesc };
+    { "http://lv2plug.in/ns/extensions/ui#ext_command", &m_chdesc };
   features[0] = &programs_feature;
   features[0] = &command_feature;
   features[1] = 0;

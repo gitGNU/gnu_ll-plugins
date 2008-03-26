@@ -4,7 +4,7 @@
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 @prefix llext: <http://ll-plugins.nongnu.org/lv2/ext/>.
 @prefix ev: <http://lv2plug.in/ns/ext/event#>.
-@prefix guiext: <http://ll-plugins.nongnu.org/lv2/ext/ui#>.
+@prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0>
   a lv2:Plugin;

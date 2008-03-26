@@ -37,7 +37,8 @@
 #include <namespaces.hpp>
 
 #include "lv2host.hpp"
-#include "lv2_event_helpers.h"
+#include <lv2_event_helpers.h>
+#include <lv2-ui.h>
 #include "debug.hpp"
 #include "midiutils.hpp"
 
@@ -775,7 +776,7 @@ bool LV2Host::load_plugin() {
     
     // is the save/restore extension used?
     qr = select(extension_predicate)
-      .where(uriref, extension_predicate, string("<")+LV2_SAVERESTORE_URI+">")
+      .where(uriref, extension_predicate, "<" LV2_SAVERESTORE_URI ">")
       .run(data);
     if (qr.size() > 0 && 
 	(qr[0][extension_predicate]->name == lv2("requiredFeature") ||
@@ -786,7 +787,7 @@ bool LV2Host::load_plugin() {
     
     // GUI plugin path
     Variable gui_uri, gui_path;
-    Namespace gg("<http://ll-plugins.nongnu.org/lv2/ext/ui#>");
+    Namespace gg("<" LV2_UI_URI "#>");
     qr = select(gui_uri, gui_path)
       .where(uriref, gg("ui"), gui_uri)
       .where(gui_uri, gg("binary"), gui_path)

@@ -1,6 +1,6 @@
 @prefix lv2:  <http://lv2plug.in/ns/lv2core#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-@prefix guiext: <http://ll-plugins.nongnu.org/lv2/ext/ui#>.
+@prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
 
 <http://nekosynth.co.uk/wiki/nekobee>
   rdfs:seeAlso <>;
