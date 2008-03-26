@@ -21,6 +21,11 @@
 ****************************************************************************/
 
 #include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+#include <fstream>
+#include <string>
 
 #include <lv2synth.hpp>
 
@@ -73,11 +78,11 @@ protected:
 };
 
 
-class Beep : public LV2::Synth<BeepVoice, Beep> {
+class Beep : public LV2::Synth<BeepVoice, Beep, LV2::SaveRestoreExt<true> > {
 public:
   
   Beep(double rate)
-    : LV2::Synth<BeepVoice, Beep>(b_n_ports, b_midi) {
+    : LV2::Synth<BeepVoice, Beep, LV2::SaveRestoreExt<true> >(b_n_ports, b_midi) {
     add_voices(new BeepVoice(rate),
 	       new BeepVoice(rate),
 	       new BeepVoice(rate),
@@ -85,7 +90,54 @@ public:
 	       new BeepVoice(rate),
 	       new BeepVoice(rate));
     add_audio_outputs(b_output);
+    
+    srand(time(NULL));
+    m_state = rand();
+    cerr<<"Generated random state: "<<m_state<<endl;
+    
   }
+  
+  
+  char* save(const char* directory, LV2SR_File*** files) {
+    string str(directory);
+    str += "/beep-XXXXXX";
+    char* str2 = strdup(str.c_str());
+    int fd = mkstemp(str2);
+    if (fd < 0) {
+      free(str2);
+      return strdup("Could not create file");
+    }
+    FILE* f = fdopen(fd, "w");
+    fprintf(f, "%d\n", m_state);
+    fclose(f);
+    cerr<<"Wrote state "<<m_state<<" to file"<<endl;
+    LV2SR_File* data = static_cast<LV2SR_File*>(malloc(sizeof(LV2SR_File)));
+    data->name = strdup("state");
+    data->path = str2;
+    data->must_copy = 1;
+    *files = static_cast<LV2SR_File**>(calloc(2, sizeof(LV2SR_File*)));
+    (*files)[0] = data;
+    (*files)[1] = 0;
+    return 0;
+  }
+  
+  char* restore(const LV2SR_File** files) {
+    cerr<<__PRETTY_FUNCTION__<<endl;
+    if (*files) {
+      if (!strcmp((*files)->name, "state")) {
+	ifstream ifs((*files)->path);
+	ifs>>m_state;
+	cerr<<"Read state "<<m_state<<" from file"<<endl;
+	return 0;
+      }
+      return strdup("Unknown file name");
+    }
+    return strdup("Empty file list");
+  }
+  
+protected:
+  
+  int m_state;
   
 };
 

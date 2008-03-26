@@ -37,8 +37,9 @@
 #include <sigc++/signal.h>
 
 #include "lv2.h"
-#include "lv2-command.h"
+#include <lv2-command.h>
 #include <lv2_uri_map.h>
+#include <lv2-saverestore.h>
 #include "ringbuffer.hpp"
 
 
@@ -152,6 +153,12 @@ public:
   /** Queue a MIDI event. */
   void queue_midi(uint32_t port, uint32_t size, const unsigned char* midi);
   
+  /** Save the current state of the plugin. */
+  bool save(const std::string& directory, LV2SR_File*** files);
+  
+  /** Restore the plugin to a previously saved state. */
+  bool restore(const LV2SR_File** files);
+  
   /** List all available plugins. */
   static void list_plugins();
   
@@ -225,6 +232,7 @@ protected:
   LV2_Handle m_handle;
   const LV2_Descriptor* m_desc;
   const LV2_CommandDescriptor* m_comm_desc;
+  const LV2SR_Descriptor* m_sr_desc;
   
   LV2_CommandHostDescriptor m_comm_host_desc;
   LV2_URI_Map_Feature m_urimap_host_desc;

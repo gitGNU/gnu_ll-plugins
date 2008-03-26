@@ -53,6 +53,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     m_handle(0),
     m_desc(0),
     m_comm_desc(0),
+    m_sr_desc(0),
     m_midimap(128, -1),
     m_ports_updated(false) {
   
@@ -360,6 +361,34 @@ void LV2Host::queue_midi(uint32_t port, uint32_t size,
 }
 
 
+bool LV2Host::save(const std::string& directory, LV2SR_File*** files) {
+  if (m_sr_desc && m_sr_desc->save) {
+    char* error = m_sr_desc->save(m_handle, directory.c_str(), files);
+    if (error) {
+      DBG0("Failed to save plugin state: "<<error);
+      free(error);
+      return false;
+    }
+    return true;
+  }
+  return false;
+}
+
+
+bool LV2Host::restore(const LV2SR_File** files) {
+  if (m_sr_desc && m_sr_desc->restore) {
+    char* error = m_sr_desc->restore(m_handle, files);
+    if (error) {
+      DBG0("Failed to restore plugin state: "<<error);
+      free(error);
+      return false;
+    }
+    return true;
+  }
+  return false;
+}
+
+
 const std::map<unsigned char, LV2Preset>& LV2Host::get_presets() const {
   return m_presets;
 }
@@ -526,6 +555,7 @@ bool LV2Host::match_partial_uri(const string& bundle) {
 bool LV2Host::load_plugin() {
   
   bool usesCommands = false;
+  bool uses_save_restore = false;
   
   DBG2(__PRETTY_FUNCTION__);
   
@@ -743,6 +773,17 @@ bool LV2Host::load_plugin() {
       DBG2("This plugin uses the command extension");
     }
     
+    // is the save/restore extension used?
+    qr = select(extension_predicate)
+      .where(uriref, extension_predicate, string("<")+LV2_SAVERESTORE_URI+">")
+      .run(data);
+    if (qr.size() > 0 && 
+	(qr[0][extension_predicate]->name == lv2("requiredFeature") ||
+	 qr[0][extension_predicate]->name == lv2("optionalFeature"))) {
+      uses_save_restore = true;
+      DBG2("This plugin uses the save/restore extension");
+    }
+    
     // GUI plugin path
     Variable gui_uri, gui_path;
     Namespace gg("<http://ll-plugins.nongnu.org/lv2/ext/ui#>");
@@ -872,13 +913,29 @@ bool LV2Host::load_plugin() {
     }
   }
   
+  // get the save/restore descriptor (if there is one)
+  if (uses_save_restore) {
+    if (m_desc->extension_data)
+      m_sr_desc = (LV2SR_Descriptor*)(m_desc->
+				      extension_data(LV2_SAVERESTORE_URI));
+    if (!m_sr_desc) {
+      DBG0(m_uri<<" does not use the save/restore extension like the RDF "
+	   <<"said it should");
+      return false;
+    }
+  }
+  
   // instantiate the plugin
   LV2_Feature command_feature = {
     "http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension",
     &m_comm_host_desc
   };
   LV2_Feature urimap_feature = { LV2_URI_MAP_URI, &m_urimap_host_desc };
-  const LV2_Feature* features[] = { &command_feature, &urimap_feature, 0 };
+  LV2_Feature saverestore_feature = { LV2_SAVERESTORE_URI, 0 };
+  const LV2_Feature* features[] = { &command_feature, 
+				    &urimap_feature,
+				    &saverestore_feature,
+				    0 };
   m_handle = m_desc->instantiate(m_desc, m_rate, m_bundle.c_str(), features);
   
   if (!m_handle) {

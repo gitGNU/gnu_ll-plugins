@@ -3,17 +3,20 @@
 @prefix doap: <http://usefulinc.com/ns/doap#>.
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 @prefix llext: <http://ll-plugins.nongnu.org/lv2/ext/>.
+@prefix ev: <http://lv2plug.in/ns/ext/event#>.
 
 
 <http://ll-plugins.nongnu.org/lv2/dev/beep/0>
   a lv2:Plugin;
   doap:name "Beep";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:optionalFeature <http://ll-plugins.nongnu.org/lv2/dev/saverestore/1>;
   ll:pegName "b";
   
   lv2:port [
-    a llext:MidiPort, lv2:InputPort;
+    a ev:EventPort, lv2:InputPort;
     lv2:index 0;
+    ev:supportsEvent <http://lv2plug.in/ns/ext/midi#MidiEvent>;
     lv2:symbol "midi";
     lv2:name "MIDI";
   ],

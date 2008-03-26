@@ -411,8 +411,21 @@ void check_lash_events(LV2Host& lv2h) {
       const std::vector<LV2Port>& ports = lv2h.get_ports();
       for (unsigned i = 0; i < ports.size(); ++i) {
 	if (ports[i].type == ControlType && ports[i].direction == InputPort)
-	  of<<"control "<<i<<ports[i].value<<endl;
+	  of<<"control "<<i<<" "<<ports[i].value<<endl;
       }
+      
+      LV2SR_File** files;
+      if (lv2h.save(lash_event_get_string(event), &files)) {
+	for ( ; *files; ++files) {
+	  of<<"file "<<(*files)->must_copy<<" "
+	    <<(*files)->name<<" "<<(*files)->path<<endl;
+	  free((*files)->name);
+	  free((*files)->path);
+	  free(*files);
+	}
+      }
+      
+      of.close();
       
       lash_send_event(lash_client, 
 		      lash_event_new_with_type(LASH_Save_File));
@@ -421,8 +434,13 @@ void check_lash_events(LV2Host& lv2h) {
     // restore
     else if (lash_event_get_type(event) == LASH_Restore_File) {
       
+      cerr<<"Got a LASH restore event"<<endl;
+      
       ifstream ifs((string(lash_event_get_string(event)) + 
 		    "/lv2host").c_str());
+      
+      vector<LV2SR_File*> file_vector;
+      
       while (ifs) {
 	string word;
 	ifs>>word;
@@ -433,8 +451,27 @@ void check_lash_events(LV2Host& lv2h) {
 	  ifs>>port>>value;
 	  lv2h.set_control(port, value);
 	}
+	
+	else if (word == "file") {
+	  uint32_t must_copy;
+	  string name;
+	  string path;
+	  ifs>>must_copy>>name>>path;
+	  LV2SR_File* file=static_cast<LV2SR_File*>(malloc(sizeof(LV2SR_File)));
+	  file->must_copy = must_copy;
+	  file->name = strdup(name.c_str());
+	  file->path = strdup(path.c_str());
+	  file_vector.push_back(file);
+	}
         
       }
+      
+      if (file_vector.size() > 0) {
+	lv2h.restore(const_cast<const LV2SR_File**>(&file_vector[0]));
+	for (size_t i = 0; i < file_vector.size(); ++i)
+	  free(file_vector[i]);
+      }
+      
       lash_send_event(lash_client,
 		      lash_event_new_with_type(LASH_Restore_File));
     }
