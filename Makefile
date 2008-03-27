@@ -4,7 +4,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.397
+PACKAGE_VERSION = 0.1.398
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
