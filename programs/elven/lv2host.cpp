@@ -115,12 +115,12 @@ void LV2Host::list_plugins() {
 
 void LV2Host::run_main() {
   if (!sem_trywait(&m_notification_sem)) {
-    DBG2("Semaphore posted");
+    DBG2("Got notification from realtime thread about port change");
     while (!sem_trywait(&m_notification_sem));
     for (unsigned i = 0; i < m_ports.size(); ++i) {
       if (m_ports[i].notify && m_ports[i].direction == OutputPort) {
-	signal_port_event(i, sizeof(float), 0, &m_ports[i].old_value);
 	DBG2("Sending port event for output port "<<i);
+	signal_port_event(i, sizeof(float), 0, &m_ports[i].old_value);
       }
     }
   }
@@ -203,8 +203,10 @@ void LV2Host::run(unsigned long nframes) {
   // send port notifications
   for (unsigned i = 0; i < m_ports.size(); ++i) {
     if (m_ports[i].notify && 
-	m_ports[i].old_value != *static_cast<float*>(m_ports[i].buffer))
+	m_ports[i].old_value != *static_cast<float*>(m_ports[i].buffer)) {
+      DBG3("Port "<<i<<" changed - notifying main thread");
       sem_post(&m_notification_sem);
+    }
     m_ports[i].old_value = *static_cast<float*>(m_ports[i].buffer);
   }
 }
