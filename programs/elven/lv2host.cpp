@@ -170,8 +170,10 @@ void LV2Host::run(unsigned long nframes) {
     if (m_ports_updated) {
       m_ports_updated = false;
       for (unsigned i = 0; i < m_ports.size(); ++i) {
-	if (m_ports[i].type == ControlType && m_ports[i].direction == InputPort)
+	if (m_ports[i].type == ControlType && m_ports[i].direction == InputPort) {
+	  DBG3("Setting control input "<<i<<" to "<<m_ports[i].value);
 	  memcpy(m_ports[i].buffer, &m_ports[i].value, sizeof(float));
+	}
       }
     }
     
@@ -783,6 +785,19 @@ bool LV2Host::load_plugin() {
 	 qr[0][extension_predicate]->name == lv2("optionalFeature"))) {
       uses_save_restore = true;
       DBG2("This plugin uses the save/restore extension");
+    }
+    
+    // are any unknown feature required?
+    Variable unknown_feature;
+    qr = select(unknown_feature)
+      .where(uriref, lv2("requiredFeature"), unknown_feature)
+      .filter(unknown_feature != ll("dont-use-this-extension"))
+      .filter(unknown_feature != "<" LV2_SAVERESTORE_URI ">")
+      .run(data);
+    if (qr.size() > 0) {
+      DBG0("The plugin requires the unsupported feature "
+	   <<qr[0][unknown_feature]->name);
+      return false;
     }
     
     // GUI plugin path

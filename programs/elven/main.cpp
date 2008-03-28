@@ -649,6 +649,7 @@ int main(int argc, char** argv) {
       else if (lv2port.type == ControlType) {
         lv2port.buffer = new float;
         *static_cast<float*>(lv2port.buffer) = lv2port.default_value;
+	lv2port.value = lv2port.default_value;
       }
       
       jack_ports.push_back(port);
