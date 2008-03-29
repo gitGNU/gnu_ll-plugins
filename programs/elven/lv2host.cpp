@@ -55,6 +55,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     m_desc(0),
     m_comm_desc(0),
     m_sr_desc(0),
+    m_msg_desc(0),
     m_midimap(128, -1),
     m_ports_updated(false) {
   
@@ -69,6 +70,9 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   
   m_urimap_host_desc.callback_data = 0;
   m_urimap_host_desc.uri_to_id = &LV2Host::uri_to_id;
+  
+  m_event_host_desc.lv2_event_ref = &LV2Host::event_ref;
+  m_event_host_desc.lv2_event_unref = &LV2Host::event_unref;
   
   // get the directories to look in
   vector<string> search_dirs = get_search_dirs();
@@ -340,6 +344,14 @@ const std::string& LV2Host::get_name() const {
 }
 
 
+void LV2Host::message_run() {
+  if (m_msg_desc)
+    m_msg_desc->blocking_run(m_handle, 0);
+  else
+    DBG2("Plugin has no message context.");
+}
+
+
 void LV2Host::queue_midi(uint32_t port, uint32_t size, 
                          const unsigned char* midi) {
   if (port < m_ports.size() && m_ports[port].type == MidiType && 
@@ -559,10 +571,13 @@ bool LV2Host::match_partial_uri(const string& bundle) {
 
 bool LV2Host::load_plugin() {
   
-  bool usesCommands = false;
-  bool uses_save_restore = false;
-  
   DBG2(__PRETTY_FUNCTION__);
+
+  map<string, bool> supported_features;
+  supported_features[LV2_COMMAND_URI] = false;
+  supported_features[LV2_SAVERESTORE_URI] = false;
+  supported_features[LV2_URI_MAP_URI] = false;
+  supported_features[LV2_CONTEXT_MESSAGE] = false;
   
   // parse the datafile to get port info
   {
@@ -766,40 +781,40 @@ bool LV2Host::load_plugin() {
       }
     }
     
-    // is the command extension used?
-    Variable extension_predicate;
-    qr = select(extension_predicate)
-      .where(uriref, extension_predicate, ll("dont-use-this-extension"))
+    // check for features
+    Variable feature;
+    qr = select(feature)
+      .where(uriref, lv2("optionalFeature"), feature)
       .run(data);
-    if (qr.size() > 0 && 
-	(qr[0][extension_predicate]->name == lv2("requiredFeature") ||
-	 qr[0][extension_predicate]->name == lv2("optionalFeature"))) {
-      usesCommands = true;
-      DBG2("This plugin uses the command extension");
+    for (size_t i = 0; i < qr.size(); ++i) {
+      map<string, bool>::iterator iter;
+      string uri = 
+	qr[i][feature]->name.substr(1, qr[i][feature]->name.length() - 2);
+      iter = supported_features.find(uri);
+      if (iter == supported_features.end()) {
+	DBG1("The optional feature "<<uri<<" is not supported by Elven.");
+      }
+      else {
+	DBG2("The plugin supports the feature "<<uri);
+	iter->second = true;
+      }
     }
-    
-    // is the save/restore extension used?
-    qr = select(extension_predicate)
-      .where(uriref, extension_predicate, "<" LV2_SAVERESTORE_URI ">")
+    qr = select(feature)
+      .where(uriref, lv2("requiredFeature"), feature)
       .run(data);
-    if (qr.size() > 0 && 
-	(qr[0][extension_predicate]->name == lv2("requiredFeature") ||
-	 qr[0][extension_predicate]->name == lv2("optionalFeature"))) {
-      uses_save_restore = true;
-      DBG2("This plugin uses the save/restore extension");
-    }
-    
-    // are any unknown feature required?
-    Variable unknown_feature;
-    qr = select(unknown_feature)
-      .where(uriref, lv2("requiredFeature"), unknown_feature)
-      .filter(unknown_feature != ll("dont-use-this-extension"))
-      .filter(unknown_feature != "<" LV2_SAVERESTORE_URI ">")
-      .run(data);
-    if (qr.size() > 0) {
-      DBG0("The plugin requires the unsupported feature "
-	   <<qr[0][unknown_feature]->name);
-      return false;
+    for (size_t i = 0; i < qr.size(); ++i) {
+      map<string, bool>::iterator iter;
+      string uri = 
+	qr[i][feature]->name.substr(1, qr[i][feature]->name.length() - 2);
+      iter = supported_features.find(uri);
+      if (iter == supported_features.end()) {
+	DBG0("The required feature "<<uri<<" is not supported by Elven.");
+	return false;
+      }
+      else {
+	DBG2("The plugin supports the feature "<<iter->first);
+	iter->second = true;
+      }
     }
     
     // GUI plugin path
@@ -922,25 +937,36 @@ bool LV2Host::load_plugin() {
   }
   
   // get the command descriptor (if it has one)
-  if (usesCommands) {
+  if (supported_features[LV2_COMMAND_URI]) {
     if (m_desc->extension_data)
       m_comm_desc = (LV2_CommandDescriptor*)(m_desc->extension_data("http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension"));
     if (!m_comm_desc) {
-      DBG0(m_uri<<" does not use the command extension like the RDF said it should");
+      DBG0("The plugin does not use the command extension like the RDF said it should");
       return false;
     }
   }
   
   // get the save/restore descriptor (if there is one)
-  if (uses_save_restore) {
+  if (supported_features[LV2_SAVERESTORE_URI]) {
     if (m_desc->extension_data)
       m_sr_desc = (LV2SR_Descriptor*)(m_desc->
 				      extension_data(LV2_SAVERESTORE_URI));
     if (!m_sr_desc) {
-      DBG0(m_uri<<" does not use the save/restore extension like the RDF "
+      DBG0("The plugin does not use the save/restore extension like the RDF "
 	   <<"said it should");
       return false;
     }
+  }
+  
+  // get the message context descriptor (if there is one)
+  if (supported_features[LV2_CONTEXT_MESSAGE]) {
+    DBG2("Checking for message context...");
+    if (m_desc->extension_data)
+      m_msg_desc = (LV2_Blocking_Context*)(m_desc->
+					   extension_data(LV2_CONTEXT_MESSAGE));
+    if (!m_msg_desc)
+      DBG0("The plugin does not use have a message context like the RDF "
+	   <<"said it should");
   }
   
   // instantiate the plugin
@@ -950,9 +976,11 @@ bool LV2Host::load_plugin() {
   };
   LV2_Feature urimap_feature = { LV2_URI_MAP_URI, &m_urimap_host_desc };
   LV2_Feature saverestore_feature = { LV2_SAVERESTORE_URI, 0 };
+  LV2_Feature event_feature = { LV2_EVENT_URI, &m_event_host_desc };
   const LV2_Feature* features[] = { &command_feature, 
 				    &urimap_feature,
 				    &saverestore_feature,
+				    &event_feature,
 				    0 };
   m_handle = m_desc->instantiate(m_desc, m_rate, m_bundle.c_str(), features);
   
@@ -1013,4 +1041,15 @@ uint32_t LV2Host::uri_to_id(LV2_URI_Map_Callback_Data callback_data,
       !strcmp(uri, "http://lv2plug.in/ns/ext/midi#MidiEvent"))
     return 1;
   return 0;
+}
+
+
+uint32_t LV2Host::event_ref(LV2_Event_Callback_Data, LV2_Event* ev, uint32_t) {
+  DBG2("Reference count for event "<<ev<<" increased");
+}
+
+
+uint32_t LV2Host::event_unref(LV2_Event_Callback_Data, 
+			      LV2_Event* ev, uint32_t) {
+  DBG2("Reference count for event "<<ev<<" decreased");
 }

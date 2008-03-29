@@ -36,10 +36,12 @@
 #include <sigc++/slot.h>
 #include <sigc++/signal.h>
 
-#include "lv2.h"
+#include <lv2.h>
 #include <lv2-command.h>
+#include <lv2_event.h>
 #include <lv2_uri_map.h>
 #include <lv2-saverestore.h>
+#include <lv2_contexts.h>
 #include "ringbuffer.hpp"
 
 
@@ -150,6 +152,9 @@ public:
   /** Save the current state as a program. */
   void save_program(unsigned char program, const char* name);
   
+  /** Run the blocking message context. */
+  void message_run();
+  
   /** Queue a MIDI event. */
   void queue_midi(uint32_t port, uint32_t size, const unsigned char* midi);
   
@@ -211,6 +216,10 @@ protected:
   static uint32_t uri_to_id(LV2_URI_Map_Callback_Data callback_data,
 			    const char* umap, const char* uri);
   
+  static uint32_t event_ref(LV2_Event_Callback_Data, LV2_Event*, uint32_t);
+
+  static uint32_t event_unref(LV2_Event_Callback_Data, LV2_Event*, uint32_t);
+  
   
   template <typename T> T get_symbol(const std::string& name) {
     union {
@@ -233,9 +242,11 @@ protected:
   const LV2_Descriptor* m_desc;
   const LV2_CommandDescriptor* m_comm_desc;
   const LV2SR_Descriptor* m_sr_desc;
+  const LV2_Blocking_Context* m_msg_desc;
   
   LV2_CommandHostDescriptor m_comm_host_desc;
   LV2_URI_Map_Feature m_urimap_host_desc;
+  LV2_Event_Feature m_event_host_desc;
   
   std::vector<LV2Port> m_ports;
   bool m_ports_updated;
