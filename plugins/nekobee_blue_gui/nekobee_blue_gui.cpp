@@ -83,7 +83,7 @@ public:
 protected:
   
   void request_control_change(uint32_t port, float value) {
-    write(port, sizeof(float), &value);
+    write_control(port, value);
   }
   
   NekobeeWidget m_nkb;

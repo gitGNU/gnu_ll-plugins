@@ -49,7 +49,7 @@ namespace {
 
 
 
-class KlaviaturGUI : public LV2::GUI<KlaviaturGUI> {
+class KlaviaturGUI : public LV2::GUI<KlaviaturGUI, LV2::UriMapExt<true>, LV2::WriteMidi> {
 public:
   
   KlaviaturGUI(const std::string& URI) 
@@ -111,27 +111,27 @@ protected:
 
   void handle_keypress(unsigned char key) {
     unsigned char data[3] = { 0x90, key + 36, int(m_vel.get_value()) };
-    write(k_midi_input, 3, data);
+    write_midi(k_midi_input, 3, data);
   }
   
   
   void handle_keyrelease(unsigned char key) {
     unsigned char data[3] = { 0x80, key + 36, 64 };
-    write(k_midi_input, 3, data);
+    write_midi(k_midi_input, 3, data);
   }
   
   
   void handle_cc_change() {
     unsigned char data[3] = { 0xB0, int(m_cc_sbn.get_value()),
                               int(m_cc.get_value()) };
-    write(k_midi_input, 3, data);
+    write_midi(k_midi_input, 3, data);
   }
   
   
   void handle_pitch_change() {
     int value = int(m_pitch.get_value()) + 8192;
     unsigned char data[3] = { 0xE0, int(value & 127), int(value >> 7) };
-    write(k_midi_input, 3, data);
+    write_midi(k_midi_input, 3, data);
   }
   
   

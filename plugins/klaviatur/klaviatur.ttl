@@ -10,7 +10,6 @@
   a lv2:Plugin;
   doap:name "Klaviatur";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
-  lv2:requiredFeature <http://lv2plug.in/ns/ext/context#MessageContext>;
   guiext:ui <http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0/gui>;
   ll:pegName "k";  
   

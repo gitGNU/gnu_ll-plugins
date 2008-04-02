@@ -4,7 +4,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.402
+PACKAGE_VERSION = 0.1.403
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
@@ -36,7 +36,7 @@ LV2_BUNDLES = \
 	beep.lv2 \
 	control2midi.lv2 \
 	gcf.lv2 \
-#	klaviatur.lv2 \
+	klaviatur.lv2 \
 	midi_identity.lv2 \
 	math-constants.lv2 \
 	math-functions.lv2 \

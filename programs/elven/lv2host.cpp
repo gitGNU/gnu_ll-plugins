@@ -229,12 +229,6 @@ void LV2Host::deactivate() {
 
 
 char* LV2Host::command(uint32_t argc, const char* const* argv) {
-
-  cerr<<__PRETTY_FUNCTION__<<endl;
-  cerr<<"POINTERS:"<<endl;
-  for (unsigned i = 0; i < argc; ++i)
-    cerr<<"  "<<(const void*)(argv[i])<<endl;
-
   DBG2("Calling command() with "<<argc<<" parameters:");
   for (unsigned i = 0; i < argc; ++i)
     DBG2("  '"<<argv[i]<<"'");
@@ -390,7 +384,6 @@ void LV2Host::queue_midi(uint32_t port, uint32_t size,
 
 
 void LV2Host::queue_events(uint32_t port, const LV2_Event_Buffer* buffer) {
-  cerr<<__PRETTY_FUNCTION__<<buffer<<endl;
   if (port < m_ports.size() && m_ports[port].type == MidiType &&
       m_ports[port].direction == InputPort) {
     if (m_ports[port].context == MessageContext) {
@@ -982,7 +975,6 @@ bool LV2Host::load_plugin() {
             for (unsigned k = 0; k < qr3.size(); ++k) {
               int p = atoi(qr3[k][port]->name.c_str());
               float v = atof(qr3[k][value]->name.c_str());
-              //cerr<<p<<": "<<v<<endl;
               m_presets[pnum].values[p] = v;
             }
           }
@@ -1116,7 +1108,6 @@ void LV2Host::feedback(uint32_t argc, const char* const* argv) {
 
 void LV2Host::feedback_wrapper(void* me, uint32_t argc, 
 			       const char* const* argv) {
-  std::cerr<<__PRETTY_FUNCTION__<<endl;
   static_cast<LV2Host*>(me)->feedback(argc, argv);
 }
 
