@@ -4,6 +4,8 @@
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 @prefix llext: <http://ll-plugins.nongnu.org/lv2/ext/>.
 @prefix ev: <http://lv2plug.in/ns/ext/event#>.
+@prefix cx: <http://ll-plugins.nongnu.org/lv2/dev/contexts/1#>.
+@prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
 
 
 <http://ll-plugins.nongnu.org/lv2/dev/beep/0>
@@ -11,6 +13,8 @@
   doap:name "Beep";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
   lv2:optionalFeature <http://ll-plugins.nongnu.org/lv2/dev/saverestore/1>;
+  lv2:requiredFeature <http://ll-plugins.nongnu.org/lv2/dev/contexts/1>;
+  guiext:ui <http://ll-plugins.nongnu.org/lv2/dev/beep/0/gui>;
   ll:pegName "b";
   
   lv2:port [
@@ -26,4 +30,20 @@
     lv2:index 1;
     lv2:symbol "output";
     lv2:name "Output";
+  ];
+  
+  cx:requiredContext [
+    a cx:MessageContext;
+    cx:port [
+      a ev:EventPort, lv2:InputPort;
+      ev:supportsEvent <http://lv2plug.in/ns/ext/midi#MidiEvent>;
+      lv2:index 2;
+      lv2:symbol "msg_input";
+      lv2:name "Message input";
+    ];
   ].
+
+
+<http://ll-plugins.nongnu.org/lv2/dev/beep/0/gui> 
+  a guiext:GtkUI;
+  guiext:binary <beep_gtk.so>.

@@ -25,6 +25,8 @@
 
 #include <dlfcn.h>
 
+#include <lv2_event.h>
+
 #include "debug.hpp"
 #include "lv2guihost.hpp"
 
@@ -49,6 +51,10 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
   
   // initialise the host descriptor for the command extension
   m_chdesc.command = &LV2GUIHost::_command;
+  
+  // initialise the host descriptor for the URI map extension
+  m_urimap_desc.callback_data = 0;
+  m_urimap_desc.uri_to_id = &LV2GUIHost::uri_to_id;
   
   // open the module
   DBG2("Loading "<<gui_path);
@@ -93,14 +99,17 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
     DBG2("The plugin GUI has no extension_data() callback");
   
   // build the feature list
-  LV2_Feature** features = new LV2_Feature*[3];
+  LV2_Feature** features = new LV2_Feature*[4];
   LV2_Feature programs_feature = 
     { "http://lv2plug.in/ns/extensions/ui#ext_programs", &m_phdesc };
   LV2_Feature command_feature = 
     { "http://lv2plug.in/ns/extensions/ui#ext_command", &m_chdesc };
+  LV2_Feature urimap_feature =
+    { LV2_URI_MAP_URI, &m_urimap_desc };
   features[0] = &programs_feature;
-  features[0] = &command_feature;
-  features[1] = 0;
+  features[1] = &command_feature;
+  features[2] = &urimap_feature;
+  features[3] = 0;
   
   // create a GUI instance
   LV2UI_Controller ctrl = static_cast<LV2UI_Controller>(this);
@@ -201,8 +210,17 @@ void LV2GUIHost::_write_port(LV2UI_Controller ctrl, uint32_t index,
   if (me->m_block_gui)
     DBG1("GUI requested write to input port while a GUI callback was running");
   else {
-    DBG2("GUI requested write to input port "<<index);
-    me->write_port(index, buffer_size, buffer);
+    if (format == 0) {
+      DBG2("GUI requested write to control input port "<<index);
+      me->write_control(index, *static_cast<const float*>(buffer));
+    }
+    else if (format == 1) {
+      DBG2("GUI requested write to event input port "<<index);
+      me->write_events(index, static_cast<const LV2_Event_Buffer*>(buffer));
+    }
+    else
+      DBG0("GUI requested write to input port "<<index<<
+	   " in unknown format "<<format);
   }
 }
   
@@ -248,3 +266,16 @@ void LV2GUIHost::_save_program(LV2UI_Controller ctrl, uint32_t number,
     me->save_program(number, name);
   }
 }
+
+
+uint32_t LV2GUIHost::uri_to_id(LV2_URI_Map_Callback_Data callback_data,
+			       const char* umap, const char* uri) {
+  if (umap && !strcmp(umap, "http://lv2plug.in/ns/extensions/ui") &&
+      !strcmp(uri, "http://lv2plug.in/ns/extensions/ui#eventBuffer"))
+    return 1;
+  else if (umap && !strcmp(umap, LV2_EVENT_URI) &&
+	   !strcmp(uri, "http://lv2plug.in/ns/ext/midi#MidiEvent"))
+    return 1;
+  return 0;
+}
+

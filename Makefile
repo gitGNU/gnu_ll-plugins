@@ -4,15 +4,15 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.401
+PACKAGE_VERSION = 0.1.402
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
 	gtkmm-2.4>=2.8.8 \
 	jack>=0.109.0 \
 	lash-1.0>=0.5.1 \
-	lv2-plugin>=0.1.691 \
-	lv2-gui>=0.1.689 \
+	lv2-plugin>=0.1.693 \
+	lv2-gui>=0.1.693 \
 	paq>=0.1.682 \
 	sndfile>=1.0.16
 
@@ -36,7 +36,7 @@ LV2_BUNDLES = \
 	beep.lv2 \
 	control2midi.lv2 \
 	gcf.lv2 \
-	klaviatur.lv2 \
+#	klaviatur.lv2 \
 	midi_identity.lv2 \
 	math-constants.lv2 \
 	math-functions.lv2 \
@@ -119,12 +119,15 @@ ADVANCEDARCHIVES = $(PLUGINARCHIVES)
 ADVANCEDCFLAGS = $(PLUGINCFLAGS)
 
 # Beep
-beep_lv2_MODULES = beep.so
+beep_lv2_MODULES = beep.so beep_gtk.so
 beep_lv2_DATA = manifest.ttl beep.ttl
 beep_lv2_SOURCEDIR = plugins/beep
 beep_so_SOURCES = beep.cpp
 beep_so_CFLAGS = $(PLUGINCFLAGS)
 beep_so_LDFLAGS = $(PLUGINARCHIVES)
+beep_gtk_so_SOURCES = beep_gtk.cpp
+beep_gtk_so_CFLAGS = `pkg-config --cflags lv2-gui`
+beep_gtk_so_LDFLAGS = `pkg-config --libs lv2-gui`
 
 # Control2MIDI
 control2midi_lv2_MODULES = control2midi.so

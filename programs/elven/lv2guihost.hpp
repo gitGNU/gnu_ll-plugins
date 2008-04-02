@@ -29,10 +29,12 @@
 #include <gtkmm.h>
 #include <sigc++/sigc++.h>
 
-#include "lv2.h"
-#include "lv2-ui.h"
-#include "lv2-gui-programs.h"
-#include "lv2-ui-command.h"
+#include <lv2.h>
+#include <lv2-ui.h>
+#include <lv2-gui-programs.h>
+#include <lv2-ui-command.h>
+#include <lv2_uri_map.h>
+#include <lv2_event.h>
 
 
 class LV2GUIHost {
@@ -60,7 +62,9 @@ public:
   
   void current_program_changed(uint32_t number);
   
-  sigc::signal<void, uint32_t, uint32_t, const void*> write_port;
+  sigc::signal<void, uint32_t, float> write_control;
+
+  sigc::signal<void, uint32_t, const LV2_Event_Buffer*> write_events;
   
   sigc::signal<void, uint32_t, char const* const*> command;
 
@@ -81,6 +85,9 @@ protected:
 
   static void _save_program(LV2UI_Controller ctrl, uint32_t number,
 			    const char* name);
+
+  static uint32_t uri_to_id(LV2_URI_Map_Callback_Data callback_data,
+			    const char* umap, const char* uri);
   
   
   /** This is needed to cast void* (returned by dlsym()) to a function
@@ -106,6 +113,7 @@ protected:
   
   LV2UI_Programs_HDesc m_phdesc;
   LV2UI_Command_HDesc m_chdesc;
+  LV2_URI_Map_Feature m_urimap_desc;
 };
 
 

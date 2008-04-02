@@ -33,25 +33,26 @@
 
 
 using namespace std;
+using namespace LV2;
 
 
-struct BeepVoice : LV2::Voice {
+struct BeepVoice : Voice {
   
   BeepVoice(double rate)
     : m_rate(rate),
       m_phase(0),
       m_freq(0), 
-      m_key(LV2::INVALID_KEY) {
+      m_key(INVALID_KEY) {
   
   }
   
   void on(unsigned char key, unsigned char velocity) {
     m_key = key;
-    m_freq = LV2::key2hz(key);
+    m_freq = key2hz(key);
   }
   
   void off(unsigned char velocity) {
-    m_key = LV2::INVALID_KEY;
+    m_key = INVALID_KEY;
   }
   
   unsigned char get_key() const {
@@ -59,7 +60,7 @@ struct BeepVoice : LV2::Voice {
   }
   
   void render(uint32_t from, uint32_t to) {
-    if (m_key != LV2::INVALID_KEY) {
+    if (m_key != INVALID_KEY) {
       for (uint32_t i = from; i < to; ++i) {
 	m_phase = m_phase > 0.3 ? -0.3 : m_phase;
 	p(b_output)[i] += m_phase;
@@ -78,11 +79,11 @@ protected:
 };
 
 
-class Beep : public LV2::Synth<BeepVoice, Beep, LV2::SaveRestoreExt<true> > {
+class Beep : public Synth<BeepVoice, Beep, SaveRestoreExt<true>, MessageExt<true> > {
 public:
   
   Beep(double rate)
-    : LV2::Synth<BeepVoice, Beep, LV2::SaveRestoreExt<true> >(b_n_ports, b_midi) {
+    : Synth<BeepVoice, Beep, SaveRestoreExt<true>, MessageExt<true> >(b_n_ports, b_midi) {
     add_voices(new BeepVoice(rate),
 	       new BeepVoice(rate),
 	       new BeepVoice(rate),
@@ -134,6 +135,26 @@ public:
     }
     return strdup("Empty file list");
   }
+  
+  bool blocking_run(uint8_t* outputs_written) { 
+    LV2_Event_Iterator iter;
+    lv2_event_begin(&iter, p<LV2_Event_Buffer>(b_msg_input));
+    cerr<<"Message context woken up with these events:"<<hex<<endl;
+    cerr<<" buffer pointer: "<<(p<LV2_Event_Buffer>(b_msg_input))<<endl;
+    while (lv2_event_is_valid(&iter)) {
+      uint8_t* data;
+      LV2_Event* ev = lv2_event_get(&iter, &data);
+      //if (ev->type == 1) {
+	for (uint32_t i = 0; i < ev->size; ++i)
+	  cerr<<" 0x"<<int(data[i]);
+	cerr<<endl;
+	//}
+      lv2_event_increment(&iter);
+    }
+    cerr<<dec;
+    return false;
+  }
+
   
 protected:
   

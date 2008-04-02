@@ -56,6 +56,7 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     m_comm_desc(0),
     m_sr_desc(0),
     m_msg_desc(0),
+    m_ports_used(0),
     m_midimap(128, -1),
     m_ports_updated(false) {
   
@@ -73,6 +74,9 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   
   m_event_host_desc.lv2_event_ref = &LV2Host::event_ref;
   m_event_host_desc.lv2_event_unref = &LV2Host::event_unref;
+  
+  m_context_host_desc.host_handle = this;
+  m_context_host_desc.request_run = &LV2Host::request_run;
   
   // get the directories to look in
   vector<string> search_dirs = get_search_dirs();
@@ -270,10 +274,17 @@ void LV2Host::write_port(uint32_t index, uint32_t buffer_size,
 void LV2Host::set_control(uint32_t index, float value) {
   if (index < m_ports.size() && m_ports[index].type == ControlType &&
       m_ports[index].direction == InputPort) {
-    pthread_mutex_lock(&m_mutex);
-    m_ports[index].value = value;
-    m_ports_updated = true;
-    pthread_mutex_unlock(&m_mutex);
+    if (m_ports[index].context == AudioContext) {
+      pthread_mutex_lock(&m_mutex);
+      m_ports[index].value = value;
+      m_ports_updated = true;
+      pthread_mutex_unlock(&m_mutex);
+    }
+    else if (m_ports[index].context == MessageContext) {
+      m_ports[index].value = value;
+      *static_cast<float*>(m_ports[index].buffer) = value;
+      message_run();
+    }
     signal_port_event(index, sizeof(float), 0, &value);
   }
 }
@@ -375,6 +386,21 @@ void LV2Host::queue_midi(uint32_t port, uint32_t size,
   }
   else
     DBG0("Trying to write MIDI to invalid port "<<port);
+}
+
+
+void LV2Host::queue_events(uint32_t port, const LV2_Event_Buffer* buffer) {
+  cerr<<__PRETTY_FUNCTION__<<buffer<<endl;
+  if (port < m_ports.size() && m_ports[port].type == MidiType &&
+      m_ports[port].direction == InputPort) {
+    if (m_ports[port].context == MessageContext) {
+      m_desc->connect_port(m_handle, port, 
+			   const_cast<LV2_Event_Buffer*>(buffer));
+      DBG2("Passing entire event buffer to message port");
+      message_run();
+      m_desc->connect_port(m_handle, port, m_ports[port].buffer);
+    }
+  }
 }
 
 
@@ -569,6 +595,148 @@ bool LV2Host::match_partial_uri(const string& bundle) {
 }
 
 
+bool LV2Host::parse_ports(RDFData& data, const std::string& parent, 
+			  const std::string& predicate, PortContext context) {
+  
+  Namespace lv2("<http://lv2plug.in/ns/lv2core#>");
+  Namespace ll("<http://ll-plugins.nongnu.org/lv2/namespace#>");
+  Namespace llext("<http://ll-plugins.nongnu.org/lv2/ext/>");
+  Namespace ev("<http://lv2plug.in/ns/ext/event#>");
+
+  Variable symbol, index, portclass, porttype, port;
+  vector<QueryResult> qr = select(index, symbol, portclass, porttype)
+    .where(parent, predicate, port)
+    .where(port, lv2("index"), index)
+    .where(port, lv2("symbol"), symbol)
+    .run(data);
+  
+  if (qr.size() == 0) {
+    DBG1("Can not find any ports for "<<parent);
+    return false;
+  }
+  
+  for (unsigned j = 0; j < qr.size(); ++j) {
+    
+    // index
+    size_t p = atoi(qr[j][index]->name.c_str());
+    if (p >= m_ports.size())
+      m_ports.resize(p + 1);
+
+    ++m_ports_used;
+    m_ports[p].context = context;
+    
+    // symbol
+    m_ports[p].symbol = qr[j][symbol]->name;
+    DBG2("Found port "<<m_ports[p].symbol<<" with index "<<p);
+    
+    // direction and type
+    m_ports[p].direction = NoDirection;
+    m_ports[p].type = NoType;
+    vector<QueryResult> qr2 = select(portclass)
+      .where(parent, predicate, port)
+      .where(port, lv2("index"), qr[j][index]->name)
+      .where(port, rdf("type"), portclass)
+      .run(data);
+    
+    for (unsigned k = 0; k < qr2.size(); ++k) {
+      string pclass = qr2[k][portclass]->name;
+      DBG2(m_ports[p].symbol<<" is an "<<pclass);
+      if (pclass == lv2("InputPort"))
+	m_ports[p].direction = InputPort;
+      else if (pclass == lv2("OutputPort"))
+	m_ports[p].direction = OutputPort;
+      else if (pclass == lv2("AudioPort"))
+	m_ports[p].type = AudioType;
+      else if (pclass == ev("EventPort"))
+	m_ports[p].type = MidiType;
+      else if (pclass == lv2("ControlPort"))
+	m_ports[p].type = ControlType;
+      else
+	DBG1("Unknown port class: "<<pclass);
+    }
+    
+    if (m_ports[p].direction == NoDirection) {
+      DBG0("No direction given for port "<<m_ports[p].symbol);
+      return false;
+    }
+    
+    if (m_ports[p].type == NoType) {
+      DBG0("No known data type given for port "<<m_ports[p].symbol);
+      return false;
+    }
+    
+    m_ports[p].default_value = 0;
+    m_ports[p].min_value = 0;
+    m_ports[p].max_value = 1;
+    //m_ports[p].notify = (m_ports[p].direction == InputPort &&
+    //			   m_ports[p].type == ControlType);
+    m_ports[p].notify = (m_ports[p].type == ControlType);
+    
+  }
+  
+  // default values
+  Variable default_value;
+  qr = select(index, default_value)
+    .where(parent, predicate, port)
+    .where(port, lv2("index"), index)
+    .where(port, lv2("default"), default_value)
+    .run(data);
+  for (unsigned j = 0; j < qr.size(); ++j) {
+    unsigned p = atoi(qr[j][index]->name.c_str());
+    if (p >= m_ports.size())
+      return false;
+    m_ports[p].default_value = 
+      atof(qr[j][default_value]->name.c_str());
+  }
+  
+  // minimum values
+  Variable min_value;
+  qr = select(index, min_value)
+    .where(parent, predicate, port)
+    .where(port, lv2("index"), index)
+    .where(port, lv2("minimum"), min_value)
+    .run(data);
+  for (unsigned j = 0; j < qr.size(); ++j) {
+    unsigned p = atoi(qr[j][index]->name.c_str());
+    if (p >= m_ports.size())
+      return false;
+    m_ports[p].min_value = 
+      atof(qr[j][min_value]->name.c_str());
+  }
+    
+  // maximum values
+  Variable max_value;
+  qr = select(index, max_value)
+    .where(parent, predicate, port)
+    .where(port, lv2("index"), index)
+    .where(port, lv2("maximum"), max_value)
+    .run(data);
+  for (unsigned j = 0; j < qr.size(); ++j) {
+    unsigned p = atoi(qr[j][index]->name.c_str());
+    if (p >= m_ports.size())
+      return false;
+    m_ports[p].max_value = 
+      atof(qr[j][max_value]->name.c_str());
+    DBG2(m_ports[p].symbol<<" has the range ["<<m_ports[p].min_value
+	 <<", "<<m_ports[p].max_value<<"]");
+  }
+  
+  // check range sanity
+  for (unsigned long i = 0; i < m_ports.size(); ++i) {
+    if (m_ports[i].direction == OutputPort)
+      continue;
+    if (m_ports[i].min_value > m_ports[i].default_value)
+      m_ports[i].min_value = m_ports[i].default_value;
+    if (m_ports[i].max_value < m_ports[i].default_value)
+      m_ports[i].max_value = m_ports[i].default_value;
+    if (m_ports[i].max_value - m_ports[i].min_value <= 0)
+      m_ports[i].max_value = m_ports[i].min_value + 10;
+  }
+  
+  return true;
+}
+
+
 bool LV2Host::load_plugin() {
   
   DBG2(__PRETTY_FUNCTION__);
@@ -577,7 +745,9 @@ bool LV2Host::load_plugin() {
   supported_features[LV2_COMMAND_URI] = false;
   supported_features[LV2_SAVERESTORE_URI] = false;
   supported_features[LV2_URI_MAP_URI] = false;
-  supported_features[LV2_CONTEXT_MESSAGE] = false;
+  supported_features[LV2_CONTEXT_URI] = false;
+
+  bool uses_message_context = false;
   
   // parse the datafile to get port info
   {
@@ -617,140 +787,11 @@ bool LV2Host::load_plugin() {
       return false;
     }
     
-    Variable symbol, index, portclass, porttype, port;
-    qr = select(index, symbol, portclass, porttype)
-      .where(uriref, lv2("port"), port)
-      .where(port, lv2("index"), index)
-      .where(port, lv2("symbol"), symbol)
-      .run(data);
-
-    if (qr.size() == 0) {
-      DBG1("Can not find any ports for <"<<m_uri<<">");
+    if (!parse_ports(data, uriref, lv2("port"), AudioContext))
       return false;
-    }
-    
-    m_ports.resize(qr.size());
-    
-    for (unsigned j = 0; j < qr.size(); ++j) {
-      
-      // index
-      size_t p = atoi(qr[j][index]->name.c_str());
-      if (p >= m_ports.size()) {
-        DBG0("Found port with index "<<p<<", but there are only "
-             <<m_ports.size()<<" ports in total");
-        return false;
-      }
-      
-      // symbol
-      m_ports[p].symbol = qr[j][symbol]->name;
-      DBG2("Found port "<<m_ports[p].symbol);
-      
-      // direction and type
-      m_ports[p].direction = NoDirection;
-      m_ports[p].type = NoType;
-      vector<QueryResult> qr2 = select(portclass)
-	.where(uriref, lv2("port"), port)
-	.where(port, lv2("index"), qr[j][index]->name)
-	.where(port, rdf("type"), portclass)
-	.run(data);
-      
-      for (unsigned k = 0; k < qr2.size(); ++k) {
-	string pclass = qr2[k][portclass]->name;
-	DBG2(m_ports[p].symbol<<" is an "<<pclass);
-	if (pclass == lv2("InputPort"))
-	  m_ports[p].direction = InputPort;
-	else if (pclass == lv2("OutputPort"))
-	  m_ports[p].direction = OutputPort;
-	else if (pclass == lv2("AudioPort"))
-	  m_ports[p].type = AudioType;
-	else if (pclass == ev("EventPort"))
-	  m_ports[p].type = MidiType;
-	else if (pclass == lv2("ControlPort"))
-	  m_ports[p].type = ControlType;
-	else
-	  DBG1("Unknown port class: "<<pclass);
-      }
-      
-      if (m_ports[p].direction == NoDirection) {
-	DBG0("No direction given for port "<<m_ports[p].symbol);
-	return false;
-      }
-	
-      if (m_ports[p].type == NoType) {
-	DBG0("No known data type given for port "<<m_ports[p].symbol);
-	return false;
-      }
-	
-      m_ports[p].default_value = 0;
-      m_ports[p].min_value = 0;
-      m_ports[p].max_value = 1;
-      //m_ports[p].notify = (m_ports[p].direction == InputPort &&
-      //			   m_ports[p].type == ControlType);
-      m_ports[p].notify = (m_ports[p].type == ControlType);
-
-    }
-    
-    // default values
-    Variable default_value;
-    qr = select(index, default_value)
-      .where(uriref, lv2("port"), port)
-      .where(port, lv2("index"), index)
-      .where(port, lv2("default"), default_value)
-      .run(data);
-    for (unsigned j = 0; j < qr.size(); ++j) {
-      unsigned p = atoi(qr[j][index]->name.c_str());
-      if (p >= m_ports.size())
-        return false;
-      m_ports[p].default_value = 
-        atof(qr[j][default_value]->name.c_str());
-    }
-    
-    // minimum values
-    Variable min_value;
-    qr = select(index, min_value)
-      .where(uriref, lv2("port"), port)
-      .where(port, lv2("index"), index)
-      .where(port, lv2("minimum"), min_value)
-      .run(data);
-    for (unsigned j = 0; j < qr.size(); ++j) {
-      unsigned p = atoi(qr[j][index]->name.c_str());
-      if (p >= m_ports.size())
-        return false;
-      m_ports[p].min_value = 
-        atof(qr[j][min_value]->name.c_str());
-    }
-    
-    // maximum values
-    Variable max_value;
-    qr = select(index, max_value)
-      .where(uriref, lv2("port"), port)
-      .where(port, lv2("index"), index)
-      .where(port, lv2("maximum"), max_value)
-      .run(data);
-    for (unsigned j = 0; j < qr.size(); ++j) {
-      unsigned p = atoi(qr[j][index]->name.c_str());
-      if (p >= m_ports.size())
-        return false;
-      m_ports[p].max_value = 
-        atof(qr[j][max_value]->name.c_str());
-      DBG2(m_ports[p].symbol<<" has the range ["<<m_ports[p].min_value
-           <<", "<<m_ports[p].max_value<<"]");
-    }
-    
-    // check range sanity
-    for (unsigned long i = 0; i < m_ports.size(); ++i) {
-      if (m_ports[i].direction == OutputPort)
-        continue;
-      if (m_ports[i].min_value > m_ports[i].default_value)
-        m_ports[i].min_value = m_ports[i].default_value;
-      if (m_ports[i].max_value < m_ports[i].default_value)
-        m_ports[i].max_value = m_ports[i].default_value;
-      if (m_ports[i].max_value - m_ports[i].min_value <= 0)
-        m_ports[i].max_value = m_ports[i].min_value + 10;
-    }
     
     // MIDI controller bindings
-    Variable controller, cc_number;
+    Variable port, index, controller, cc_number;
     qr = select(index, cc_number)
       .where(uriref, lv2("port"), port)
       .where(port, lv2("index"), index)
@@ -816,6 +857,46 @@ bool LV2Host::load_plugin() {
 	iter->second = true;
       }
     }
+    
+    // if the context extension is supported, check for contexts
+    if (supported_features[LV2_CONTEXT_URI]) {
+      Variable cx_pred, context, cx_class;
+      Namespace cx("<" LV2_CONTEXT_URI "#>");
+      qr = select(cx_pred, context, cx_class)
+	.where(uriref, cx_pred, context)
+	.where(context, rdf("type"), cx_class)
+	.filter(or_filter(cx_pred == cx("optionalContext"),
+			  cx_pred == cx("requiredContext")))
+	.run(data);
+      
+      if (qr.size() == 0) {
+	DBG0("The plugin requires the context feature but has no additional "
+	     "contexts defined");
+	return false;
+      }
+      
+      for (size_t i = 0; i < qr.size(); ++i) {
+	if (qr[i][cx_class]->name != "<" LV2_CONTEXT_MESSAGE ">") {
+	  if (qr[i][cx_pred]->name == cx("requiredContext")) {
+	    DBG0("The required context "<<qr[i][cx_class]->name
+		 <<" is not supported by Elven");
+	    return false;
+	  }
+	  else
+	    DBG1("The optional context "<<qr[i][cx_class]->name
+		 <<" is not supported by Elven");
+	}
+	else {
+	  DBG2("The plugin supports the message context");
+	  uses_message_context = true;
+	  if (!parse_ports(data, qr[i][context]->name, 
+			   cx("port"), MessageContext))
+	    return false;
+	}
+      }
+      
+    }
+    
     
     // GUI plugin path
     Variable gui_uri, gui_path;
@@ -959,14 +1040,15 @@ bool LV2Host::load_plugin() {
   }
   
   // get the message context descriptor (if there is one)
-  if (supported_features[LV2_CONTEXT_MESSAGE]) {
-    DBG2("Checking for message context...");
+  if (uses_message_context) {
     if (m_desc->extension_data)
       m_msg_desc = (LV2_Blocking_Context*)(m_desc->
 					   extension_data(LV2_CONTEXT_MESSAGE));
-    if (!m_msg_desc)
+    if (!m_msg_desc) {
       DBG0("The plugin does not use have a message context like the RDF "
 	   <<"said it should");
+      return false;
+    }
   }
   
   // instantiate the plugin
@@ -977,10 +1059,14 @@ bool LV2Host::load_plugin() {
   LV2_Feature urimap_feature = { LV2_URI_MAP_URI, &m_urimap_host_desc };
   LV2_Feature saverestore_feature = { LV2_SAVERESTORE_URI, 0 };
   LV2_Feature event_feature = { LV2_EVENT_URI, &m_event_host_desc };
+  LV2_Feature context_feature = { LV2_CONTEXT_URI, &m_context_host_desc };
+  LV2_Feature message_feature = { LV2_CONTEXT_MESSAGE, 0 };
   const LV2_Feature* features[] = { &command_feature, 
 				    &urimap_feature,
 				    &saverestore_feature,
 				    &event_feature,
+				    &context_feature,
+				    &message_feature,
 				    0 };
   m_handle = m_desc->instantiate(m_desc, m_rate, m_bundle.c_str(), features);
   
@@ -1052,4 +1138,13 @@ uint32_t LV2Host::event_ref(LV2_Event_Callback_Data, LV2_Event* ev, uint32_t) {
 uint32_t LV2Host::event_unref(LV2_Event_Callback_Data, 
 			      LV2_Event* ev, uint32_t) {
   DBG2("Reference count for event "<<ev<<" decreased");
+}
+
+
+void LV2Host::request_run(void* host_handle, const char* context_uri) {
+  LV2Host* me = static_cast<LV2Host*>(host_handle);
+  if (string(context_uri) == LV2_CONTEXT_MESSAGE)
+    DBG0("Message context is not yet fully supported");
+  else
+    DBG1("Asked to run unknown context "<<context_uri);
 }

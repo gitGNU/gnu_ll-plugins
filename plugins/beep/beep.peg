@@ -21,10 +21,12 @@ static const char b_uri[] = "http://ll-plugins.nongnu.org/lv2/dev/beep/0";
 enum b_port_enum {
   b_midi,
   b_output,
+  b_msg_input,
   b_n_ports
 };
 
 static const peg_data_t b_ports[] = {
+  { -3.40282e+38, 3.40282e+38, -3.40282e+38, 0, 0, 0 }, 
   { -3.40282e+38, 3.40282e+38, -3.40282e+38, 0, 0, 0 }, 
   { -3.40282e+38, 3.40282e+38, -3.40282e+38, 0, 0, 0 }, 
 };

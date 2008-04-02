@@ -42,6 +42,7 @@
 #include <lv2_uri_map.h>
 #include <lv2-saverestore.h>
 #include <lv2_contexts.h>
+#include <query.hpp>
 #include "ringbuffer.hpp"
 
 
@@ -60,12 +61,20 @@ enum PortType {
 };
 
 
+enum PortContext {
+  AudioContext,
+  MessageContext,
+  NoContext
+};
+
+
 /** A struct that holds information about a port in a LV2 plugin. */
 struct LV2Port {
   void* buffer;
   std::string symbol;
   PortDirection direction;
   PortType type;
+  PortContext context;
   float default_value;
   float min_value;
   float max_value;
@@ -158,6 +167,9 @@ public:
   /** Queue a MIDI event. */
   void queue_midi(uint32_t port, uint32_t size, const unsigned char* midi);
   
+  /** Queue an entire event buffer. */
+  void queue_events(uint32_t port, const LV2_Event_Buffer* buffer);
+  
   /** Save the current state of the plugin. */
   bool save(const std::string& directory, LV2SR_File*** files);
   
@@ -204,6 +216,9 @@ protected:
 
   bool match_partial_uri(const std::string& bundle);
   
+  bool parse_ports(PAQ::RDFData& data, const std::string& parent, 
+		   const std::string& predicate, PortContext context);
+  
   static bool print_uri(const std::string& bundle);
   
   bool load_plugin();
@@ -219,6 +234,8 @@ protected:
   static uint32_t event_ref(LV2_Event_Callback_Data, LV2_Event*, uint32_t);
 
   static uint32_t event_unref(LV2_Event_Callback_Data, LV2_Event*, uint32_t);
+  
+  static void request_run(void* host_handle, const char* context_uri);
   
   
   template <typename T> T get_symbol(const std::string& name) {
@@ -247,8 +264,10 @@ protected:
   LV2_CommandHostDescriptor m_comm_host_desc;
   LV2_URI_Map_Feature m_urimap_host_desc;
   LV2_Event_Feature m_event_host_desc;
+  LV2_Context_Feature m_context_host_desc;
   
   std::vector<LV2Port> m_ports;
+  size_t m_ports_used;
   bool m_ports_updated;
   std::vector<int> m_midimap;
   long m_default_midi_port;
