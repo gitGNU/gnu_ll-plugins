@@ -31,11 +31,11 @@ using namespace LV2;
 using namespace std;
 
 
-class Klaviatur : public Plugin<Klaviatur, UriMapExt<true>, MessageExt<false> > {
+class Klaviatur : public Plugin<Klaviatur, UriMapExt<true> > {
 public:
   
   Klaviatur(double rate) 
-    : Plugin<Klaviatur, UriMapExt<true>, MessageExt<false> >(k_n_ports),
+    : Plugin<Klaviatur, UriMapExt<true> >(k_n_ports),
       m_midi_type(uri_to_id(LV2_EVENT_URI,
 			    "http://lv2plug.in/ns/ext/midi#MidiEvent")) {
     
@@ -60,11 +60,6 @@ public:
 	lv2_event_write_event(&out, ev, data);
     }
     
-  }
-  
-  
-  bool blocking_run(uint8_t*) {
-    cerr<<__PRETTY_FUNCTION__<<endl;
   }
   
 protected:
