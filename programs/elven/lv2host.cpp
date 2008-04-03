@@ -1121,13 +1121,12 @@ uint32_t LV2Host::uri_to_id(LV2_URI_Map_Callback_Data callback_data,
 }
 
 
-uint32_t LV2Host::event_ref(LV2_Event_Callback_Data, LV2_Event* ev, uint32_t) {
+uint32_t LV2Host::event_ref(LV2_Event_Callback_Data, LV2_Event* ev) {
   DBG2("Reference count for event "<<ev<<" increased");
 }
 
 
-uint32_t LV2Host::event_unref(LV2_Event_Callback_Data, 
-			      LV2_Event* ev, uint32_t) {
+uint32_t LV2Host::event_unref(LV2_Event_Callback_Data, LV2_Event* ev) {
   DBG2("Reference count for event "<<ev<<" decreased");
 }
 

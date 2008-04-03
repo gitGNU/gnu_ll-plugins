@@ -233,9 +233,9 @@ protected:
   static uint32_t uri_to_id(LV2_URI_Map_Callback_Data callback_data,
 			    const char* umap, const char* uri);
   
-  static uint32_t event_ref(LV2_Event_Callback_Data, LV2_Event*, uint32_t);
+  static uint32_t event_ref(LV2_Event_Callback_Data, LV2_Event*);
 
-  static uint32_t event_unref(LV2_Event_Callback_Data, LV2_Event*, uint32_t);
+  static uint32_t event_unref(LV2_Event_Callback_Data, LV2_Event*);
   
   static void request_run(void* host_handle, const char* context_uri);
   
