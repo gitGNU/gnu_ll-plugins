@@ -37,6 +37,7 @@
     cx:port [
       a ev:EventPort, lv2:InputPort;
       ev:supportsEvent <http://lv2plug.in/ns/ext/midi#MidiEvent>;
+      ev:supportsEvent <http://lv2plug.in/ns/ext/osc#OscEvent>;
       lv2:index 2;
       lv2:symbol "msg_input";
       lv2:name "Message input";

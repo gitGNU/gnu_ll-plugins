@@ -722,9 +722,6 @@ int main(int argc, char** argv) {
     
     autoconnect(jack_client);
     
-    Glib::signal_timeout().
-      connect(bind_return(mem_fun(lv2h, &LV2Host::message_run), true), 10000);
-    
     // wait until we are killed
     slot<void> lash_slot = bind(&check_lash_events, ref(lv2h));
     Glib::signal_timeout().connect(bind_return(lash_slot, true), 100);

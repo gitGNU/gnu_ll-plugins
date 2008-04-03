@@ -149,9 +149,6 @@ public:
   /** Send a command to the plugin. */
   char* command(uint32_t argc, const char* const* argv);
   
-  /** Write to a plugin port. */
-  void write_port(uint32_t index, uint32_t buffer_size, const void* buffer);
-  
   /** Set a control port value. */
   void set_control(uint32_t index, float value);
   
@@ -164,8 +161,9 @@ public:
   /** Run the blocking message context. */
   void message_run();
   
-  /** Queue a MIDI event. */
-  void queue_midi(uint32_t port, uint32_t size, const unsigned char* midi);
+  /** Queue an event. */
+  void queue_event(uint32_t port, uint16_t type, 
+		   uint32_t size, const uint8_t* midi);
   
   /** Queue an entire event buffer. */
   void queue_events(uint32_t port, const LV2_Event_Buffer* buffer);
@@ -197,15 +195,19 @@ protected:
   
   typedef sigc::slot<bool, const std::string&> scan_callback_t;
   
-  struct MidiEvent {
-    MidiEvent(uint32_t p, uint32_t s, const unsigned char* d) 
-      : port(p), event_size(s), data(0), written(false) {
-      data = new unsigned char[event_size];
+  struct Event {
+    Event(uint32_t p, uint16_t t, uint32_t s, const uint8_t* d) 
+      : port(p), type(t), event_size(s), data(0), written(false) {
+      data = new uint8_t[event_size];
       std::memcpy(data, d, event_size);
     }
+    ~Event() {
+      delete [] data;
+    }
     uint32_t port;
+    uint16_t type;
     uint32_t event_size;
-    unsigned char* data;
+    uint8_t* data;
     bool written;
   };
   
@@ -281,7 +283,7 @@ protected:
   bool m_program_is_valid;
   bool m_new_program;
   
-  std::vector<MidiEvent*> m_midi_events;
+  std::vector<Event*> m_midi_events;
   
   // big lock
   pthread_mutex_t m_mutex;

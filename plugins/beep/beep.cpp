@@ -28,6 +28,7 @@
 #include <string>
 
 #include <lv2synth.hpp>
+#include <lv2_osc.h>
 
 #include "beep.peg"
 
@@ -139,19 +140,34 @@ public:
   bool blocking_run(uint8_t* outputs_written) { 
     LV2_Event_Iterator iter;
     lv2_event_begin(&iter, p<LV2_Event_Buffer>(b_msg_input));
-    cerr<<"Message context woken up with these events:"<<hex<<endl;
-    cerr<<" buffer pointer: "<<(p<LV2_Event_Buffer>(b_msg_input))<<endl;
+    cerr<<"Message context woken up with these events:"<<endl;
     while (lv2_event_is_valid(&iter)) {
       uint8_t* data;
       LV2_Event* ev = lv2_event_get(&iter, &data);
-      //if (ev->type == 1) {
+      if (ev->type == 1) {
+	cerr<<" MIDI:"<<hex;
 	for (uint32_t i = 0; i < ev->size; ++i)
 	  cerr<<" 0x"<<int(data[i]);
+	cerr<<dec<<endl;
+      }
+      else if (ev->type == 2) {
+	const LV2_OSC_Event* osc = reinterpret_cast<LV2_OSC_Event*>(data);
+	const char* types = lv2_osc_get_types(osc);
+	const char* path = lv2_osc_get_path(osc);
+	cerr<<"  OSC: \""<<path<<"\" "<<types;
+	for (uint32_t i = 0; i < strlen(types); ++i) {
+	  switch (types[i]) {
+	  case 'i': cerr<<" "<<lv2_osc_get_argument(osc, i)->i; break;
+	  case 'f': cerr<<" "<<lv2_osc_get_argument(osc, i)->f; break;
+	  case 's': cerr<<" \""<<&lv2_osc_get_argument(osc, i)->s<<"\""; break;
+	  case 'b': cerr<<" <BLOB>"; break;
+	  default: cerr<<" <\?\?\?>";
+	  }
+	}
 	cerr<<endl;
-	//}
+      }
       lv2_event_increment(&iter);
     }
-    cerr<<dec;
     return false;
   }
 

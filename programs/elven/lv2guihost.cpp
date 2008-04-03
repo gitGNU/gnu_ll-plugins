@@ -273,9 +273,12 @@ uint32_t LV2GUIHost::uri_to_id(LV2_URI_Map_Callback_Data callback_data,
   if (umap && !strcmp(umap, "http://lv2plug.in/ns/extensions/ui") &&
       !strcmp(uri, "http://lv2plug.in/ns/extensions/ui#eventBuffer"))
     return 1;
-  else if (umap && !strcmp(umap, LV2_EVENT_URI) &&
-	   !strcmp(uri, "http://lv2plug.in/ns/ext/midi#MidiEvent"))
-    return 1;
+  else if (umap && !strcmp(umap, LV2_EVENT_URI)) {
+    if (!strcmp(uri, "http://lv2plug.in/ns/ext/midi#MidiEvent"))
+      return 1;
+    else if (!strcmp(uri, "http://lv2plug.in/ns/ext/osc#OscEvent"))
+      return 2;
+  }
   return 0;
 }
 

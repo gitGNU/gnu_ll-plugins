@@ -127,6 +127,7 @@ void LV2Host::run_main() {
     while (!sem_trywait(&m_notification_sem));
     for (unsigned i = 0; i < m_ports.size(); ++i) {
       if (m_ports[i].notify && m_ports[i].direction == OutputPort) {
+	// XXX this should only happen if the port value has actually changed
 	DBG2("Sending port event for output port "<<i);
 	signal_port_event(i, sizeof(float), 0, &m_ports[i].old_value);
       }
@@ -178,28 +179,30 @@ void LV2Host::run(unsigned long nframes) {
     if (m_ports_updated) {
       m_ports_updated = false;
       for (unsigned i = 0; i < m_ports.size(); ++i) {
-	if (m_ports[i].type == ControlType && m_ports[i].direction == InputPort) {
+	if (m_ports[i].type == ControlType && 
+	    m_ports[i].direction == InputPort) {
 	  DBG3("Setting control input "<<i<<" to "<<m_ports[i].value);
 	  memcpy(m_ports[i].buffer, &m_ports[i].value, sizeof(float));
 	}
       }
     }
     
-    // read MIDI events from the vector
+    // read events from the vector
     for (unsigned i = 0; i < m_midi_events.size(); ++i) {
       if (m_midi_events[i]->written)
 	continue;
-      MidiEvent* e = m_midi_events[i];
+      Event* e = m_midi_events[i];
       DBG3("Received MIDI event from the main thread for port "
 	   <<m_ports[e->port].symbol<<": "
 	   <<midi2str(e->event_size, e->data));
       LV2_Event_Buffer* midi = 
 	static_cast<LV2_Event_Buffer*>(m_ports[e->port].buffer);
+      // XXX DANGER! Can't start from the beginning of the buffer since other 
+      // events may have been written to the buffer already!
       LV2_Event_Iterator iter;
       lv2_event_begin(&iter, midi);
-      // XXX DANGER! Can't set the timestamp to 0 since other events may
-      // have been written to the buffer already!
-      lv2_event_write(&iter, 0, 0, 1, e->event_size, e->data);
+      if (!lv2_event_write(&iter, 0, 0, e->type, e->event_size, e->data))
+	break;
       e->written = true;
     }
     
@@ -247,21 +250,6 @@ char* LV2Host::command(uint32_t argc, const char* const* argv) {
 
   return 0;
   
-}
-
-
-void LV2Host::write_port(uint32_t index, uint32_t buffer_size, 
-			 const void* buffer) {
-  if (index < m_ports.size() && m_ports[index].direction == InputPort) {
-    if (m_ports[index].type == ControlType)
-      set_control(index, *static_cast<const float*>(buffer));
-    else if (m_ports[index].type == MidiType)
-      queue_midi(index, buffer_size, static_cast<const unsigned char*>(buffer));
-    else
-      DBG0("Tried to write to port that is not a control or MIDI port");
-  }
-  else
-    DBG0("Tried to write to invalid input port");
 }
 
 
@@ -357,29 +345,27 @@ void LV2Host::message_run() {
 }
 
 
-void LV2Host::queue_midi(uint32_t port, uint32_t size, 
-                         const unsigned char* midi) {
-  if (port < m_ports.size() && m_ports[port].type == MidiType && 
-      m_ports[port].direction == InputPort) {
-    if (size <= 4) {
-      DBG2("Queueing MIDI event for port "<<port);
-      pthread_mutex_lock(&m_mutex);
-      unsigned i;
-      for (i = 0; i < m_midi_events.size(); ++i) {
-	if (!m_midi_events[i]->written)
-	  break;
-	delete m_midi_events[i]->data;
-	delete m_midi_events[i];
-      }
-      m_midi_events.erase(m_midi_events.begin(), m_midi_events.begin() + i);
-      m_midi_events.push_back(new MidiEvent(port, size, midi));
-      pthread_mutex_unlock(&m_mutex);
+void LV2Host::queue_event(uint32_t port, uint16_t type, uint32_t size, 
+			  const uint8_t* data) {
+  if (!type) {
+    DBG0("Trying to queue event of type 0, which is not allowed");
+  }
+  else if (port < m_ports.size() && m_ports[port].type == MidiType && 
+	   m_ports[port].direction == InputPort) {
+    DBG2("Queueing type "<<type<<" event for port "<<port);
+    pthread_mutex_lock(&m_mutex);
+    unsigned i;
+    for (i = 0; i < m_midi_events.size(); ++i) {
+      if (!m_midi_events[i]->written)
+	break;
+      delete m_midi_events[i];
     }
-    else
-      DBG0("Can only write MIDI events smaller than 5 bytes");
+    m_midi_events.erase(m_midi_events.begin(), m_midi_events.begin() + i);
+    m_midi_events.push_back(new Event(port, type, size, data));
+    pthread_mutex_unlock(&m_mutex);
   }
   else
-    DBG0("Trying to write MIDI to invalid port "<<port);
+    DBG0("Trying to write event to invalid port "<<port);
 }
 
 
@@ -392,6 +378,17 @@ void LV2Host::queue_events(uint32_t port, const LV2_Event_Buffer* buffer) {
       DBG2("Passing entire event buffer to message port");
       message_run();
       m_desc->connect_port(m_handle, port, m_ports[port].buffer);
+    }
+    else if (m_ports[port].context == AudioContext) {
+      LV2_Event_Iterator iter;
+      // yes, this const_cast is safe
+      lv2_event_begin(&iter, const_cast<LV2_Event_Buffer*>(buffer));
+      while (lv2_event_is_valid(&iter)) {
+	uint8_t* data;
+	LV2_Event* ev = lv2_event_get(&iter, &data);
+	queue_event(port, ev->type, ev->size, data);
+	lv2_event_increment(&iter);
+      }
     }
   }
 }
@@ -1114,9 +1111,12 @@ void LV2Host::feedback_wrapper(void* me, uint32_t argc,
 
 uint32_t LV2Host::uri_to_id(LV2_URI_Map_Callback_Data callback_data,
 			    const char* umap, const char* uri) {
-  if (umap && !strcmp(umap, LV2_EVENT_URI) &&
-      !strcmp(uri, "http://lv2plug.in/ns/ext/midi#MidiEvent"))
-    return 1;
+  if (umap && !strcmp(umap, LV2_EVENT_URI)) {
+    if (!strcmp(uri, "http://lv2plug.in/ns/ext/midi#MidiEvent"))
+      return 1;
+    else if (!strcmp(uri, "http://lv2plug.in/ns/ext/osc#OscEvent"))
+      return 2;
+  }
   return 0;
 }
 
