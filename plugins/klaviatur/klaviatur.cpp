@@ -56,7 +56,7 @@ public:
       LV2_Event* ev = lv2_event_get(&in, &data);
       lv2_event_increment(&in);
       // XXX handle type 0 events
-      if (ev->type == m_midi_type)
+      if (ev->type == m_midi_type && ev->size == 3)
 	lv2_event_write_event(&out, ev, data);
     }
     
