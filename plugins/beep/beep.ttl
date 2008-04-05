@@ -12,7 +12,7 @@
   a lv2:Plugin;
   doap:name "Beep";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
-  lv2:optionalFeature <http://ll-plugins.nongnu.org/lv2/dev/saverestore/1>;
+  lv2:optionalFeature <http://ll-plugins.nongnu.org/lv2/ext/saverestore>;
   lv2:requiredFeature <http://ll-plugins.nongnu.org/lv2/dev/contexts/1>;
   guiext:ui <http://ll-plugins.nongnu.org/lv2/dev/beep/0/gui>;
   ll:pegName "b";
