@@ -4,7 +4,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.409
+PACKAGE_VERSION = 0.1.410
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
@@ -38,8 +38,6 @@ LV2_BUNDLES = \
 	gcf.lv2 \
 	klaviatur.lv2 \
 	midi_identity.lv2 \
-	math-constants.lv2 \
-	math-functions.lv2 \
 	nekobee_blue_gui.lv2 \
 	phase-distortion-osc.lv2 \
 	rudolf556.lv2 \
@@ -386,24 +384,6 @@ arpeggiator_so_LDFLAGS = $(PLUGINARCHIVES)
 arpeggiator_lv2_DATA = manifest.ttl arpeggiator.ttl
 arpeggiator_lv2_SOURCEDIR = plugins/arpeggiator
 
-# Math constants
-math-constants_lv2_MODULES = math-constants.so
-math-constants_so_SOURCES = math-constants.cpp
-math-constants_so_CFLAGS = $(PLUGINCFLAGS)
-math-constants_so_LDFLAGS = $(PLUGINARCHIVES)
-math-constants_lv2_DATA = manifest.ttl math-constants.ttl \
-	e.svg pi.svg pi_2.svg pi_4.svg 1_pi.svg 2_pi.svg
-math-constants_lv2_SOURCEDIR = plugins/math-constants
-
-# Math functions
-math-functions_lv2_MODULES = math-functions.so
-math-functions_so_SOURCES = math-functions.cpp
-math-functions_so_CFLAGS = $(PLUGINCFLAGS)
-math-functions_so_LDFLAGS = $(PLUGINARCHIVES)
-math-functions_lv2_DATA = manifest.ttl math-functions.ttl
-math-functions_lv2_SOURCEDIR = plugins/math-functions
-
-
 # VU meter
 vumeter_lv2_MODULES = vumeter.so
 vumeter_so_SOURCES = vumeter.cpp
@@ -411,7 +391,6 @@ vumeter_so_CFLAGS = $(PLUGINCFLAGS)
 vumeter_so_LDFLAGS = $(PLUGINARCHIVES)
 vumeter_lv2_DATA = manifest.ttl vumeter.ttl icon.svg
 vumeter_lv2_SOURCEDIR = plugins/vumeter
-
 
 # VU meter GUI
 vumeter_gtk_lv2_MODULES = vumeter_gtk.so
@@ -422,7 +401,6 @@ vumeter_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui` -Ilibraries/widg
 vumeter_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
 vumeter_gtk_so_ARCHIVES = libraries/widgets/libvuwidget.a
 
-
 # Envelope
 envelope_lv2_MODULES = envelope.so
 envelope_so_SOURCES = envelope.cpp
@@ -430,7 +408,6 @@ envelope_so_CFLAGS = $(ADVANCEDCFLAGS) -Ilibraries/components
 envelope_so_LDFLAGS = $(ADVANCEDARCHIVES)
 envelope_lv2_DATA = manifest.ttl envelope.ttl icon.svg
 envelope_lv2_SOURCEDIR = plugins/envelope
-
 
 # VU meter GUI
 envelope_gtk_lv2_MODULES = envelope_gtk.so
@@ -444,9 +421,6 @@ envelope_gtk_so_ARCHIVES = libraries/widgets/libenvelopeeditor.a
 
 # The shared headers need to go in the distribution too
 EXTRA_DIST = COPYING \
-	\
-	lv2.h \
-	\
 	libraries/components/adsr.hpp \
 	libraries/components/chebyshevshaper.hpp \
 	libraries/components/dcblocker.hpp \
@@ -458,7 +432,6 @@ EXTRA_DIST = COPYING \
 	libraries/components/frequencytable.hpp \
 	libraries/components/householderfdn.hpp \
 	libraries/components/ladspawrapper.hpp \
-	libraries/components/lv2-midifunctions.h \
 	libraries/components/markov.hpp \
 	libraries/components/monophonicmidinote.hpp \
 	libraries/components/monostep.hpp \
@@ -471,10 +444,7 @@ EXTRA_DIST = COPYING \
 	libraries/components/sineoscillator.hpp \
 	libraries/components/slide.hpp \
 	libraries/components/voicehandler.hpp \
-	libraries/components/wavewrapper.hpp \
-	\
-	extensions/midimap/lv2-midimap.rdfs \
-	extensions/transporttype/lv2-transport.h
+	libraries/components/wavewrapper.hpp
 
 
 # Do the magic
