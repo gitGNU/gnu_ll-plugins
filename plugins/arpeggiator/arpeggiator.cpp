@@ -31,11 +31,11 @@ using namespace std;
 
 
 /** A plugin that takes chord MIDI input and writes arpeggio MIDI output. */
-class Arpeggiator : public LV2::Plugin<Arpeggiator, LV2::UriMapExt<true> > {
+class Arpeggiator : public LV2::Plugin<Arpeggiator, LV2::URIMap<true> > {
 public:
   
   Arpeggiator(double rate) 
-    : LV2::Plugin<Arpeggiator, LV2::UriMapExt<true> >(5),
+    : LV2::Plugin<Arpeggiator, LV2::URIMap<true> >(5),
       m_rate(rate),
       m_num_keys(0),
       m_frame_counter(0),

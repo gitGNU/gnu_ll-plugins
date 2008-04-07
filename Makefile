@@ -4,14 +4,14 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.411
+PACKAGE_VERSION = 0.1.412
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
 	gtkmm-2.4>=2.8.8 \
 	jack>=0.109.0 \
 	lash-1.0>=0.5.1 \
-	lv2-plugin>=0.1.699 \
+	lv2-plugin>=0.1.702 \
 	lv2-gui>=0.1.699 \
 	paq>=0.1.682 \
 	sndfile>=1.0.16
@@ -42,8 +42,6 @@ LV2_BUNDLES = \
 	phase-distortion-osc.lv2 \
 	rudolf556.lv2 \
 	rudolf556_gtk.lv2 \
-	sineshaper.lv2 \
-	sineshaper_gtk.lv2 \
 	vumeter.lv2 \
 	vumeter_gtk.lv2 \
 	envelope.lv2 \
@@ -305,32 +303,6 @@ rudolf556_gtk_so_SOURCES = \
 rudolf556_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui`
 rudolf556_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
 rudolf556_gtk_so_SOURCEDIR = plugins/sineshaper
-
-# Sineshaper
-sineshaper_lv2_MODULES = sineshaper.so
-sineshaper_lv2_DATA = manifest.ttl sineshaper.ttl presets.ttl icon.svg
-sineshaper_lv2_SOURCEDIR = plugins/sineshaper
-sineshaper_lv2_PEGFILES = sineshaper.peg
-sineshaper_so_SOURCES = \
-	sineshaper.hpp sineshaper.cpp \
-	sineshaperports.hpp \
-	midiiterator.hpp
-sineshaper_so_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components
-sineshaper_so_LDFLAGS = $(PLUGINARCHIVES)
-
-# Sineshaper GUI
-sineshaper_gtk_lv2_MODULES = sineshaper_gtk.so
-sineshaper_gtk_lv2_MANIFEST = gui_manifest.ttl
-sineshaper_gtk_lv2_DATA = sineshaper.glade dial.png sineshaper.png icon.svg
-sineshaper_gtk_lv2_SOURCEDIR = plugins/sineshaper
-sineshaper_gtk_so_SOURCES = \
-	sineshaper_gtk.cpp \
-	sineshaperwidget.cpp sineshaperwidget.hpp \
-	skindial_gtkmm.cpp skindial_gtkmm.hpp
-sineshaper_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui` -Ilibraries/widgets
-sineshaperwidget_cpp_CFLAGS = -DVERSION=\"$(PACKAGE_VERSION)\"
-sineshaper_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
-sineshaper_gtk_so_SOURCEDIR = plugins/sineshaper
 
 # Nekobee Blue GUI
 nekobee_blue_gui_lv2_MODULES = nekobee_blue_gui.so

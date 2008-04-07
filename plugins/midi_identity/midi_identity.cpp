@@ -29,11 +29,11 @@
 
 /** This is the class that contains all the code and data for the MIDI 
     identity plugin. */
-class MIDIIdentity : public LV2::Plugin<MIDIIdentity, LV2::UriMapExt<true> > {
+class MIDIIdentity : public LV2::Plugin<MIDIIdentity, LV2::URIMap<true> > {
 public:
   
   MIDIIdentity(double) 
-    : LV2::Plugin<MIDIIdentity, LV2::UriMapExt<true> >(2),
+    : LV2::Plugin<MIDIIdentity, LV2::URIMap<true> >(2),
       m_midi_type(uri_to_id(LV2_EVENT_URI,
 			    "http://lv2plug.in/ns/ext/midi#MidiEvent")) {
     

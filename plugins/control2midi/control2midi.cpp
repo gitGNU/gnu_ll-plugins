@@ -27,11 +27,11 @@
 
 /** This is the class that contains all the code and data for the Sineshaper
     synth plugin. */
-class Control2MIDI : public LV2::Plugin<Control2MIDI, LV2::UriMapExt<true> > {
+class Control2MIDI : public LV2::Plugin<Control2MIDI, LV2::URIMap<true> > {
 public:
   
   Control2MIDI(double) 
-    : LV2::Plugin<Control2MIDI, LV2::UriMapExt<true> >(5),
+    : LV2::Plugin<Control2MIDI, LV2::URIMap<true> >(5),
       m_last_value(0),
       m_last_cc(0),
       m_midi_type(uri_to_id(LV2_EVENT_URI, 

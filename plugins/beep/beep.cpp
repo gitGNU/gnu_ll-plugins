@@ -80,11 +80,11 @@ protected:
 };
 
 
-class Beep : public Synth<BeepVoice, Beep, SaveRestoreExt<true>, MessageExt<true> > {
+class Beep : public Synth<BeepVoice, Beep, SaveRestore<true>, MsgContext<true> > {
 public:
   
   Beep(double rate)
-    : Synth<BeepVoice, Beep, SaveRestoreExt<true>, MessageExt<true> >(b_n_ports, b_midi) {
+    : Synth<BeepVoice, Beep, SaveRestore<true>, MsgContext<true> >(b_n_ports, b_midi) {
     add_voices(new BeepVoice(rate),
 	       new BeepVoice(rate),
 	       new BeepVoice(rate),
