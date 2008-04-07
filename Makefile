@@ -4,7 +4,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.412
+PACKAGE_VERSION = 0.1.413
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
@@ -40,8 +40,6 @@ LV2_BUNDLES = \
 	midi_identity.lv2 \
 	nekobee_blue_gui.lv2 \
 	phase-distortion-osc.lv2 \
-	rudolf556.lv2 \
-	rudolf556_gtk.lv2 \
 	vumeter.lv2 \
 	vumeter_gtk.lv2 \
 	envelope.lv2 \
@@ -277,32 +275,6 @@ horizon_gtk_so_SOURCES = \
 horizon_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0 lv2-gui` -Ilibraries/widgets
 horizon_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 cairomm-1.0 lv2-gui` 
 horizon_gtk_so_ARCHIVES = libraries/widgets/libkeyboard.a
-
-# Rudolf 556
-rudolf556_lv2_MODULES = rudolf556.so
-rudolf556_lv2_DATA = \
-	manifest.ttl rudolf556.ttl \
-	icon.svg \
-	bass_h00.flac bass_h05.flac bass_h10.flac \
-	snare_bonk.flac snare_noise.flac \
-	hihat_base.flac hihat_hit.flac
-rudolf556_lv2_SOURCEDIR = plugins/rudolf556
-rudolf556_lv2_PEGFILES = rudolf556.peg
-rudolf556_so_SOURCES = rudolf556.cpp
-rudolf556_so_CFLAGS = $(PLUGINCFLAGS) `pkg-config --cflags sndfile`
-rudolf556_so_LDFLAGS = $(PLUGINARCHIVES) `pkg-config --libs sndfile`
-
-# Rudolf 556 GUI
-rudolf556_gtk_lv2_MODULES = rudolf556_gtk.so
-rudolf556_gtk_lv2_MANIFEST = gui_manifest.ttl
-rudolf556_gtk_lv2_DATA = rudolf556.png
-rudolf556_gtk_lv2_SOURCEDIR = plugins/rudolf556
-rudolf556_gtk_so_SOURCES = \
-	rudolf556_gtk.cpp \
-	rudolf556widget.cpp rudolf556widget.hpp
-rudolf556_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui`
-rudolf556_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
-rudolf556_gtk_so_SOURCEDIR = plugins/sineshaper
 
 # Nekobee Blue GUI
 nekobee_blue_gui_lv2_MODULES = nekobee_blue_gui.so
