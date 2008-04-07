@@ -49,7 +49,8 @@ namespace {
 
 
 
-class KlaviaturGUI : public LV2::GUI<KlaviaturGUI, LV2::UriMapExt<true>, LV2::WriteMidi> {
+class KlaviaturGUI : public LV2::GUI<KlaviaturGUI, 
+				     LV2::URIMap<true>, LV2::WriteMIDI> {
 public:
   
   KlaviaturGUI(const std::string& URI) 
