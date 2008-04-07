@@ -46,8 +46,8 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
     m_block_gui(false) {
   
   // initialise the host descriptor for the program extension
-  m_phdesc.change_program = &LV2GUIHost::_request_program;
-  m_phdesc.save_program = &LV2GUIHost::_save_program;
+  m_phdesc.change_preset = &LV2GUIHost::_request_program;
+  m_phdesc.save_preset = &LV2GUIHost::_save_program;
   
   // initialise the host descriptor for the command extension
   m_chdesc.command = &LV2GUIHost::_command;
@@ -84,7 +84,7 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
   
   // get extension data
   if (m_desc->extension_data) {
-    m_pdesc = static_cast<LV2UI_Programs_GDesc const*>(m_desc->extension_data("http://lv2plug.in/ns/extensions/ui#ext_programs"));
+    m_pdesc = static_cast<LV2UI_Presets_GDesc const*>(m_desc->extension_data("http://lv2plug.in/ns/extensions/ui#ext_programs"));
     if (m_pdesc)
       DBG2("The plugin GUI supports the program feature");
     else
@@ -167,36 +167,36 @@ void LV2GUIHost::feedback(uint32_t argc, const char* const* argv) {
 
 
 void LV2GUIHost::program_added(uint32_t number, const char* name) {
-  if (m_ui && m_pdesc && m_pdesc->program_added) {
+  if (m_ui && m_pdesc && m_pdesc->preset_added) {
     m_block_gui = true;
-    m_pdesc->program_added(m_ui, number, name);
+    m_pdesc->preset_added(m_ui, number, name);
     m_block_gui = false;
   }
 }
 
   
 void LV2GUIHost::program_removed(uint32_t number) {
-  if (m_ui && m_pdesc && m_pdesc->program_removed) {
+  if (m_ui && m_pdesc && m_pdesc->preset_removed) {
     m_block_gui = true;
-    m_pdesc->program_removed(m_ui, number);
+    m_pdesc->preset_removed(m_ui, number);
     m_block_gui = false;
   }
 }
  
  
 void LV2GUIHost::programs_cleared() {
-  if (m_ui && m_pdesc && m_pdesc->programs_cleared) {
+  if (m_ui && m_pdesc && m_pdesc->presets_cleared) {
     m_block_gui = true;
-    m_pdesc->programs_cleared(m_ui);
+    m_pdesc->presets_cleared(m_ui);
     m_block_gui = false;
   }
 }
 
   
 void LV2GUIHost::current_program_changed(uint32_t number) {
-  if (m_ui && m_pdesc && m_pdesc->current_program_changed) {
+  if (m_ui && m_pdesc && m_pdesc->current_preset_changed) {
     m_block_gui = true;
-    m_pdesc->current_program_changed(m_ui, number);
+    m_pdesc->current_preset_changed(m_ui, number);
     m_block_gui = false;
   }
 }

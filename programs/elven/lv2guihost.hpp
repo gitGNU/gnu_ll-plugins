@@ -31,7 +31,7 @@
 
 #include <lv2.h>
 #include <lv2-ui.h>
-#include <lv2-gui-programs.h>
+#include <lv2-ui-presets.h>
 #include <lv2-ui-command.h>
 #include <lv2_uri_map.h>
 #include <lv2_event.h>
@@ -103,7 +103,7 @@ protected:
 
   
   LV2UI_Descriptor const* m_desc;
-  LV2UI_Programs_GDesc const* m_pdesc;
+  LV2UI_Presets_GDesc const* m_pdesc;
   LV2UI_Command_GDesc const* m_cdesc;
   LV2UI_Handle m_ui;
   GtkWidget* m_cwidget;
@@ -111,7 +111,7 @@ protected:
   
   bool m_block_gui;
   
-  LV2UI_Programs_HDesc m_phdesc;
+  LV2UI_Presets_Feature m_phdesc;
   LV2UI_Command_HDesc m_chdesc;
   LV2_URI_Map_Feature m_urimap_desc;
 };
