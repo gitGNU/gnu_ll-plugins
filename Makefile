@@ -4,7 +4,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.413
+PACKAGE_VERSION = 0.1.414
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
@@ -32,12 +32,10 @@ PROGRAMS = elven
 
 LV2_BUNDLES = \
 	arpeggiator.lv2 \
-	audio_identity.lv2 \
 	beep.lv2 \
 	control2midi.lv2 \
 	gcf.lv2 \
 	klaviatur.lv2 \
-	midi_identity.lv2 \
 	nekobee_blue_gui.lv2 \
 	phase-distortion-osc.lv2 \
 	vumeter.lv2 \
@@ -286,28 +284,12 @@ nekobee_blue_gui_so_SOURCES = \
 nekobee_blue_gui_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui`
 nekobee_blue_gui_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
 
-# MIDIIdentity
-midi_identity_lv2_MODULES = midi_identity.so
-midi_identity_so_SOURCES = midi_identity.cpp
-midi_identity_so_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components
-midi_identity_so_LDFLAGS = $(PLUGINARCHIVES)
-midi_identity_lv2_DATA = manifest.ttl midi_identity.ttl
-midi_identity_lv2_SOURCEDIR = plugins/midi_identity
-
 # Householder FDN
 #hhfdn_lv2_SOURCES = hhfdn.cpp
 #hhfdn_lv2_DATA = manifest.ttl hhfdn.ttl
 #hhfdn_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/MidiPort -Ilibraries/components -I.
 #hhfdn_lv2_LDFLAGS = $(PLUGINARCHIVES)
 #hhfdn_lv2_SOURCEDIR = plugins/householderfdn
-
-# AudioIdentity
-audio_identity_lv2_MODULES = audio_identity.so
-audio_identity_so_SOURCES = audio_identity.cpp
-audio_identity_so_CFLAGS = $(PLUGINCFLAGS)
-audio_identity_so_LDFLAGS = $(PLUGINARCHIVES)
-audio_identity_lv2_DATA = manifest.ttl audio_identity.ttl
-audio_identity_lv2_SOURCEDIR = plugins/audio_identity
 
 # GCF
 gcf_lv2_MODULES = gcf.so gcf_gtk.so
