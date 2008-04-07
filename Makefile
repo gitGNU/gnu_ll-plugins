@@ -4,15 +4,15 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.415
+PACKAGE_VERSION = 0.1.416
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
 	gtkmm-2.4>=2.8.8 \
 	jack>=0.109.0 \
 	lash-1.0>=0.5.1 \
-	lv2-plugin>=0.1.702 \
-	lv2-gui>=0.1.699 \
+	lv2-plugin>=0.1.705 \
+	lv2-gui>=0.1.705 \
 	paq>=0.1.682 \
 	sndfile>=1.0.16
 
@@ -109,6 +109,7 @@ PLUGINARCHIVES = `pkg-config --libs lv2-plugin`
 PLUGINCFLAGS = `pkg-config --cflags lv2-plugin`
 ADVANCEDARCHIVES = $(PLUGINARCHIVES)
 ADVANCEDCFLAGS = $(PLUGINCFLAGS)
+RESIDENTGUI = lv2soname '<http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0/gui>' '<http://lv2plug.in/ns/extensions/ui\#requiredFeature>' -lgtkmm-2.4
 
 # Beep
 beep_lv2_MODULES = beep.so beep_gtk.so
@@ -146,9 +147,10 @@ klaviatur_so_SOURCES = klaviatur.cpp
 klaviatur_so_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components
 klaviatur_so_LDFLAGS = $(PLUGINARCHIVES)
 klaviatur_gtk_so_SOURCES = klaviatur_gtk.cpp
-klaviatur_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui` -Ilibraries/widgets
-klaviatur_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
+klaviatur_gtk_so_CFLAGS = `pkg-config --cflags lv2-gui` -Ilibraries/widgets
+klaviatur_gtk_so_LDFLAGS = `pkg-config --libs lv2-gui` 
 klaviatur_gtk_so_ARCHIVES = libraries/widgets/libkeyboard.a
+klaviatur_lv2_POSTINSTALL = $(RESIDENTGUI) >> klaviatur.lv2/klaviatur.ttl
 
 # Trilobyte
 trilobyte_lv2_MODULES = trilobyte.so
@@ -163,6 +165,7 @@ trilobyte_gtk_so_SOURCEDIR = plugins/trilobyte
 trilobyte_lv2_DATA = manifest.ttl trilobyte.ttl
 trilobyte_lv2_PEGFILES = trilobyte.peg
 trilobyte_lv2_SOURCEDIR = plugins/trilobyte
+trilobyte_lv2_POSTINSTALL = $(RESIDENTGUI) >> trilobyte.lv2/trilobyte.ttl
 
 # Trilobeat
 trilobeat_lv2_MODULES = trilobeat.so
@@ -184,7 +187,7 @@ trilobeat_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui`
 trilobeat_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
 trilobeat_gtk_lv2_DATA = gridbg.png keynamebg.png
 trilobeat_gtk_lv2_SOURCEDIR = plugins/trilobeat
-
+trilobeat_gtk_lv2_POSTINSTALL = $(RESIDENTGUI) >> trilobeat_gtk.lv2/manifest.ttl
 
 #trilobeat_lv2_MODULES = trilobeat_gtk.so
 #trilobeat_gtk_so_SOURCES = trilobeat_gtk.cpp
@@ -226,6 +229,7 @@ euphoria_gtk_so_ARCHIVES = \
 	libraries/widgets/libspringeditor.a \
 	libraries/widgets/libpdeditor.a \
 	libraries/widgets/libtransitioneditor.a \
+euphoria_gtk_lv2_POSTINSTALL = $(RESIDENTGUI) >> euphoria_gtk.lv2/manifest.ttl
 
 # Horizon
 horizon_lv2_MODULES = horizon.so
@@ -273,6 +277,7 @@ horizon_gtk_so_SOURCES = \
 horizon_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0 lv2-gui` -Ilibraries/widgets
 horizon_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 cairomm-1.0 lv2-gui` 
 horizon_gtk_so_ARCHIVES = libraries/widgets/libkeyboard.a
+horizon_gtk_lv2_POSTINSTALL = $(RESIDENTGUI) >> horizon_gtk.lv2/manifest.ttl
 
 # Nekobee Blue GUI
 nekobee_blue_gui_lv2_MODULES = nekobee_blue_gui.so
@@ -283,6 +288,7 @@ nekobee_blue_gui_so_SOURCES = \
 	nekobeewidget.cpp nekobeewidget.hpp
 nekobee_blue_gui_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui`
 nekobee_blue_gui_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
+nekobee_blue_gui_lv2_POSTINSTALL = $(RESIDENTGUI) >> nekobee_blue_gui.lv2/manifest.ttl
 
 # Householder FDN
 #hhfdn_lv2_SOURCES = hhfdn.cpp
