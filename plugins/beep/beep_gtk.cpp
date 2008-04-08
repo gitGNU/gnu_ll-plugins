@@ -35,7 +35,8 @@ using namespace Gtk;
 using namespace sigc;
 using namespace LV2;
 
-class BeepGUI : public GUI<BeepGUI, URIMap<true>, WriteMIDI, WriteOSC> {
+class BeepGUI : public GUI<BeepGUI, 
+			   URIMap<true>, WriteMIDI<true>, WriteOSC<true> > {
 public:
   
   BeepGUI(const std::string& URI) 

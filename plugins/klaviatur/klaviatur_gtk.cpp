@@ -33,6 +33,7 @@
 
 using namespace sigc;
 using namespace Gtk;
+using namespace LV2;
 
 
 namespace {
@@ -49,8 +50,7 @@ namespace {
 
 
 
-class KlaviaturGUI : public LV2::GUI<KlaviaturGUI, 
-				     LV2::URIMap<true>, LV2::WriteMIDI> {
+class KlaviaturGUI : public GUI<KlaviaturGUI, URIMap<true>, WriteMIDI<true> > {
 public:
   
   KlaviaturGUI(const std::string& URI) 
@@ -111,13 +111,13 @@ public:
 protected:
 
   void handle_keypress(unsigned char key) {
-    unsigned char data[3] = { 0x90, key + 36, int(m_vel.get_value()) };
+    unsigned char data[3] = { 0x90, key, int(m_vel.get_value()) };
     write_midi(k_midi_input, 3, data);
   }
   
   
   void handle_keyrelease(unsigned char key) {
-    unsigned char data[3] = { 0x80, key + 36, 64 };
+    unsigned char data[3] = { 0x80, key, 64 };
     write_midi(k_midi_input, 3, data);
   }
   
