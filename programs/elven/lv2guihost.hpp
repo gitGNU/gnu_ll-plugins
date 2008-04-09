@@ -30,9 +30,8 @@
 #include <sigc++/sigc++.h>
 
 #include <lv2.h>
-#include <lv2-ui.h>
-#include <lv2-ui-presets.h>
-#include <lv2-ui-command.h>
+#include <lv2_ui.h>
+#include <lv2_ui_presets.h>
 #include <lv2_uri_map.h>
 #include <lv2_event.h>
 
@@ -52,8 +51,6 @@ public:
   void port_event(uint32_t index, uint32_t buffer_size, 
 		  uint32_t format, const void* buffer);
   
-  void feedback(uint32_t argc, const char* const* argv);
-  
   void program_added(uint32_t number, const char* name);
   
   void program_removed(uint32_t number);
@@ -66,8 +63,6 @@ public:
 
   sigc::signal<void, uint32_t, const LV2_Event_Buffer*> write_events;
   
-  sigc::signal<void, uint32_t, char const* const*> command;
-
   sigc::signal<void, uint32_t> request_program;
 
   sigc::signal<void, uint32_t, char const*> save_program;
@@ -77,9 +72,6 @@ protected:
   static void _write_port(LV2UI_Controller ctrl, uint32_t index, 
 			  uint32_t buffer_size, uint32_t format, 
 			  const void* buffer);
-  
-  static void _command(LV2UI_Controller ctrl, 
-		       uint32_t argc, char const* const* argv);
   
   static void _request_program(LV2UI_Controller ctrl, uint32_t number);
 
@@ -104,7 +96,6 @@ protected:
   
   LV2UI_Descriptor const* m_desc;
   LV2UI_Presets_GDesc const* m_pdesc;
-  LV2UI_Command_GDesc const* m_cdesc;
   LV2UI_Handle m_ui;
   GtkWidget* m_cwidget;
   Gtk::Widget* m_widget;
@@ -112,7 +103,6 @@ protected:
   bool m_block_gui;
   
   LV2UI_Presets_Feature m_phdesc;
-  LV2UI_Command_HDesc m_chdesc;
   LV2_URI_Map_Feature m_urimap_desc;
 };
 

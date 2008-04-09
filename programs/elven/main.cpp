@@ -66,6 +66,7 @@ void autoconnect(jack_client_t* client) {
     our_ports = jack_get_ports(client, (string(name) + ":*").c_str(),
 			       JACK_DEFAULT_MIDI_TYPE, JackPortIsInput);
     if (our_ports && our_ports[0]) {
+      
       // if it's a client, connect individual ports
       if (index(env, ':') == NULL &&
 	  (port_list = jack_get_ports(client, (string(env) + ":*").c_str(),
@@ -75,11 +76,13 @@ void autoconnect(jack_client_t* client) {
 	  jack_connect(client, port_list[i], our_ports[i]);
 	free(port_list);
       }
+      
       // if not, connect all our ports to that single port
       else {
 	for (int i = 0; our_ports[i]; ++i)
 	  jack_connect(client, env, our_ports[i]);
       }
+      
     }
     free(our_ports);
   }
@@ -89,6 +92,7 @@ void autoconnect(jack_client_t* client) {
     our_ports = jack_get_ports(client, (string(name) + ":*").c_str(),
 			       JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput);
     if (our_ports && our_ports[0]) {
+      
       // if it's a client, connect individual ports
       if (index(env, ':') == NULL &&
 	  (port_list = jack_get_ports(client, (string(env) + ":*").c_str(),
@@ -98,11 +102,13 @@ void autoconnect(jack_client_t* client) {
 	  jack_connect(client, port_list[i], our_ports[i]);
 	free(port_list);
       }
+      
       // if not, connect all our ports to that single port
       else {
 	for (int i = 0; our_ports[i]; ++i)
 	  jack_connect(client, env, our_ports[i]);
       }
+      
     }
     free(our_ports);
   }
@@ -112,6 +118,7 @@ void autoconnect(jack_client_t* client) {
     our_ports = jack_get_ports(client, (string(name) + ":*").c_str(),
 			       JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput);
     if (our_ports && our_ports[0]) {
+      
       // if it's a client, connect individual ports
       if (index(env, ':') == NULL &&
 	  (port_list = jack_get_ports(client, (string(env) + ":*").c_str(),
@@ -121,11 +128,13 @@ void autoconnect(jack_client_t* client) {
 	  jack_connect(client, our_ports[i], port_list[i]);
 	free(port_list);
       }
+      
       // if not, connect all our ports to that single port
       else {
 	for (int i = 0; our_ports[i]; ++i)
 	  jack_connect(client, our_ports[i], env);
       }
+      
     }
     free(our_ports);
   }
@@ -135,6 +144,7 @@ void autoconnect(jack_client_t* client) {
     our_ports = jack_get_ports(client, (string(name) + ":*").c_str(),
 			       JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput);
     if (our_ports && our_ports[0]) {
+      
       // if it's a client, connect individual ports
       if (index(env, ':') == NULL &&
 	  (port_list = jack_get_ports(client, (string(env) + ":*").c_str(),
@@ -144,11 +154,13 @@ void autoconnect(jack_client_t* client) {
 	  jack_connect(client, our_ports[i], port_list[i]);
 	free(port_list);
       }
+      
       // if not, connect all our ports to that single port
       else {
 	for (int i = 0; our_ports[i]; ++i)
 	  jack_connect(client, our_ports[i], env);
       }
+      
     }
     free(our_ports);
   }  
@@ -697,17 +709,17 @@ int main(int argc, char** argv) {
 	for (iter = presets.begin(); iter != presets.end(); ++iter)
 	  lv2gh->program_added(iter->first, iter->second.name.c_str());
 	
-	// connect signals
-	lv2h.signal_feedback.connect(mem_fun(*lv2gh, &LV2GUIHost::feedback));
+	// connect signals (plugin -> GUI)
 	lv2h.signal_port_event.
 	  connect(mem_fun(*lv2gh, &LV2GUIHost::port_event));
 	lv2h.signal_program_changed.
 	  connect(mem_fun(*lv2gh, &LV2GUIHost::current_program_changed));
 	lv2h.signal_program_added.
 	  connect(mem_fun(*lv2gh, &LV2GUIHost::program_added));
+	
+	// GUI -> plugin
 	lv2gh->write_control.connect(mem_fun(lv2h, &LV2Host::set_control));
 	lv2gh->write_events.connect(mem_fun(lv2h, &LV2Host::queue_events));
-	lv2gh->command.connect(hide_return(mem_fun(lv2h, &LV2Host::command)));
 	lv2gh->request_program.connect(mem_fun(lv2h, &LV2Host::set_program));
 	lv2gh->save_program.connect(mem_fun(lv2h, &LV2Host::save_program));
       }

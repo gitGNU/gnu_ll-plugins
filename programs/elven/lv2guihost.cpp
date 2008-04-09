@@ -21,6 +21,7 @@
 
 ****************************************************************************/
 
+#include <cstring>
 #include <iostream>
 
 #include <dlfcn.h>
@@ -45,12 +46,9 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
     m_widget(0),
     m_block_gui(false) {
   
-  // initialise the host descriptor for the program extension
+  // initialise the host descriptor for the preset extension
   m_phdesc.change_preset = &LV2GUIHost::_request_program;
   m_phdesc.save_preset = &LV2GUIHost::_save_program;
-  
-  // initialise the host descriptor for the command extension
-  m_chdesc.command = &LV2GUIHost::_command;
   
   // initialise the host descriptor for the URI map extension
   m_urimap_desc.callback_data = 0;
@@ -84,32 +82,23 @@ LV2GUIHost::LV2GUIHost(const std::string& gui_path,
   
   // get extension data
   if (m_desc->extension_data) {
-    m_pdesc = static_cast<LV2UI_Presets_GDesc const*>(m_desc->extension_data("http://lv2plug.in/ns/extensions/ui#ext_programs"));
+    m_pdesc = static_cast<LV2UI_Presets_GDesc const*>
+      (m_desc->extension_data(LV2_UI_PRESETS_URI));
     if (m_pdesc)
-      DBG2("The plugin GUI supports the program feature");
+      DBG2("The plugin GUI supports the preset feature");
     else
-      DBG2("The plugin GUI does not support the program feature");
-    m_cdesc = static_cast<LV2UI_Command_GDesc const*>(m_desc->extension_data("http://lv2plug.in/ns/extensions/ui#ext_command"));
-    if (m_cdesc)
-      DBG2("The plugin GUI supports the command feature");
-    else
-      DBG2("The plugin GUI does not support the command feature");
+      DBG2("The plugin GUI does not support the preset feature");
   }
   else
     DBG2("The plugin GUI has no extension_data() callback");
   
   // build the feature list
-  LV2_Feature** features = new LV2_Feature*[4];
-  LV2_Feature programs_feature = 
-    { "http://lv2plug.in/ns/extensions/ui#ext_programs", &m_phdesc };
-  LV2_Feature command_feature = 
-    { "http://lv2plug.in/ns/extensions/ui#ext_command", &m_chdesc };
-  LV2_Feature urimap_feature =
-    { LV2_URI_MAP_URI, &m_urimap_desc };
-  features[0] = &programs_feature;
-  features[1] = &command_feature;
-  features[2] = &urimap_feature;
-  features[3] = 0;
+  LV2_Feature** features = new LV2_Feature*[3];
+  LV2_Feature presets_feature = { LV2_UI_PRESETS_URI, &m_phdesc };
+  LV2_Feature urimap_feature = { LV2_URI_MAP_URI, &m_urimap_desc };
+  features[0] = &presets_feature;
+  features[1] = &urimap_feature;
+  features[2] = 0;
   
   // create a GUI instance
   LV2UI_Controller ctrl = static_cast<LV2UI_Controller>(this);
@@ -157,15 +146,6 @@ void LV2GUIHost::port_event(uint32_t index, uint32_t buffer_size,
 }
  
  
-void LV2GUIHost::feedback(uint32_t argc, const char* const* argv) {
-  if (m_ui && m_cdesc && m_cdesc->feedback) {
-    m_block_gui = true;
-    m_cdesc->feedback(m_ui, argc, argv);
-    m_block_gui = false;
-  }
-}
-
-
 void LV2GUIHost::program_added(uint32_t number, const char* name) {
   if (m_ui && m_pdesc && m_pdesc->preset_added) {
     m_block_gui = true;
@@ -225,32 +205,12 @@ void LV2GUIHost::_write_port(LV2UI_Controller ctrl, uint32_t index,
 }
   
 
-void LV2GUIHost::_command(LV2UI_Controller ctrl, 
-			  uint32_t argc, const char* const* argv) {
-
-  cerr<<__PRETTY_FUNCTION__<<endl;
-  cerr<<"POINTERS:"<<endl;
-  for (unsigned i = 0; i < argc; ++i)
-    cerr<<"  "<<(const void*)(argv[i])<<endl;
-
-  LV2GUIHost* me = static_cast<LV2GUIHost*>(ctrl);
-  if (me->m_block_gui)
-    DBG1("GUI tried to send a command while a GUI callback was running");
-  else {
-    DBG2("GUI sent command:");
-    for (unsigned i = 0; i < argc; ++i)
-      DBG2("  '"<<argv[i]<<"'");
-    me->command(argc, argv);
-  }
-}
-
-  
 void LV2GUIHost::_request_program(LV2UI_Controller ctrl, uint32_t number) {
   LV2GUIHost* me = static_cast<LV2GUIHost*>(ctrl);
   if (me->m_block_gui)
-    DBG1("GUI requested program change while a GUI callback was running");
+    DBG1("GUI requested preset change while a GUI callback was running");
   else {
-    DBG2("GUI requested program change to "<<int(number));
+    DBG2("GUI requested preset change to "<<int(number));
     me->request_program(number);
   }
 }
@@ -260,9 +220,9 @@ void LV2GUIHost::_save_program(LV2UI_Controller ctrl, uint32_t number,
 			       const char* name) {
   LV2GUIHost* me = static_cast<LV2GUIHost*>(ctrl);
   if (me->m_block_gui)
-    DBG1("GUI requested program save while a GUI callback was running");
+    DBG1("GUI requested preset save while a GUI callback was running");
   else {
-    DBG2("GUI requested program save to "<<int(number)<<", \""<<name<<"\"");
+    DBG2("GUI requested preset save to "<<int(number)<<", \""<<name<<"\"");
     me->save_program(number, name);
   }
 }
@@ -271,7 +231,7 @@ void LV2GUIHost::_save_program(LV2UI_Controller ctrl, uint32_t number,
 uint32_t LV2GUIHost::uri_to_id(LV2_URI_Map_Callback_Data callback_data,
 			       const char* umap, const char* uri) {
   if (umap && !strcmp(umap, "http://lv2plug.in/ns/extensions/ui") &&
-      !strcmp(uri, "http://lv2plug.in/ns/extensions/ui#eventBuffer"))
+      !strcmp(uri, "http://lv2plug.in/ns/extensions/ui#Events"))
     return 1;
   else if (umap && !strcmp(umap, LV2_EVENT_URI)) {
     if (!strcmp(uri, "http://lv2plug.in/ns/ext/midi#MidiEvent"))

@@ -37,10 +37,9 @@
 #include <sigc++/signal.h>
 
 #include <lv2.h>
-#include <lv2-command.h>
 #include <lv2_event.h>
 #include <lv2_uri_map.h>
-#include <lv2-saverestore.h>
+#include <lv2_saverestore.h>
 #include <lv2_contexts.h>
 #include <query.hpp>
 #include "ringbuffer.hpp"
@@ -146,9 +145,6 @@ public:
   /** Deactivate the plugin. */
   void deactivate();
   
-  /** Send a command to the plugin. */
-  char* command(uint32_t argc, const char* const* argv);
-  
   /** Set a control port value. */
   void set_control(uint32_t index, float value);
   
@@ -187,8 +183,6 @@ public:
   
   sigc::signal<void, unsigned char, const char*> signal_program_added;
   
-  sigc::signal<void, uint32_t, const char* const*> signal_feedback;
-  
 protected:
   
   static std::vector<std::string> get_search_dirs();
@@ -225,11 +219,6 @@ protected:
   
   bool load_plugin();
   
-  void feedback(uint32_t argc, const char* const* argv);
-  
-  static void feedback_wrapper(void* me, uint32_t argc, 
-			       const char* const* argv);
-  
   static uint32_t uri_to_id(LV2_URI_Map_Callback_Data callback_data,
 			    const char* umap, const char* uri);
   
@@ -259,11 +248,9 @@ protected:
   void* m_libhandle;
   LV2_Handle m_handle;
   const LV2_Descriptor* m_desc;
-  const LV2_CommandDescriptor* m_comm_desc;
   const LV2SR_Descriptor* m_sr_desc;
   const LV2_Blocking_Context* m_msg_desc;
   
-  LV2_CommandHostDescriptor m_comm_host_desc;
   LV2_URI_Map_Feature m_urimap_host_desc;
   LV2_Event_Feature m_event_host_desc;
   LV2_Context_Feature m_context_host_desc;

@@ -35,10 +35,10 @@
 #include <turtleparser.hpp>
 #include <query.hpp>
 #include <namespaces.hpp>
+#include <lv2_event_helpers.h>
+#include <lv2_ui.h>
 
 #include "lv2host.hpp"
-#include <lv2_event_helpers.h>
-#include <lv2-ui.h>
 #include "debug.hpp"
 #include "midiutils.hpp"
 
@@ -53,7 +53,6 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     m_rate(frame_rate),
     m_handle(0),
     m_desc(0),
-    m_comm_desc(0),
     m_sr_desc(0),
     m_msg_desc(0),
     m_ports_used(0),
@@ -65,9 +64,6 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
   pthread_mutex_init(&m_mutex, 0);
   
   sem_init(&m_notification_sem, 0, 0);
-  
-  m_comm_host_desc.feedback = &LV2Host::feedback_wrapper;
-  m_comm_host_desc.host_data = this;
   
   m_urimap_host_desc.callback_data = 0;
   m_urimap_host_desc.uri_to_id = &LV2Host::uri_to_id;
@@ -228,28 +224,6 @@ void LV2Host::deactivate() {
   DBG2("Deactivating the plugin instance");
   if (m_desc->deactivate)
     m_desc->deactivate(m_handle);
-}
-
-
-char* LV2Host::command(uint32_t argc, const char* const* argv) {
-  DBG2("Calling command() with "<<argc<<" parameters:");
-  for (unsigned i = 0; i < argc; ++i)
-    DBG2("  '"<<argv[i]<<"'");
-  if (m_comm_desc && m_comm_desc->command) {
-    char* result = m_comm_desc->command(m_handle, argc, argv);
-    if (result) {
-      DBG0("ERROR REPORTED BY PLUGIN: "<<result);
-      DBG0("  for command:");
-      for (unsigned i = 0; i < argc; ++i)
-	DBG0("'"<<argv[i]<<"'");
-    }
-    return result;
-  }
-  else
-    DBG0("This plugin has no command() callback");
-
-  return 0;
-  
 }
 
 
@@ -732,7 +706,6 @@ bool LV2Host::load_plugin() {
   DBG2(__PRETTY_FUNCTION__);
 
   map<string, bool> supported_features;
-  supported_features[LV2_COMMAND_URI] = false;
   supported_features[LV2_SAVERESTORE_URI] = false;
   supported_features[LV2_URI_MAP_URI] = false;
   supported_features[LV2_CONTEXT_URI] = false;
@@ -1006,16 +979,6 @@ bool LV2Host::load_plugin() {
     return false;
   }
   
-  // get the command descriptor (if it has one)
-  if (supported_features[LV2_COMMAND_URI]) {
-    if (m_desc->extension_data)
-      m_comm_desc = (LV2_CommandDescriptor*)(m_desc->extension_data("http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension"));
-    if (!m_comm_desc) {
-      DBG0("The plugin does not use the command extension like the RDF said it should");
-      return false;
-    }
-  }
-  
   // get the save/restore descriptor (if there is one)
   if (supported_features[LV2_SAVERESTORE_URI]) {
     if (m_desc->extension_data)
@@ -1041,17 +1004,12 @@ bool LV2Host::load_plugin() {
   }
   
   // instantiate the plugin
-  LV2_Feature command_feature = {
-    "http://ll-plugins.nongnu.org/lv2/namespace#dont-use-this-extension",
-    &m_comm_host_desc
-  };
   LV2_Feature urimap_feature = { LV2_URI_MAP_URI, &m_urimap_host_desc };
   LV2_Feature saverestore_feature = { LV2_SAVERESTORE_URI, 0 };
   LV2_Feature event_feature = { LV2_EVENT_URI, &m_event_host_desc };
   LV2_Feature context_feature = { LV2_CONTEXT_URI, &m_context_host_desc };
   LV2_Feature message_feature = { LV2_CONTEXT_MESSAGE, 0 };
-  const LV2_Feature* features[] = { &command_feature, 
-				    &urimap_feature,
+  const LV2_Feature* features[] = { &urimap_feature,
 				    &saverestore_feature,
 				    &event_feature,
 				    &context_feature,
@@ -1091,21 +1049,6 @@ bool LV2Host::print_uri(const string& bundle) {
     cout<<qr[i][uriref]->name<<endl;
 
   return false;
-}
-
-
-void LV2Host::feedback(uint32_t argc, const char* const* argv) {
-  cout<<"Plugin said:";
-  for (unsigned i = 0; i < argc; ++i)
-    cout<<" "<<"'"<<argv[i]<<"'";
-  cout<<endl;
-  signal_feedback(argc, argv);
-}
-
-
-void LV2Host::feedback_wrapper(void* me, uint32_t argc, 
-			       const char* const* argv) {
-  static_cast<LV2Host*>(me)->feedback(argc, argv);
 }
 
 
