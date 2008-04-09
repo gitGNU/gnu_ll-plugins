@@ -4,16 +4,16 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.420
+PACKAGE_VERSION = 0.1.421
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
 	gtkmm-2.4>=2.8.8 \
 	jack>=0.109.0 \
 	lash-1.0>=0.5.1 \
-	lv2-plugin>=0.1.705 \
-	lv2-gui>=0.1.705 \
-	paq>=0.1.682 \
+	lv2-plugin>=1.0.0 \
+	lv2-gui>=1.0.0 \
+	paq>=1.0.0 \
 	sndfile>=1.0.16
 
 
