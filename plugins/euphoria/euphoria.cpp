@@ -25,6 +25,7 @@
 #include <iostream>
 
 #include <lv2synth.hpp>
+#include <lv2_osc.h>
 
 #include "pdosc.hpp"
 #include "voicehandler.hpp"
@@ -166,18 +167,50 @@ public:
   }
   
   
+  bool blocking_run(uint8_t* outputs_written) { 
+    LV2_Event_Iterator iter;
+    lv2_event_begin(&iter, p<LV2_Event_Buffer>(64));
+    cerr<<"Message context woken up with these events:"<<endl;
+    while (lv2_event_is_valid(&iter)) {
+      uint8_t* data;
+      LV2_Event* ev = lv2_event_get(&iter, &data);
+      if (ev->type == 1) {
+	cerr<<" MIDI:"<<hex;
+	for (uint32_t i = 0; i < ev->size; ++i)
+	  cerr<<" 0x"<<int(data[i]);
+	cerr<<dec<<endl;
+      }
+      else if (ev->type == 2) {
+	const LV2_OSC_Event* osc = reinterpret_cast<LV2_OSC_Event*>(data);
+	const char* types = lv2_osc_get_types(osc);
+	const char* path = lv2_osc_get_path(osc);
+	cerr<<"  OSC: \""<<path<<"\" "<<types;
+	for (uint32_t i = 0; i < strlen(types); ++i) {
+	  switch (types[i]) {
+	  case 'i': cerr<<" "<<lv2_osc_get_argument(osc, i)->i; break;
+	  case 'f': cerr<<" "<<lv2_osc_get_argument(osc, i)->f; break;
+	  case 's': cerr<<" \""<<&lv2_osc_get_argument(osc, i)->s<<"\""; break;
+	  case 'b': cerr<<" <BLOB>"; break;
+	  default: cerr<<" <\?\?\?>";
+	  }
+	}
+	cerr<<endl;
+	
+	if (!strcmp(types, "ss")) {
+	  free(command(&lv2_osc_get_argument(osc, 0)->s,
+		       &lv2_osc_get_argument(osc, 1)->s));
+	}
+	
+      }
+      lv2_event_increment(&iter);
+    }
+    return false;
+  }
+
+
+  
   // XXX this should be changed to message_run()
-  char* command(uint32_t argc, const char* const* argv) {
-    
-    for (uint32_t i = 0; i < argc; ++i)
-      std::cout<<argv[i]<<" ";
-    std::cout<<endl;
-    
-    if (argc != 2)
-      return strdup("Unknown command");
-    
-    const char* key = argv[0];
-    const char* value = argv[1];
+  char* command(const char* key, const char* value) {
     
     if (!strcmp(key, "shape"))
       for (unsigned j = 0; j < m_voices.size(); ++j)

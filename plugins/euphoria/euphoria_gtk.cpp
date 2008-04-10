@@ -83,8 +83,7 @@ protected:
   }
   
   void configure_changed(const string& key, const string& value) {
-    //const char* array[] = { key.c_str(), value.c_str() };
-    //command(2, array);
+    write_osc(64, "/", "ss", key.c_str(), value.c_str());
   }
   
   EuphoriaWidget m_euph;

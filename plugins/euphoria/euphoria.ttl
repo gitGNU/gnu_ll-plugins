@@ -4,13 +4,14 @@
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 @prefix llext: <http://ll-plugins.nongnu.org/lv2/ext/>.
 @prefix ev: <http://lv2plug.in/ns/ext/event#>.
+@prefix cx: <http://ll-plugins.nongnu.org/lv2/dev/contexts/1#>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/euphoria/0.0.0>
   a lv2:Plugin;
   doap:name "Euphoria";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
   ll:gtk2Gui <euphoria_gtk.so>;
-  lv2:requiredFeature ll:dont-use-this-extension;
+  lv2:requiredFeature <http://ll-plugins.nongnu.org/lv2/dev/contexts/1>;
   ll:pegName "e";  
   ll:defaultPresets <presets.ttl>; 
 
@@ -914,5 +915,19 @@
     lv2:index 63;
     lv2:symbol "right";
     lv2:name "Right";
+  ];
+
+  cx:requiredContext [
+    a cx:MessageContext;
+    cx:port [
+      a ev:EventPort, lv2:InputPort;
+      ev:supportsEvent <http://lv2plug.in/ns/ext/osc#OscEvent>;
+      lv2:index 64;
+      lv2:symbol "osc_input";
+      lv2:name "OSC input";
+    ];
   ].
+
+
+
 
