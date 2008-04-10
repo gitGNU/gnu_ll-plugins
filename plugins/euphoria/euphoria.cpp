@@ -24,7 +24,7 @@
 #include <cstring>
 #include <iostream>
 
-#include <lv2plugin.hpp>
+#include <lv2synth.hpp>
 
 #include "pdosc.hpp"
 #include "voicehandler.hpp"
@@ -36,13 +36,16 @@
 #include "markov.hpp"
 #include "wsvoice.hpp"
 #include "pdvoice.hpp"
-#include "distortion.hpp"
+#include "stereodistortion.hpp"
 #include "chorus.hpp"
 #include "echo.hpp"
 #include "reverb.hpp"
 
 
-class EuphoriaVoice {
+using namespace LV2;
+
+
+class EuphoriaVoice : public Voice {
 public:
   
   enum State {
@@ -55,7 +58,9 @@ public:
       m_pdvoice(rate),
       m_state(OFF),
       m_inv_rate(1.0 / rate),
-      m_freq(0) {
+      m_freq(0),
+      m_key(INVALID_KEY) {
+    
   }
   
   
@@ -68,6 +73,7 @@ public:
 
   void on(unsigned char key, unsigned char velocity) {
     m_state = ON;
+    m_key = key;
     m_freq = m_table[key];
     m_wsvoice.on(key, velocity);
     m_pdvoice.on(key, velocity);
@@ -77,6 +83,10 @@ public:
     m_state = OFF;
     m_wsvoice.off();
     m_pdvoice.off();
+  }
+  
+  unsigned char get_key() const {
+    return m_key;
   }
 
   void fast_off() {
@@ -89,12 +99,10 @@ public:
 
   }
 
-  
-  void run(float& left, float& right, float& shape, float& smoothness,
-           float& attack, float& decay, float& release, float& mrk_freq) {
-    m_wsvoice.run(&left, &right, 1, shape, smoothness, attack, decay, 0.5,
-		  release, m_freq);
-    //m_pdvoice.run(&left, &right, 1);
+  void render(uint32_t from, uint32_t to) {
+    m_wsvoice.run(p(e_left + from), p(e_right + from), 1, *p(e_shape), 
+		  *p(e_shape_smoothness), *p(e_shape_attack), *p(e_shape_decay),
+		  0.5, *p(e_shape_release), m_freq);
   }
   
   //protected:
@@ -105,6 +113,7 @@ public:
   State m_state;
   float m_inv_rate;
   float m_freq;
+  unsigned char m_key;
   
   static FrequencyTable m_table;
 };
@@ -113,67 +122,43 @@ public:
 FrequencyTable EuphoriaVoice::m_table;
 
 
-class Euphoria : public LV2::Plugin<Euphoria, LV2::CommandExt<true> > {
+class Euphoria : public Synth<EuphoriaVoice, Euphoria, MsgContext<true> > {
 public:
   
   Euphoria(double rate) 
-    : LV2::Plugin<Euphoria, LV2::CommandExt<true> >(e_n_ports),
-      m_handler(3, rate),
-      m_trigger(0),
+    : Synth<EuphoriaVoice, Euphoria, MsgContext<true> >(e_n_ports,e_midi_input),
       m_dist(rate),
       m_chorus(rate),
       m_echo(rate),
       m_reverb(rate) {
-    
+    add_voices(new EuphoriaVoice(rate), new EuphoriaVoice(rate),
+	       new EuphoriaVoice(rate), new EuphoriaVoice(rate));
   }
   
   
-  void activate() {
-    m_handler.set_voices(m_handler.get_voices().size());
-    m_trigger = 0;
-  }
+  void post_process(uint32_t from, uint32_t to) {
 
-  
-  void run(uint32_t nframes) {
-    
-    LV2_MIDI* midi = p<LV2_MIDI>(e_midi_input);
-    float& shape = *p(e_shape);
-    float& shape_smoothness = *p(e_shape_smoothness);
-    float& attack = *p(e_shape_attack);
-    float& decay = *p(e_shape_decay);
-    float& release = *p(e_shape_release);
     float& reverb_damp = *p(e_reverb_damping);
     float* left = p(e_left);
     float* right = p(e_right);
     
-    // render voices
-    m_handler.set_midi_port(midi);
-    for (uint32_t i = 0; i < nframes; ++i) {
-      m_handler.run(i);
-      left[i] = 0;
-      right[i] = 0;
-      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j) {
-        m_handler.get_voices()[j].voice->
-          run(left[i], right[i], shape, shape_smoothness, 
-              attack, decay, release, *p(e_mrk_max_freq));
-      }
-    }
-    
-    
     // apply effects
-    m_dist.run(left, right, nframes, *p(e_dist_switch), *p(e_dist_drive), 
+    m_dist.run(left + from, right + from, to - from, 
+	       *p(e_dist_switch), *p(e_dist_drive), 
 	       *p(e_dist_set), *p(e_dist_tone), *p(e_dist_mix));
-    m_chorus.run(left, right, nframes, *p(e_chorus_switch), *p(e_chorus_freq),
+    m_chorus.run(left + from, right + from, to - from,
+		 *p(e_chorus_switch), *p(e_chorus_freq), 
 		 *p(e_chorus_depth) * 0.001, *p(e_chorus_delay) * 0.001, 
 		 *p(e_chorus_mix));
-    m_echo.run(left, right, nframes, *p(e_echo_switch), *p(e_echo_delay),
+    m_echo.run(left + from, right + from, to - from, 
+	       *p(e_echo_switch), *p(e_echo_delay),
 	       *p(e_echo_feedback), *p(e_echo_pan), *p(e_echo_mix));
     if (*p(e_reverb_switch) > 0)
-      m_reverb.run(left, right, nframes, *p(e_reverb_time), 
+      m_reverb.run(left + from, right + from, to - from, *p(e_reverb_time), 
 		   *p(e_reverb_mix), reverb_damp*20000);
     
     // gain
-    for (uint32_t i = 0; i < nframes; ++i) {
+    for (uint32_t i = from; i < to; ++i) {
       left[i] *= *p(e_gain);
       right[i] *= *p(e_gain);
     }
@@ -181,6 +166,7 @@ public:
   }
   
   
+  // XXX this should be changed to message_run()
   char* command(uint32_t argc, const char* const* argv) {
     
     for (uint32_t i = 0; i < argc; ++i)
@@ -194,23 +180,23 @@ public:
     const char* value = argv[1];
     
     if (!strcmp(key, "shape"))
-      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_wsvoice.set_shape(value);
+      for (unsigned j = 0; j < m_voices.size(); ++j)
+        m_voices[j]->m_wsvoice.set_shape(value);
     else if (!strcmp(key, "shp_amount_env"))
-      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_wsvoice.set_amount_env(value);
+      for (unsigned j = 0; j < m_voices.size(); ++j)
+        m_voices[j]->m_wsvoice.set_amount_env(value);
     else if (!strcmp(key, "shp_amp_env"))
-      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_wsvoice.set_gain_env(value);
+      for (unsigned j = 0; j < m_voices.size(); ++j)
+        m_voices[j]->m_wsvoice.set_gain_env(value);
     else if (!strcmp(key, "phase"))
-      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_pdvoice.set_phase(value);
+      for (unsigned j = 0; j < m_voices.size(); ++j)
+        m_voices[j]->m_pdvoice.set_phase(value);
     else if (!strcmp(key, "pd_dist_env"))
-      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_pdvoice.set_dist_env(value);
+      for (unsigned j = 0; j < m_voices.size(); ++j)
+        m_voices[j]->m_pdvoice.set_dist_env(value);
     else if (!strcmp(key, "pd_amp_env"))
-      for (unsigned j = 0; j < m_handler.get_voices().size(); ++j)
-        m_handler.get_voices()[j].voice->m_pdvoice.set_gain_env(value);
+      for (unsigned j = 0; j < m_voices.size(); ++j)
+        m_voices[j]->m_pdvoice.set_gain_env(value);
     else
       return strdup("Unknown configure key");
     
@@ -219,9 +205,6 @@ public:
   
   
 protected:
-  
-  VoiceHandler<EuphoriaVoice> m_handler;
-  int m_trigger;
   
   StereoDistortion m_dist;
   Chorus m_chorus;

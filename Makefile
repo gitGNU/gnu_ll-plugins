@@ -4,7 +4,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.421
+PACKAGE_VERSION = 0.1.422
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
@@ -40,10 +40,10 @@ LV2_BUNDLES = \
 	phase-distortion-osc.lv2 \
 	vumeter.lv2 \
 	vumeter_gtk.lv2 \
+	euphoria.lv2 \
+	euphoria_gtk.lv2
 #	envelope.lv2 \
 #	envelope_gtk.lv2 \
-#	euphoria.lv2 \
-#	euphoria_gtk.lv2 \
 #	horizon.lv2 \
 #	horizon_gtk.lv2 \
 #	trilobeat.lv2 \
@@ -229,7 +229,7 @@ euphoria_gtk_so_ARCHIVES = \
 	libraries/widgets/libspringeditor.a \
 	libraries/widgets/libpdeditor.a \
 	libraries/widgets/libtransitioneditor.a \
-euphoria_gtk_lv2_POSTINSTALL = $(RESIDENTGUI) >> euphoria_gtk.lv2/manifest.ttl
+#euphoria_gtk_lv2_POSTINSTALL = $(RESIDENTGUI) >> euphoria_gtk.lv2/manifest.ttl
 
 # Horizon
 horizon_lv2_MODULES = horizon.so

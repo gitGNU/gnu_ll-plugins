@@ -33,18 +33,13 @@
 using namespace std;
 using namespace Gtk;
 using namespace sigc;
+using namespace LV2;
 
 
-class EuphoriaGUI : public LV2::GUI<EuphoriaGUI, LV2::CommandGUI<true> > {
+class EuphoriaGUI : public GUI<EuphoriaGUI, URIMap<true>, WriteOSC<true> > {
 public:
   
   EuphoriaGUI(const std::string& URI) {
-    
-    if (!host_supports_commands())
-      cout<<"No commands!"<<endl;
-    else
-      cout<<"Got commands!"<<endl;
-    
     pack_start(m_euph);
     m_euph.signal_control_changed.
       connect(mem_fun(*this, &EuphoriaGUI::control_changed));
@@ -54,8 +49,10 @@ public:
     //  connect(mem_fun(ctrl, &LV2::Controller::request_program));
   }
   
-  void port_event(uint32_t port, uint32_t buffer_size, const void* buffer) {
-    m_euph.set_control(port, *static_cast<const float*>(buffer));
+  void port_event(uint32_t port, uint32_t buffer_size, uint32_t format,
+		  const void* buffer) {
+    if (format == 0)
+      m_euph.set_control(port, *static_cast<const float*>(buffer));
   }
 
   void feedback(uint32_t argc, const char* const* argv) {
@@ -82,12 +79,12 @@ public:
 protected:
   
   void control_changed(uint32_t port, float value) {
-    write(port, sizeof(float), &value);
+    write_control(port, value);
   }
   
   void configure_changed(const string& key, const string& value) {
-    const char* array[] = { key.c_str(), value.c_str() };
-    command(2, array);
+    //const char* array[] = { key.c_str(), value.c_str() };
+    //command(2, array);
   }
   
   EuphoriaWidget m_euph;
