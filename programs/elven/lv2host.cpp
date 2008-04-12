@@ -905,8 +905,9 @@ bool LV2Host::load_plugin() {
     
     // default preset path
     Variable preset_path;
+    Namespace pr("<http://ll-plugins.nongnu.org/lv2/dev/presets#>");
     qr = select(preset_path)
-      .where(uriref, ll("defaultPresets"), preset_path)
+      .where(uriref, pr("hasPresetFile"), preset_path)
       .run(data);
     if (qr.size() > 0) {
       string presetfile = qr[0][preset_path]->name;
@@ -918,16 +919,16 @@ bool LV2Host::load_plugin() {
       }
       else {
         Variable bank;
-        qr = select(bank).where(uriref, ll("hasBank"), bank).run(data);
+        qr = select(bank).where(uriref, pr("hasBank"), bank).run(data);
         if (qr.size() > 0) {
           string bankuri = qr[0][bank]->name;
           DBG2("Found preset bank "<<bankuri);
           Variable preset, name, program;
           vector<QueryResult> qr2 = select(preset, name, program)
-            .where(uriref, ll("hasSetting"), preset)
-            .where(preset, doap("name"), name)
-            .where(preset, ll("midiProgram"), program)
-            .where(preset, ll("inBank"), bankuri)
+            .where(uriref, pr("hasSetting"), preset)
+            .where(preset, pr("hasLabel"), name)
+            .where(preset, pr("midiProgram"), program)
+            .where(preset, pr("inBank"), bankuri)
             .run(data);
           for (unsigned j = 0; j < qr2.size(); ++j) {
             string preseturi = qr2[j][preset]->name;
@@ -938,8 +939,8 @@ bool LV2Host::load_plugin() {
             m_presets[pnum].values.clear();
             Variable pv, port, value;
             vector<QueryResult> qr3 = select(port, value)
-              .where(preseturi, ll("hasPortValue"), pv)
-              .where(pv, ll("forPort"), port)
+              .where(preseturi, pr("hasPortValue"), pv)
+              .where(pv, pr("forPort"), port)
               .where(pv, rdf("value"), value)
               .run(data);
             for (unsigned k = 0; k < qr3.size(); ++k) {
