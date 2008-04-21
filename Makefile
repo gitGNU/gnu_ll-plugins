@@ -4,7 +4,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.425
+PACKAGE_VERSION = 0.1.426
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
@@ -14,7 +14,8 @@ PKG_DEPS = \
 	lv2-plugin>=1.0.0 \
 	lv2-gui>=1.0.0 \
 	paq>=1.0.0 \
-	sndfile>=1.0.16
+	sndfile>=1.0.16 \
+	samplerate>=0.1.2
 
 
 ARCHIVES = \
@@ -28,7 +29,7 @@ ARCHIVES = \
 	libvgknob.a \
 	libvuwidget.a
 
-PROGRAMS = elven
+PROGRAMS = elven rxc
 
 LV2_BUNDLES = \
 	arpeggiator.lv2 \
@@ -36,12 +37,14 @@ LV2_BUNDLES = \
 	control2midi.lv2 \
 	gcf.lv2 \
 	klaviatur.lv2 \
+	midiproc.lv2 \
 	nekobee_blue_gui.lv2 \
 	phase-distortion-osc.lv2 \
 	vumeter.lv2 \
 	vumeter_gtk.lv2 \
 	euphoria.lv2 \
-	euphoria_gtk.lv2
+	euphoria_gtk.lv2 \
+	tableosc.lv2
 #	envelope.lv2 \
 #	envelope_gtk.lv2 \
 #	horizon.lv2 \
@@ -102,6 +105,12 @@ elven_CFLAGS = `pkg-config --cflags jack gtkmm-2.4 lash-1.0 sigc++-2.0 lv2-plugi
 elven_LDFLAGS = `pkg-config --libs jack gtkmm-2.4 lash-1.0 sigc++-2.0 paq` -lpthread
 elven_SOURCEDIR = programs/elven
 
+# XXX rxc
+rxc_SOURCES = \
+	regexcompiler.hpp regexcompiler.cpp \
+	main.cpp
+rxc_SOURCEDIR = plugins/midiproc
+
 
 # The plugins
 
@@ -151,6 +160,20 @@ klaviatur_gtk_so_CFLAGS = `pkg-config --cflags lv2-gui` -Ilibraries/widgets
 klaviatur_gtk_so_LDFLAGS = `pkg-config --libs lv2-gui` 
 klaviatur_gtk_so_ARCHIVES = libraries/widgets/libkeyboard.a
 klaviatur_lv2_POSTINSTALL = $(RESIDENTGUI) >> klaviatur.lv2/klaviatur.ttl
+
+# MIDI processor
+midiproc_lv2_MODULES = midiproc.so #midiproc_gtk.so
+midiproc_lv2_DATA = manifest.ttl midiproc.ttl
+midiproc_lv2_PEGFILES = midiproc.peg
+midiproc_lv2_SOURCEDIR = plugins/midiproc
+midiproc_so_SOURCES = midiproc.cpp
+midiproc_so_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components
+midiproc_so_LDFLAGS = $(PLUGINARCHIVES)
+midiproc_gtk_so_SOURCES = midiproc_gtk.cpp
+midiproc_gtk_so_CFLAGS = `pkg-config --cflags lv2-gui` -Ilibraries/widgets
+midiproc_gtk_so_LDFLAGS = `pkg-config --libs lv2-gui` 
+midiproc_gtk_so_ARCHIVES = libraries/widgets/libkeyboard.a
+midiproc_lv2_POSTINSTALL = $(RESIDENTGUI) >> midiproc.lv2/midiproc.ttl
 
 # Trilobyte
 trilobyte_lv2_MODULES = trilobyte.so
@@ -349,6 +372,14 @@ envelope_gtk_so_SOURCES = envelope_gtk.cpp
 envelope_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui` -Ilibraries/widgets
 envelope_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
 envelope_gtk_so_ARCHIVES = libraries/widgets/libenvelopeeditor.a
+
+# Table oscillator
+tableosc_lv2_MODULES = tableosc.so
+tableosc_lv2_DATA = manifest.ttl tableosc.ttl presets.ttl money.wav
+tableosc_lv2_SOURCEDIR = plugins/tableosc
+tableosc_so_SOURCES = tableosc.cpp
+tableosc_so_CFLAGS = $(PLUGINCFLAGS) `pkg-config --cflags sndfile samplerate`
+tableosc_so_LDFLAGS = $(PLUGINARCHIVES) `pkg-config --libs sndfile samplerate`
 
 
 # The shared headers need to go in the distribution too

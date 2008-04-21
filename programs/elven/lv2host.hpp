@@ -84,8 +84,20 @@ struct LV2Port {
 
 
 struct LV2Preset {
+  ~LV2Preset() {
+    if (files) {
+      LV2SR_File** iter = files;
+      while (*iter) {
+	free((*iter)->name);
+	free((*iter)->path);
+	free(*iter);
+	++iter;
+      }
+    }
+  }
   std::string name;
   std::map<uint32_t, float> values;
+  LV2SR_File** files;
 };
 
 

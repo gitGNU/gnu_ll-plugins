@@ -247,9 +247,20 @@ void LV2Host::set_control(uint32_t index, float value) {
 
 
 void LV2Host::set_program(unsigned char program) {
+  
+  DBG2("Switch to program "<<program<<" requested");
+  
   std::map<unsigned char, LV2Preset>::const_iterator iter = m_presets.find(program);
+  
   if (iter != m_presets.end()) {
+    
+    DBG2("Found preset \""<<iter->second.name
+	 <<"\" with program number "<<program);
+    
+    // tell the GUI that the program has changed
     signal_program_changed(program);
+    
+    // set all port values in the preset
     const std::map<uint32_t, float>& preset = iter->second.values;
     std::map<uint32_t, float>::const_iterator piter;
     for (piter = preset.begin(); piter != preset.end(); ++piter) {
@@ -258,6 +269,14 @@ void LV2Host::set_program(unsigned char program) {
 	  m_ports[piter->first].direction == InputPort)
 	set_control(piter->first, piter->second);
     }
+    
+    // call restore() in the plugin if there are any files in the preset
+    if (iter->second.files) {
+      DBG2("Preset has data files, restoring");
+      if (!restore(const_cast<const LV2SR_File**>(iter->second.files)))
+	DBG0("Failed to completely restore preset");
+    }
+    
   }
 }
 
@@ -912,12 +931,16 @@ bool LV2Host::load_plugin() {
     if (qr.size() > 0) {
       string presetfile = qr[0][preset_path]->name;
       DBG2("Found default preset file "<<presetfile);
+      
+      // parse preset file
       TurtleParser tp;
       RDFData data;
       if (!tp.parse_ttl_url(presetfile, data)) {
         DBG0("Could not parse presets from "<<presetfile);
       }
       else {
+	
+	// get all program banks
         Variable bank;
         qr = select(bank).where(uriref, pr("hasBank"), bank).run(data);
         if (qr.size() > 0) {
@@ -930,14 +953,20 @@ bool LV2Host::load_plugin() {
             .where(preset, pr("midiProgram"), program)
             .where(preset, pr("inBank"), bankuri)
             .run(data);
+	  
+	  // get all programs in this bank
           for (unsigned j = 0; j < qr2.size(); ++j) {
-            string preseturi = qr2[j][preset]->name;
+            
+	    string preseturi = qr2[j][preset]->name;
             DBG2("Found the preset \""<<qr2[j][name]->name<<"\" "
                  <<" with MIDI program number "<<qr2[j][program]->name);
             int pnum = atoi(qr2[j][program]->name.c_str());
             m_presets[pnum].name = qr2[j][name]->name;
             m_presets[pnum].values.clear();
-            Variable pv, port, value;
+	    // XXX should free any old .files here
+            
+	    // get all port values for this preset
+	    Variable pv, port, value;
             vector<QueryResult> qr3 = select(port, value)
               .where(preseturi, pr("hasPortValue"), pv)
               .where(pv, pr("forPort"), port)
@@ -948,9 +977,33 @@ bool LV2Host::load_plugin() {
               float v = atof(qr3[k][value]->name.c_str());
               m_presets[pnum].values[p] = v;
             }
-          }
-        }
+	    
+	    // get all data files for this preset
+            Variable fn, name, path;
+            qr3 = select(name, path)
+              .where(preseturi, pr("hasFile"), fn)
+              .where(fn, pr("fileName"), name)
+              .where(pv, pr("filePath"), path)
+              .run(data);
+	    if (qr3.size() > 0) {
+	      m_presets[pnum].files = 
+		(LV2SR_File**)calloc(qr3.size() + 1, sizeof(LV2SR_File*));
+	      for (unsigned k = 0; k < qr3.size(); ++k) {
+		std::string fname = qr3[k][name]->name.c_str();
+		std::string fpath = qr3[k][path]->name.c_str();
+		fpath = fpath.substr(8, fpath.size() - 9); 
+
+		LV2SR_File* file = (LV2SR_File*)calloc(1, sizeof(LV2SR_File));
+		file->name = strdup(fname.c_str());
+		file->path = strdup(fpath.c_str());
+		m_presets[pnum].files[k] = file;
+	      }
+	    }
+	    
+	  }
+	}
       }
+
     }
 
   }
