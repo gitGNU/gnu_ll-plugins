@@ -98,7 +98,7 @@ libpatternwidget_a_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Ilibraries/componen
 libpatternwidget_a_SOURCEDIR = libraries/widgets
 
 # Fons Adriansen's Zita convolver library, copied here for convenience
-libzita-convolver_a_SOURCES = zita-convolver.cc zita-convolver.h
+libzita-convolver_a_SOURCES = zita-convolver.cpp zita-convolver.h
 libzita-convolver_a_CFLAGS = -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS
 libzita-convolver_a_SOURCEDIR = plugins/conv/zita-convolver/libs
 
