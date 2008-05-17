@@ -241,7 +241,6 @@ EXTRA_DIST = \
 	libraries/components/dcblocker.hpp \
 	libraries/components/delay.hpp \
 	libraries/components/delayline.hpp \
-	libraries/components/distortion.hpp \
 	libraries/components/envelopegenerator.hpp \
 	libraries/components/filter.hpp \
 	libraries/components/frequencytable.hpp \
