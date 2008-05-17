@@ -1,8 +1,3 @@
-# This package requires that the lv2-c++-tools package is already installed.
-# It can be downloaded using CVS from the module lv2-c++-tools in the same
-# repository as the one you downloaded ll-plugins from.
-
-
 PACKAGE_NAME = ll-plugins
 PACKAGE_VERSION = $(shell git describe --match 'Version_*' | sed 's/Version_//' | sed 's/-/ /g' | awk '{ print $$1 " " $$2}' | sed -r 's/\.([0-9]+) / \1 /' | awk '{ print $$1 "." $$2+$$3 }')$(shell if test $$(git ls-files --modified | wc -l) -gt 0 ; then echo .EDITED; fi)
 PKG_DEPS = \
