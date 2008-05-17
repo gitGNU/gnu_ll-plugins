@@ -26,14 +26,13 @@ ARCHIVES = \
 	libpatternwidget.a \
 	libvuwidget.a
 
-PROGRAMS = elven rxc
+PROGRAMS = elven
 
 LV2_BUNDLES = \
 	arpeggiator.lv2 \
 	beep.lv2 \
 	control2midi.lv2 \
 	klaviatur.lv2 \
-	midiproc.lv2 \
 	nekobee_blue_gui.lv2 \
 	phase-distortion-osc.lv2 \
 	vumeter.lv2 \
@@ -73,12 +72,6 @@ elven_SOURCES = \
 elven_CFLAGS = `pkg-config --cflags jack gtkmm-2.4 lash-1.0 sigc++-2.0 lv2-plugin lv2-gui paq` -Ilibraries/components -DVERSION=\"$(PACKAGE_VERSION)\"
 elven_LDFLAGS = `pkg-config --libs jack gtkmm-2.4 lash-1.0 sigc++-2.0 paq` -lpthread
 elven_SOURCEDIR = programs/elven
-
-# XXX rxc
-rxc_SOURCES = \
-	regexcompiler.hpp regexcompiler.cpp \
-	main.cpp
-rxc_SOURCEDIR = plugins/midiproc
 
 
 # The plugins
@@ -129,20 +122,6 @@ klaviatur_gtk_so_CFLAGS = `pkg-config --cflags lv2-gui` -Ilibraries/widgets
 klaviatur_gtk_so_LDFLAGS = `pkg-config --libs lv2-gui` 
 klaviatur_gtk_so_ARCHIVES = libraries/widgets/libkeyboard.a
 klaviatur_lv2_POSTINSTALL = $(RESIDENTGUI) >> klaviatur.lv2/klaviatur.ttl
-
-# MIDI processor
-midiproc_lv2_MODULES = midiproc.so #midiproc_gtk.so
-midiproc_lv2_DATA = manifest.ttl midiproc.ttl
-midiproc_lv2_PEGFILES = midiproc.peg
-midiproc_lv2_SOURCEDIR = plugins/midiproc
-midiproc_so_SOURCES = midiproc.cpp
-midiproc_so_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components
-midiproc_so_LDFLAGS = $(PLUGINARCHIVES)
-midiproc_gtk_so_SOURCES = midiproc_gtk.cpp
-midiproc_gtk_so_CFLAGS = `pkg-config --cflags lv2-gui` -Ilibraries/widgets
-midiproc_gtk_so_LDFLAGS = `pkg-config --libs lv2-gui` 
-midiproc_gtk_so_ARCHIVES = libraries/widgets/libkeyboard.a
-midiproc_lv2_POSTINSTALL = $(RESIDENTGUI) >> midiproc.lv2/midiproc.ttl
 
 # Trilobyte
 trilobyte_lv2_MODULES = trilobyte.so
