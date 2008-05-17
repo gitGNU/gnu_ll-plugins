@@ -1,0 +1,13 @@
+@prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+
+<http://ll-plugins.nongnu.org/lv2/dev/gcf/0>
+  rdfs:seeAlso <>;
+  guiext:ui <http://ll-plugins.nongnu.org/lv2/dev/gcf/0/gui>;
+
+<http://ll-plugins.nongnu.org/lv2/dev/gcf/0/gui> 
+  a guiext:GtkUI;
+  guiext:requiredFeature guiext:makeResident;
+  guiext:binary <gcf_gtk.so>;
+  guiext:portNotification 
+    [ guiext:plugin <http://ll-plugins.nongnu.org/lv2/dev/gcf/0>;
+      guiext:portIndex 1 ].

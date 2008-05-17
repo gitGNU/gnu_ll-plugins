@@ -39,6 +39,7 @@ LV2_BUNDLES = \
 	beep.lv2 \
 	control2midi.lv2 \
 	gcf.lv2 \
+	gcf_gtk.lv2 \
 	klaviatur.lv2 \
 	midiproc.lv2 \
 	nekobee_blue_gui.lv2 \
@@ -323,12 +324,17 @@ nekobee_blue_gui_lv2_POSTINSTALL = $(RESIDENTGUI) >> nekobee_blue_gui.lv2/manife
 #hhfdn_lv2_SOURCEDIR = plugins/householderfdn
 
 # GCF
-gcf_lv2_MODULES = gcf.so gcf_gtk.so
+gcf_lv2_MODULES = gcf.so
 gcf_lv2_DATA = manifest.ttl gcf.ttl
 gcf_lv2_SOURCEDIR = plugins/gcf
 gcf_so_SOURCES = gcf.cpp
 gcf_so_CFLAGS = $(PLUGINCFLAGS)
 gcf_so_LDFLAGS = $(PLUGINARCHIVES)
+
+# GCF GUI
+gcf_gtk_lv2_MODULES = gcf_gtk.so
+gcf_gtk_lv2_SOURCEDIR = plugins/gcf
+gcf_gtk_lv2_MANIFEST = gui_manifest.ttl
 gcf_gtk_so_SOURCES = gcf_gtk.cpp tunerwidget.cpp tunerwidget.hpp
 gcf_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui` -Ilibraries/widgets
 gcf_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
