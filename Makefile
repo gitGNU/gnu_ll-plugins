@@ -38,7 +38,6 @@ LV2_BUNDLES = \
 	arpeggiator.lv2 \
 	beep.lv2 \
 	control2midi.lv2 \
-	gcf.lv2 \
 	klaviatur.lv2 \
 	midiproc.lv2 \
 	nekobee_blue_gui.lv2 \
@@ -321,17 +320,6 @@ nekobee_blue_gui_lv2_POSTINSTALL = $(RESIDENTGUI) >> nekobee_blue_gui.lv2/manife
 #hhfdn_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/MidiPort -Ilibraries/components -I.
 #hhfdn_lv2_LDFLAGS = $(PLUGINARCHIVES)
 #hhfdn_lv2_SOURCEDIR = plugins/householderfdn
-
-# GCF
-gcf_lv2_MODULES = gcf.so gcf_gtk.so
-gcf_lv2_DATA = manifest.ttl gcf.ttl
-gcf_lv2_SOURCEDIR = plugins/gcf
-gcf_so_SOURCES = gcf.cpp
-gcf_so_CFLAGS = $(PLUGINCFLAGS)
-gcf_so_LDFLAGS = $(PLUGINARCHIVES)
-gcf_gtk_so_SOURCES = gcf_gtk.cpp tunerwidget.cpp tunerwidget.hpp
-gcf_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui` -Ilibraries/widgets
-gcf_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
 
 # Arpeggiator
 arpeggiator_lv2_MODULES = arpeggiator.so
