@@ -40,8 +40,6 @@ LV2_BUNDLES = \
 	vumeter.lv2 \
 	vumeter_gtk.lv2 \
 	tableosc.lv2
-#	envelope.lv2 \
-#	envelope_gtk.lv2 \
 #	horizon.lv2 \
 #	horizon_gtk.lv2 \
 #	trilobeat.lv2 \
