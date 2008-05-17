@@ -25,11 +25,6 @@ ARCHIVES = \
 	libenvelopeeditor.a \
 	libkeyboard.a \
 	libpatternwidget.a \
-	libpdeditor.a \
-	libshapereditor.a \
-	libspringeditor.a \
-	libtransitioneditor.a \
-	libvgknob.a \
 	libvuwidget.a
 
 PROGRAMS = elven rxc
@@ -44,8 +39,6 @@ LV2_BUNDLES = \
 	phase-distortion-osc.lv2 \
 	vumeter.lv2 \
 	vumeter_gtk.lv2 \
-	euphoria.lv2 \
-	euphoria_gtk.lv2 \
 	tableosc.lv2
 #	envelope.lv2 \
 #	envelope_gtk.lv2 \
@@ -62,29 +55,9 @@ libkeyboard_a_SOURCES = keyboard.hpp keyboard.cpp
 libkeyboard_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
 libkeyboard_a_SOURCEDIR = libraries/widgets
 
-libvgknob_a_SOURCES = vgknob.hpp vgknob.cpp
-libvgknob_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
-libvgknob_a_SOURCEDIR = libraries/widgets
-
 libenvelopeeditor_a_SOURCES = envelopeeditor.hpp envelopeeditor.cpp
 libenvelopeeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
 libenvelopeeditor_a_SOURCEDIR = libraries/widgets
-
-libshapereditor_a_SOURCES = shapereditor.hpp shapereditor.cpp
-libshapereditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
-libshapereditor_a_SOURCEDIR = libraries/widgets
-
-libspringeditor_a_SOURCES = springeditor.hpp springeditor.cpp
-libspringeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
-libspringeditor_a_SOURCEDIR = libraries/widgets
-
-libpdeditor_a_SOURCES = pdeditor.hpp pdeditor.cpp
-libpdeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
-libpdeditor_a_SOURCEDIR = libraries/widgets
-
-libtransitioneditor_a_SOURCES = transitioneditor.hpp transitioneditor.cpp
-libtransitioneditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
-libtransitioneditor_a_SOURCEDIR = libraries/widgets
 
 libvuwidget_a_SOURCES = vuwidget.hpp vuwidget.cpp
 libvuwidget_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
@@ -219,41 +192,6 @@ trilobeat_gtk_lv2_POSTINSTALL = $(RESIDENTGUI) >> trilobeat_gtk.lv2/manifest.ttl
 #trilobeat_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4`
 #trilobeat_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libpatternwidget.a
 #trilobeat_gtk_so_SOURCEDIR = plugins/trilobeat
-
-# Euphoria
-euphoria_lv2_MODULES = euphoria.so
-euphoria_lv2_DATA = manifest.ttl euphoria.ttl presets.ttl
-euphoria_lv2_PEGFILES = euphoria.peg
-euphoria_lv2_SOURCEDIR = plugins/euphoria
-euphoria_so_SOURCES = \
-	euphoria.cpp \
-	shaper.hpp shaper.cpp \
-	pdoscillator.hpp \
-	wsvoice.cpp wsvoice.hpp \
-	pdvoice.hpp pdvoice.cpp \
-	chorus.hpp chorus.cpp \
-	echo.hpp echo.cpp \
-	reverb.hpp
-euphoria_so_CFLAGS = $(ADVANCEDCFLAGS) -Ilibraries/components `pkg-config --cflags gsl`
-euphoria_so_LDFLAGS = `pkg-config --libs gsl lv2-plugin`
-
-# Euphoria GUI
-euphoria_gtk_lv2_MANIFEST = gui_manifest.ttl
-euphoria_gtk_lv2_MODULES = euphoria_gtk.so
-euphoria_gtk_lv2_SOURCEDIR = plugins/euphoria
-euphoria_gtk_so_SOURCES = \
-	euphoria_gtk.cpp \
-	euphoriawidget.cpp euphoriawidget.hpp
-euphoria_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0 lv2-gui` -Ilibraries/widgets
-euphoria_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 cairomm-1.0 lv2-gui` 
-euphoria_gtk_so_ARCHIVES = \
-	libraries/widgets/libvgknob.a \
-	libraries/widgets/libenvelopeeditor.a \
-	libraries/widgets/libshapereditor.a \
-	libraries/widgets/libspringeditor.a \
-	libraries/widgets/libpdeditor.a \
-	libraries/widgets/libtransitioneditor.a \
-#euphoria_gtk_lv2_POSTINSTALL = $(RESIDENTGUI) >> euphoria_gtk.lv2/manifest.ttl
 
 # Horizon
 horizon_lv2_MODULES = horizon.so
