@@ -4,7 +4,7 @@
 
 
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.1.427
+PACKAGE_VERSION = 0.1.428
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gsl>=1.8 \
@@ -18,6 +18,9 @@ PKG_DEPS = \
 	samplerate>=0.1.2
 
 
+DOCS = AUTHORS COPYING
+
+
 ARCHIVES = \
 	libenvelopeeditor.a \
 	libkeyboard.a \
@@ -27,7 +30,8 @@ ARCHIVES = \
 	libspringeditor.a \
 	libtransitioneditor.a \
 	libvgknob.a \
-	libvuwidget.a
+	libvuwidget.a \
+	libzita-convolver.a
 
 PROGRAMS = elven rxc
 
@@ -35,6 +39,7 @@ LV2_BUNDLES = \
 	arpeggiator.lv2 \
 	beep.lv2 \
 	control2midi.lv2 \
+	convolver.lv2 \
 	gcf.lv2 \
 	klaviatur.lv2 \
 	midiproc.lv2 \
@@ -91,6 +96,11 @@ libvuwidget_a_SOURCEDIR = libraries/widgets
 libpatternwidget_a_SOURCES = patternwidget.hpp patternwidget.cpp
 libpatternwidget_a_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Ilibraries/components
 libpatternwidget_a_SOURCEDIR = libraries/widgets
+
+# Fons Adriansen's Zita convolver library, copied here for convenience
+libzita-convolver_a_SOURCES = zita-convolver.cc zita-convolver.h
+libzita-convolver_a_CFLAGS = -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS
+libzita-convolver_a_SOURCEDIR = plugins/conv/zita-convolver/libs
 
 
 # Executable programs
@@ -381,9 +391,17 @@ tableosc_so_SOURCES = tableosc.cpp
 tableosc_so_CFLAGS = $(PLUGINCFLAGS) `pkg-config --cflags sndfile samplerate`
 tableosc_so_LDFLAGS = $(PLUGINARCHIVES) `pkg-config --libs sndfile samplerate`
 
+# Convolution reverb
+convolver_lv2_MODULES = convolver.so
+convolver_lv2_DATA = manifest.ttl convolver.ttl
+convolver_lv2_SOURCEDIR = plugins/conv
+convolver_so_SOURCES = convolver.cpp
+convolver_so_CFLAGS = $(PLUGINCFLAGS) -Iplugins/conv/zita-convolver/libs
+convolver_so_LDFLAGS = $(PLUGINARCHIVES) plugins/conv/zita-convolver/libs/libzita-convolver.a
+
 
 # The shared headers need to go in the distribution too
-EXTRA_DIST = COPYING \
+EXTRA_DIST = \
 	libraries/components/adsr.hpp \
 	libraries/components/chebyshevshaper.hpp \
 	libraries/components/dcblocker.hpp \
