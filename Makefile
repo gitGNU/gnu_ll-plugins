@@ -31,7 +31,9 @@ LV2_BUNDLES = \
 	phase-distortion-osc.lv2 \
 	vumeter.lv2 \
 	vumeter_gtk.lv2 \
-	tableosc.lv2
+	tableosc.lv2 \
+	math-constants.lv2 \
+	math-functions.lv2
 
 
 # Archives with useful code bits
@@ -178,6 +180,23 @@ tableosc_lv2_SOURCEDIR = plugins/tableosc
 tableosc_so_SOURCES = tableosc.cpp
 tableosc_so_CFLAGS = $(PLUGINCFLAGS) `pkg-config --cflags sndfile samplerate`
 tableosc_so_LDFLAGS = $(PLUGINARCHIVES) `pkg-config --libs sndfile samplerate`
+
+# Math constants
+math-constants_lv2_MODULES = math-constants.so
+math-constants_so_SOURCES = math-constants.cpp
+math-constants_so_CFLAGS = `pkg-config --cflags lv2-plugin`
+math-constants_so_LDFLAGS = `pkg-config --libs lv2-plugin`
+math-constants_lv2_DATA = manifest.ttl math-constants.ttl \
+	e.svg pi.svg pi_2.svg pi_4.svg 1_pi.svg 2_pi.svg
+math-constants_lv2_SOURCEDIR = plugins/math-constants
+
+# Math functions
+math-functions_lv2_MODULES = math-functions.so
+math-functions_so_SOURCES = math-functions.cpp
+math-functions_so_CFLAGS = `pkg-config --cflags lv2-plugin`
+math-functions_so_LDFLAGS = `pkg-config --libs lv2-plugin`
+math-functions_lv2_DATA = manifest.ttl math-functions.ttl
+math-functions_lv2_SOURCEDIR = plugins/math-functions
 
 
 # The shared headers need to go in the distribution too
