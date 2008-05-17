@@ -24,17 +24,15 @@ DOCS = AUTHORS COPYING
 ARCHIVES = \
 	libenvelopeeditor.a \
 	libkeyboard.a \
-	libpatternwidget.a \
 	libvuwidget.a
 
-PROGRAMS = elven rxc
+PROGRAMS = elven
 
 LV2_BUNDLES = \
 	arpeggiator.lv2 \
 	beep.lv2 \
 	control2midi.lv2 \
 	klaviatur.lv2 \
-	midiproc.lv2 \
 	nekobee_blue_gui.lv2 \
 	phase-distortion-osc.lv2 \
 	vumeter.lv2 \
@@ -42,9 +40,6 @@ LV2_BUNDLES = \
 	tableosc.lv2
 #	horizon.lv2 \
 #	horizon_gtk.lv2 \
-#	trilobeat.lv2 \
-#	trilobeat_gtk.lv2 
-#	trilobyte.lv2 \
 
 
 # Archives with useful code bits
@@ -61,9 +56,6 @@ libvuwidget_a_SOURCES = vuwidget.hpp vuwidget.cpp
 libvuwidget_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
 libvuwidget_a_SOURCEDIR = libraries/widgets
 
-libpatternwidget_a_SOURCES = patternwidget.hpp patternwidget.cpp
-libpatternwidget_a_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Ilibraries/components
-libpatternwidget_a_SOURCEDIR = libraries/widgets
 
 # Executable programs
 
@@ -76,12 +68,6 @@ elven_SOURCES = \
 elven_CFLAGS = `pkg-config --cflags jack gtkmm-2.4 lash-1.0 sigc++-2.0 lv2-plugin lv2-gui paq` -Ilibraries/components -DVERSION=\"$(PACKAGE_VERSION)\"
 elven_LDFLAGS = `pkg-config --libs jack gtkmm-2.4 lash-1.0 sigc++-2.0 paq` -lpthread
 elven_SOURCEDIR = programs/elven
-
-# XXX rxc
-rxc_SOURCES = \
-	regexcompiler.hpp regexcompiler.cpp \
-	main.cpp
-rxc_SOURCEDIR = plugins/midiproc
 
 
 # The plugins
@@ -132,64 +118,6 @@ klaviatur_gtk_so_CFLAGS = `pkg-config --cflags lv2-gui` -Ilibraries/widgets
 klaviatur_gtk_so_LDFLAGS = `pkg-config --libs lv2-gui` 
 klaviatur_gtk_so_ARCHIVES = libraries/widgets/libkeyboard.a
 klaviatur_lv2_POSTINSTALL = $(RESIDENTGUI) >> klaviatur.lv2/klaviatur.ttl
-
-# MIDI processor
-midiproc_lv2_MODULES = midiproc.so #midiproc_gtk.so
-midiproc_lv2_DATA = manifest.ttl midiproc.ttl
-midiproc_lv2_PEGFILES = midiproc.peg
-midiproc_lv2_SOURCEDIR = plugins/midiproc
-midiproc_so_SOURCES = midiproc.cpp
-midiproc_so_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components
-midiproc_so_LDFLAGS = $(PLUGINARCHIVES)
-midiproc_gtk_so_SOURCES = midiproc_gtk.cpp
-midiproc_gtk_so_CFLAGS = `pkg-config --cflags lv2-gui` -Ilibraries/widgets
-midiproc_gtk_so_LDFLAGS = `pkg-config --libs lv2-gui` 
-midiproc_gtk_so_ARCHIVES = libraries/widgets/libkeyboard.a
-midiproc_lv2_POSTINSTALL = $(RESIDENTGUI) >> midiproc.lv2/midiproc.ttl
-
-# Trilobyte
-trilobyte_lv2_MODULES = trilobyte.so
-trilobyte_so_SOURCES = trilobyte.cpp
-trilobyte_so_CFLAGS = $(ADVANCEDCFLAGS) -Ilibraries/components
-trilobyte_so_LDFLAGS = $(ADVANCEDARCHIVES)
-trilobyte_gtk_so_SOURCES = trilobyte_gtk.cpp
-trilobyte_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui` -Ilibraries/widgets -Ilibraries/components
-trilobyte_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui`
-trilobyte_gtk_so_ARCHIVES = libraries/widgets/libpatternwidget.a
-trilobyte_gtk_so_SOURCEDIR = plugins/trilobyte
-trilobyte_lv2_DATA = manifest.ttl trilobyte.ttl
-trilobyte_lv2_PEGFILES = trilobyte.peg
-trilobyte_lv2_SOURCEDIR = plugins/trilobyte
-trilobyte_lv2_POSTINSTALL = $(RESIDENTGUI) >> trilobyte.lv2/trilobyte.ttl
-
-# Trilobeat
-trilobeat_lv2_MODULES = trilobeat.so
-trilobeat_so_SOURCES = trilobeat.cpp
-trilobeat_so_CFLAGS = $(ADVANCEDCFLAGS) -Ilibraries/components
-trilobeat_so_LDFLAGS = $(ADVANCEDARCHIVES)
-trilobeat_lv2_DATA = manifest.ttl trilobeat.ttl
-trilobeat_lv2_PEGFILES = trilobeat.peg
-trilobeat_lv2_SOURCEDIR = plugins/trilobeat
-
-# Trilobeat GUI
-trilobeat_gtk_lv2_MODULES = trilobeat_gtk.so
-trilobeat_gtk_lv2_MANIFEST = gui_manifest.ttl
-trilobeat_gtk_so_SOURCES = \
-	trilobeat_gtk.cpp \
-	gridwidget.cpp gridwidget.hpp \
-	keynamewidget.cpp keynamewidget.hpp
-trilobeat_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui`
-trilobeat_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
-trilobeat_gtk_lv2_DATA = gridbg.png keynamebg.png
-trilobeat_gtk_lv2_SOURCEDIR = plugins/trilobeat
-trilobeat_gtk_lv2_POSTINSTALL = $(RESIDENTGUI) >> trilobeat_gtk.lv2/manifest.ttl
-
-#trilobeat_lv2_MODULES = trilobeat_gtk.so
-#trilobeat_gtk_so_SOURCES = trilobeat_gtk.cpp
-#trilobeat_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Iextensions/gui -Ilibraries/lv2gtk2gui -Ilibraries/widgets -Ilibraries/components -I.
-#trilobeat_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4`
-#trilobeat_gtk_so_ARCHIVES = libraries/lv2gtk2gui/liblv2_gtk2gui.a libraries/widgets/libpatternwidget.a
-#trilobeat_gtk_so_SOURCEDIR = plugins/trilobeat
 
 # Horizon
 horizon_lv2_MODULES = horizon.so
