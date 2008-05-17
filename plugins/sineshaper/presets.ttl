@@ -1,0 +1,330 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix pr: <http://ll-plugins.nongnu.org/lv2/dev/presets#>.
+
+<http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0>
+  
+  pr:hasBank <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/banks/0>;
+  
+  pr:hasSetting [
+    a pr:Preset;
+    pr:hasLabel "Default";
+    pr:midiProgram 0;
+    pr:inBank <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/banks/0>;
+    pr:hasPortValue
+      [ pr:forPort 0; rdf:value 1; ],
+      [ pr:forPort 1; rdf:value 0; ],
+      [ pr:forPort 2; rdf:value 0.94; ],
+      [ pr:forPort 3; rdf:value -5; ],
+      [ pr:forPort 4; rdf:value 0.13; ],
+      [ pr:forPort 5; rdf:value 0; ],
+      [ pr:forPort 6; rdf:value 0.06; ],
+      [ pr:forPort 7; rdf:value 1; ],
+      [ pr:forPort 8; rdf:value 0; ],
+      [ pr:forPort 9; rdf:value 0; ],
+      [ pr:forPort 10; rdf:value 0; ],
+      [ pr:forPort 11; rdf:value 0; ],
+      [ pr:forPort 12; rdf:value 1; ],
+      [ pr:forPort 13; rdf:value 3.54331; ],
+      [ pr:forPort 14; rdf:value 0.305; ],
+      [ pr:forPort 15; rdf:value 0; ],
+      [ pr:forPort 16; rdf:value 0; ],
+      [ pr:forPort 17; rdf:value 0.005; ],
+      [ pr:forPort 18; rdf:value 0.0005; ],
+      [ pr:forPort 19; rdf:value 0.040035; ],
+      [ pr:forPort 20; rdf:value 0.125; ],
+      [ pr:forPort 21; rdf:value 0.84036; ],
+      [ pr:forPort 22; rdf:value 0; ],
+      [ pr:forPort 23; rdf:value 0; ],
+      [ pr:forPort 24; rdf:value 0.74; ],
+      [ pr:forPort 25; rdf:value 0.3; ],
+      [ pr:forPort 26; rdf:value 0.185; ],
+      [ pr:forPort 27; rdf:value 0.345; ];
+  ],
+
+  [
+    a pr:Preset;
+    pr:hasLabel "Tremolo pad";
+    pr:midiProgram 1;
+    pr:inBank <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/banks/0>;
+    pr:hasPortValue
+      [ pr:forPort 0; rdf:value 1; ],
+      [ pr:forPort 1; rdf:value 0; ],
+      [ pr:forPort 2; rdf:value 1.01; ],
+      [ pr:forPort 3; rdf:value -1; ],
+      [ pr:forPort 4; rdf:value 0.435; ],
+      [ pr:forPort 5; rdf:value 0; ],
+      [ pr:forPort 6; rdf:value 0.44; ],
+      [ pr:forPort 7; rdf:value 1; ],
+      [ pr:forPort 8; rdf:value 2.8; ],
+      [ pr:forPort 9; rdf:value 0.005; ],
+      [ pr:forPort 10; rdf:value 5.4; ],
+      [ pr:forPort 11; rdf:value 0.49; ],
+      [ pr:forPort 12; rdf:value 1; ],
+      [ pr:forPort 13; rdf:value 4.43409; ],
+      [ pr:forPort 14; rdf:value 0.845; ],
+      [ pr:forPort 15; rdf:value 0; ],
+      [ pr:forPort 16; rdf:value 0.15; ],
+      [ pr:forPort 17; rdf:value 0.2; ],
+      [ pr:forPort 18; rdf:value 0.16042; ],
+      [ pr:forPort 19; rdf:value 0.344883; ],
+      [ pr:forPort 20; rdf:value 0.915; ],
+      [ pr:forPort 21; rdf:value 0.570405; ],
+      [ pr:forPort 22; rdf:value 0.59; ],
+      [ pr:forPort 23; rdf:value 0; ],
+      [ pr:forPort 24; rdf:value 0.51; ],
+      [ pr:forPort 25; rdf:value 0.38; ],
+      [ pr:forPort 26; rdf:value 0.275; ],
+      [ pr:forPort 27; rdf:value 0.1; ];
+  ],
+
+  [
+    a pr:Preset;
+    pr:hasLabel "Woodpecker";
+    pr:midiProgram 2;
+    pr:inBank <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/banks/0>;
+    pr:hasPortValue
+      [ pr:forPort 0; rdf:value 1; ],
+      [ pr:forPort 1; rdf:value 0; ],
+      [ pr:forPort 2; rdf:value 0.94; ],
+      [ pr:forPort 3; rdf:value -5; ],
+      [ pr:forPort 4; rdf:value 0.645; ],
+      [ pr:forPort 5; rdf:value 0; ],
+      [ pr:forPort 6; rdf:value 0.06; ],
+      [ pr:forPort 7; rdf:value 0; ],
+      [ pr:forPort 8; rdf:value 0; ],
+      [ pr:forPort 9; rdf:value 0; ],
+      [ pr:forPort 10; rdf:value 0; ],
+      [ pr:forPort 11; rdf:value 0; ],
+      [ pr:forPort 12; rdf:value 1; ],
+      [ pr:forPort 13; rdf:value 3.54331; ],
+      [ pr:forPort 14; rdf:value 0.305; ],
+      [ pr:forPort 15; rdf:value 0; ],
+      [ pr:forPort 16; rdf:value 0; ],
+      [ pr:forPort 17; rdf:value 0.005; ],
+      [ pr:forPort 18; rdf:value 0.0005; ],
+      [ pr:forPort 19; rdf:value 0.0350375; ],
+      [ pr:forPort 20; rdf:value 0; ],
+      [ pr:forPort 21; rdf:value 0.030495; ],
+      [ pr:forPort 22; rdf:value 0; ],
+      [ pr:forPort 23; rdf:value 0; ],
+      [ pr:forPort 24; rdf:value 0.84; ],
+      [ pr:forPort 25; rdf:value 0.06; ],
+      [ pr:forPort 26; rdf:value 0.77; ],
+      [ pr:forPort 27; rdf:value 0.49; ];
+  ],
+
+  [
+    a pr:Preset;
+    pr:hasLabel "Bright";
+    pr:midiProgram 3;
+    pr:inBank <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/banks/0>;
+    pr:hasPortValue
+      [ pr:forPort 0; rdf:value 1; ],
+      [ pr:forPort 1; rdf:value 0; ],
+      [ pr:forPort 2; rdf:value 0.94; ],
+      [ pr:forPort 3; rdf:value -5; ],
+      [ pr:forPort 4; rdf:value 0.175; ],
+      [ pr:forPort 5; rdf:value 0; ],
+      [ pr:forPort 6; rdf:value 0.06; ],
+      [ pr:forPort 7; rdf:value 1; ],
+      [ pr:forPort 8; rdf:value 7.3; ],
+      [ pr:forPort 9; rdf:value 0.0175; ],
+      [ pr:forPort 10; rdf:value 0; ],
+      [ pr:forPort 11; rdf:value 0; ],
+      [ pr:forPort 12; rdf:value 1; ],
+      [ pr:forPort 13; rdf:value 3.82677; ],
+      [ pr:forPort 14; rdf:value 0.245; ],
+      [ pr:forPort 15; rdf:value 0; ],
+      [ pr:forPort 16; rdf:value 0; ],
+      [ pr:forPort 17; rdf:value 0.005; ],
+      [ pr:forPort 18; rdf:value 0.0005; ],
+      [ pr:forPort 19; rdf:value 0.040035; ],
+      [ pr:forPort 20; rdf:value 0.56; ],
+      [ pr:forPort 21; rdf:value 0.84036; ],
+      [ pr:forPort 22; rdf:value 0; ],
+      [ pr:forPort 23; rdf:value 0; ],
+      [ pr:forPort 24; rdf:value 0.62; ],
+      [ pr:forPort 25; rdf:value 0.3; ],
+      [ pr:forPort 26; rdf:value 0.6; ],
+      [ pr:forPort 27; rdf:value 0.14; ];
+  ],
+
+  [
+    a pr:Preset;
+    pr:hasLabel "Soft";
+    pr:midiProgram 4;
+    pr:inBank <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/banks/0>;
+    pr:hasPortValue
+      [ pr:forPort 0; rdf:value 1; ],
+      [ pr:forPort 1; rdf:value 0; ],
+      [ pr:forPort 2; rdf:value 0.94; ],
+      [ pr:forPort 3; rdf:value -1; ],
+      [ pr:forPort 4; rdf:value 0; ],
+      [ pr:forPort 5; rdf:value 1; ],
+      [ pr:forPort 6; rdf:value 0.205; ],
+      [ pr:forPort 7; rdf:value 1; ],
+      [ pr:forPort 8; rdf:value 10; ],
+      [ pr:forPort 9; rdf:value 0.015; ],
+      [ pr:forPort 10; rdf:value 7.5; ],
+      [ pr:forPort 11; rdf:value 0; ],
+      [ pr:forPort 12; rdf:value 1; ],
+      [ pr:forPort 13; rdf:value 1.37008; ],
+      [ pr:forPort 14; rdf:value 0.305; ],
+      [ pr:forPort 15; rdf:value 0; ],
+      [ pr:forPort 16; rdf:value 0; ],
+      [ pr:forPort 17; rdf:value 0.005; ],
+      [ pr:forPort 18; rdf:value 0.0754625; ],
+      [ pr:forPort 19; rdf:value 0.0005; ],
+      [ pr:forPort 20; rdf:value 1; ],
+      [ pr:forPort 21; rdf:value 0.345443; ],
+      [ pr:forPort 22; rdf:value 0; ],
+      [ pr:forPort 23; rdf:value 0; ],
+      [ pr:forPort 24; rdf:value 0.71; ],
+      [ pr:forPort 25; rdf:value 0.38; ],
+      [ pr:forPort 26; rdf:value 0.18; ],
+      [ pr:forPort 27; rdf:value 0.245; ];
+  ],
+
+  [
+    a pr:Preset;
+    pr:hasLabel "Clean";
+    pr:midiProgram 5;
+    pr:inBank <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/banks/0>;
+    pr:hasPortValue
+      [ pr:forPort 0; rdf:value 1; ],
+      [ pr:forPort 1; rdf:value 0; ],
+      [ pr:forPort 2; rdf:value 0.94; ],
+      [ pr:forPort 3; rdf:value -5; ],
+      [ pr:forPort 4; rdf:value 0; ],
+      [ pr:forPort 5; rdf:value 0; ],
+      [ pr:forPort 6; rdf:value 0.06; ],
+      [ pr:forPort 7; rdf:value 0; ],
+      [ pr:forPort 8; rdf:value 7.3; ],
+      [ pr:forPort 9; rdf:value 0.02125; ],
+      [ pr:forPort 10; rdf:value 0; ],
+      [ pr:forPort 11; rdf:value 0; ],
+      [ pr:forPort 12; rdf:value 1; ],
+      [ pr:forPort 13; rdf:value 2.80677; ],
+      [ pr:forPort 14; rdf:value 0.245; ],
+      [ pr:forPort 15; rdf:value 0; ],
+      [ pr:forPort 16; rdf:value 0; ],
+      [ pr:forPort 17; rdf:value 0.005; ],
+      [ pr:forPort 18; rdf:value 0.00140278; ],
+      [ pr:forPort 19; rdf:value 0.040035; ],
+      [ pr:forPort 20; rdf:value 0.56; ],
+      [ pr:forPort 21; rdf:value 0.84036; ],
+      [ pr:forPort 22; rdf:value 0; ],
+      [ pr:forPort 23; rdf:value 0; ],
+      [ pr:forPort 24; rdf:value 0.6; ],
+      [ pr:forPort 25; rdf:value 0.3; ],
+      [ pr:forPort 26; rdf:value 0.6; ],
+      [ pr:forPort 27; rdf:value 0; ];
+  ],
+
+  [
+    a pr:Preset;
+    pr:hasLabel "Noisy";
+    pr:midiProgram 6;
+    pr:inBank <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/banks/0>;
+    pr:hasPortValue
+      [ pr:forPort 0; rdf:value 1; ],
+      [ pr:forPort 1; rdf:value 0; ],
+      [ pr:forPort 2; rdf:value 0.973448; ],
+      [ pr:forPort 3; rdf:value -3; ],
+      [ pr:forPort 4; rdf:value 0.375; ],
+      [ pr:forPort 5; rdf:value 0; ],
+      [ pr:forPort 6; rdf:value 0.267714; ],
+      [ pr:forPort 7; rdf:value 1; ],
+      [ pr:forPort 8; rdf:value 8.75; ],
+      [ pr:forPort 9; rdf:value 0.02125; ],
+      [ pr:forPort 10; rdf:value 6.4; ],
+      [ pr:forPort 11; rdf:value 0.135; ],
+      [ pr:forPort 12; rdf:value 1; ],
+      [ pr:forPort 13; rdf:value 5.62677; ],
+      [ pr:forPort 14; rdf:value 0.245; ],
+      [ pr:forPort 15; rdf:value 0.32; ],
+      [ pr:forPort 16; rdf:value 0; ],
+      [ pr:forPort 17; rdf:value 0.005; ],
+      [ pr:forPort 18; rdf:value 0.0005; ],
+      [ pr:forPort 19; rdf:value 0.0140167; ],
+      [ pr:forPort 20; rdf:value 0.725; ],
+      [ pr:forPort 21; rdf:value 0.153825; ],
+      [ pr:forPort 22; rdf:value 0; ],
+      [ pr:forPort 23; rdf:value 0; ],
+      [ pr:forPort 24; rdf:value 0.51; ],
+      [ pr:forPort 25; rdf:value 0.3; ],
+      [ pr:forPort 26; rdf:value 0.6; ],
+      [ pr:forPort 27; rdf:value 0.14; ];
+  ],
+
+  [
+    a pr:Preset;
+    pr:hasLabel "Cosineshaper";
+    pr:midiProgram 7;
+    pr:inBank <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/banks/0>;
+    pr:hasPortValue
+      [ pr:forPort 0; rdf:value 1; ],
+      [ pr:forPort 1; rdf:value -1; ],
+      [ pr:forPort 2; rdf:value 1.00127; ],
+      [ pr:forPort 3; rdf:value -1; ],
+      [ pr:forPort 4; rdf:value 0.36; ],
+      [ pr:forPort 5; rdf:value 0; ],
+      [ pr:forPort 6; rdf:value 0.0108541; ],
+      [ pr:forPort 7; rdf:value 1; ],
+      [ pr:forPort 8; rdf:value 0; ],
+      [ pr:forPort 9; rdf:value 0; ],
+      [ pr:forPort 10; rdf:value 10; ],
+      [ pr:forPort 11; rdf:value 0.15; ],
+      [ pr:forPort 12; rdf:value 1; ],
+      [ pr:forPort 13; rdf:value 4.60677; ],
+      [ pr:forPort 14; rdf:value 0.245; ],
+      [ pr:forPort 15; rdf:value 1; ],
+      [ pr:forPort 16; rdf:value 0; ],
+      [ pr:forPort 17; rdf:value 0.005; ],
+      [ pr:forPort 18; rdf:value 0.0233565; ],
+      [ pr:forPort 19; rdf:value 1; ],
+      [ pr:forPort 20; rdf:value 0.25; ],
+      [ pr:forPort 21; rdf:value 0.0394266; ],
+      [ pr:forPort 22; rdf:value 0.68; ],
+      [ pr:forPort 23; rdf:value 0; ],
+      [ pr:forPort 24; rdf:value 0.5; ],
+      [ pr:forPort 25; rdf:value 0.362563; ],
+      [ pr:forPort 26; rdf:value 0.305; ],
+      [ pr:forPort 27; rdf:value 0.09; ];
+  ],
+
+  [
+    a pr:Preset;
+    pr:hasLabel "Nasty";
+    pr:midiProgram 8;
+    pr:inBank <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0/banks/0>;
+    pr:hasPortValue
+      [ pr:forPort 0; rdf:value 1; ],
+      [ pr:forPort 1; rdf:value -1; ],
+      [ pr:forPort 2; rdf:value 0.917822; ],
+      [ pr:forPort 3; rdf:value -4; ],
+      [ pr:forPort 4; rdf:value 0; ],
+      [ pr:forPort 5; rdf:value 0; ],
+      [ pr:forPort 6; rdf:value 0.06; ],
+      [ pr:forPort 7; rdf:value 1; ],
+      [ pr:forPort 8; rdf:value 7.3; ],
+      [ pr:forPort 9; rdf:value 0.023622; ],
+      [ pr:forPort 10; rdf:value 0; ],
+      [ pr:forPort 11; rdf:value 0; ],
+      [ pr:forPort 12; rdf:value 1; ],
+      [ pr:forPort 13; rdf:value 4.72677; ],
+      [ pr:forPort 14; rdf:value 0.245; ],
+      [ pr:forPort 15; rdf:value 0; ],
+      [ pr:forPort 16; rdf:value 0.13; ],
+      [ pr:forPort 17; rdf:value 0.205; ],
+      [ pr:forPort 18; rdf:value 0.0005; ],
+      [ pr:forPort 19; rdf:value 0.040035; ],
+      [ pr:forPort 20; rdf:value 0.565; ],
+      [ pr:forPort 21; rdf:value 0.109559; ],
+      [ pr:forPort 22; rdf:value 0; ],
+      [ pr:forPort 23; rdf:value 0.55; ],
+      [ pr:forPort 24; rdf:value 0.5; ],
+      [ pr:forPort 25; rdf:value 0.325479; ],
+      [ pr:forPort 26; rdf:value 0.345; ],
+      [ pr:forPort 27; rdf:value 0.22; ];
+  ].

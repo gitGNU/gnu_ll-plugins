@@ -33,7 +33,9 @@ LV2_BUNDLES = \
 	vumeter_gtk.lv2 \
 	tableosc.lv2 \
 	math-constants.lv2 \
-	math-functions.lv2
+	math-functions.lv2 \
+	sineshaper.lv2 \
+	sineshaper_gtk.lv2
 
 
 # Archives with useful code bits
@@ -197,6 +199,39 @@ math-functions_so_CFLAGS = `pkg-config --cflags lv2-plugin`
 math-functions_so_LDFLAGS = `pkg-config --libs lv2-plugin`
 math-functions_lv2_DATA = manifest.ttl math-functions.ttl
 math-functions_lv2_SOURCEDIR = plugins/math-functions
+
+# Sineshaper
+sineshaper_lv2_MODULES = sineshaper.so
+sineshaper_lv2_DATA = manifest.ttl sineshaper.ttl presets.ttl icon.svg
+sineshaper_lv2_SOURCEDIR = plugins/sineshaper
+sineshaper_lv2_PEGFILES = sineshaper.peg
+sineshaper_so_SOURCES = \
+	adsr.hpp \
+	dcblocker.hpp \
+	delay.hpp \
+	frequencytable.hpp \
+	midiiterator.hpp \
+	sineoscillator.hpp \
+	sineshaper.hpp sineshaper.cpp \
+	sineshaperports.hpp \
+	slide.hpp \
+	wavewrapper.hpp
+sineshaper_so_CFLAGS = `pkg-config --cflags lv2-plugin`
+sineshaper_so_LDFLAGS = `pkg-config --libs lv2-plugin`
+
+# Sineshaper GUI
+sineshaper_gtk_lv2_MODULES = sineshaper_gtk.so
+sineshaper_gtk_lv2_MANIFEST = gui_manifest.ttl
+sineshaper_gtk_lv2_DATA = dial.png sineshaper.png icon.svg
+sineshaper_gtk_lv2_SOURCEDIR = plugins/sineshaper
+sineshaper_gtk_so_SOURCES = \
+	sineshaper_gtk.cpp \
+	sineshaperwidget.cpp sineshaperwidget.hpp \
+	skindial_gtkmm.cpp skindial_gtkmm.hpp
+sineshaper_gtk_so_CFLAGS = `pkg-config --cflags lv2-gui`
+sineshaperwidget_cpp_CFLAGS = -DVERSION=\"$(PACKAGE_VERSION)\"
+sineshaper_gtk_so_LDFLAGS = `pkg-config --libs lv2-gui` 
+sineshaper_gtk_so_SOURCEDIR = plugins/sineshaper
 
 
 # The shared headers need to go in the distribution too
