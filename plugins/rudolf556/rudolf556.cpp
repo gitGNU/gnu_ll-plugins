@@ -23,6 +23,7 @@
 
 #include <cstring>
 
+#include <samplerate.h>
 #include <sndfile.h>
 
 #include "lv2synth.hpp"
@@ -84,6 +85,7 @@ public:
     m_v = m_v < 0 ? 0 : m_v;
     m_v = m_v > 1 ? 1 : m_v;
     
+    // set the decay onset and total length depending on the length parameter
     if (m_type == Bass) {
       float e = (pow(100, 0.8 * m_l) - 1) / 99;
       m_decay_start = (0.02 + 0.98 * e) * m_len1;
@@ -286,74 +288,52 @@ public:
 
   Rudolf556(double rate) 
     : LV2::Synth<Voice, Rudolf556>(r_n_ports, r_midi_input),
-      m_frame(0) {
+      m_rate(rate) {
     
-    m_bass_h00_info.format = 0;
-    SNDFILE* snd1 = sf_open((string(bundle_path()) + "bass_h00.flac").c_str(), 
-			   SFM_READ, &m_bass_h00_info);
-    m_bass_h05_info.format = 0;
-    SNDFILE* snd2 = sf_open((string(bundle_path()) + "bass_h05.flac").c_str(), 
-			   SFM_READ, &m_bass_h05_info);
-    m_bass_h10_info.format = 0;
-    SNDFILE* snd3 = sf_open((string(bundle_path()) + "bass_h10.flac").c_str(), 
-			   SFM_READ, &m_bass_h10_info);
-    m_snare_bonk_info.format = 0;
-    SNDFILE* snd4 = sf_open((string(bundle_path()) + "snare_bonk.flac").c_str(), 
-			   SFM_READ, &m_snare_bonk_info);
-    m_snare_noise_info.format = 0;
-    SNDFILE* snd5 = sf_open((string(bundle_path()) +"snare_noise.flac").c_str(), 
-			    SFM_READ, &m_snare_noise_info);
-    m_hihat_base_info.format = 0;
-    SNDFILE* snd6 = sf_open((string(bundle_path()) + "hihat_base.flac").c_str(), 
-			    SFM_READ, &m_hihat_base_info);
-    m_hihat_hit_info.format = 0;
-    SNDFILE* snd7 = sf_open((string(bundle_path()) + "hihat_hit.flac").c_str(), 
-			    SFM_READ, &m_hihat_hit_info);
-
-    if (!(snd1 && snd2 && snd3 && snd4 && snd5 && snd6 && snd7)) {
+    // load all samples
+    long m_bass_h00_frames, m_bass_h05_frames, m_bass_h10_frames,
+      m_snare_bonk_frames, m_snare_noise_frames, 
+      m_hihat_base_frames, m_hihat_hit_frames;
+    m_bass_h00 = get_sample_data("bass_h00.flac", m_bass_h00_frames);
+    m_bass_h05 = get_sample_data("bass_h05.flac", m_bass_h05_frames);
+    m_bass_h10 = get_sample_data("bass_h10.flac", m_bass_h10_frames);
+    m_snare_bonk = get_sample_data("snare_bonk.flac", m_snare_bonk_frames);
+    m_snare_noise = get_sample_data("snare_noise.flac", m_snare_noise_frames);
+    m_hihat_base = get_sample_data("hihat_base.flac", m_hihat_base_frames);
+    m_hihat_hit = get_sample_data("hihat_hit.flac", m_hihat_hit_frames);
+    if (!(m_bass_h00 && m_bass_h05 && m_bass_h10 && 
+	  m_snare_bonk && m_snare_noise && m_hihat_base && m_hihat_hit)) {
       set_ok(false);
       return;
     }
     
-    m_bass_h00 = new float[m_bass_h00_info.frames];
-    sf_read_float(snd1, m_bass_h00, m_bass_h00_info.frames);
-    m_bass_h05 = new float[m_bass_h05_info.frames];
-    sf_read_float(snd2, m_bass_h05, m_bass_h05_info.frames);
-    m_bass_h10 = new float[m_bass_h10_info.frames];
-    sf_read_float(snd3, m_bass_h10, m_bass_h10_info.frames);
-    m_snare_bonk = new float[m_snare_bonk_info.frames];
-    sf_read_float(snd4, m_snare_bonk, m_snare_bonk_info.frames);
-    m_snare_noise = new float[m_snare_noise_info.frames];
-    sf_read_float(snd5, m_snare_noise, m_snare_noise_info.frames);
-    m_hihat_base = new float[m_hihat_base_info.frames];
-    sf_read_float(snd6, m_hihat_base, m_hihat_base_info.frames);
-    m_hihat_hit = new float[m_hihat_hit_info.frames];
-    sf_read_float(snd7, m_hihat_hit, m_hihat_hit_info.frames);
-    
+    // add two voices of each type
     add_voices(new Voice(Voice::Bass, 1, 64,
-			 m_bass_h00, m_bass_h00_info.frames,
-			 m_bass_h05, m_bass_h05_info.frames,
-			 m_bass_h10, m_bass_h10_info.frames),
+			 m_bass_h00, m_bass_h00_frames,
+			 m_bass_h05, m_bass_h05_frames,
+			 m_bass_h10, m_bass_h10_frames),
 	       new Voice(Voice::Bass, 2, 64,
-			 m_bass_h00, m_bass_h00_info.frames,
-			 m_bass_h05, m_bass_h05_info.frames,
-			 m_bass_h10, m_bass_h10_info.frames),
+			 m_bass_h00, m_bass_h00_frames,
+			 m_bass_h05, m_bass_h05_frames,
+			 m_bass_h10, m_bass_h10_frames),
 	       new Voice(Voice::Snare, 1, 64,
-			 m_snare_bonk, m_snare_bonk_info.frames,
-			 m_snare_noise, m_snare_noise_info.frames),
+			 m_snare_bonk, m_snare_bonk_frames,
+			 m_snare_noise, m_snare_noise_frames),
 	       new Voice(Voice::Snare, 2, 64,
-			 m_snare_bonk, m_snare_bonk_info.frames,
-			 m_snare_noise, m_snare_noise_info.frames),
+			 m_snare_bonk, m_snare_bonk_frames,
+			 m_snare_noise, m_snare_noise_frames),
 	       new Voice(Voice::Hihat, 1, 64,
-			 m_hihat_base, m_hihat_base_info.frames,
-			 m_hihat_hit, m_hihat_hit_info.frames),
+			 m_hihat_base, m_hihat_base_frames,
+			 m_hihat_hit, m_hihat_hit_frames),
 	       new Voice(Voice::Hihat, 2, 64,
-			 m_hihat_base, m_hihat_base_info.frames,
-			 m_hihat_hit, m_hihat_hit_info.frames));
-
+			 m_hihat_base, m_hihat_base_frames,
+			 m_hihat_hit, m_hihat_hit_frames));
+    
     add_audio_outputs(r_output_mix);
   }
-
+  
+  /** We override find_free_voice() so we can map keys directly to voices -
+      we don't care if they are free or not. */
   unsigned find_free_voice(unsigned char key, unsigned char velocity) {
     static unsigned NO = 1024;
     static unsigned voice_map[] = { 0, NO, 1, NO, 2, 3, NO, 4, NO, 5, NO, NO };
@@ -362,6 +342,49 @@ public:
   
 protected:
   
+  /** Load a sound from a file and resample it to the current rate. */
+  float* get_sample_data(const std::string& filename, long& frames) {
+    
+    frames = 0;
+    
+    // open file
+    SF_INFO info;
+    info.format = 0;
+    SNDFILE* snd = sf_open((string(bundle_path()) + filename).c_str(), 
+			   SFM_READ, &info);
+    if (!snd)
+      return 0;
+    
+    // read data
+    float* data = new float[info.frames];
+    sf_read_float(snd, data, info.frames);
+    sf_close(snd);
+    
+    // if no resampling is needed, return the data
+    if (abs(m_rate - info.samplerate) / m_rate < 0.0001) {
+      frames = info.frames;
+      return data;
+    }
+    
+    // resample to plugin rate
+    SRC_DATA src;
+    src.src_ratio = m_rate / info.samplerate;
+    src.data_in = data;
+    src.output_frames = info.frames * src.src_ratio + 1;
+    src.data_out = new float[src.output_frames];
+    src.data_out[src.output_frames - 1] = 0;
+    src.input_frames = info.frames;
+    if (src_simple(&src, SRC_SINC_BEST_QUALITY, 1)) {
+      delete [] data;
+      delete [] src.data_out;
+      return 0;
+    }
+    delete [] data;
+    frames = src.output_frames;
+    return src.data_out;
+  }
+  
+  // the sample data
   float* m_bass_h00;
   float* m_bass_h05;
   float* m_bass_h10;
@@ -370,15 +393,7 @@ protected:
   float* m_hihat_base;
   float* m_hihat_hit;
   
-  SF_INFO m_bass_h00_info;
-  SF_INFO m_bass_h05_info;
-  SF_INFO m_bass_h10_info;
-  SF_INFO m_snare_bonk_info;
-  SF_INFO m_snare_noise_info;
-  SF_INFO m_hihat_base_info;
-  SF_INFO m_hihat_hit_info;
-  
-  uint32_t m_frame;
+  double m_rate;
   
 };
 

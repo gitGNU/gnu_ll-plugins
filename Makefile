@@ -246,8 +246,8 @@ rudolf556_lv2_DATA = \
 rudolf556_lv2_SOURCEDIR = plugins/rudolf556
 rudolf556_lv2_PEGFILES = rudolf556.peg
 rudolf556_so_SOURCES = rudolf556.cpp
-rudolf556_so_CFLAGS = `pkg-config --cflags lv2-plugin sndfile`
-rudolf556_so_LDFLAGS = `pkg-config --libs lv2-plugin sndfile`
+rudolf556_so_CFLAGS = `pkg-config --cflags lv2-plugin sndfile samplerate`
+rudolf556_so_LDFLAGS = `pkg-config --libs lv2-plugin sndfile samplerate`
 
 # Rudolf 556 GUI
 rudolf556_gtk_lv2_MODULES = rudolf556_gtk.so
