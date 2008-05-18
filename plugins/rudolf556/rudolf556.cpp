@@ -114,15 +114,18 @@ public:
     if (m_key == LV2::INVALID_KEY)
       return;
     
+    float* output = p(r_output_mix);
+    
     // if we are doing a quickfade from last note, finish that first
     // it might be nicer to do a BLEP here, but a linear ramp seems to work OK
     if (m_quickfade) {
       uint32_t n = from + m_quickfade;
       n = n > to ? to : n;
-      for (uint32_t i = from; i < n; ++i, --m_quickfade)
-	p(r_output_mix)[i] += (m_last_sample * m_quickfade) / m_quickfade_max;
-      from += n;
+      for ( ; from < n; ++from, --m_quickfade)
+	output[from] += (m_last_sample * m_quickfade) / m_quickfade_max;
     }
+    if (from >= to)
+      return;
     
     // different drum types use slightly different algorithms
     switch (m_type) {
@@ -151,28 +154,25 @@ public:
       }
       
       // write the audio to the output port
-      uint32_t n, f0;
       if (m_frame < m_decay_start) {
-	uint32_t n = m_decay_start;
-	uint32_t f0 = m_frame;
-	if (n - m_frame > to - from)
-	  n = m_frame + to - from;
-	for ( ; m_frame < n; ++m_frame) {
+	uint32_t n = from + m_decay_start - m_frame;
+	n = n > to ? to : n;
+	for ( ; from < n; ++from, ++m_frame) {
 	  m_last_sample = 
 	    0.6 * m_v * ((1-h) * buf1[m_frame] + h * buf2[m_frame]);
-	  p(r_output_mix)[from + m_frame - f0] += m_last_sample;
+	  output[from] += m_last_sample;
 	}
-	from += n - f0;
       }
-      n = m_end;
-      f0 = m_frame;
-      if (n - m_frame > to - from)
-	n = m_frame + to - from;
-      for ( ; m_frame < n; ++m_frame) {
-	float s = 1 - (m_frame - m_decay_start) / float(m_end - m_decay_start);
-	m_last_sample = 
-	  s * 0.6 * m_v * ((1-h) * buf1[m_frame] + h * buf2[m_frame]);
-	p(r_output_mix)[from + m_frame - f0] += m_last_sample;
+      if (m_frame < m_end) {
+	uint32_t n = from + m_end - m_frame;
+	n = n > to ? to : n;
+	for ( ; from < n; ++from, ++m_frame) {
+	  float s = 
+	    1 - (m_frame - m_decay_start) / float(m_end - m_decay_start);
+	  m_last_sample = 
+	    s * 0.6 * m_v * ((1-h) * buf1[m_frame] + h * buf2[m_frame]);
+	  output[from] += m_last_sample;
+	}
       }
       
       break;
@@ -186,28 +186,25 @@ public:
 	 a fadeout similar to the bass drum.
       */
 
-      uint32_t n, f0;
       if (m_frame < m_decay_start) {
-	uint32_t n = m_decay_start;
-	uint32_t f0 = m_frame;
-	if (n - m_frame > to - from)
-	  n = m_frame + to - from;
-	for ( ; m_frame < n; ++m_frame) {
+	uint32_t n = from + m_decay_start - m_frame;
+	n = n > to ? to : n;
+	for ( ; from < n; ++from, ++m_frame) {
 	  m_last_sample = 
 	    0.6 * m_v * (m_buf1[m_frame] + m_h * 0.2 * m_buf2[m_frame]);
-	  p(r_output_mix)[from + m_frame - f0] += m_last_sample;
+	  output[from] += m_last_sample;
 	}
-	from += n - f0;
       }
-      n = m_end;
-      f0 = m_frame;
-      if (n - m_frame > to - from)
-	n = m_frame + to - from;
-      for ( ; m_frame < n; ++m_frame) {
-	float s = 1 - (m_frame - m_decay_start) / float(m_end - m_decay_start);
-	m_last_sample = 
-	  s * 0.6 * m_v * (m_buf1[m_frame] + m_h * 0.2 * m_buf2[m_frame]);
-	p(r_output_mix)[from + m_frame - f0] += m_last_sample;
+      if (m_frame < m_end) {
+	uint32_t n = from + m_end - m_frame;
+	n = n > to ? to : n;
+	for ( ; from < n; ++from, ++m_frame) {
+	  float s = 
+	    1 - (m_frame - m_decay_start) / float(m_end - m_decay_start);
+	  m_last_sample = 
+	    s * 0.6 * m_v * (m_buf1[m_frame] + m_h * 0.2 * m_buf2[m_frame]);
+	  output[from] += m_last_sample;
+	}
       }
 
       break;
@@ -221,30 +218,27 @@ public:
 	 similar to the bass drum.
       */
 
-      uint32_t n, f0;
       if (m_frame < m_decay_start) {
-	uint32_t n = m_decay_start;
-	uint32_t f0 = m_frame;
-	if (n - m_frame > to - from)
-	  n = m_frame + to - from;
-	for ( ; m_frame < n; ++m_frame) {
+	uint32_t n = from + m_decay_start - m_frame;
+	n = n > to ? to : n;
+	for ( ; from < n; ++from, ++m_frame) {
 	  float v = m_buf1[m_frame] + m_h * m_buf2[m_frame];
 	  v = (fabs(v + 1) - fabs(v - 1)) * 0.5;
 	  m_last_sample = 0.3 * m_v * v;
-	  p(r_output_mix)[from + m_frame - f0] += m_last_sample;
+	  output[from] += m_last_sample;
 	}
-	from += n - f0;
       }
-      n = m_end;
-      f0 = m_frame;
-      if (n - m_frame > to - from)
-	n = m_frame + to - from;
-      for ( ; m_frame < n; ++m_frame) {
-	float v = m_buf1[m_frame] + m_h * m_buf2[m_frame];
-	v = (fabs(v + 1) - fabs(v - 1)) * 0.5;
-	float s = 1 - (m_frame - m_decay_start) / float(m_end - m_decay_start);
-	m_last_sample = s * 0.3 * m_v * v;
-	p(r_output_mix)[from + m_frame - f0] += m_last_sample;
+      if (m_frame < m_end) {
+	uint32_t n = from + m_end - m_frame;
+	n = n > to ? to : n;
+	for ( ; from < n; ++from, ++m_frame) {
+	  float v = m_buf1[m_frame] + m_h * m_buf2[m_frame];
+	  v = (fabs(v + 1) - fabs(v - 1)) * 0.5;
+	  float s = 
+	    1 - (m_frame - m_decay_start) / float(m_end - m_decay_start);
+	  m_last_sample = s * 0.3 * m_v * v;
+	  output[from] += m_last_sample;
+	}
       }
 
       break;
