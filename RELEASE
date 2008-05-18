@@ -1,0 +1,14 @@
+1. Write ChangeLog entry.
+
+2. make dist, check that it builds and installs correctly.
+
+3. Commit (git commit -a), tag as Release_X_Y_Z (git tag -a -s Release_X_Y_Z),
+   tag again as Version_X_Y_Z and push (git push).
+
+4. Make new tarball, sign (gpg -b) and upload dist tarball 
+   (sftp larsl@dl.sv.nongnu.org:/releases/ll-plugins).
+
+5. Update webpages (including changelog).
+
+6. Announce on http://freshmeat.net and any relevant mailing lists (only
+   do mailing lists for minor and major version bumps).
