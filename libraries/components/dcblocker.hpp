@@ -27,7 +27,7 @@
 class DCBlocker {
 public:
   DCBlocker(uint32_t framerate) : m_x1(0.0), m_y1(0.0), m_R(0.995) {
-    // XXX R should depend on the framerate
+
   }
   
   inline float run(float input) {

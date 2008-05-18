@@ -218,7 +218,7 @@ sineshaper_so_SOURCES = \
 	sineshaperports.hpp \
 	slide.hpp \
 	wavewrapper.hpp
-sineshaper_so_CFLAGS = `pkg-config --cflags lv2-plugin`
+sineshaper_so_CFLAGS = `pkg-config --cflags lv2-plugin` -Ilibraries/components
 sineshaper_so_LDFLAGS = `pkg-config --libs lv2-plugin`
 
 # Sineshaper GUI
