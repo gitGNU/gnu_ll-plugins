@@ -8,6 +8,7 @@ my $user = "larsl";
 
 # Generate a log message with the versions and oneline comments for all
 # commits that we are pushing
+$revision = "";
 $logmsg = "";
 @branches = split(' ', `ls .git/refs/heads`);
 @remote_branches = split(' ', `ls .git/refs/remotes/origin`);
@@ -23,13 +24,23 @@ for $remote (@remote_branches) {
   $branchlist = $branchlist . " ^origin/$remote";
 }
 @commits = `git rev-list $branchlist`;
+if ($#commits < 0) {
+  print "No commits to push\n";
+  exit;
+}
 for $commit (@commits) {
   chomp $commit;
   $version = `./VERSION $commit`;
   chomp $version;
   $oneline = `git log --no-walk --pretty=format:%s $commit`;
   chomp $oneline;
-  $logmsg = $logmsg . "  * $version: $oneline\n";
+  if ($#commits == 0) {
+    $revision = $version;
+    $logmsg .= "$oneline\n";
+  }
+  else {
+    $logmsg = $logmsg . "  * $version: $oneline\n";
+  }
 }
 
 
@@ -61,16 +72,19 @@ $message = <<EM
    <body>
        <commit>
            <author>$user</author>
-           <files>
 EM
 ;
-
-foreach $file (@files) {
-  $message .= "              <file>$file</file>\n";
+if ($#files >= 0) {
+  $message .= "          <files>\n";
+  foreach $file (@files) {
+    $message .= "              <file>$file</file>\n";
+  }
+  $message .= "           </files>\n";
 }
-
+if ($revision ne "") {
+  $message .= "           <revision>$revision</revision>\n";
+}
 $message .= <<EM
-           </files>
            <log>
 $logmsg
            </log>
