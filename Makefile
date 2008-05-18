@@ -35,7 +35,9 @@ LV2_BUNDLES = \
 	math-constants.lv2 \
 	math-functions.lv2 \
 	sineshaper.lv2 \
-	sineshaper_gtk.lv2
+	sineshaper_gtk.lv2 \
+	rudolf556.lv2 \
+	rudolf556_gtk.lv2
 
 
 # Archives with useful code bits
@@ -232,6 +234,32 @@ sineshaper_gtk_so_CFLAGS = `pkg-config --cflags lv2-gui`
 sineshaperwidget_cpp_CFLAGS = -DVERSION=\"$(PACKAGE_VERSION)\"
 sineshaper_gtk_so_LDFLAGS = `pkg-config --libs lv2-gui` 
 sineshaper_gtk_so_SOURCEDIR = plugins/sineshaper
+
+# Rudolf 556
+rudolf556_lv2_MODULES = rudolf556.so
+rudolf556_lv2_DATA = \
+	manifest.ttl rudolf556.ttl \
+	icon.svg \
+	bass_h00.flac bass_h05.flac bass_h10.flac \
+	snare_bonk.flac snare_noise.flac \
+	hihat_base.flac hihat_hit.flac
+rudolf556_lv2_SOURCEDIR = plugins/rudolf556
+rudolf556_lv2_PEGFILES = rudolf556.peg
+rudolf556_so_SOURCES = rudolf556.cpp
+rudolf556_so_CFLAGS = `pkg-config --cflags lv2-plugin sndfile`
+rudolf556_so_LDFLAGS = `pkg-config --libs lv2-plugin sndfile`
+
+# Rudolf 556 GUI
+rudolf556_gtk_lv2_MODULES = rudolf556_gtk.so
+rudolf556_gtk_lv2_MANIFEST = gui_manifest.ttl
+rudolf556_gtk_lv2_DATA = rudolf556.png
+rudolf556_gtk_lv2_SOURCEDIR = plugins/rudolf556
+rudolf556_gtk_so_SOURCES = \
+	rudolf556_gtk.cpp \
+	rudolf556widget.cpp rudolf556widget.hpp
+rudolf556_gtk_so_CFLAGS = `pkg-config --cflags lv2-gui`
+rudolf556_gtk_so_LDFLAGS = `pkg-config --libs lv2-gui` 
+
 
 
 # The shared headers need to go in the distribution too
