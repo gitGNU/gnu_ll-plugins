@@ -28,7 +28,6 @@ LV2_BUNDLES = \
 	control2midi.lv2 \
 	klaviatur.lv2 \
 	klaviatur_gtk.lv2 \
-	nekobee_blue_gui.lv2 \
 	vumeter.lv2 \
 	vumeter_gtk.lv2 \
 	tableosc.lv2 \
@@ -114,17 +113,6 @@ klaviatur_gtk_so_CFLAGS = `pkg-config --cflags lv2-gui` -Ilibraries/widgets
 klaviatur_gtk_so_LDFLAGS = `pkg-config --libs lv2-gui` 
 klaviatur_gtk_so_ARCHIVES = libraries/widgets/libkeyboard.a
 klaviatur_gtk_lv2_POSTINSTALL = $(RESIDENTGUI) >> klaviatur.lv2/klaviatur.ttl
-
-# Nekobee Blue GUI
-nekobee_blue_gui_lv2_MODULES = nekobee_blue_gui.so
-nekobee_blue_gui_lv2_DATA = manifest.ttl drawing.png
-nekobee_blue_gui_lv2_SOURCEDIR = plugins/nekobee_blue_gui
-nekobee_blue_gui_so_SOURCES = \
-	nekobee_blue_gui.cpp \
-	nekobeewidget.cpp nekobeewidget.hpp
-nekobee_blue_gui_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui`
-nekobee_blue_gui_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
-nekobee_blue_gui_lv2_POSTINSTALL = $(RESIDENTGUI) >> nekobee_blue_gui.lv2/manifest.ttl
 
 # Householder FDN
 #hhfdn_lv2_SOURCES = hhfdn.cpp
