@@ -115,6 +115,8 @@ public:
             ++m_num_keys;
             if (m_next_key > pos)
               ++m_next_key;
+	    if (pos == m_num_keys - 1 && m_next_key == 0)
+	      m_next_key = pos;
           }
 	  m_running = true;
         }
