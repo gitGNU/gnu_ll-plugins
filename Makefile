@@ -29,7 +29,6 @@ LV2_BUNDLES = \
 	klaviatur.lv2 \
 	klaviatur_gtk.lv2 \
 	nekobee_blue_gui.lv2 \
-	phase-distortion-osc.lv2 \
 	vumeter.lv2 \
 	vumeter_gtk.lv2 \
 	tableosc.lv2 \
@@ -96,14 +95,6 @@ control2midi_lv2_SOURCEDIR = plugins/control2midi
 control2midi_so_SOURCES = control2midi.cpp
 control2midi_so_CFLAGS = $(PLUGINCFLAGS)
 control2midi_so_LDFLAGS = $(PLUGINARCHIVES)
-
-# Phase distortion oscillator
-phase-distortion-osc_lv2_MODULES = phase-distortion-osc.so
-phase-distortion-osc_lv2_DATA = manifest.ttl phase-distortion-osc.ttl
-phase-distortion-osc_lv2_SOURCEDIR = plugins/phase-distortion-osc
-phase-distortion-osc_so_SOURCES = phase-distortion-osc.cpp
-phase-distortion-osc_so_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components
-phase-distortion-osc_so_LDFLAGS = $(PLUGINARCHIVES)
 
 # Klaviatur
 klaviatur_lv2_MODULES = klaviatur.so
