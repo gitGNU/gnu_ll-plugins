@@ -24,6 +24,8 @@
 #include <lv2plugin.hpp>
 #include <lv2_event_helpers.h>
 
+#include "control2midi.peg"
+
 
 /** This is the class that contains all the code and data for the Sineshaper
     synth plugin. */
@@ -31,21 +33,21 @@ class Control2MIDI : public LV2::Plugin<Control2MIDI, LV2::URIMap<true> > {
 public:
   
   Control2MIDI(double) 
-    : LV2::Plugin<Control2MIDI, LV2::URIMap<true> >(5),
+    : LV2::Plugin<Control2MIDI, LV2::URIMap<true> >(c_n_ports),
       m_last_value(0),
       m_last_cc(0),
-      m_midi_type(uri_to_id(LV2_EVENT_URI, 
+      m_midi_type(uri_to_id(LV2_EVENT_URI,
 			    "http://lv2plug.in/ns/ext/midi#MidiEvent")) { 
     
   }
   
   void run(uint32_t sample_count) {
     
-    float value = *p(0);
-    float min = *p(1);
-    float max = *p(2);
-    float cc = *p(3);
-    LV2_Event_Buffer* midi = p<LV2_Event_Buffer>(4);
+    float value = *p(c_input);
+    float min = *p(c_min);
+    float max = *p(c_max);
+    float cc = *p(c_cc);
+    LV2_Event_Buffer* midi = p<LV2_Event_Buffer>(c_output);
     lv2_event_buffer_reset(midi, midi->stamp_type, midi->data);
     LV2_Event_Iterator iter;
     lv2_event_begin(&iter, midi);
@@ -78,4 +80,4 @@ protected:
 };
 
 
-static unsigned _ = Control2MIDI::register_class("http://ll-plugins.nongnu.org/lv2/dev/control2midi/0.0.0");
+static unsigned _ = Control2MIDI::register_class(c_uri);

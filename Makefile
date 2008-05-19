@@ -90,6 +90,7 @@ beep_gtk_so_LDFLAGS = `pkg-config --libs lv2-gui`
 # Control2MIDI
 control2midi_lv2_MODULES = control2midi.so
 control2midi_lv2_DATA = manifest.ttl control2midi.ttl
+control2midi_lv2_PEGFILES = control2midi.peg
 control2midi_lv2_SOURCEDIR = plugins/control2midi
 control2midi_so_SOURCES = control2midi.cpp
 control2midi_so_CFLAGS = $(PLUGINCFLAGS)

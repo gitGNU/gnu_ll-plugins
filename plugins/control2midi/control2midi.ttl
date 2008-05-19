@@ -1,11 +1,15 @@
 @prefix lv2:  <http://lv2plug.in/ns/lv2core#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix doap: <http://usefulinc.com/ns/doap#>.
+@prefix ev: <http://lv2plug.in/ns/ext/event#>.
+@prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 
-<http://ll-plugins.nongnu.org/lv2/dev/control2midi/0.0.0>
+<http://ll-plugins.nongnu.org/lv2/control2midi#0>
   a lv2:Plugin;
   doap:name "Control2MIDI";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:binary <control2midi.so>;
+  ll:pegName "c";
 
   lv2:port [
     a lv2:ControlPort, lv2:InputPort;
@@ -40,8 +44,9 @@
   ],
 
   [
-    a <http://ll-plugins.nongnu.org/lv2/ext/MidiPort>, lv2:OutputPort;
+    a ev:EventPort, lv2:OutputPort;
     lv2:index 4;
+    ev:supportsEvent <http://lv2plug.in/ns/ext/midi#MidiEvent>;
     lv2:symbol "output";
     lv2:name "Output";
   ].
