@@ -191,8 +191,10 @@ math-constants_lv2_MODULES = math-constants.so
 math-constants_so_SOURCES = math-constants.cpp
 math-constants_so_CFLAGS = `pkg-config --cflags lv2-plugin`
 math-constants_so_LDFLAGS = `pkg-config --libs lv2-plugin`
-math-constants_lv2_DATA = manifest.ttl math-constants.ttl \
-	e.svg pi.svg pi_2.svg pi_4.svg 1_pi.svg 2_pi.svg
+math-constants_lv2_DATA = \
+	manifest.ttl math-constants.ttl \
+	e.svg pi.svg pi_2.svg pi_4.svg sqrt2.svg \
+	1_pi.svg 1_sqrt2.svg 2_pi.svg 2_sqrtpi.svg
 math-constants_lv2_SOURCEDIR = plugins/math-constants
 
 # Math functions

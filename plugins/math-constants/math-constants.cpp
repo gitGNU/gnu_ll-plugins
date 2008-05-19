@@ -61,19 +61,19 @@ public:
 };
 
 
-#define LL_PREFIX "http://ll-plugins.nongnu.org/lv2/dev/math-constant-"
+#define LL_PREFIX "http://ll-plugins.nongnu.org/lv2/math-constant-"
 
 
-static unsigned _ = (Constant<e>::register_class(LL_PREFIX "e/0.0.0"),
-		     Constant<log2e>::register_class(LL_PREFIX "log2e/0.0.0"),
-		     Constant<log10e>::register_class(LL_PREFIX "log10e/0.0.0"),
-		     Constant<ln2>::register_class(LL_PREFIX "ln2/0.0.0"),
-		     Constant<ln10>::register_class(LL_PREFIX "ln10/0.0.0"),
-		     Constant<pi>::register_class(LL_PREFIX "pi/0.0.0"),
-		     Constant<pi_2>::register_class(LL_PREFIX "pi_2/0.0.0"),
-		     Constant<pi_4>::register_class(LL_PREFIX "pi_4/0.0.0"),
-		     Constant<_1_pi>::register_class(LL_PREFIX "1_pi/0.0.0"),
-		     Constant<_2_pi>::register_class(LL_PREFIX "2_pi/0.0.0"),
-		     Constant<_2_sqrtpi>::register_class(LL_PREFIX "2_sqrtpi/0.0.0"),
-		     Constant<sqrt2>::register_class(LL_PREFIX "sqrt2/0.0.0"),
-		     Constant<sqrt1_2>::register_class(LL_PREFIX "sqrt1_2/0.0.0"));
+static unsigned _ = (Constant<e>::register_class(LL_PREFIX "e#0"),
+		     Constant<log2e>::register_class(LL_PREFIX "log2e#0"),
+		     Constant<log10e>::register_class(LL_PREFIX "log10e#0"),
+		     Constant<ln2>::register_class(LL_PREFIX "ln2#0"),
+		     Constant<ln10>::register_class(LL_PREFIX "ln10#0"),
+		     Constant<pi>::register_class(LL_PREFIX "pi#0"),
+		     Constant<pi_2>::register_class(LL_PREFIX "pi_2#0"),
+		     Constant<pi_4>::register_class(LL_PREFIX "pi_4#0"),
+		     Constant<_1_pi>::register_class(LL_PREFIX "1_pi#0"),
+		     Constant<_2_pi>::register_class(LL_PREFIX "2_pi#0"),
+		     Constant<_2_sqrtpi>::register_class(LL_PREFIX "2_sqrtpi#0"),
+		     Constant<sqrt2>::register_class(LL_PREFIX "sqrt2#0"),
+		     Constant<sqrt1_2>::register_class(LL_PREFIX "sqrt1_2#0"));
