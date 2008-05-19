@@ -42,7 +42,8 @@ public:
       m_next_key(0),
       m_last_key(0),
       m_midi_type(uri_to_id(LV2_EVENT_URI, 
-			    "http://lv2plug.in/ns/ext/midi#MidiEvent")) {
+			    "http://lv2plug.in/ns/ext/midi#MidiEvent")),
+      m_running(false) {
     
   }
   
@@ -115,6 +116,7 @@ public:
             if (m_next_key > pos)
               ++m_next_key;
           }
+	  m_running = true;
         }
         
       }
@@ -127,7 +129,7 @@ public:
   void generate_events(LV2_Event_Iterator* midi_out, 
 		       uint32_t from, uint32_t to) {
 
-    if (m_num_keys == 0)
+    if (!m_running)
       return;
     
     if (*p(0) <= 0) {
@@ -143,6 +145,11 @@ public:
     for ( ; frame < to; frame += step_length) {
       unsigned char data[] = { 0x80, m_last_key, 0x60 };
       lv2_event_write(midi_out, frame, 0, m_midi_type, 3, data);
+      if (m_num_keys == 0) {
+	m_running = false;
+	m_frame_counter = 0;
+	return;
+      }
       data[0] = 0x90;
       data[1] = m_keys[m_next_key];
       lv2_event_write(midi_out, frame, 0, m_midi_type, 3, data);
@@ -163,6 +170,7 @@ protected:
   unsigned char m_next_key;
   unsigned char m_last_key;
   uint32_t m_midi_type;
+  bool m_running;
   
 };
 
