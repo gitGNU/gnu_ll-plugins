@@ -4,13 +4,12 @@
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 @prefix llext: <http://ll-plugins.nongnu.org/lv2/ext/>.
 @prefix ev: <http://lv2plug.in/ns/ext/event#>.
-@prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
 
-<http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0>
+<http://ll-plugins.nongnu.org/lv2/klaviatur#0>
   a lv2:Plugin;
+  lv2:binary <klaviatur.so>;
   doap:name "Klaviatur";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
-  guiext:ui <http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0/gui>;
   ll:pegName "k";  
   
   lv2:port [
@@ -28,9 +27,3 @@
     lv2:symbol "midi_output";
     lv2:name "MIDI output";
   ].
-
-<http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0/gui> 
-  a guiext:GtkUI;
-  guiext:requiredFeature guiext:makeResident;
-  guiext:binary <klaviatur_gtk.so>;
-  guiext:optionalFeature guiext:noUserResize.

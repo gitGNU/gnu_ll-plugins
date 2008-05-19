@@ -27,6 +27,7 @@ LV2_BUNDLES = \
 	beep.lv2 \
 	control2midi.lv2 \
 	klaviatur.lv2 \
+	klaviatur_gtk.lv2 \
 	nekobee_blue_gui.lv2 \
 	phase-distortion-osc.lv2 \
 	vumeter.lv2 \
@@ -105,18 +106,23 @@ phase-distortion-osc_so_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components
 phase-distortion-osc_so_LDFLAGS = $(PLUGINARCHIVES)
 
 # Klaviatur
-klaviatur_lv2_MODULES = klaviatur.so klaviatur_gtk.so
+klaviatur_lv2_MODULES = klaviatur.so
 klaviatur_lv2_DATA = manifest.ttl klaviatur.ttl
 klaviatur_lv2_PEGFILES = klaviatur.peg
 klaviatur_lv2_SOURCEDIR = plugins/klaviatur
 klaviatur_so_SOURCES = klaviatur.cpp
 klaviatur_so_CFLAGS = $(PLUGINCFLAGS) -Ilibraries/components
 klaviatur_so_LDFLAGS = $(PLUGINARCHIVES)
+
+# Klaviatur GUI
+klaviatur_gtk_lv2_MODULES = klaviatur_gtk.so
+klaviatur_gtk_lv2_MANIFEST = gui_manifest.ttl
+klaviatur_gtk_lv2_SOURCEDIR = plugins/klaviatur
 klaviatur_gtk_so_SOURCES = klaviatur_gtk.cpp
 klaviatur_gtk_so_CFLAGS = `pkg-config --cflags lv2-gui` -Ilibraries/widgets
 klaviatur_gtk_so_LDFLAGS = `pkg-config --libs lv2-gui` 
 klaviatur_gtk_so_ARCHIVES = libraries/widgets/libkeyboard.a
-klaviatur_lv2_POSTINSTALL = $(RESIDENTGUI) >> klaviatur.lv2/klaviatur.ttl
+klaviatur_gtk_lv2_POSTINSTALL = $(RESIDENTGUI) >> klaviatur.lv2/klaviatur.ttl
 
 # Nekobee Blue GUI
 nekobee_blue_gui_lv2_MODULES = nekobee_blue_gui.so
