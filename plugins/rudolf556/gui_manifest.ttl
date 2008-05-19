@@ -2,12 +2,12 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
 
-<http://ll-plugins.nongnu.org/lv2/dev/rudolf556/0>
+<http://ll-plugins.nongnu.org/lv2/rudolf556#0>
   rdfs:seeAlso <>;
-  guiext:ui <http://ll-plugins.nongnu.org/lv2/dev/rudolf556/0/gui>.
+  guiext:ui <http://ll-plugins.nongnu.org/lv2/rudolf556#0/gui>.
 
-<http://ll-plugins.nongnu.org/lv2/dev/rudolf556/0/gui> 
+<http://ll-plugins.nongnu.org/lv2/rudolf556#0/gui> 
   a guiext:GtkUI;
-  guiext:requiredFeature guiext:makeResident;
   guiext:binary <rudolf556_gtk.so>;
+  guiext:requiredFeature guiext:makeResident;
   guiext:optionalFeature guiext:fixedSize.

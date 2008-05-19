@@ -2,7 +2,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix doap: <http://usefulinc.com/ns/doap#>.
 
-<http://ll-plugins.nongnu.org/lv2/dev/rudolf556/0>
+<http://ll-plugins.nongnu.org/lv2/rudolf556#0>
   a lv2:Plugin, lv2:InstrumentPlugin;
   rdfs:seeAlso <rudolf556.ttl>.
 

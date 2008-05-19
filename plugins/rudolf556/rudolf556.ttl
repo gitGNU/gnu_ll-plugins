@@ -6,7 +6,7 @@
 @prefix ev: <http://lv2plug.in/ns/ext/event#>.
 
 
-<http://ll-plugins.nongnu.org/lv2/dev/rudolf556/0>
+<http://ll-plugins.nongnu.org/lv2/rudolf556#0>
   a lv2:Plugin;
   lv2:binary <rudolf556.so>;
   doap:name "Rudolf 556";
@@ -75,8 +75,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 6;
-    lv2:symbol "bass3_v";
-    lv2:name "Bass 3 volume";
+    lv2:symbol "bass2_v";
+    lv2:name "Bass 2 volume";
     lv2:minimum 0;
     lv2:maximum 1;
     lv2:default 0.5;
@@ -135,8 +135,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 12;
-    lv2:symbol "snare3_v";
-    lv2:name "Snare 3 volume";
+    lv2:symbol "snare2_v";
+    lv2:name "Snare 2 volume";
     lv2:minimum 0;
     lv2:maximum 1;
     lv2:default 0.5;
@@ -195,8 +195,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 18;
-    lv2:symbol "hihat3_v";
-    lv2:name "Hihat 3 volume";
+    lv2:symbol "hihat2_v";
+    lv2:name "Hihat 2 volume";
     lv2:minimum 0;
     lv2:maximum 1;
     lv2:default 0.5;

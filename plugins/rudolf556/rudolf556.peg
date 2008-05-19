@@ -14,9 +14,9 @@ typedef struct {
 } peg_data_t;
 #endif
 
-/* <http://ll-plugins.nongnu.org/lv2/dev/rudolf556/0> */
+/* <http://ll-plugins.nongnu.org/lv2/rudolf556#0> */
 
-static const char r_uri[] = "http://ll-plugins.nongnu.org/lv2/dev/rudolf556/0";
+static const char r_uri[] = "http://ll-plugins.nongnu.org/lv2/rudolf556#0";
 
 enum r_port_enum {
   r_midi_input,
@@ -25,19 +25,19 @@ enum r_port_enum {
   r_bass1_v,
   r_bass2_l,
   r_bass2_h,
-  r_bass3_v,
+  r_bass2_v,
   r_snare1_l,
   r_snare1_h,
   r_snare1_v,
   r_snare2_l,
   r_snare2_h,
-  r_snare3_v,
+  r_snare2_v,
   r_hihat1_l,
   r_hihat1_h,
   r_hihat1_v,
   r_hihat2_l,
   r_hihat2_h,
-  r_hihat3_v,
+  r_hihat2_v,
   r_output_mix,
   r_n_ports
 };

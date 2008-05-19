@@ -332,6 +332,18 @@ public:
     add_audio_outputs(r_output_mix);
   }
   
+  
+  ~Rudolf556() {
+    delete [] m_bass_h00;
+    delete [] m_bass_h05;
+    delete [] m_bass_h10;
+    delete [] m_snare_bonk;
+    delete [] m_snare_noise;
+    delete [] m_hihat_base;
+    delete [] m_hihat_hit;
+  }
+  
+  
   /** We override find_free_voice() so we can map keys directly to voices -
       we don't care if they are free or not. */
   unsigned find_free_voice(unsigned char key, unsigned char velocity) {
