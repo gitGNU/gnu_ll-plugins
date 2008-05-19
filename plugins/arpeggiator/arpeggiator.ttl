@@ -4,9 +4,10 @@
 @prefix doap: <http://usefulinc.com/ns/doap#>.
 @prefix ev: <http://lv2plug.in/ns/ext/event#>.
 
-<http://ll-plugins.nongnu.org/lv2/dev/arpeggiator/0.0.0>
+<http://ll-plugins.nongnu.org/lv2/arpeggiator#0>
   a lv2:Plugin;
-  doap:name "Arpeggiator";
+  lv2:binary <arpeggiator.so>;
+  doap:name "Basic arpeggiator";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
 
   lv2:port [

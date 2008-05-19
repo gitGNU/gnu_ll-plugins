@@ -2,8 +2,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix doap: <http://usefulinc.com/ns/doap#>.
 
-<http://ll-plugins.nongnu.org/lv2/dev/arpeggiator/0.0.0>
+<http://ll-plugins.nongnu.org/lv2/arpeggiator#0>
   a lv2:Plugin;
-  lv2:binary <arpeggiator.so>;
   rdfs:seeAlso <arpeggiator.ttl>.
 
