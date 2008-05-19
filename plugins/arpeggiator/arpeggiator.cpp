@@ -194,4 +194,5 @@ protected:
 
 
 
-static unsigned _ = Arpeggiator::register_class("http://ll-plugins.nongnu.org/lv2/dev/arpeggiator/0.0.0"); 
+static unsigned _ = 
+  Arpeggiator::register_class("http://ll-plugins.nongnu.org/lv2/arpeggiator#0"); 
