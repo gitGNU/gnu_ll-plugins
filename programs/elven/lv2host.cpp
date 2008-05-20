@@ -931,7 +931,7 @@ bool LV2Host::load_plugin() {
     Variable preset_path;
     Namespace pr("<http://ll-plugins.nongnu.org/lv2/dev/presets#>");
     qr = select(preset_path)
-      .where(uriref, pr("hasPresetFile"), preset_path)
+      .where(uriref, pr("presetFile"), preset_path)
       .run(data);
     // XXX this can be done faster
     for (int pf = 0; pf < qr.size(); ++pf) {
@@ -1104,8 +1104,8 @@ void LV2Host::load_presets_from_uri(const std::string& presetfile) {
   Variable preset, name, program;
   Namespace pr("<http://ll-plugins.nongnu.org/lv2/dev/presets#>");
   vector<QueryResult> qr2 = select(preset, name, program)
-    .where(uriref, pr("hasSetting"), preset)
-    .where(preset, pr("hasLabel"), name)
+    .where(uriref, pr("preset"), preset)
+    .where(preset, rdfs("label"), name)
     .where(preset, pr("midiProgram"), program)
     .run(preset_data);
   
@@ -1123,16 +1123,20 @@ void LV2Host::load_presets_from_uri(const std::string& presetfile) {
     // XXX should free any old .files here
     
     // get all port values for this preset
-    Variable pv, port, value;
-    vector<QueryResult> qr3 = select(port, value)
-      .where(preseturi, pr("hasPortValue"), pv)
-      .where(pv, pr("forPort"), port)
-      .where(pv, rdf("value"), value)
+    Variable pv;
+    vector<QueryResult> qr3 = select(pv)
+      .where(preseturi, pr("portValues"), pv)
       .run(preset_data);
-    for (unsigned k = 0; k < qr3.size(); ++k) {
-      int p = atoi(qr3[k][port]->name.c_str());
-      float v = atof(qr3[k][value]->name.c_str());
-      tmp_p.values[p] = v;
+    if (qr3.size() > 0) {
+      istringstream iss(qr3[0][pv]->name);
+      int p;
+      float v;
+      char c;
+      while (!iss.eof()) {
+	iss>>p>>c>>v>>ws;
+	if (p >= 0)
+	  tmp_p.values[p] = v;
+      }
     }
     
     // get all data files for this preset
