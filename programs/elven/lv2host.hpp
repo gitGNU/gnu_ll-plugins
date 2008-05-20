@@ -238,7 +238,7 @@ protected:
   
   void merge_presets();
   
-  void load_presets_from_uri(const std::string& fileuri);
+  void load_presets_from_uri(const std::string& fileuri, bool user);
   
   static bool print_uri(const std::string& bundle);
   
@@ -250,6 +250,10 @@ protected:
   static uint32_t event_unref(LV2_Event_Callback_Data, LV2_Event*);
   
   static void request_run(void* host_handle, const char* context_uri);
+  
+  static bool create_user_data_bundle();
+  
+  static std::string uri_to_preset_filename(const std::string& uri);
   
   template <typename T> T get_symbol(const std::string& name) {
     union {
@@ -303,7 +307,7 @@ protected:
   std::map<unsigned, LV2Preset> m_presets;
   std::vector<LV2Preset> m_tmp_presets;
   
-  std::string m_user_data_bundle;
+  static std::string m_user_data_bundle;
   unsigned m_next_free_preset;
 };
 
