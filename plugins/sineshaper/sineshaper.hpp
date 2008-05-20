@@ -35,7 +35,8 @@
 
 /** This is the class that contains all the code and data for the Sineshaper
     synth plugin. */
-class SineShaper : public LV2::Plugin<SineShaper, LV2::URIMap<true> > {
+class SineShaper : public LV2::Plugin<SineShaper, 
+				      LV2::URIMap<true>, LV2::EventRef<true> > {
 public:
   
   SineShaper(double frame_rate);
@@ -43,6 +44,10 @@ public:
   void run(uint32_t sample_count);
   
 protected:
+  
+  void handle_midi(const uint8_t* event_data);
+
+  void render_audio(uint32_t from, uint32_t to);
   
   SineOscillator m_vibrato_lfo;
   SineOscillator m_tremolo_lfo;
@@ -72,6 +77,8 @@ protected:
   Slide m_delay_fb_slide;
   Slide m_delay_mix_slide;
   DCBlocker m_blocker;
+
+  bool m_tie_overlapping;
   
   unsigned long m_frame_rate;
   unsigned long m_last_frame;

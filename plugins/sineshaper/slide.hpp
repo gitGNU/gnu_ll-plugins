@@ -31,16 +31,23 @@ public:
   
   inline float run(float input, uint32_t slide_time);
   
+  inline void reset();
+
 protected:
   
   uint32_t m_last_change;
   float m_from;
   float m_to;
   float m_last_output;
+  bool m_reset;
 };
 
 
-Slide::Slide(uint32_t) : m_from(0), m_to(0), m_last_output(0) {
+Slide::Slide(uint32_t) : 
+  m_from(0), 
+  m_to(0), 
+  m_last_output(0),
+  m_reset(false) {
 
 }
 
@@ -53,8 +60,10 @@ float Slide::run(float input, uint32_t slide_time) {
   
   float result;
   
-  if (slide_time == 0) 
+  if (m_reset || slide_time == 0) {
     result = input;
+    m_reset = false;
+  }
   else {
     float increment = (m_to - m_from) / slide_time;
     bool rising = (m_to > m_from);
@@ -65,6 +74,11 @@ float Slide::run(float input, uint32_t slide_time) {
   
   m_last_output = result;
   return result;
+}
+
+
+void Slide::reset() {
+  m_reset = true;
 }
 
 
