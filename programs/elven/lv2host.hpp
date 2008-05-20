@@ -84,6 +84,9 @@ struct LV2Port {
 
 
 struct LV2Preset {
+  LV2Preset()
+    : files(0) {
+  }
   ~LV2Preset() {
     if (files) {
       LV2SR_File** iter = files;
