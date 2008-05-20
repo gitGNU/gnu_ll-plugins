@@ -58,7 +58,6 @@ public:
   
   void run(uint32_t nframes) {
     
-    float& npb = *p(0);
     m_upwards = *p(1) > 0.5;
     
     LV2_Event_Iterator iter_in, iter_out;
@@ -151,7 +150,7 @@ public:
       return;
     }
       
-    uint32_t step_length = m_rate / *p(0);
+    uint32_t step_length = 60 * m_rate / *p(0);
     
     uint32_t frame = from + m_frame_counter;
     frame = frame >= from ? frame : from;

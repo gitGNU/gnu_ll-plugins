@@ -13,11 +13,11 @@
   lv2:port [
     a lv2:InputPort, lv2:ControlPort;
     lv2:index 0;
-    lv2:symbol "notes_per_second";
-    lv2:name "Notes per second";
-    lv2:minimum 0.5;
-    lv2:maximum 20;
-    lv2:default 8;
+    lv2:symbol "notes_per_minute";
+    lv2:name "Notes / minute";
+    lv2:minimum 30;
+    lv2:maximum 1200;
+    lv2:default 480;
   ],
   
   [
