@@ -26,8 +26,9 @@
 #include "vuwidget.hpp"
 
 
-VUWidget::VUWidget(unsigned channels) 
+VUWidget::VUWidget(unsigned channels, float min) 
   : m_channels(channels),
+    m_min(min),
     m_values(new float[m_channels]),
     m_peaks(new float[m_channels]),
     m_peak_connections(new sigc::connection[m_channels]) {
@@ -96,13 +97,14 @@ bool VUWidget::on_expose_event(GdkEventExpose* event) {
   win->draw_line(gc, 0, 0, 0, get_height());
   
   for (unsigned c = 0; c < m_channels; ++c) {
+    float mapped_value = map_to_log(m_values[c]);
     int x = 2 + c * ((get_width() - 3) / m_channels);
     int w = (get_width() - 3) / m_channels - 2;
     gc->set_foreground(m_fg1);
     int level = 1;
     bool active = true;
     for (unsigned i = 0; i < n; ++i) {
-      if (m_values[c] * 0.8 * n <= i) {
+      if (mapped_value * 0.8 * n <= i) {
 	active = false;
 	if (level == 1)
 	  gc->set_foreground(m_fg1b);
@@ -129,12 +131,13 @@ bool VUWidget::on_expose_event(GdkEventExpose* event) {
     }
     
     if (m_peaks[c] > 0) {
-      unsigned i = m_peaks[c] * 0.8 * n;
+      float mapped_value = map_to_log(m_peaks[c]);
+      unsigned i = mapped_value * 0.8 * n;
       if (i >= n)
 	i = n - 1;
-      if (m_peaks[c] * 0.8 <= 0.6)
+      if (mapped_value * 0.8 <= 0.6)
 	gc->set_foreground(m_fg1);
-      else if (m_peaks[c] * 0.8 <= 0.8)
+      else if (mapped_value * 0.8 <= 0.8)
 	gc->set_foreground(m_fg2);
       else
 	gc->set_foreground(m_fg3);

@@ -28,7 +28,8 @@
 
 /** This template class implements a plugin that takes an audio input signal
     and outputs a decaying peak value in a control port. It is a template
-    so we don't have to write the same code twice for mono and stereo meters. */
+    so we don't have to write the same code twice for mono and stereo meters.
+*/
 template <unsigned C>
 class PeakMeter : public LV2::Plugin< PeakMeter<C> > {
 public:
@@ -37,8 +38,11 @@ public:
   using LV2::Plugin< PeakMeter<C> >::p;
   
   /** The constructor initialises the peak values to 0. */
-  PeakMeter(double rate) : LV2::Plugin< PeakMeter<C> >(2 * C),
-      m_dy(1.0 / (1.0 * rate)) {
+  PeakMeter(double rate) : 
+    LV2::Plugin< PeakMeter<C> >(2 * C),
+    m_dy(1.0 / (1.0 * rate)),
+    m_min(1.0 / 256),
+    m_decay(exp(log(m_min) / (1 * rate))) {
     for (unsigned i = 0; i < C; ++i)
       m_values[i] = 0.0;
   }
@@ -50,9 +54,9 @@ public:
 	float f = std::abs(p(2 * c)[i]);
 	m_values[c] = f > m_values[c] ? f : m_values[c];
       }
-      *p(2 * c + 1) = m_values[c] > 1e-10 ? m_values[c] : 0;
-      if (m_values[c] > m_dy * nframes)
-	m_values[c] -= m_dy * nframes;
+      *p(2 * c + 1) = m_values[c] > m_min ? m_values[c] : 0;
+      if (m_values[c] > m_min)
+	m_values[c] *= pow(m_decay, nframes);
       else
 	m_values[c] = 0.0;
     }
@@ -62,6 +66,8 @@ protected:
   
   float m_values[C];
   float m_dy;
+  float m_min;
+  float m_decay;
   
 };
 

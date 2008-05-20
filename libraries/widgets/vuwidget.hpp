@@ -24,6 +24,7 @@
 #ifndef VUWIDGET_HPP
 #define VUWIDGET_HPP
 
+#include <cmath>
 #include <string>
 #include <vector>
 
@@ -33,7 +34,7 @@
 class VUWidget : public Gtk::DrawingArea {
 public:
   
-  VUWidget(unsigned channels);
+  VUWidget(unsigned channels, float min = 1.0 / 256);
   ~VUWidget();
   
   void set_value(unsigned channel, float value);
@@ -44,7 +45,17 @@ protected:
   
   void clear_peak(unsigned channel);
   
+  float map_to_log(float input) {
+    float result = 0;
+    if (input > m_min) {
+      float lmin = -std::log(m_min);
+      result = std::log(input) / lmin + 1;
+    }
+    return result;
+  }
+  
   unsigned m_channels;
+  float m_min;
   float* m_values;
   float* m_peaks;
   sigc::connection* m_peak_connections;
