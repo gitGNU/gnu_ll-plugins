@@ -85,7 +85,8 @@ struct LV2Port {
 
 struct LV2Preset {
   LV2Preset()
-    : files(0) {
+    : files(0),
+      elven_override(false) {
   }
   ~LV2Preset() {
     if (files) {
@@ -101,6 +102,7 @@ struct LV2Preset {
   std::string name;
   std::map<uint32_t, float> values;
   LV2SR_File** files;
+  bool elven_override;
 };
 
 
@@ -148,7 +150,7 @@ public:
   const std::string& get_name() const;
   
   /** Returns all found presets. */
-  const std::map<unsigned char, LV2Preset>& get_presets() const;
+  const std::map<unsigned, LV2Preset>& get_presets() const;
   
   /** Activate the plugin. The plugin must be activated before you call the
       run() function. */
@@ -230,9 +232,15 @@ protected:
   bool parse_ports(PAQ::RDFData& data, const std::string& parent, 
 		   const std::string& predicate, PortContext context);
   
-  static bool print_uri(const std::string& bundle);
-  
   bool load_plugin();
+  
+  bool add_preset(const LV2Preset& preset, int program = -1);
+  
+  void merge_presets();
+  
+  void load_presets_from_uri(const std::string& fileuri);
+  
+  static bool print_uri(const std::string& bundle);
   
   static uint32_t uri_to_id(LV2_URI_Map_Callback_Data callback_data,
 			    const char* umap, const char* uri);
@@ -242,7 +250,6 @@ protected:
   static uint32_t event_unref(LV2_Event_Callback_Data, LV2_Event*);
   
   static void request_run(void* host_handle, const char* context_uri);
-  
   
   template <typename T> T get_symbol(const std::string& name) {
     union {
@@ -293,7 +300,11 @@ protected:
   // output notification semaphore
   sem_t m_notification_sem;
   
-  std::map<unsigned char, LV2Preset> m_presets;
+  std::map<unsigned, LV2Preset> m_presets;
+  std::vector<LV2Preset> m_tmp_presets;
+  
+  std::string m_user_data_bundle;
+  unsigned m_next_free_preset;
 };
 
 

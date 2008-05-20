@@ -704,8 +704,8 @@ int main(int argc, char** argv) {
 	}
 	
 	// update the program controls in the GUI
-	const std::map<unsigned char, LV2Preset>& presets = lv2h.get_presets();
-	std::map<unsigned char, LV2Preset>::const_iterator iter;
+	const std::map<unsigned, LV2Preset>& presets = lv2h.get_presets();
+	std::map<unsigned, LV2Preset>::const_iterator iter;
 	for (iter = presets.begin(); iter != presets.end(); ++iter)
 	  lv2gh->program_added(iter->first, iter->second.name.c_str());
 	

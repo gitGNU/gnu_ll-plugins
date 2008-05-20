@@ -32,6 +32,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <glibmm.h>
 #include <turtleparser.hpp>
 #include <query.hpp>
 #include <namespaces.hpp>
@@ -57,8 +58,10 @@ LV2Host::LV2Host(const string& uri, unsigned long frame_rate)
     m_msg_desc(0),
     m_ports_used(0),
     m_midimap(128, -1),
-    m_ports_updated(false) {
-  
+    m_ports_updated(false),
+    m_user_data_bundle(Glib::getenv("HOME") + "/.lv2/elven_user_data.lv2"),
+    m_next_free_preset(0) {
+
   DBG2("Creating plugin loader...");
   
   pthread_mutex_init(&m_mutex, 0);
@@ -250,7 +253,7 @@ void LV2Host::set_program(unsigned char program) {
   
   DBG2("Switch to program "<<program<<" requested");
   
-  std::map<unsigned char, LV2Preset>::const_iterator iter = m_presets.find(program);
+  std::map<unsigned, LV2Preset>::const_iterator iter = m_presets.find(program);
   
   if (iter != m_presets.end()) {
     
@@ -288,6 +291,7 @@ void LV2Host::save_program(unsigned char program, const char* name) {
   }
   LV2Preset preset;
   preset.name = name;
+  preset.elven_override = true;
   for (unsigned i = 0; i < m_ports.size(); ++i) {
     if (m_ports[i].type == ControlType && m_ports[i].direction == InputPort)
       preset.values[i] = m_ports[i].value;
@@ -415,7 +419,7 @@ bool LV2Host::restore(const LV2SR_File** files) {
 }
 
 
-const std::map<unsigned char, LV2Preset>& LV2Host::get_presets() const {
+const std::map<unsigned, LV2Preset>& LV2Host::get_presets() const {
   return m_presets;
 }
 
@@ -923,90 +927,27 @@ bool LV2Host::load_plugin() {
     
     m_bundledir = m_bundle;
     
-    // default preset path
+    // preset files
     Variable preset_path;
     Namespace pr("<http://ll-plugins.nongnu.org/lv2/dev/presets#>");
     qr = select(preset_path)
       .where(uriref, pr("hasPresetFile"), preset_path)
       .run(data);
-    if (qr.size() > 0) {
-      string presetfile = qr[0][preset_path]->name;
-      DBG2("Found default preset file "<<presetfile);
-      
-      // parse preset file
-      TurtleParser tp;
-      RDFData data;
-      if (!tp.parse_ttl_url(presetfile, data)) {
-        DBG0("Could not parse presets from "<<presetfile);
+    // XXX this can be done faster
+    for (int pf = 0; pf < qr.size(); ++pf) {
+      string presetfile = qr[pf][preset_path]->name;
+      if (presetfile.substr(8, m_user_data_bundle.size()) == 
+	  m_user_data_bundle) {
+	DBG2("Found user preset file "<<presetfile);
+	load_presets_from_uri(presetfile);
       }
-      else {
-	
-	// get all program banks
-        Variable bank;
-        qr = select(bank).where(uriref, pr("hasBank"), bank).run(data);
-        if (qr.size() > 0) {
-          string bankuri = qr[0][bank]->name;
-          DBG2("Found preset bank "<<bankuri);
-          Variable preset, name, program;
-          vector<QueryResult> qr2 = select(preset, name, program)
-            .where(uriref, pr("hasSetting"), preset)
-            .where(preset, pr("hasLabel"), name)
-            .where(preset, pr("midiProgram"), program)
-            .where(preset, pr("inBank"), bankuri)
-            .run(data);
-	  
-	  // get all programs in this bank
-          for (unsigned j = 0; j < qr2.size(); ++j) {
-            
-	    string preseturi = qr2[j][preset]->name;
-            DBG2("Found the preset \""<<qr2[j][name]->name<<"\" "
-                 <<" with MIDI program number "<<qr2[j][program]->name);
-            int pnum = atoi(qr2[j][program]->name.c_str());
-            m_presets[pnum].name = qr2[j][name]->name;
-            m_presets[pnum].values.clear();
-	    // XXX should free any old .files here
-            
-	    // get all port values for this preset
-	    Variable pv, port, value;
-            vector<QueryResult> qr3 = select(port, value)
-              .where(preseturi, pr("hasPortValue"), pv)
-              .where(pv, pr("forPort"), port)
-              .where(pv, rdf("value"), value)
-              .run(data);
-            for (unsigned k = 0; k < qr3.size(); ++k) {
-              int p = atoi(qr3[k][port]->name.c_str());
-              float v = atof(qr3[k][value]->name.c_str());
-              m_presets[pnum].values[p] = v;
-            }
-	    
-	    // get all data files for this preset
-            Variable fn, name, path;
-            qr3 = select(name, path)
-              .where(preseturi, pr("hasFile"), fn)
-              .where(fn, pr("fileName"), name)
-              .where(pv, pr("filePath"), path)
-              .run(data);
-	    if (qr3.size() > 0) {
-	      m_presets[pnum].files = 
-		(LV2SR_File**)calloc(qr3.size() + 1, sizeof(LV2SR_File*));
-	      for (unsigned k = 0; k < qr3.size(); ++k) {
-		std::string fname = qr3[k][name]->name.c_str();
-		std::string fpath = qr3[k][path]->name.c_str();
-		fpath = fpath.substr(8, fpath.size() - 9); 
-
-		LV2SR_File* file = (LV2SR_File*)calloc(1, sizeof(LV2SR_File));
-		file->name = strdup(fname.c_str());
-		file->path = strdup(fpath.c_str());
-		m_presets[pnum].files[k] = file;
-	      }
-	    }
-	    
-	  }
-	}
-      }
-
     }
-
+    for (int pf = 0; pf < qr.size(); ++pf) {
+      string presetfile = qr[pf][preset_path]->name;
+      if (presetfile.substr(8, m_user_data_bundle.size()) != m_user_data_bundle)
+	load_presets_from_uri(presetfile);
+    }
+    merge_presets();
   }
   
   // if we got this far the data is OK. time to load the library
@@ -1135,4 +1076,100 @@ void LV2Host::request_run(void* host_handle, const char* context_uri) {
     DBG0("Message context is not yet fully supported");
   else
     DBG1("Asked to run unknown context "<<context_uri);
+}
+
+
+bool LV2Host::add_preset(const LV2Preset& preset, int program) {
+  if (program < 0 || m_presets.find(program) != m_presets.end())
+    m_tmp_presets.push_back(preset);
+  else
+    m_presets.insert(make_pair(program, preset));
+  return true;
+}
+
+
+void LV2Host::load_presets_from_uri(const std::string& presetfile) {
+
+  DBG2("Found preset file "<<presetfile);
+  
+  string uriref = string("<") + m_uri + ">";
+  TurtleParser preset_parser;
+  RDFData preset_data;
+  if (!preset_parser.parse_ttl_url(presetfile, preset_data)) {
+    DBG0("Could not parse presets from "<<presetfile);
+    return;
+  }
+  
+  // XXX make this work for presets without MIDI program mapping
+  Variable preset, name, program;
+  Namespace pr("<http://ll-plugins.nongnu.org/lv2/dev/presets#>");
+  vector<QueryResult> qr2 = select(preset, name, program)
+    .where(uriref, pr("hasSetting"), preset)
+    .where(preset, pr("hasLabel"), name)
+    .where(preset, pr("midiProgram"), program)
+    .run(preset_data);
+  
+  // get all presets
+  for (unsigned j = 0; j < qr2.size(); ++j) {
+    
+    LV2Preset tmp_p;
+    
+    string preseturi = qr2[j][preset]->name;
+    DBG2("Found the preset \""<<qr2[j][name]->name<<"\" "
+	 <<" with MIDI program number "<<qr2[j][program]->name);
+    int pnum = atoi(qr2[j][program]->name.c_str());
+    tmp_p.name = qr2[j][name]->name;
+    tmp_p.values.clear();
+    // XXX should free any old .files here
+    
+    // get all port values for this preset
+    Variable pv, port, value;
+    vector<QueryResult> qr3 = select(port, value)
+      .where(preseturi, pr("hasPortValue"), pv)
+      .where(pv, pr("forPort"), port)
+      .where(pv, rdf("value"), value)
+      .run(preset_data);
+    for (unsigned k = 0; k < qr3.size(); ++k) {
+      int p = atoi(qr3[k][port]->name.c_str());
+      float v = atof(qr3[k][value]->name.c_str());
+      tmp_p.values[p] = v;
+    }
+    
+    // get all data files for this preset
+    Variable fn, name, path;
+    qr3 = select(name, path)
+      .where(preseturi, pr("hasFile"), fn)
+      .where(fn, pr("fileName"), name)
+      .where(pv, pr("filePath"), path)
+      .run(preset_data);
+    if (qr3.size() > 0) {
+      tmp_p.files = 
+	(LV2SR_File**)calloc(qr3.size() + 1, sizeof(LV2SR_File*));
+      for (unsigned k = 0; k < qr3.size(); ++k) {
+	std::string fname = qr3[k][name]->name.c_str();
+	std::string fpath = qr3[k][path]->name.c_str();
+	fpath = fpath.substr(8, fpath.size() - 9); 
+	
+	LV2SR_File* file = (LV2SR_File*)calloc(1, sizeof(LV2SR_File));
+	file->name = strdup(fname.c_str());
+	file->path = strdup(fpath.c_str());
+	tmp_p.files[k] = file;
+      }
+    }
+    
+    add_preset(tmp_p, pnum);
+  }  
+}
+
+
+void LV2Host::merge_presets() {
+  for (unsigned i = 0; i < m_tmp_presets.size(); ++i) {
+    // XXX this can be optimised
+    while (true) {
+      if (m_presets.find(m_next_free_preset) == m_presets.end())
+	break;
+      ++m_next_free_preset;
+    }
+    m_presets.insert(make_pair(m_next_free_preset, m_tmp_presets[i]));
+  }
 }
