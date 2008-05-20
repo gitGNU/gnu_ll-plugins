@@ -31,7 +31,7 @@
 namespace {
   
   // This is needed because floats can't be used as template parameters,
-  // so we need to use references
+  // so we have to use references
   float e = M_E;
   float log2e = M_LOG2E;
   float log10e = M_LOG10E;
@@ -61,19 +61,18 @@ public:
 };
 
 
-#define LL_PREFIX "http://ll-plugins.nongnu.org/lv2/math-constant-"
-
-
-static unsigned _ = (Constant<e>::register_class(LL_PREFIX "e#0"),
-		     Constant<log2e>::register_class(LL_PREFIX "log2e#0"),
-		     Constant<log10e>::register_class(LL_PREFIX "log10e#0"),
-		     Constant<ln2>::register_class(LL_PREFIX "ln2#0"),
-		     Constant<ln10>::register_class(LL_PREFIX "ln10#0"),
-		     Constant<pi>::register_class(LL_PREFIX "pi#0"),
-		     Constant<pi_2>::register_class(LL_PREFIX "pi_2#0"),
-		     Constant<pi_4>::register_class(LL_PREFIX "pi_4#0"),
-		     Constant<_1_pi>::register_class(LL_PREFIX "1_pi#0"),
-		     Constant<_2_pi>::register_class(LL_PREFIX "2_pi#0"),
-		     Constant<_2_sqrtpi>::register_class(LL_PREFIX "2_sqrtpi#0"),
-		     Constant<sqrt2>::register_class(LL_PREFIX "sqrt2#0"),
-		     Constant<sqrt1_2>::register_class(LL_PREFIX "sqrt1_2#0"));
+// register plugins for all the different output values
+#define URIPFX "http://ll-plugins.nongnu.org/lv2/math-constant-"
+static unsigned _ = (Constant<e>::register_class(URIPFX "e#0"),
+		     Constant<log2e>::register_class(URIPFX "log2e#0"),
+		     Constant<log10e>::register_class(URIPFX "log10e#0"),
+		     Constant<ln2>::register_class(URIPFX "ln2#0"),
+		     Constant<ln10>::register_class(URIPFX "ln10#0"),
+		     Constant<pi>::register_class(URIPFX "pi#0"),
+		     Constant<pi_2>::register_class(URIPFX "pi_2#0"),
+		     Constant<pi_4>::register_class(URIPFX "pi_4#0"),
+		     Constant<_1_pi>::register_class(URIPFX "1_pi#0"),
+		     Constant<_2_pi>::register_class(URIPFX "2_pi#0"),
+		     Constant<_2_sqrtpi>::register_class(URIPFX "2_sqrtpi#0"),
+		     Constant<sqrt2>::register_class(URIPFX "sqrt2#0"),
+		     Constant<sqrt1_2>::register_class(URIPFX "sqrt1_2#0"));

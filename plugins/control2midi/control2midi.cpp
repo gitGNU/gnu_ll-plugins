@@ -27,13 +27,15 @@
 #include "control2midi.peg"
 
 
-/** This is the class that contains all the code and data for the Sineshaper
-    synth plugin. */
-class Control2MIDI : public LV2::Plugin<Control2MIDI, LV2::URIMap<true> > {
+using namespace LV2;
+
+
+/** This plugin generates MIDI CC events when the control input changes. */
+class Control2MIDI : public Plugin<Control2MIDI, URIMap<true> > {
 public:
   
   Control2MIDI(double) 
-    : LV2::Plugin<Control2MIDI, LV2::URIMap<true> >(c_n_ports),
+    : Plugin<Control2MIDI, URIMap<true> >(c_n_ports),
       m_last_value(0),
       m_last_cc(0),
       m_midi_type(uri_to_id(LV2_EVENT_URI,
@@ -43,29 +45,32 @@ public:
   
   void run(uint32_t sample_count) {
     
-    float value = *p(c_input);
-    float min = *p(c_min);
-    float max = *p(c_max);
-    float cc = *p(c_cc);
+    // get control values and initialise output iterator
+    float& value = *p(c_input);
+    float& min = *p(c_min);
+    float& max = *p(c_max);
+    float cc_float = *p(c_cc);
+    cc_float = cc_float < 0 ? 0 : (cc_float > 127 ? 127 : cc_float);
+    unsigned char cc = static_cast<unsigned char>(cc_float);
     LV2_Event_Buffer* midi = p<LV2_Event_Buffer>(c_output);
     lv2_event_buffer_reset(midi, midi->stamp_type, midi->data);
     LV2_Event_Iterator iter;
     lv2_event_begin(&iter, midi);
     
-    unsigned char ccc = (unsigned char)cc;
-    
+    // check range sanity
     if (max - min < 0.001)
       max = min + 0.001;
     if (value < min)
       value = min;
     else if (value > max)
       value = max;
-
+    
+    // if the input has changed, write a single MIDI CC event
     unsigned char cvalue = (unsigned char)((value - min) * 127 / (max - min));
-    if (ccc != m_last_cc || cvalue != m_last_value) {
-      unsigned char bytes[] = { 0xB0, ccc, cvalue };
+    if (cc != m_last_cc || cvalue != m_last_value) {
+      unsigned char bytes[] = { 0xB0, cc, cvalue };
       lv2_event_write(&iter, 0, 0, m_midi_type, 3, bytes);
-      m_last_cc = ccc;
+      m_last_cc = cc;
       m_last_value = cvalue;
     }
     

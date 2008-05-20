@@ -33,15 +33,33 @@
 using namespace std;
 
 
+/** The Voice class for the LV2::Synth template. There is one single 
+    voice class that plays different drum sounds depending on the constructor
+    parameters. It could be done with inheritance and virtual functions as 
+    well, but that would add vtable lookups which prevent function call 
+    inlining. */
 class Voice : public LV2::Voice {
 public:
   
+  /** The different drum types. */
   enum VoiceType {
     Bass = 0,
     Snare = 1,
     Hihat = 2
   };
   
+  /** The constructor initialises the voice to play a certain drum sound. 
+      @param type          The type of drum sound, different types use slightly 
+                           different algorithms
+      @param number        The voice number, so the voice knows which ports to 
+                           get its control parameters from
+      @param quickfade_max The length, in samples, of the quickfade - the 
+                           fadeout time of a voice when it is told to start 
+                           playing a new note
+      @param buf1          The first sample buffer (there can be three of them,
+                           but all drum types don't use all three)
+      @param len1          The length, in samples, of @c buf1.
+  */
   Voice(VoiceType type, int number, unsigned quickfade_max,
 	float* buf1, unsigned len1, float* buf2, unsigned len2, 
 	float* buf3 = 0, unsigned len3 = 0)
@@ -61,8 +79,12 @@ public:
     
   }
   
+  /** LV2::Synth calls this when it receives a Note On event for a key
+      mapped to this voice. */
   void on(unsigned char key, unsigned char velocity) {
     
+    m_key = key;
+
     // if we are already playing a note we need to fade it out really quick
     // before starting this one to avoid clicks
     // don't do it for hihats, they are noisy enough to cover the clicks
@@ -70,7 +92,7 @@ public:
       m_quickfade = m_quickfade_max;
     }
     
-    m_key = key;
+    // reset the frame position
     m_frame = 0;
     
     // copy the current parameters (we keep them constant for the duration 
@@ -106,17 +128,21 @@ public:
     }
   }
   
+  /** The LV2::Synth template requires this, but it isn't really needed
+      since we write our own Rudolf556::find_free_voice() that doesn't care
+      if a voice is already playing or not. */
   unsigned char get_key() const {
     return m_key;
   }
   
+  /** The main audio generating function. */
   void render(uint32_t from, uint32_t to) {
     
     // if we're not playing a note, just return
     if (m_key == LV2::INVALID_KEY)
       return;
     
-    float* output = p(r_output_mix);
+    float*& output = p(r_output_mix);
     
     // if we are doing a quickfade from last note, finish that first
     // it might be nicer to do a BLEP here, but a linear ramp seems to work OK
@@ -282,10 +308,12 @@ protected:
 };
 
 
+/** The main plugin class. This handles sample loading and voice stealing. */
 class Rudolf556 : public LV2::Synth<Voice, Rudolf556> {
 public:
 
-
+  /** This constructor loads all sample files. If it can't get them all
+      the plugin will not be instantiated. */
   Rudolf556(double rate) 
     : LV2::Synth<Voice, Rudolf556>(r_n_ports, r_midi_input),
       m_rate(rate) {
@@ -333,6 +361,7 @@ public:
   }
   
   
+  /** Delete all the samples here so we don't leak memory. */
   ~Rudolf556() {
     delete [] m_bass_h00;
     delete [] m_bass_h05;

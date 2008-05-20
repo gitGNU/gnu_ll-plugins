@@ -31,6 +31,8 @@ using namespace LV2;
 using namespace std;
 
 
+/** This plugin is really just a simple MIDI THRU. The GUI writes events
+    to the input port and the plugin copies them to the output. */
 class Klaviatur : public Plugin<Klaviatur, URIMap<true>, EventRef<true> > {
 public:
   
@@ -44,6 +46,7 @@ public:
   
   void run(uint32_t nframes) {
     
+    // initialise event buffer iterators
     LV2_Event_Buffer* inbuf = p<LV2_Event_Buffer>(k_midi_input);
     LV2_Event_Buffer* outbuf = p<LV2_Event_Buffer>(k_midi_output);
     lv2_event_buffer_reset(outbuf, inbuf->stamp_type, outbuf->data);
@@ -51,6 +54,7 @@ public:
     lv2_event_begin(&in, inbuf);
     lv2_event_begin(&out, outbuf);
     
+    // copy events
     while (lv2_event_is_valid(&in)) {
       uint8_t* data;
       LV2_Event* ev = lv2_event_get(&in, &data);

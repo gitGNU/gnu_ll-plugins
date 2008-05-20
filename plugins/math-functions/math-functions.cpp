@@ -52,6 +52,8 @@ namespace {
 }
 
 
+/** A template class for plugins that wrap unary functions with 
+    infinite domain. */
 template <unary_f F, bool A>
 class Unary : public LV2::Plugin< Unary<F, A> > {
 public:
@@ -70,6 +72,9 @@ public:
 };
 
 
+/** A template class for plugins that wrap unary functions where
+    the output may be infinite or NaN - it replaces any such output
+    values with 0. */
 template <unary_f F, bool A>
 class UnaryGuard : public LV2::Plugin< UnaryGuard<F, A> > {
 public:
@@ -91,6 +96,8 @@ public:
 };
 
 
+/** A template class for plugins that wrap unary functions with a
+    bounded domain. It clamps the input to the given domain. */
 template <unary_f F, bool A, float& MIN, float& MAX>
 class UnaryRange : public LV2::Plugin< UnaryRange<F, A, MIN, MAX> > {
 public:
@@ -112,6 +119,8 @@ public:
 };
 
 
+/** A template class for plugins that wrap unary functions where the
+    domain is bounded downwards but unbounded upwards. */
 template <unary_f F, bool A, float& MIN>
 class UnaryMin : public LV2::Plugin< UnaryMin<F, A, MIN> > {
 public:
@@ -132,6 +141,8 @@ public:
 };
 
 
+/** A template class for plugins that wrap binary functions with infinite
+    domain. */
 template <binary_f F, bool A>
 class Binary : public LV2::Plugin< Binary<F, A> > {
 public:
@@ -151,6 +162,9 @@ public:
 };
 
 
+/** A template class for plugins that wrap binary functions where
+    the output may be infinite or NaN - it replaces any such output
+    values with 0. */
 template <binary_f F, bool A>
 class BinaryGuard : public LV2::Plugin< BinaryGuard<F, A> > {
 public:
@@ -173,6 +187,8 @@ public:
 };
 
 
+/** A special template class for the modf() function, needed because
+    of its use of an output parameter. */
 template <bool A>
 class Modf : public LV2::Plugin< Modf<A> > {
 public:
@@ -192,46 +208,46 @@ public:
 };
 
 
-#define LL_PREFIX "http://ll-plugins.nongnu.org/lv2/math-function-"
-
-
-static unsigned _ = (Unary<&atan, true>::register_class(LL_PREFIX "atan#0"),
-		     Unary<&atan, false>::register_class(LL_PREFIX "atan-ctrl#0"),
-		     Unary<&ceil, true>::register_class(LL_PREFIX "ceil#0"),
-		     Unary<&ceil, false>::register_class(LL_PREFIX "ceil-ctrl#0"),
-		     Unary<&cos, true>::register_class(LL_PREFIX "cos#0"),
-		     Unary<&cos, false>::register_class(LL_PREFIX "cos-ctrl#0"),
-		     Unary<&cosh, true>::register_class(LL_PREFIX "cosh#0"),
-		     Unary<&cosh, false>::register_class(LL_PREFIX "cosh-ctrl#0"),
-		     Unary<&exp, true>::register_class(LL_PREFIX "exp#0"),
-		     Unary<&exp, false>::register_class(LL_PREFIX "exp-ctrl#0"),
-		     Unary<&abs, true>::register_class(LL_PREFIX "abs#0"),
-		     Unary<&abs, false>::register_class(LL_PREFIX "abs-ctrl#0"),
-		     Unary<&floor, true>::register_class(LL_PREFIX "floor#0"),
-		     Unary<&floor, false>::register_class(LL_PREFIX "floor-ctrl#0"),
-		     Unary<&sin, true>::register_class(LL_PREFIX "sin#0"),
-		     Unary<&sin, false>::register_class(LL_PREFIX "sin-ctrl#0"),
-		     Unary<&sinh, true>::register_class(LL_PREFIX "sinh#0"),
-		     Unary<&sinh, false>::register_class(LL_PREFIX "sinh-ctrl#0"),
-		     UnaryMin<&log, true, epsilon>::register_class(LL_PREFIX "log#0"),
-		     UnaryMin<&log, false, epsilon>::register_class(LL_PREFIX "log-ctrl#0"),
-		     UnaryMin<&log10, true, epsilon>::register_class(LL_PREFIX "log10#0"),
-		     UnaryMin<&log10, false,epsilon>::register_class(LL_PREFIX "log10-ctrl#0"),
-		     UnaryMin<&sqrt, true, zero>::register_class(LL_PREFIX "sqrt#0"),
-		     UnaryMin<&sqrt, false, zero>::register_class(LL_PREFIX "sqrt-ctrl#0"),
-		     UnaryRange<&acos, true, neg1, pos1>::register_class(LL_PREFIX "acos#0"),
-		     UnaryRange<&acos,false,neg1,pos1>::register_class(LL_PREFIX"acos-ctrl#0"),
-		     UnaryRange<&asin, true, neg1, pos1>::register_class(LL_PREFIX "asin#0"),
-		     UnaryRange<&asin,false,neg1,pos1>::register_class(LL_PREFIX"asin-ctrl#0"),
-		     UnaryGuard<&tan, true>::register_class(LL_PREFIX "tan#0"),
-		     UnaryGuard<&tan, false>::register_class(LL_PREFIX "tan-ctrl#0"),
-		     UnaryGuard<&tanh, true>::register_class(LL_PREFIX "tanh#0"),
-		     UnaryGuard<&tanh, false>::register_class(LL_PREFIX "tanh-ctrl#0"),
-		     Binary<&atan2, true>::register_class(LL_PREFIX "atan2#0"),
-		     Binary<&atan2, false>::register_class(LL_PREFIX "atan2-ctrl#0"),
-		     BinaryGuard<&fmod, true>::register_class(LL_PREFIX "fmod#0"),
-		     BinaryGuard<&fmod, false>::register_class(LL_PREFIX "fmod-ctrl#0"),
-		     BinaryGuard<&pow, true>::register_class(LL_PREFIX "pow#0"),
-		     BinaryGuard<&pow, false>::register_class(LL_PREFIX "pow-ctrl#0"),
-		     Modf<true>::register_class(LL_PREFIX "modf#0"),
-		     Modf<false>::register_class(LL_PREFIX "modf-ctrl#0"));
+// register plugin classes
+#define URIPFX "http://ll-plugins.nongnu.org/lv2/math-function-"
+static unsigned _ = 
+  (Unary<&atan, true>::register_class(URIPFX "atan#0"),
+   Unary<&atan, false>::register_class(URIPFX "atan-ctrl#0"),
+   Unary<&ceil, true>::register_class(URIPFX "ceil#0"),
+   Unary<&ceil, false>::register_class(URIPFX "ceil-ctrl#0"),
+   Unary<&cos, true>::register_class(URIPFX "cos#0"),
+   Unary<&cos, false>::register_class(URIPFX "cos-ctrl#0"),
+   Unary<&cosh, true>::register_class(URIPFX "cosh#0"),
+   Unary<&cosh, false>::register_class(URIPFX "cosh-ctrl#0"),
+   Unary<&exp, true>::register_class(URIPFX "exp#0"),
+   Unary<&exp, false>::register_class(URIPFX "exp-ctrl#0"),
+   Unary<&abs, true>::register_class(URIPFX "abs#0"),
+   Unary<&abs, false>::register_class(URIPFX "abs-ctrl#0"),
+   Unary<&floor, true>::register_class(URIPFX "floor#0"),
+   Unary<&floor, false>::register_class(URIPFX "floor-ctrl#0"),
+   Unary<&sin, true>::register_class(URIPFX "sin#0"),
+   Unary<&sin, false>::register_class(URIPFX "sin-ctrl#0"),
+   Unary<&sinh, true>::register_class(URIPFX "sinh#0"),
+   Unary<&sinh, false>::register_class(URIPFX "sinh-ctrl#0"),
+   UnaryMin<&log, true, epsilon>::register_class(URIPFX "log#0"),
+   UnaryMin<&log, false, epsilon>::register_class(URIPFX "log-ctrl#0"),
+   UnaryMin<&log10, true, epsilon>::register_class(URIPFX "log10#0"),
+   UnaryMin<&log10, false,epsilon>::register_class(URIPFX "log10-ctrl#0"),
+   UnaryMin<&sqrt, true, zero>::register_class(URIPFX "sqrt#0"),
+   UnaryMin<&sqrt, false, zero>::register_class(URIPFX "sqrt-ctrl#0"),
+   UnaryRange<&acos, true, neg1, pos1>::register_class(URIPFX "acos#0"),
+   UnaryRange<&acos,false,neg1,pos1>::register_class(URIPFX"acos-ctrl#0"),
+   UnaryRange<&asin, true, neg1, pos1>::register_class(URIPFX "asin#0"),
+   UnaryRange<&asin,false,neg1,pos1>::register_class(URIPFX"asin-ctrl#0"),
+   UnaryGuard<&tan, true>::register_class(URIPFX "tan#0"),
+   UnaryGuard<&tan, false>::register_class(URIPFX "tan-ctrl#0"),
+   UnaryGuard<&tanh, true>::register_class(URIPFX "tanh#0"),
+   UnaryGuard<&tanh, false>::register_class(URIPFX "tanh-ctrl#0"),
+   Binary<&atan2, true>::register_class(URIPFX "atan2#0"),
+   Binary<&atan2, false>::register_class(URIPFX "atan2-ctrl#0"),
+   BinaryGuard<&fmod, true>::register_class(URIPFX "fmod#0"),
+   BinaryGuard<&fmod, false>::register_class(URIPFX "fmod-ctrl#0"),
+   BinaryGuard<&pow, true>::register_class(URIPFX "pow#0"),
+   BinaryGuard<&pow, false>::register_class(URIPFX "pow-ctrl#0"),
+   Modf<true>::register_class(URIPFX "modf#0"),
+   Modf<false>::register_class(URIPFX "modf-ctrl#0"));

@@ -26,18 +26,24 @@
 #include "lv2plugin.hpp"
 
 
+/** This template class implements a plugin that takes an audio input signal
+    and outputs a decaying peak value in a control port. It is a template
+    so we don't have to write the same code twice for mono and stereo meters. */
 template <unsigned C>
 class PeakMeter : public LV2::Plugin< PeakMeter<C> > {
 public:
-
+  
+  // we need import p() into our namespace since this is a template class
   using LV2::Plugin< PeakMeter<C> >::p;
   
+  /** The constructor initialises the peak values to 0. */
   PeakMeter(double rate) : LV2::Plugin< PeakMeter<C> >(2 * C),
       m_dy(1.0 / (1.0 * rate)) {
     for (unsigned i = 0; i < C; ++i)
       m_values[i] = 0.0;
   }
   
+  /** Read audio input, write control output. */
   void run(uint32_t nframes) {
     for (unsigned c = 0; c < C; ++c) {
       for (uint32_t i = 0; i < nframes; ++i) {
@@ -60,5 +66,6 @@ protected:
 };
 
 
+// here we instantiate one mono plugin and one stereo plugin
 static unsigned _1 = PeakMeter<1>::register_class("http://ll-plugins.nongnu.org/lv2/dev/peakmeter/0");
 static unsigned _2 = PeakMeter<2>::register_class("http://ll-plugins.nongnu.org/lv2/dev/peakmeter-stereo/0");
