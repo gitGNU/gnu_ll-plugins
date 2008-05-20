@@ -421,7 +421,7 @@ void SineshaperWidget::bool_to_control(uint32_t port, bool value) {
 
 
 void SineshaperWidget::show_save() {
-  Dialog dlg("Save program");
+  Dialog dlg("Save preset");
   dlg.add_button(Stock::CANCEL, RESPONSE_CANCEL);
   dlg.add_button(Stock::OK, RESPONSE_OK);
   Table tbl(2, 2);
