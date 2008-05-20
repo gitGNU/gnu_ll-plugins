@@ -899,6 +899,7 @@ bool LV2Host::load_plugin() {
 	.where(qr[0][gui_uri]->name, gg("requiredFeature"), req)
 	.filter(req != gg("makeResident"))
 	.filter(req != gg("makeSONameResident"))
+	.filter(req != gg("Events"))
 	.run(data);
       if (qr.size() > 0) {
 	m_guiuri = "";
