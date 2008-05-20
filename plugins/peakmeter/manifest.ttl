@@ -4,11 +4,9 @@
 
 <http://ll-plugins.nongnu.org/lv2/dev/peakmeter/0>
   a lv2:Plugin, lv2:AnalyserPlugin;
-  lv2:binary <peakmeter.so>;
   rdfs:seeAlso <peakmeter.ttl>.
 
 <http://ll-plugins.nongnu.org/lv2/dev/peakmeter-stereo/0>
   a lv2:Plugin, lv2:AnalyserPlugin;
-  lv2:binary <peakmeter.so>;
   rdfs:seeAlso <peakmeter.ttl>.
 

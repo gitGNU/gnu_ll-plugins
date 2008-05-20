@@ -6,8 +6,9 @@
 
 <http://ll-plugins.nongnu.org/lv2/dev/peakmeter/0>
   a lv2:Plugin;
-  doap:name "VU meter";
+  doap:name "Peak meter";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:binary <peakmeter.so>;
   ll:svgIcon <icon.svg>;
   ll:pegName "v";
   
@@ -28,8 +29,9 @@
 
 <http://ll-plugins.nongnu.org/lv2/dev/peakmeter-stereo/0>
   a lv2:Plugin;
-  doap:name "VU meter (Stereo)";
+  doap:name "Peak meter (Stereo)";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:binary <peakmeter.so>;
   ll:svgIcon <icon.svg>;
   ll:pegName "v2";
   
