@@ -1,8 +1,8 @@
 /****************************************************************************
     
-    vumeter.cpp - simple audio meter plugin
+    peakmeter_gtk.cpp - A GUI for the VU meter LV2 plugins
     
-    Copyright (C) 2006-2007 Lars Luthman <lars.luthman@gmail.com>
+    Copyright (C) 2006-2007  Lars Luthman <lars.luthman@gmail.com>
     
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,44 +21,43 @@
 
 ****************************************************************************/
 
-#include <cmath>
+#include <iostream>
 
-#include "lv2plugin.hpp"
+#include <gtkmm.h>
+
+#include "lv2gui.hpp"
+#include "vuwidget.hpp"
+
+
+using namespace std;
+using namespace Gtk;
+using namespace sigc;
 
 
 template <unsigned C>
-class VUMeter : public LV2::Plugin< VUMeter<C> > {
+class PeakMeterGUI : public LV2::GUI< PeakMeterGUI<C> > {
 public:
-
-  using LV2::Plugin< VUMeter<C> >::p;
   
-  VUMeter(double rate) : LV2::Plugin< VUMeter<C> >(2 * C),
-      m_dy(1.0 / (1.0 * rate)) {
-    for (unsigned i = 0; i < C; ++i)
-      m_values[i] = 0.0;
+  PeakMeterGUI(const std::string& URI) 
+    : m_vu(C) {
+    LV2::GUI< PeakMeterGUI<C> >::add(m_vu);
   }
   
-  void run(uint32_t nframes) {
+  void port_event(uint32_t port, uint32_t buffer_size, 
+		  uint32_t format, const void* buffer) {
     for (unsigned c = 0; c < C; ++c) {
-      for (uint32_t i = 0; i < nframes; ++i) {
-	float f = std::abs(p(2 * c)[i]);
-	m_values[c] = f > m_values[c] ? f : m_values[c];
-      }
-      *p(2 * c + 1) = m_values[c] > 1e-10 ? m_values[c] : 0;
-      if (m_values[c] > m_dy * nframes)
-	m_values[c] -= m_dy * nframes;
-      else
-	m_values[c] = 0.0;
+      if (port == 2 * c + 1 && buffer_size == sizeof(float))
+	m_vu.set_value(c, *static_cast<const float*>(buffer));
     }
   }
-  
+
 protected:
   
-  float m_values[C];
-  float m_dy;
+  VUWidget m_vu;
   
 };
 
 
-static unsigned _1 = VUMeter<1>::register_class("http://ll-plugins.nongnu.org/lv2/dev/vumeter/0");
-static unsigned _2 = VUMeter<2>::register_class("http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0");
+
+static int _1 = PeakMeterGUI<1>::register_class("http://ll-plugins.nongnu.org/lv2/dev/peakmeter/0/gui");
+static int _2 = PeakMeterGUI<2>::register_class("http://ll-plugins.nongnu.org/lv2/dev/peakmeter-stereo/0/gui");

@@ -4,7 +4,7 @@
 @prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
 
 
-<http://ll-plugins.nongnu.org/lv2/dev/vumeter/0>
+<http://ll-plugins.nongnu.org/lv2/dev/peakmeter/0>
   a lv2:Plugin;
   doap:name "VU meter";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;
@@ -26,7 +26,7 @@
   ].
 
 
-<http://ll-plugins.nongnu.org/lv2/dev/vumeter-stereo/0>
+<http://ll-plugins.nongnu.org/lv2/dev/peakmeter-stereo/0>
   a lv2:Plugin;
   doap:name "VU meter (Stereo)";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;

@@ -28,8 +28,8 @@ LV2_BUNDLES = \
 	control2midi.lv2 \
 	klaviatur.lv2 \
 	klaviatur_gtk.lv2 \
-	vumeter.lv2 \
-	vumeter_gtk.lv2 \
+	peakmeter.lv2 \
+	peakmeter_gtk.lv2 \
 	tableosc.lv2 \
 	math-constants.lv2 \
 	math-functions.lv2 \
@@ -129,22 +129,22 @@ arpeggiator_so_LDFLAGS = $(PLUGINARCHIVES)
 arpeggiator_lv2_DATA = manifest.ttl arpeggiator.ttl
 arpeggiator_lv2_SOURCEDIR = plugins/arpeggiator
 
-# VU meter
-vumeter_lv2_MODULES = vumeter.so
-vumeter_so_SOURCES = vumeter.cpp
-vumeter_so_CFLAGS = $(PLUGINCFLAGS)
-vumeter_so_LDFLAGS = $(PLUGINARCHIVES)
-vumeter_lv2_DATA = manifest.ttl vumeter.ttl icon.svg
-vumeter_lv2_SOURCEDIR = plugins/vumeter
+# Peak meter
+peakmeter_lv2_MODULES = peakmeter.so
+peakmeter_so_SOURCES = peakmeter.cpp
+peakmeter_so_CFLAGS = $(PLUGINCFLAGS)
+peakmeter_so_LDFLAGS = $(PLUGINARCHIVES)
+peakmeter_lv2_DATA = manifest.ttl peakmeter.ttl icon.svg
+peakmeter_lv2_SOURCEDIR = plugins/peakmeter
 
-# VU meter GUI
-vumeter_gtk_lv2_MODULES = vumeter_gtk.so
-vumeter_gtk_lv2_SOURCEDIR = plugins/vumeter
-vumeter_gtk_lv2_MANIFEST = gui_manifest.ttl
-vumeter_gtk_so_SOURCES = vumeter_gtk.cpp
-vumeter_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui` -Ilibraries/widgets
-vumeter_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
-vumeter_gtk_so_ARCHIVES = libraries/widgets/libvuwidget.a
+# Peak meter GUI
+peakmeter_gtk_lv2_MODULES = peakmeter_gtk.so
+peakmeter_gtk_lv2_SOURCEDIR = plugins/peakmeter
+peakmeter_gtk_lv2_MANIFEST = gui_manifest.ttl
+peakmeter_gtk_so_SOURCES = peakmeter_gtk.cpp
+peakmeter_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui` -Ilibraries/widgets
+peakmeter_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
+peakmeter_gtk_so_ARCHIVES = libraries/widgets/libvuwidget.a
 
 # Envelope
 envelope_lv2_MODULES = envelope.so
