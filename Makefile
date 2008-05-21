@@ -12,11 +12,10 @@ PKG_DEPS = \
 	samplerate>=0.1.2
 
 
-DOCS = AUTHORS COPYING
+DOCS = AUTHORS COPYING INSTALL ChangeLog README
 
 
 ARCHIVES = \
-	libenvelopeeditor.a \
 	libkeyboard.a \
 	libvuwidget.a
 
@@ -24,19 +23,17 @@ PROGRAMS = elven
 
 LV2_BUNDLES = \
 	arpeggiator.lv2 \
-	beep.lv2 \
 	control2midi.lv2 \
 	klaviatur.lv2 \
 	klaviatur_gtk.lv2 \
-	peakmeter.lv2 \
-	peakmeter_gtk.lv2 \
-	tableosc.lv2 \
 	math-constants.lv2 \
 	math-functions.lv2 \
-	sineshaper.lv2 \
-	sineshaper_gtk.lv2 \
+	peakmeter.lv2 \
+	peakmeter_gtk.lv2 \
 	rudolf556.lv2 \
-	rudolf556_gtk.lv2
+	rudolf556_gtk.lv2 \
+	sineshaper.lv2 \
+	sineshaper_gtk.lv2
 
 
 # Archives with useful code bits
@@ -44,10 +41,6 @@ LV2_BUNDLES = \
 libkeyboard_a_SOURCES = keyboard.hpp keyboard.cpp
 libkeyboard_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
 libkeyboard_a_SOURCEDIR = libraries/widgets
-
-libenvelopeeditor_a_SOURCES = envelopeeditor.hpp envelopeeditor.cpp
-libenvelopeeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
-libenvelopeeditor_a_SOURCEDIR = libraries/widgets
 
 libvuwidget_a_SOURCES = vuwidget.hpp vuwidget.cpp
 libvuwidget_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
@@ -74,17 +67,6 @@ PLUGINCFLAGS = `pkg-config --cflags lv2-plugin`
 ADVANCEDARCHIVES = $(PLUGINARCHIVES)
 ADVANCEDCFLAGS = $(PLUGINCFLAGS)
 RESIDENTGUI = lv2soname '<http://ll-plugins.nongnu.org/lv2/dev/klaviatur/0.0.0/gui>' '<http://lv2plug.in/ns/extensions/ui\#requiredFeature>' -lgtkmm-2.4
-
-# Beep
-beep_lv2_MODULES = beep.so beep_gtk.so
-beep_lv2_DATA = manifest.ttl beep.ttl
-beep_lv2_SOURCEDIR = plugins/beep
-beep_so_SOURCES = beep.cpp
-beep_so_CFLAGS = $(PLUGINCFLAGS)
-beep_so_LDFLAGS = $(PLUGINARCHIVES)
-beep_gtk_so_SOURCES = beep_gtk.cpp
-beep_gtk_so_CFLAGS = `pkg-config --cflags lv2-gui`
-beep_gtk_so_LDFLAGS = `pkg-config --libs lv2-gui`
 
 # Control2MIDI
 control2midi_lv2_MODULES = control2midi.so
@@ -114,13 +96,6 @@ klaviatur_gtk_so_LDFLAGS = `pkg-config --libs lv2-gui`
 klaviatur_gtk_so_ARCHIVES = libraries/widgets/libkeyboard.a
 klaviatur_gtk_lv2_POSTINSTALL = $(RESIDENTGUI) >> klaviatur.lv2/klaviatur.ttl
 
-# Householder FDN
-#hhfdn_lv2_SOURCES = hhfdn.cpp
-#hhfdn_lv2_DATA = manifest.ttl hhfdn.ttl
-#hhfdn_lv2_CFLAGS = -Ilibraries/lv2plugin -Iextensions/MidiPort -Ilibraries/components -I.
-#hhfdn_lv2_LDFLAGS = $(PLUGINARCHIVES)
-#hhfdn_lv2_SOURCEDIR = plugins/householderfdn
-
 # Arpeggiator
 arpeggiator_lv2_MODULES = arpeggiator.so
 arpeggiator_so_SOURCES = arpeggiator.cpp
@@ -146,14 +121,6 @@ peakmeter_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui` -Ilibraries/wi
 peakmeter_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
 peakmeter_gtk_so_ARCHIVES = libraries/widgets/libvuwidget.a
 
-# Envelope
-envelope_lv2_MODULES = envelope.so
-envelope_so_SOURCES = envelope.cpp
-envelope_so_CFLAGS = $(ADVANCEDCFLAGS) -Ilibraries/components
-envelope_so_LDFLAGS = $(ADVANCEDARCHIVES)
-envelope_lv2_DATA = manifest.ttl envelope.ttl icon.svg
-envelope_lv2_SOURCEDIR = plugins/envelope
-
 # VU meter GUI
 envelope_gtk_lv2_MODULES = envelope_gtk.so
 envelope_gtk_lv2_SOURCEDIR = plugins/envelope
@@ -162,14 +129,6 @@ envelope_gtk_so_SOURCES = envelope_gtk.cpp
 envelope_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui` -Ilibraries/widgets
 envelope_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
 envelope_gtk_so_ARCHIVES = libraries/widgets/libenvelopeeditor.a
-
-# Table oscillator
-tableosc_lv2_MODULES = tableosc.so
-tableosc_lv2_DATA = manifest.ttl tableosc.ttl presets.ttl money.wav
-tableosc_lv2_SOURCEDIR = plugins/tableosc
-tableosc_so_SOURCES = tableosc.cpp
-tableosc_so_CFLAGS = $(PLUGINCFLAGS) `pkg-config --cflags sndfile samplerate`
-tableosc_so_LDFLAGS = $(PLUGINARCHIVES) `pkg-config --libs sndfile samplerate`
 
 # Math constants
 math-constants_lv2_MODULES = math-constants.so
@@ -197,7 +156,6 @@ sineshaper_lv2_SOURCEDIR = plugins/sineshaper
 sineshaper_lv2_PEGFILES = sineshaper.peg
 sineshaper_so_SOURCES = \
 	adsr.hpp \
-	dcblocker.hpp \
 	delay.hpp \
 	frequencytable.hpp \
 	midiiterator.hpp \
