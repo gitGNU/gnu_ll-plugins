@@ -14,9 +14,9 @@ typedef struct {
 } peg_data_t;
 #endif
 
-/* <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0> */
+/* <http://ll-plugins.nongnu.org/lv2/sineshaper#0> */
 
-static const char s_uri[] = "http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0";
+static const char s_uri[] = "http://ll-plugins.nongnu.org/lv2/sineshaper#0";
 
 enum s_port_enum {
   s_tun,

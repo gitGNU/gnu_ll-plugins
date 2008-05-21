@@ -6,8 +6,8 @@
 @prefix mm: <http://ll-plugins.nongnu.org/lv2/ext/midimap#>.
 @prefix pg: <http://ll-plugins.nongnu.org/lv2/ext/portgroups#>.
 @prefix ev: <http://lv2plug.in/ns/ext/event#>.
-@prefix plug: <http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0>.
-@prefix pr: <http://ll-plugins.nongnu.org/lv2/dev/presets#>.
+@prefix plug: <http://ll-plugins.nongnu.org/lv2/sineshaper#0>.
+@prefix pr: <http://ll-plugins.nongnu.org/lv2/presets#>.
 
 
 plug:tuning     rdfs:label "Tuning".
@@ -21,7 +21,7 @@ plug:amp        rdfs:label "Amplifer".
 plug:delay      rdfs:label "Delay".
 
 
-<http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0>
+<http://ll-plugins.nongnu.org/lv2/sineshaper#0>
   a lv2:Plugin;
   doap:name "Sineshaper";
   doap:license <http://usefulinc.com/doap/licenses/gpl>;

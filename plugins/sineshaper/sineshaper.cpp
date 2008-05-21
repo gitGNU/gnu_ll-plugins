@@ -331,4 +331,4 @@ void SineShaper::run(uint32_t sample_count) {
 }
 
 
-static unsigned _ = SineShaper::register_class("http://ll-plugins.nongnu.org/lv2/dev/sineshaper/0.0.0");
+static unsigned _ = SineShaper::register_class("http://ll-plugins.nongnu.org/lv2/sineshaper#0");
