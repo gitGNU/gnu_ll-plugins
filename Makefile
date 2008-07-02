@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = $(shell git describe --match 'Version_*' | sed 's/Version_//' | sed 's/-/ /g' | awk '{ print $$1 " " $$2}' | sed -r 's/\.([0-9]+) / \1 /' | awk '{ print $$1 "." $$2+$$3 }')$(shell if test $$(git ls-files --modified | wc -l) -gt 0 ; then echo .EDITED; fi)
+PACKAGE_VERSION = 0.2.1
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gtkmm-2.4>=2.8.8 \

@@ -1,2 +1,5 @@
+Version 0.2.1 (2008-07-02):
+	* Fixed version number in Makefile (reported by Chris Cannam)
+	
 Version 0.2.0 (2008-05-21):
 	* First release
