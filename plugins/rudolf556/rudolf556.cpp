@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 #include <cstring>
+#include <iostream>
 
 #include <samplerate.h>
 #include <sndfile.h>
@@ -391,10 +392,14 @@ protected:
     // open file
     SF_INFO info;
     info.format = 0;
-    SNDFILE* snd = sf_open((string(bundle_path()) + filename).c_str(), 
-			   SFM_READ, &info);
+    string path = (string(bundle_path()) + filename);
+    SNDFILE* snd = sf_open(path.c_str(), SFM_READ, &info);
     if (!snd)
+    {
+      cerr << "sf_open(\"" << path << "\") failed." << endl;
+      cerr << "Maybe libsndfile is built without FLAC support." << endl;
       return 0;
+    }
     
     // read data
     float* data = new float[info.frames];
