@@ -394,8 +394,7 @@ protected:
     info.format = 0;
     string path = (string(bundle_path()) + filename);
     SNDFILE* snd = sf_open(path.c_str(), SFM_READ, &info);
-    if (!snd)
-    {
+    if (!snd) {
       cerr << "sf_open(\"" << path << "\") failed." << endl;
       cerr << "Maybe libsndfile is built without FLAC support." << endl;
       return 0;
