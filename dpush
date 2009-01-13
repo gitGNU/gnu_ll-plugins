@@ -25,7 +25,6 @@ for $remote (@remote_branches) {
   $branchlist = $branchlist . " ^$remote";
 }
 
-exit;
 @commits = `git rev-list $branchlist`;
 if ($#commits < 0) {
   print "No commits to push\n";
