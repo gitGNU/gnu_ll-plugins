@@ -18,13 +18,15 @@ DOCS = AUTHORS COPYING
 ARCHIVES = \
 	libenvelopeeditor.a \
 	libkeyboard.a \
-	libvuwidget.a
+	libvuwidget.a \
+	libzita-convolver.a
 
 PROGRAMS = elven
 
 LV2_BUNDLES = \
 	arpeggiator.lv2 \
 	beep.lv2 \
+	convolver.lv2 \
 	control2midi.lv2 \
 	klaviatur.lv2 \
 	klaviatur_gtk.lv2 \
@@ -52,6 +54,11 @@ libenvelopeeditor_a_SOURCEDIR = libraries/widgets
 libvuwidget_a_SOURCES = vuwidget.hpp vuwidget.cpp
 libvuwidget_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
 libvuwidget_a_SOURCEDIR = libraries/widgets
+
+# Fons Adriansen's Zita convolver library, copied here for convenience
+libzita-convolver_a_SOURCES = zita-convolver.cpp zita-convolver.h
+libzita-convolver_a_CFLAGS = -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS
+libzita-convolver_a_SOURCEDIR = plugins/conv/zita-convolver/libs
 
 
 # Executable programs
@@ -94,6 +101,14 @@ control2midi_lv2_SOURCEDIR = plugins/control2midi
 control2midi_so_SOURCES = control2midi.cpp
 control2midi_so_CFLAGS = $(PLUGINCFLAGS)
 control2midi_so_LDFLAGS = $(PLUGINARCHIVES)
+
+# Convolution reverb
+convolver_lv2_MODULES = convolver.so
+convolver_lv2_DATA = manifest.ttl convolver.ttl
+convolver_lv2_SOURCEDIR = plugins/conv
+convolver_so_SOURCES = convolver.cpp
+convolver_so_CFLAGS = $(PLUGINCFLAGS) -Iplugins/conv/zita-convolver/libs
+convolver_so_LDFLAGS = $(PLUGINARCHIVES) plugins/conv/zita-convolver/libs/libzita-convolver.a
 
 # Klaviatur
 klaviatur_lv2_MODULES = klaviatur.so

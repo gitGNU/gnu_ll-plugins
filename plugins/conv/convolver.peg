@@ -1,0 +1,35 @@
+#ifndef convolver_peg
+#define convolver_peg
+
+
+#ifndef PEG_STRUCT
+#define PEG_STRUCT
+typedef struct {
+  float min;
+  float max;
+  float default_value;
+  char toggled;
+  char integer;
+  char logarithmic;
+} peg_data_t;
+#endif
+
+/* <http://ll-plugins.nongnu.org/lv2/dev/convolver/0> */
+
+static const char c_uri[] = "http://ll-plugins.nongnu.org/lv2/dev/convolver/0";
+
+enum c_port_enum {
+  c_input,
+  c_left_output,
+  c_right_output,
+  c_n_ports
+};
+
+static const peg_data_t c_ports[] = {
+  { -3.40282e+38, 3.40282e+38, -3.40282e+38, 0, 0, 0 }, 
+  { -3.40282e+38, 3.40282e+38, -3.40282e+38, 0, 0, 0 }, 
+  { -3.40282e+38, 3.40282e+38, -3.40282e+38, 0, 0, 0 }, 
+};
+
+
+#endif /* convolver_peg */
