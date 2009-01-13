@@ -1,0 +1,88 @@
+This file contains some information that may be useful if you want to modify
+the ll-plugins package.
+
+
+ABOUT VERSION NAMES
+===================
+ll-plugins version names normally consist of 3 numbers separated by points, 
+like "0.3.46".
+
+The first number (in this case 0) is the major version number. This is changed
+very rarely and indicates some sort of major change.
+
+The second number (in this case 3) is the minor version number. ll-plugins 
+uses the same convention as the Linux kernel, i.e. odd minor version numbers
+are used for development versions and even minor version numbers are used 
+for releases.
+
+The third number is the patch level. This just indicates a change, usually a
+Git commit.
+
+If you want to create your own version of ll-plugins you can of course use any
+version name you like, but if you want to minimise confusion you should use
+the name of the official version you are basing your version on, followed by
+a point, a short alphanumerical name, another point and a patch level, like
+this:
+
+  0.3.46.mycoolhack.0
+
+If you then make any new changes to your code you name next version
+0.3.46.mycoolhack.1, the next one 0.3.46.mycoolhack.2 and so on.
+
+If you write anything interesting I of course want to hear about it!
+
+
+IF YOU HAVE GIT WRITE ACCESS
+============================
+
+PUSHING
+=======
+When pushing commits and tags to the central repository, please use the 
+./dpush script instead of 'git push'. It sends a message describing the
+commits to CIA (see http://cia.vc/stats/project/ll-plugins) which then 
+distributes it to anyone else who is interested.
+
+BRANCH POLICY
+=============
+Feel free to create as many branches in the central repository as you like!
+Branches are good. They allow you to experiment with complex things without
+breaking the main code, and they allow others to track and test your work.
+However, in order to keep the build system happy when creating tarballs and
+things like that you should tag your branches. The first commit in every new
+branch that is not in the parent branch should be tagged using the following
+command:
+
+  git tag -s Version_BASEVERSION.mybranch.0
+
+where BASEVERSION is the version name of the parent commit (run ./VERSION to
+find it) and mybranch is a name for the new branch, which only needs to be
+unique among the branches starting from BASEVERSION. For example, if ./VERSION
+for the parent commit returns '0.3.220' and you want to name your branch 
+'pythongui', you would tag the first commit in the branch with this command:
+
+  git tag -s Version_0.3.220.pythongui.0
+
+The VERSION script will then know to call the next commit in this branch 
+0.3.220.pythongui.1, the next one after that 0.3.220.pythongui.2 and so on.
+
+When you merge a branch back into its parent branch you need to tag the merge
+commit so the VERSION script doesn't get confused. If the commit in the parent
+branch just before the merge commit was 0.3.235, you should tag the merge:
+
+  git tag -a -s Version_0.3.236
+
+i.e. you should add 1 to the last number.
+
+You can of course also create branches off other branches than the master,
+and then BASEVERSION will still be the version of the parent commit. If you
+for example would start a new branch for drawing flashy buttons off the commit
+0.3.220.pythongui.12, you should tag the first commit in that new branch with:
+
+  git tag -a -s Version_0.3.220.pythongui.12.flashybuttons.0
+
+The version names tend to get long, but they are very nice and descriptive with
+the branch history embedded in them.
+
+
+
+                   -- Lars Luthman <lars.luthman@gmail.com>
