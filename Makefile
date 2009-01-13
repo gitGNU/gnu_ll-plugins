@@ -2,6 +2,7 @@ PACKAGE_NAME = ll-plugins
 PACKAGE_VERSION = $(shell git describe --match 'Version_*' | sed 's/Version_//' | sed 's/-/ /g' | awk '{ print $$1 " " $$2}' | sed -r 's/\.([0-9]+) / \1 /' | awk '{ print $$1 "." $$2+$$3 }')$(shell if test $$(git ls-files --modified | wc -l) -gt 0 ; then echo .EDITED; fi)
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
+	gsl>=1.8 \
 	gtkmm-2.4>=2.8.8 \
 	jack>=0.109.0 \
 	lash-1.0>=0.5.1 \
@@ -26,6 +27,8 @@ LV2_BUNDLES = \
 	arpeggiator.lv2 \
 	beep.lv2 \
 	control2midi.lv2 \
+#	horizon.lv2 \
+#	horizon_gtk.lv2 \
 	klaviatur.lv2 \
 	klaviatur_gtk.lv2 \
 	peakmeter.lv2 \
@@ -94,6 +97,54 @@ control2midi_lv2_SOURCEDIR = plugins/control2midi
 control2midi_so_SOURCES = control2midi.cpp
 control2midi_so_CFLAGS = $(PLUGINCFLAGS)
 control2midi_so_LDFLAGS = $(PLUGINARCHIVES)
+
+# Horizon
+horizon_lv2_MODULES = horizon.so
+horizon_lv2_DATA = manifest.ttl horizon.ttl
+horizon_lv2_PEGFILES = horizon.peg
+horizon_lv2_SOURCEDIR = plugins/horizon
+horizon_so_SOURCES = \
+	action.hpp action.cpp \
+	actiontrigger.hpp actiontrigger.cpp \
+	chunk.hpp chunk.cpp \
+	effect.hpp effect.cpp \
+	effectstack.hpp effectstack.cpp \
+	horizon.cpp \
+	mixer.hpp mixer.cpp \
+	normaliseeffect.hpp normaliseeffect.cpp \
+	reverseeffect.hpp reverseeffect.cpp \
+	sample.hpp sample.cpp \
+	samplebuffer.hpp samplebuffer.cpp \
+	segmentation.hpp segmentation.cpp \
+	voice.hpp voice.cpp
+horizon_so_CFLAGS = `pkg-config --cflags sndfile lv2-plugin` -Ilibraries/components
+horizon_so_LDFLAGS = `pkg-config --libs sndfile lv2-plugin`
+
+# Horizon GUI
+horizon_gtk_lv2_MODULES = horizon_gtk.so
+horizon_gtk_lv2_MANIFEST = gui_manifest.ttl
+horizon_gtk_lv2_SOURCEDIR = plugins/horizon
+horizon_gtk_so_SOURCES = \
+	actiontriggermodel.cpp actiontriggermodel.hpp \
+	chunkeditor.cpp chunkeditor.hpp \
+	controlsourcegui.cpp controlsourcegui.hpp \
+	effectmodel.cpp effectmodel.hpp \
+	effectstackmodel.cpp effectstackmodel.hpp \
+	effectstackview.cpp effectstackview.hpp \
+	horizonkeyboard.cpp horizonkeyboard.hpp \
+	labelslider.cpp labelslider.hpp \
+	lfo_gui.cpp lfo_gui.hpp \
+	mod_gui.cpp mod_gui.hpp \
+	optionslider.cpp optionslider.hpp \
+	sampleeditor.cpp sampleeditor.hpp \
+	samplemodel.cpp samplemodel.hpp \
+	sampleview.cpp sampleview.hpp \
+	triggereditor.cpp triggereditor.hpp \
+	horizon_gtk.cpp
+horizon_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0 lv2-gui` -Ilibraries/widgets
+horizon_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 cairomm-1.0 lv2-gui` 
+horizon_gtk_so_ARCHIVES = libraries/widgets/libkeyboard.a
+horizon_gtk_lv2_POSTINSTALL = $(RESIDENTGUI) >> horizon_gtk.lv2/manifest.ttl
 
 # Klaviatur
 klaviatur_lv2_MODULES = klaviatur.so
