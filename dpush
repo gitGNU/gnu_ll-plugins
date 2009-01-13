@@ -10,19 +10,22 @@ my $user = "larsl";
 # commits that we are pushing
 $revision = "";
 $logmsg = "";
-@branches = split(' ', `ls .git/refs/heads`);
-@remote_branches = split(' ', `ls .git/refs/remotes/origin`);
+@branches = split("\n", `git branch | cut -b 3-`);
+@remote_branches = split(' ', `git branch -r | cut -b 3-`);
+
 $branchlist = "";
 for $branch (@branches) {
   for $remote (@remote_branches) {
-    if ($branch eq $remote) {
+    if ("origin/$branch" eq $remote) {
       $branchlist = $branchlist . " $branch";
     }
   }
 }
 for $remote (@remote_branches) {
-  $branchlist = $branchlist . " ^origin/$remote";
+  $branchlist = $branchlist . " ^$remote";
 }
+
+exit;
 @commits = `git rev-list $branchlist`;
 if ($#commits < 0) {
   print "No commits to push\n";
@@ -48,7 +51,9 @@ for $commit (@commits) {
 if (system('git', 'push') != 0) {
   exit;
 }
-
+if (system('git', 'push', '--tags') != 0) {
+  exit;
+}
 
 # The code below is adapted from Petr Baudis's ciabot_cvs.pl
 
