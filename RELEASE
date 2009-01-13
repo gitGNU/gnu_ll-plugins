@@ -2,8 +2,8 @@
 
 2. make dist, check that it builds and installs correctly.
 
-3. Commit (git commit -a), tag as Release_X_Y_Z (git tag -a -s Release_X_Y_Z),
-   tag again as Version_X_Y_Z and push (git push).
+3. Commit (git commit -a), tag as Release_X.Y.Z (git tag -s Release_X.Y.Z),
+   tag as Version_X.Y.Z if needed, and push (git push).
 
 4. Make new tarball, sign (gpg -b) and upload dist tarball 
    (sftp larsl@dl.sv.nongnu.org:/releases/ll-plugins).
