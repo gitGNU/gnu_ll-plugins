@@ -18,6 +18,7 @@ DOCS = AUTHORS COPYING
 ARCHIVES = \
 	libenvelopeeditor.a \
 	libkeyboard.a \
+	libpatternwidget.a \
 	libvuwidget.a
 
 PROGRAMS = elven
@@ -31,6 +32,9 @@ LV2_BUNDLES = \
 	peakmeter.lv2 \
 	peakmeter_gtk.lv2 \
 	tableosc.lv2 \
+#	trilobeat.lv2 \
+#	trilobeat_gtk.lv2 
+#	trilobyte.lv2 \
 	math-constants.lv2 \
 	math-functions.lv2 \
 	sineshaper.lv2 \
@@ -48,6 +52,10 @@ libkeyboard_a_SOURCEDIR = libraries/widgets
 libenvelopeeditor_a_SOURCES = envelopeeditor.hpp envelopeeditor.cpp
 libenvelopeeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
 libenvelopeeditor_a_SOURCEDIR = libraries/widgets
+
+libpatternwidget_a_SOURCES = patternwidget.hpp patternwidget.cpp
+libpatternwidget_a_CFLAGS = `pkg-config --cflags gtkmm-2.4` -Ilibraries/components
+libpatternwidget_a_SOURCEDIR = libraries/widgets
 
 libvuwidget_a_SOURCES = vuwidget.hpp vuwidget.cpp
 libvuwidget_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
@@ -170,6 +178,43 @@ tableosc_lv2_SOURCEDIR = plugins/tableosc
 tableosc_so_SOURCES = tableosc.cpp
 tableosc_so_CFLAGS = $(PLUGINCFLAGS) `pkg-config --cflags sndfile samplerate`
 tableosc_so_LDFLAGS = $(PLUGINARCHIVES) `pkg-config --libs sndfile samplerate`
+
+# Trilobyte
+trilobyte_lv2_MODULES = trilobyte.so
+trilobyte_so_SOURCES = trilobyte.cpp
+trilobyte_so_CFLAGS = $(ADVANCEDCFLAGS) -Ilibraries/components
+trilobyte_so_LDFLAGS = $(ADVANCEDARCHIVES)
+trilobyte_gtk_so_SOURCES = trilobyte_gtk.cpp
+trilobyte_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui` -Ilibraries/widgets -Ilibraries/components
+trilobyte_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui`
+trilobyte_gtk_so_ARCHIVES = libraries/widgets/libpatternwidget.a
+trilobyte_gtk_so_SOURCEDIR = plugins/trilobyte
+trilobyte_lv2_DATA = manifest.ttl trilobyte.ttl
+trilobyte_lv2_PEGFILES = trilobyte.peg
+trilobyte_lv2_SOURCEDIR = plugins/trilobyte
+trilobyte_lv2_POSTINSTALL = $(RESIDENTGUI) >> trilobyte.lv2/trilobyte.ttl
+
+# Trilobeat
+trilobeat_lv2_MODULES = trilobeat.so
+trilobeat_so_SOURCES = trilobeat.cpp
+trilobeat_so_CFLAGS = $(ADVANCEDCFLAGS) -Ilibraries/components
+trilobeat_so_LDFLAGS = $(ADVANCEDARCHIVES)
+trilobeat_lv2_DATA = manifest.ttl trilobeat.ttl
+trilobeat_lv2_PEGFILES = trilobeat.peg
+trilobeat_lv2_SOURCEDIR = plugins/trilobeat
+
+# Trilobeat GUI
+trilobeat_gtk_lv2_MODULES = trilobeat_gtk.so
+trilobeat_gtk_lv2_MANIFEST = gui_manifest.ttl
+trilobeat_gtk_so_SOURCES = \
+	trilobeat_gtk.cpp \
+	gridwidget.cpp gridwidget.hpp \
+	keynamewidget.cpp keynamewidget.hpp
+trilobeat_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 lv2-gui`
+trilobeat_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 lv2-gui` 
+trilobeat_gtk_lv2_DATA = gridbg.png keynamebg.png
+trilobeat_gtk_lv2_SOURCEDIR = plugins/trilobeat
+trilobeat_gtk_lv2_POSTINSTALL = $(RESIDENTGUI) >> trilobeat_gtk.lv2/manifest.ttl
 
 # Math constants
 math-constants_lv2_MODULES = math-constants.so

@@ -1,0 +1,46 @@
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix doap: <http://usefulinc.com/ns/doap#>.
+@prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
+@prefix llext: <http://ll-plugins.nongnu.org/lv2/ext/>.
+@prefix gg: <http://ll-plugins.nongnu.org/lv2/ext/gtk2gui#>.
+
+<http://ll-plugins.nongnu.org/lv2/dev/trilobyte/0.0.0>
+  a lv2:Plugin;
+  doap:name "Trilobyte";
+  doap:license <http://usefulinc.com/doap/licenses/gpl>;
+  lv2:requiredFeature ll:dont-use-this-extension;
+  ll:gtk2Gui <trilobyte_gtk.so>;
+  ll:pegName "k";  
+  gg:gui <http://ll-plugins.nongnu.org/lv2/dev/trilobyte/0.0.0/gui>;
+  
+  lv2:port [
+    a lv2:AudioPort, lv2:InputPort;
+    lv2:index 0;
+    lv2:symbol "trigger";
+    lv2:name "Trigger";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:InputPort;
+    lv2:index 1;
+    lv2:symbol "gate";
+    lv2:name "Gate";
+  ],
+
+  [
+    a lv2:ControlPort, lv2:InputPort;
+    lv2:index 2;
+    lv2:symbol "bpm";
+    lv2:name "BPM";
+    lv2:default 120;
+  ],
+
+  [
+    a llext:MidiPort, lv2:OutputPort;
+    lv2:index 3;
+    lv2:symbol "midi_out";
+    lv2:name "MIDI out";
+  ].
+
+<http://ll-plugins.nongnu.org/lv2/dev/trilobyte/0.0.0/gui> gg:binary <trilobyte_gtk.so>.

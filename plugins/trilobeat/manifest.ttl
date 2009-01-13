@@ -1,0 +1,16 @@
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix doap: <http://usefulinc.com/ns/doap#>.
+@prefix ll: <http://ll-plugins.nongnu.org/lv2/namespace#>.
+
+ll:SequencerPlugin a rdfs:Class ;
+    rdfs:subClassOf lv2:Plugin ;
+    rdfs:label "Sequencers" ;
+    rdfs:comment """
+Plugins that can be used to sequence instruments and other plugins
+""" .
+
+<http://ll-plugins.nongnu.org/lv2/dev/trilobeat/0>
+  a lv2:Plugin, ll:SequencerPlugin;
+  lv2:binary <trilobeat.so>;
+  rdfs:seeAlso <trilobeat.ttl>.
