@@ -18,6 +18,11 @@ DOCS = AUTHORS COPYING
 ARCHIVES = \
 	libenvelopeeditor.a \
 	libkeyboard.a \
+	libpdeditor.a \
+	libshapereditor.a \
+	libspringeditor.a \
+	libtransitioneditor.a \
+	libvgknob.a \
 	libvuwidget.a
 
 PROGRAMS = elven
@@ -26,6 +31,8 @@ LV2_BUNDLES = \
 	arpeggiator.lv2 \
 	beep.lv2 \
 	control2midi.lv2 \
+	euphoria.lv2 \
+	euphoria_gtk.lv2 \
 	klaviatur.lv2 \
 	klaviatur_gtk.lv2 \
 	peakmeter.lv2 \
@@ -48,6 +55,26 @@ libkeyboard_a_SOURCEDIR = libraries/widgets
 libenvelopeeditor_a_SOURCES = envelopeeditor.hpp envelopeeditor.cpp
 libenvelopeeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
 libenvelopeeditor_a_SOURCEDIR = libraries/widgets
+
+libpdeditor_a_SOURCES = pdeditor.hpp pdeditor.cpp
+libpdeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
+libpdeditor_a_SOURCEDIR = libraries/widgets
+
+libshapereditor_a_SOURCES = shapereditor.hpp shapereditor.cpp
+libshapereditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
+libshapereditor_a_SOURCEDIR = libraries/widgets
+
+libspringeditor_a_SOURCES = springeditor.hpp springeditor.cpp
+libspringeditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
+libspringeditor_a_SOURCEDIR = libraries/widgets
+
+libtransitioneditor_a_SOURCES = transitioneditor.hpp transitioneditor.cpp
+libtransitioneditor_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
+libtransitioneditor_a_SOURCEDIR = libraries/widgets
+
+libvgknob_a_SOURCES = vgknob.hpp vgknob.cpp
+libvgknob_a_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0`
+libvgknob_a_SOURCEDIR = libraries/widgets
 
 libvuwidget_a_SOURCES = vuwidget.hpp vuwidget.cpp
 libvuwidget_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
@@ -94,6 +121,41 @@ control2midi_lv2_SOURCEDIR = plugins/control2midi
 control2midi_so_SOURCES = control2midi.cpp
 control2midi_so_CFLAGS = $(PLUGINCFLAGS)
 control2midi_so_LDFLAGS = $(PLUGINARCHIVES)
+
+# Euphoria
+euphoria_lv2_MODULES = euphoria.so
+euphoria_lv2_DATA = manifest.ttl euphoria.ttl presets.ttl
+euphoria_lv2_PEGFILES = euphoria.peg
+euphoria_lv2_SOURCEDIR = plugins/euphoria
+euphoria_so_SOURCES = \
+	euphoria.cpp \
+	shaper.hpp shaper.cpp \
+	pdoscillator.hpp \
+	wsvoice.cpp wsvoice.hpp \
+	pdvoice.hpp pdvoice.cpp \
+	chorus.hpp chorus.cpp \
+	echo.hpp echo.cpp \
+	reverb.hpp
+euphoria_so_CFLAGS = $(ADVANCEDCFLAGS) -Ilibraries/components `pkg-config --cflags gsl`
+euphoria_so_LDFLAGS = `pkg-config --libs gsl lv2-plugin`
+
+# Euphoria GUI
+euphoria_gtk_lv2_MANIFEST = gui_manifest.ttl
+euphoria_gtk_lv2_MODULES = euphoria_gtk.so
+euphoria_gtk_lv2_SOURCEDIR = plugins/euphoria
+euphoria_gtk_so_SOURCES = \
+	euphoria_gtk.cpp \
+	euphoriawidget.cpp euphoriawidget.hpp
+euphoria_gtk_so_CFLAGS = `pkg-config --cflags gtkmm-2.4 cairomm-1.0 lv2-gui` -Ilibraries/widgets
+euphoria_gtk_so_LDFLAGS = `pkg-config --libs gtkmm-2.4 cairomm-1.0 lv2-gui` 
+euphoria_gtk_so_ARCHIVES = \
+	libraries/widgets/libvgknob.a \
+	libraries/widgets/libenvelopeeditor.a \
+	libraries/widgets/libshapereditor.a \
+	libraries/widgets/libspringeditor.a \
+	libraries/widgets/libpdeditor.a \
+	libraries/widgets/libtransitioneditor.a \
+#euphoria_gtk_lv2_POSTINSTALL = $(RESIDENTGUI) >> euphoria_gtk.lv2/manifest.ttl
 
 # Klaviatur
 klaviatur_lv2_MODULES = klaviatur.so
