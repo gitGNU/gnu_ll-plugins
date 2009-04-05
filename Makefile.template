@@ -289,8 +289,8 @@ DEPDIRS = $(shell for i in . */ */*/ */*/*/ */*/*/*/; do echo -n " -I$$i"; done)
 %.dep: %
 	@echo -n Generating dependencies for $<...
 	@echo -n .
-	@$(CC) -MM $(DEPDIRS) $(PKG_DEPDIRS) -MT $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$<)) -o $@ $<
-	@$(CC) -MM $(DEPDIRS) $(PKG_DEPDIRS) -MT $@ -o $@.dep $<
+	@$(CC) -MM -MG $(DEPDIRS) $(PKG_DEPDIRS) -MT $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$<)) -o $@ $<
+	@$(CC) -MM -MG $(DEPDIRS) $(PKG_DEPDIRS) -MT $@ -o $@.dep $<
 	@cat $@.dep >> $@
 	@rm -f $@.dep
 	@cat $@ | sed -e 's/ *\\$$//' -e 's/^[^:]*: *//' -e 's/^ *//' -e 's/ /\n/' | sed -e 's/[^ ]$$/&:/' > $@.alltgts
