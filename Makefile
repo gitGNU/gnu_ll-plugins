@@ -132,6 +132,7 @@ arpeggiator_lv2_SOURCEDIR = plugins/arpeggiator
 # Peak meter
 peakmeter_lv2_MODULES = peakmeter.so
 peakmeter_so_SOURCES = peakmeter.cpp
+peakmeter_lv2_PEGFILES = peakmeter.peg
 peakmeter_so_CFLAGS = $(PLUGINCFLAGS)
 peakmeter_so_LDFLAGS = $(PLUGINARCHIVES)
 peakmeter_lv2_DATA = manifest.ttl peakmeter.ttl icon.svg

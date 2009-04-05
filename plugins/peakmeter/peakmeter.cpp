@@ -24,6 +24,7 @@
 #include <cmath>
 
 #include "lv2plugin.hpp"
+#include "peakmeter.peg"
 
 
 /** This template class implements a plugin that takes an audio input signal
@@ -73,5 +74,5 @@ protected:
 
 
 // here we instantiate one mono plugin and one stereo plugin
-static unsigned _1 = PeakMeter<1>::register_class("http://ll-plugins.nongnu.org/lv2/dev/peakmeter/0");
-static unsigned _2 = PeakMeter<2>::register_class("http://ll-plugins.nongnu.org/lv2/dev/peakmeter-stereo/0");
+static unsigned _1 = PeakMeter<1>::register_class(v_uri);
+static unsigned _2 = PeakMeter<2>::register_class(v2_uri);
