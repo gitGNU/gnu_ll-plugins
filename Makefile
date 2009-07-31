@@ -8,7 +8,7 @@ PKG_DEPS = \
 	lv2-plugin>=1.0.0 \
 	lv2-gui>=1.0.0 \
 	paq>=1.0.0 \
-	sndfile>=1.0.16 \
+	sndfile>=1.0.18 \
 	samplerate>=0.1.2
 
 
