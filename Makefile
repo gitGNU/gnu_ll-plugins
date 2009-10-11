@@ -7,7 +7,6 @@ PKG_DEPS = \
 	lash-1.0>=0.5.1 \
 	lv2-plugin>=1.0.0 \
 	lv2-gui>=1.0.0 \
-	paq>=1.0.0 \
 	sndfile>=1.0.18 \
 	samplerate>=0.1.2
 
@@ -19,8 +18,6 @@ ARCHIVES = \
 	libenvelopeeditor.a \
 	libkeyboard.a \
 	libvuwidget.a
-
-PROGRAMS = elven
 
 LV2_BUNDLES = \
 	arpeggiator.lv2 \
@@ -52,19 +49,6 @@ libenvelopeeditor_a_SOURCEDIR = libraries/widgets
 libvuwidget_a_SOURCES = vuwidget.hpp vuwidget.cpp
 libvuwidget_a_CFLAGS = `pkg-config --cflags gtkmm-2.4`
 libvuwidget_a_SOURCEDIR = libraries/widgets
-
-
-# Executable programs
-
-elven_SOURCES = \
-	debug.hpp \
-	lv2guihost.hpp lv2guihost.cpp \
-	lv2host.hpp lv2host.cpp \
-	main.cpp \
-	midiutils.hpp
-elven_CFLAGS = `pkg-config --cflags jack gtkmm-2.4 lash-1.0 sigc++-2.0 lv2-plugin lv2-gui paq` -Ilibraries/components -DVERSION=\"$(PACKAGE_VERSION)\"
-elven_LDFLAGS = `pkg-config --libs jack gtkmm-2.4 lash-1.0 sigc++-2.0 paq` -lpthread
-elven_SOURCEDIR = programs/elven
 
 
 # The plugins
