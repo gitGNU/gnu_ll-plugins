@@ -1,0 +1,25 @@
+ELVEN
+=============
+This is a host for LV2 plugins. It is a very simple host, all it does
+is run one plugin, optionally with a GUI, as a JACK client.
+
+To build and install, run
+
+ ./configure
+ make
+ su -c 'make install'
+
+You can pass some options to configure, e.g. --prefix=/usr to install
+everything in /usr (the default is /usr/local).
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public Licence as published by
+the Free Software Foundation, either version 3 of the Licence, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+file COPYING for more details.
+
+Send bug reports, postcards and pancakes to lars.luthman@gmail.com.
