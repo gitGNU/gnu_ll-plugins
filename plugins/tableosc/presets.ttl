@@ -9,6 +9,6 @@
     pr:hasLabel "Money";
     pr:midiProgram 0;
     pr:inBank <http://ll-plugins.nongnu.org/lv2/dev/tableosc/0/banks/0>;
-    pr:hasPortValue [ pr:forPort 0; rdf:value 1; ],
+    pr:hasPortValue [ pr:forPort 0; rdf:value 1; ];
     pr:hasFile [ pr:fileName "table"; pr:filePath <money.wav>; ];
   ].
