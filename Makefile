@@ -1,5 +1,5 @@
 PACKAGE_NAME = ll-plugins
-PACKAGE_VERSION = 0.2.1
+PACKAGE_VERSION = $(shell ./VERSION)
 PKG_DEPS = \
 	cairomm-1.0>=1.2.4 \
 	gtkmm-2.4>=2.8.8 \

@@ -27,6 +27,8 @@
 #include <string>
 #include <vector>
 
+#include <stdint.h>
+
 #include <gtkmm.h>
 
 #include "skindial_gtkmm.hpp"
