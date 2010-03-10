@@ -28,7 +28,8 @@
 #include <string>
 
 #include <lv2synth.hpp>
-#include <lv2_osc.h>
+// XXX - Really shouldn't rely on internal headers of lv2-c++-tools
+#include <lv2cxx_common/lv2_osc.h>
 
 #include "beep.peg"
 

@@ -23,7 +23,8 @@
 #include <cmath>
 #include <iostream>
 
-#include <lv2_event_helpers.h>
+// XXX - Really shouldn't rely on internal headers of lv2-c++-tools
+#include <lv2cxx_common/lv2_event_helpers.h>
 
 #include "sineshaper.hpp"
 #include "sineshaperports.hpp"

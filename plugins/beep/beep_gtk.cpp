@@ -25,7 +25,8 @@
 
 #include <gtkmm.h>
 #include <lv2gui.hpp>
-#include <lv2_event_helpers.h>
+// XXX - Really shouldn't rely on internal headers of lv2-c++-tools
+#include <lv2cxx_common/lv2_event_helpers.h>
 
 #include "beep.peg"
 

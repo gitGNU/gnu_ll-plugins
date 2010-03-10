@@ -21,10 +21,12 @@
 
 ****************************************************************************/
 
+#include <iomanip>
 #include <iostream>
 #include <lv2plugin.hpp>
 #include "klaviatur.peg"
-#include "lv2_event_helpers.h"
+// XXX - Really shouldn't rely on internal headers of lv2-c++-tools
+#include <lv2cxx_common/lv2_event_helpers.h>
 
 
 using namespace LV2;
@@ -61,8 +63,13 @@ public:
       lv2_event_increment(&in);
       if (ev->type == 0)
 	event_unref(ev);
-      if (ev->type == m_midi_type && ev->size == 3)
+      if (ev->type == m_midi_type && ev->size == 3) {
+	cerr<<"KLAVIATUR: Copying MIDI event "<<hex<<setw(2)<<setfill('0')
+	    <<(unsigned)(data[0])<<' '
+	    <<(unsigned)(data[1])<<' '
+	    <<(unsigned)(data[2])<<endl;
 	lv2_event_write_event(&out, ev, data);
+      }
     }
     
   }
