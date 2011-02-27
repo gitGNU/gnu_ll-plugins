@@ -26,7 +26,7 @@
 
 #include <gtkmm.h>
 
-#include "lv2gui.hpp"
+#include "lv2gtkgui.hpp"
 #include "klaviatur.peg"
 #include "keyboard.hpp"
 
@@ -50,7 +50,7 @@ namespace {
 
 
 
-class KlaviaturGUI : public GUI<KlaviaturGUI, URIMap<true>, WriteMIDI<true> > {
+class KlaviaturGUI : public GtkGUI<KlaviaturGUI, URIMap<true>, WriteMIDI<true> > {
 public:
   
   KlaviaturGUI(const std::string& URI) 

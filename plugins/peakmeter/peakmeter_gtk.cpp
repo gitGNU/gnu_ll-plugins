@@ -25,7 +25,7 @@
 
 #include <gtkmm.h>
 
-#include "lv2gui.hpp"
+#include "lv2gtkgui.hpp"
 #include "vuwidget.hpp"
 
 
@@ -35,12 +35,12 @@ using namespace sigc;
 
 
 template <unsigned C>
-class PeakMeterGUI : public LV2::GUI< PeakMeterGUI<C> > {
+class PeakMeterGUI : public LV2::GtkGUI< PeakMeterGUI<C> > {
 public:
   
   PeakMeterGUI(const std::string& URI) 
     : m_vu(C) {
-    LV2::GUI< PeakMeterGUI<C> >::add(m_vu);
+    LV2::GtkGUI< PeakMeterGUI<C> >::add(m_vu);
   }
   
   void port_event(uint32_t port, uint32_t buffer_size, 

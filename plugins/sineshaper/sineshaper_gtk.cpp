@@ -25,7 +25,7 @@
 
 #include <gtkmm.h>
 
-#include "lv2gui.hpp"
+#include "lv2gtkgui.hpp"
 #include "sineshaperwidget.hpp"
 #include "sineshaper.peg"
 
@@ -35,20 +35,16 @@ using namespace Gtk;
 using namespace sigc;
 
 
-class SineshaperGUI : public LV2::GUI<SineshaperGUI, LV2::Presets<false> > {
+class SineshaperGUI : public LV2::GtkGUI<SineshaperGUI> {
 public:
   
   SineshaperGUI(const std::string& URI)
-    : m_sshp(bundle_path(), host_supports_presets()) {
+    : m_sshp(bundle_path(), false) {
     
     pack_start(m_sshp);
 
     m_sshp.signal_control_changed.
       connect(mem_fun(*this, &SineshaperGUI::write_control));
-    m_sshp.signal_preset_changed.
-      connect(mem_fun(*this, &SineshaperGUI::change_preset));
-    m_sshp.signal_save_preset.
-      connect(mem_fun(*this, &SineshaperGUI::save_preset));
   }
   
   void port_event(uint32_t port, uint32_t buffer_size, 
