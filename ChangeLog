@@ -1,3 +1,6 @@
+Version 0.2.x (ONGOING):
+	* Added -ldl to Elven linker flags (reported by Dave Robillard)
+
 Version 0.2.8 (2010-02-12):
 	* Fixed build system bug that added $(LDFLAGS) to the static linker
 	  (reported by Philipp Überbacher)
