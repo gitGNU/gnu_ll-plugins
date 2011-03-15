@@ -142,6 +142,13 @@ $$($(2)_BLDPRF)/$(1).$$($(2)_IFSFX): $$($(2)_OBJECTS) $$($(2)_ARCHIVES) $$($(2)_
 	$(CXX) $(SHARED_LIBRARY_LDFLAGS) $$($(2)_OBJECTS) -Wl,--whole-archive $$($(2)_ARCHIVES) -Wl,--no-whole-archive $$($(2)_LOCALLDFLAGS) $$($(2)_LOCALLIBRARIES) $(LDFLAGS) $$($(2)_LDFLAGS) -o $$@ -Wl,-soname=$(1).$$($(2)_IFACE)
 
 # LV2 PLUGINS
+ifeq ($(UNAME),Darwin)
+LV2PLUGIN_LDFLAGS = -bundle
+LV2PLUGIN_CFLAGS = -fno-common
+else
+LV2PLUGIN_LDFLAGS = -shared -fPIC
+LV2PLUGIN_CFLAGS = -fPIC -DPIC
+endif
 
 define LV2_BUNDLE_template
 
@@ -480,3 +487,21 @@ internal-test-report:
 	  status=$$?; \
 	  echo $$status > $(TESTREPORT)/$$test/exit_status; \
 	done
+
+
+# RELEASE ANNOUNCEMENT
+export PACKAGE_DESCRIPTION
+release-mail:
+	@echo "$(PACKAGE_DISPLAY_NAME) $(PACKAGE_VERSION) has been released."
+	@echo ""
+	@echo "$$PACKAGE_DESCRIPTION"
+	@echo ""
+	@echo "Changes:"
+	@end=`grep -n -m 1 '^$$' ChangeLog | sed 's/:.*//'`; head -n $$(($$end - 1)) ChangeLog | tail -n +2 | sed 's/\t/ /g'
+	@echo ""
+	@echo "Tarball:"
+	@echo "GPG signature file:"
+	@echo ""
+	@echo "Webpage: $(PACKAGE_WEBPAGE)"
+	@echo "Bug tracker: $(PACKAGE_BUGTRACKER)"
+	@echo "Version control: $(PACKAGE_VC)"
