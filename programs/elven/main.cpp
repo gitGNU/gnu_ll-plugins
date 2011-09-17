@@ -335,6 +335,7 @@ void jackmidi2lv2midi(jack_port_t* jack_port, LV2Port& port,
       float& min = host.get_ports()[port].min_value;
       float& max = host.get_ports()[port].max_value;
       *pbuf = min + (max - min) * input_event.buffer[2] / 127.0;
+      DBG3("Mapped CC event to port "<<port);
       // XXX notify the main thread somehow
       //host.queue_control(port, *pbuf, false);
     }

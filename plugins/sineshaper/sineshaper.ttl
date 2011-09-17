@@ -39,7 +39,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 2;
     lv2:default 1;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 16;
     ];
     pg:membership [ pg:group plug:tuning; ];
@@ -54,7 +54,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 10;
     lv2:default 0;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 17;
     ];
     pg:membership [ pg:group plug:tuning; ];
@@ -69,7 +69,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 2;
     lv2:default 0.94;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 18;
     ];
     pg:membership [ pg:group plug:osc2; ];
@@ -84,7 +84,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 10;
     lv2:default -5;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 19;
     ];
     pg:membership [ pg:group plug:osc2; ];
@@ -99,7 +99,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 1;
     lv2:default 0.13;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 95;
     ];
     pg:membership [ pg:group plug:osc2; ];
@@ -114,7 +114,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 1;
     lv2:default 0;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 65;
     ];
     pg:membership [ pg:group plug:portamento; ];
@@ -129,7 +129,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 3;
     lv2:default 0.06;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 5;
     ];
     pg:membership [ pg:group plug:portamento; ];
@@ -144,7 +144,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 1;
     lv2:default 0;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 68;
     ];
     pg:membership [ pg:group plug:portamento; ];
@@ -159,7 +159,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 10;
     lv2:default 0;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 2;
     ];
     pg:membership [ pg:group plug:vibrato; ];
@@ -174,7 +174,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 0.25;
     lv2:default 0;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 1;
     ];
     pg:membership [ pg:group plug:vibrato; ];
@@ -189,7 +189,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 10;
     lv2:default 0;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 75;
     ];
     pg:membership [ pg:group plug:tremolo; ];
@@ -204,7 +204,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 1;
     lv2:default 0;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 92;
     ];
     pg:membership [ pg:group plug:tremolo; ];
@@ -219,7 +219,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 1;
     lv2:default 1;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 71;
     ];
     pg:membership [ pg:group plug:shaper; ];
@@ -234,7 +234,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 6;
     lv2:default 3.54331;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 74;
     ];
     pg:membership [ pg:group plug:shaper; ];
@@ -249,7 +249,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 1;
     lv2:default 0.305;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 70;
     ];
     pg:membership [ pg:group plug:shaper; ];
@@ -264,7 +264,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 1;
     lv2:default 0;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 76;
     ];
     pg:membership [ pg:group plug:shaper; ];
@@ -279,7 +279,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 10;
     lv2:default 0;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 77;
     ];
     pg:membership [ pg:group plug:shaper; ];
@@ -294,7 +294,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 1;
     lv2:default 0.005;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 78;
     ];
     pg:membership [ pg:group plug:shaper; ];
@@ -309,7 +309,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 1;
     lv2:default 0.0005;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 73;
     ];
     pg:membership [ pg:group plug:envelope; ];
@@ -324,7 +324,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 1;
     lv2:default 0.40035;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 4;
     ];
     pg:membership [ pg:group plug:envelope; ];
@@ -339,7 +339,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 1;
     lv2:default 0.125;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 79;
     ];
     pg:membership [ pg:group plug:envelope; ];
@@ -354,7 +354,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 3;
     lv2:default 0.8465;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 72;
     ];
     pg:membership [ pg:group plug:release; ];
@@ -369,7 +369,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 1;
     lv2:default 0;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 93;
     ];
     pg:membership [ pg:group plug:amplifier; ];
@@ -384,7 +384,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 1;
     lv2:default 0;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 94;
     ];
     pg:membership [ pg:group plug:amplifier; ];
@@ -399,7 +399,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 2;
     lv2:default 0.74;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 7;
     ];
     pg:membership [ pg:group plug:amplifier; ];
@@ -414,7 +414,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 3;
     lv2:default 0.3;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 12;
     ];
     pg:membership [ pg:group plug:delay; ];
@@ -429,7 +429,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 1;
     lv2:default 0.185;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 13;
     ];
     pg:membership [ pg:group plug:delay; ];
@@ -444,7 +444,7 @@ plug:delay      rdfs:label "Delay".
     lv2:maximum 1;
     lv2:default 0.345;
     mm:defaultMidiController [
-      mm:controllerType ll:CC;
+      mm:controllerType mm:CC;
       mm:controllerNumber 91;
     ];
     pg:membership [ pg:group plug:delay; ];

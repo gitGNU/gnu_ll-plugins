@@ -133,10 +133,10 @@ void LV2Host::run_main() {
     DBG2("Got notification from realtime thread about port change");
     while (!sem_trywait(&m_notification_sem));
     for (unsigned i = 0; i < m_ports.size(); ++i) {
-      if (m_ports[i].notify && m_ports[i].direction == OutputPort) {
-	// XXX this should only happen if the port value has actually changed
-	DBG2("Sending port event for output port "<<i);
-	signal_port_event(i, sizeof(float), 0, &m_ports[i].old_value);
+      if (m_ports[i].notify) {
+        // XXX this should only happen if the port value has actually changed
+        DBG2("Sending port event for output port "<<i);
+        signal_port_event(i, sizeof(float), 0, &m_ports[i].old_value);
       }
     }
   }
